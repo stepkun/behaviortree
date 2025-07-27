@@ -1,7 +1,7 @@
 // Copyright © 2024 Stephan Kunz
 #![no_std]
 
-//! Behavior library of `DiMAS`.
+//! Behavior librarysimilar to .
 
 #[doc(hidden)]
 extern crate alloc;

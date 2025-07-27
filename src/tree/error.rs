@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `dimas-behavior` tree errors
+//! `behaviortree` tree errors
 
 #[doc(hidden)]
 extern crate alloc;
@@ -11,7 +11,7 @@ use thiserror::Error;
 // endregion:	--- modules
 
 // region:		--- Error
-/// `dimas-core` behavior error type
+/// `behaviortree` tree error type
 #[derive(Error, Debug)]
 pub enum Error {
 	/// Pass through behavior error

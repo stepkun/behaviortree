@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Built in [`Sleep`] action behavior of `DiMAS`
+//! Built in [`Sleep`] action behavior
 
 // region:      --- modules
 use alloc::boxed::Box;

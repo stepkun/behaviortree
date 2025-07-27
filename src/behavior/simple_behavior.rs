@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `DiMAS` implementation for registering functions as behavior
+//! Implementation for registering functions as behavior
 
 // region:      --- modules
 use alloc::{boxed::Box, sync::Arc};

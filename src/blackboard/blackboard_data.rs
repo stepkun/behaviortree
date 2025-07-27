@@ -2,7 +2,7 @@
 #![allow(unused)]
 #![allow(dead_code)]
 
-//! Blackboard of `DiMAS`
+//! Blackboard for behaviortree
 
 // region:      --- modules
 use crate::ConstString;

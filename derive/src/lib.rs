@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Derive macro [`Behavior`] for `dimas-behavior`
+//! Derive macro [`Behavior`] for `behaviortree`
 //!
 
 #[doc(hidden)]
@@ -76,7 +76,7 @@ use syn::DeriveInput;
 ///
 /// # Panics
 /// - if used on enums or unions
-#[proc_macro_derive(Behavior, attributes(dimas))]
+#[proc_macro_derive(Behavior, attributes(behaviortree))]
 pub fn derive_behavior(input: TokenStream) -> TokenStream {
 	// Construct a representation of the Rust code
 	let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");

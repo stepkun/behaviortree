@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! XML writer for `DiMAS`
+//! XML writer for `behaviortree`
 
 #[doc(hidden)]
 #[cfg(feature = "std")]

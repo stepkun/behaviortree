@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Implementation for shared usage of [`BlackboardNode`]s within `DiMAS`.
-//!
+//! Implementation for shared usage of [`BlackboardNode`]s.
 
 #[doc(hidden)]
 #[cfg(feature = "std")]

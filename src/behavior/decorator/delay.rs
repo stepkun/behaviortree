@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Built in [`Delay`] decorator of `DiMAS`
+//! Built in [`Delay`] decorator
 
 // region:      --- modules
 use alloc::boxed::Box;

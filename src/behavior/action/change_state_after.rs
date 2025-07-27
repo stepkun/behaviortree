@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Built in `AlwaysXxx` behavior of `DiMAS`
+//! Built in `AlwaysXxx` behavior
 //!
 
 // region:      --- modules

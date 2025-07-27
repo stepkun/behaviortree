@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Built in scripted action behavior of `DiMAS`
+//! Built in scripted action behavior
 
 // region:      --- modules
 use alloc::{boxed::Box, string::String};

@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `dimas-behavior` Port implementation
+//! `behaviortree` Port implementation
 
 #[doc(hidden)]
 extern crate alloc;

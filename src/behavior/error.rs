@@ -1,6 +1,6 @@
 // Copyright © 2024 Stephan Kunz
 
-//! `dimas-behavior` behavior errors
+//! `behaviortree` behavior errors
 
 #[doc(hidden)]
 extern crate alloc;
@@ -13,7 +13,7 @@ use thiserror::Error;
 // endregion:	--- modules
 
 // region:		--- BehaviorError
-/// `dimas-behavior` behavior error type
+/// `behaviortree` behavior error type
 #[derive(Error, Debug)]
 pub enum BehaviorError {
 	/// Pass through blackboard error

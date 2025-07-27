@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Run all tests for dimas-behavior macros
+//! Run all tests for behaviortree macros
 
 #[test]
 fn tests() {

@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! XML parser for the [`BehaviorTreeFactory`] of `DiMAS`
+//! XML parser for the [`BehaviorTreeFactory`]
 
 #[doc(hidden)]
 #[cfg(feature = "std")]

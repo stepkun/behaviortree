@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Blackboard implementation for `DiMAS`.
+//! Blackboard module for `behaviortree`.
 //!
-//! In `DiMAS` the `Blackboard`s are used in a hierarchical structure, remapping the key names
+//! In `behaviortree` the `Blackboard`s are used in a hierarchical structure, remapping the key names
 //! and partly "inheriting" values from parent `Blackboard`s.
 //!
 

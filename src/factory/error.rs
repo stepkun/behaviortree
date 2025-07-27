@@ -16,7 +16,7 @@ use thiserror::Error;
 // endregion:	--- modules
 
 // region:		--- Error
-/// `dimas` error type
+/// `behaviortree` error type
 #[derive(Error, Debug)]
 pub enum Error {
 	/// Passthrough for `BehaviorErrors`

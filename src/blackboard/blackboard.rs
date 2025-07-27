@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Implementation for using a tree hierarchy of [`Blackboard`]s within `DiMAS`.
+//! Implementation for using a tree hierarchy of [`Blackboard`]s within `behaviortree`.
 //!
 //! This separates the hierarchy from the [`Blackboard`] itself, allowing a [`Blackboard`]
 //! beeing part of multiple hierarchies without interferences between those.

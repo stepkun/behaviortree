@@ -15,7 +15,7 @@ error[E0277]: the trait bound `TestBehavior: BehaviorStatic` is not satisfied
             KeepRunningUntilFailure
           and $N others
 note: required by a bound in `behaviortree::Behavior`
- --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+ --> $WORKSPACE/commons/behaviortree/src/behavior/mod.rs
   |
   | pub trait Behavior: BehaviorExecution + BehaviorStatic + BehaviorCreation {}
   |                                         ^^^^^^^^^^^^^^ required by this bound in `Behavior`
@@ -38,7 +38,7 @@ error[E0277]: the trait bound `TestBehavior: BehaviorInstance` is not satisfied
           and $N others
   = note: required for `TestBehavior` to implement `BehaviorExecution`
 note: required by a bound in `behaviortree::Behavior`
- --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+ --> $WORKSPACE/commons/behaviortree/src/behavior/mod.rs
   |
   | pub trait Behavior: BehaviorExecution + BehaviorStatic + BehaviorCreation {}
   |                     ^^^^^^^^^^^^^^^^^ required by this bound in `Behavior`
@@ -50,7 +50,7 @@ error[E0277]: the trait bound `TestBehavior: Default` is not satisfied
   |        ^^^^^^^^^^^^ the trait `Default` is not implemented for `TestBehavior`
   |
 note: required by a bound in `BehaviorCreation`
- --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+ --> $WORKSPACE/commons/behaviortree/src/behavior/mod.rs
   |
   | pub trait BehaviorCreation: Default {
   |                             ^^^^^^^ required by this bound in `BehaviorCreation`
@@ -77,7 +77,7 @@ error[E0277]: the trait bound `TestBehavior: BehaviorInstance` is not satisfied
             KeepRunningUntilFailure
           and $N others
 note: required by a bound in `BehaviorExecution`
- --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+ --> $WORKSPACE/commons/behaviortree/src/behavior/mod.rs
   |
   | pub trait BehaviorExecution: Any + BehaviorInstance + BehaviorRedirection {
   |                                    ^^^^^^^^^^^^^^^^ required by this bound in `BehaviorExecution`
@@ -91,7 +91,7 @@ error[E0277]: `TestBehavior` doesn't implement `Debug`
   = help: the trait `Debug` is not implemented for `TestBehavior`
   = note: add `#[derive(Debug)]` to `TestBehavior` or manually `impl Debug for TestBehavior`
 note: required by a bound in `BehaviorRedirection`
- --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+ --> $WORKSPACE/commons/behaviortree/src/behavior/mod.rs
   |
   | pub trait BehaviorRedirection: core::fmt::Debug + Send + Sync {
   |                                ^^^^^^^^^^^^^^^^ required by this bound in `BehaviorRedirection`

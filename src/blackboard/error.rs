@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `dimas-behavior` Blackboard errors
+//! `behaviortree` Blackboard errors
 
 #[doc(hidden)]
 extern crate alloc;

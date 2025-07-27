@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `dimas-behavior` Port errors
+//! `behaviortree` Port errors
 
 #[doc(hidden)]
 extern crate alloc;
