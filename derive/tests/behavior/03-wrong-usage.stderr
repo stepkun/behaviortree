@@ -1,0 +1,128 @@
+error[E0277]: the trait bound `TestBehavior: BehaviorStatic` is not satisfied
+ --> tests/behavior/03-wrong-usage.rs:9:8
+  |
+9 | struct TestBehavior;
+  |        ^^^^^^^^^^^^ the trait `BehaviorStatic` is not implemented for `TestBehavior`
+  |
+  = help: the following other types implement trait `BehaviorStatic`:
+            ChangeStateAfter
+            Delay
+            EntryUpdated
+            Fallback
+            ForceState
+            IfThenElse
+            Inverter
+            KeepRunningUntilFailure
+          and $N others
+note: required by a bound in `behaviortree::Behavior`
+ --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+  |
+  | pub trait Behavior: BehaviorExecution + BehaviorStatic + BehaviorCreation {}
+  |                                         ^^^^^^^^^^^^^^ required by this bound in `Behavior`
+
+error[E0277]: the trait bound `TestBehavior: BehaviorInstance` is not satisfied
+ --> tests/behavior/03-wrong-usage.rs:9:8
+  |
+9 | struct TestBehavior;
+  |        ^^^^^^^^^^^^ the trait `BehaviorInstance` is not implemented for `TestBehavior`
+  |
+  = help: the following other types implement trait `BehaviorInstance`:
+            ChangeStateAfter
+            Delay
+            EntryUpdated
+            Fallback
+            ForceState
+            IfThenElse
+            Inverter
+            KeepRunningUntilFailure
+          and $N others
+  = note: required for `TestBehavior` to implement `BehaviorExecution`
+note: required by a bound in `behaviortree::Behavior`
+ --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+  |
+  | pub trait Behavior: BehaviorExecution + BehaviorStatic + BehaviorCreation {}
+  |                     ^^^^^^^^^^^^^^^^^ required by this bound in `Behavior`
+
+error[E0277]: the trait bound `TestBehavior: Default` is not satisfied
+ --> tests/behavior/03-wrong-usage.rs:9:8
+  |
+9 | struct TestBehavior;
+  |        ^^^^^^^^^^^^ the trait `Default` is not implemented for `TestBehavior`
+  |
+note: required by a bound in `BehaviorCreation`
+ --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+  |
+  | pub trait BehaviorCreation: Default {
+  |                             ^^^^^^^ required by this bound in `BehaviorCreation`
+help: consider annotating `TestBehavior` with `#[derive(Default)]`
+  |
+9  + #[derive(Default)]
+10 | struct TestBehavior;
+   |
+
+error[E0277]: the trait bound `TestBehavior: BehaviorInstance` is not satisfied
+ --> tests/behavior/03-wrong-usage.rs:9:8
+  |
+9 | struct TestBehavior;
+  |        ^^^^^^^^^^^^ the trait `BehaviorInstance` is not implemented for `TestBehavior`
+  |
+  = help: the following other types implement trait `BehaviorInstance`:
+            ChangeStateAfter
+            Delay
+            EntryUpdated
+            Fallback
+            ForceState
+            IfThenElse
+            Inverter
+            KeepRunningUntilFailure
+          and $N others
+note: required by a bound in `BehaviorExecution`
+ --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+  |
+  | pub trait BehaviorExecution: Any + BehaviorInstance + BehaviorRedirection {
+  |                                    ^^^^^^^^^^^^^^^^ required by this bound in `BehaviorExecution`
+
+error[E0277]: `TestBehavior` doesn't implement `Debug`
+ --> tests/behavior/03-wrong-usage.rs:9:8
+  |
+9 | struct TestBehavior;
+  |        ^^^^^^^^^^^^ `TestBehavior` cannot be formatted using `{:?}`
+  |
+  = help: the trait `Debug` is not implemented for `TestBehavior`
+  = note: add `#[derive(Debug)]` to `TestBehavior` or manually `impl Debug for TestBehavior`
+note: required by a bound in `BehaviorRedirection`
+ --> $WORKSPACE/commons/dimas-behavior/src/behavior/mod.rs
+  |
+  | pub trait BehaviorRedirection: core::fmt::Debug + Send + Sync {
+  |                                ^^^^^^^^^^^^^^^^ required by this bound in `BehaviorRedirection`
+help: consider annotating `TestBehavior` with `#[derive(Debug)]`
+  |
+9   + #[derive(Debug)]
+10  | struct TestBehavior;
+    |
+
+error[E0599]: no function or associated item named `default` found for struct `TestBehavior` in the current scope
+ --> tests/behavior/03-wrong-usage.rs:8:10
+  |
+8 | #[derive(behaviortree_derive::Behavior)]
+  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ function or associated item not found in `TestBehavior`
+9 | struct TestBehavior;
+  | ------------------- function or associated item `default` not found for this struct
+  |
+  = help: items from traits can only be used if the trait is implemented and in scope
+  = note: the following trait defines an item `default`, perhaps you need to implement it:
+          candidate #1: `Default`
+  = note: this error originates in the derive macro `behaviortree_derive::Behavior` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no function or associated item named `provided_ports` found for struct `TestBehavior` in the current scope
+ --> tests/behavior/03-wrong-usage.rs:8:10
+  |
+8 | #[derive(behaviortree_derive::Behavior)]
+  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ function or associated item not found in `TestBehavior`
+9 | struct TestBehavior;
+  | ------------------- function or associated item `provided_ports` not found for this struct
+  |
+  = help: items from traits can only be used if the trait is implemented and in scope
+  = note: the following trait defines an item `provided_ports`, perhaps you need to implement it:
+          candidate #1: `BehaviorStatic`
+  = note: this error originates in the derive macro `behaviortree_derive::Behavior` (in Nightly builds, run with -Z macro-backtrace for more info)

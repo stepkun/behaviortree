@@ -1,15 +1,17 @@
 # Copyright © 2025 Stephan Kunz
 [package]
+resolver = "3"
 name = "behaviortree-derive"
-version = "0.0.0"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
-license = "MIT OR Apache-2.0"
+description = "Derive macros for behaviortree"
 edition = "2024"
+version = "0.1.0"
 rust-version = "1.86.0"
-description = "Procedural macros for behaviortree"
+#license = "NGMC"
+license-file = "LICENSE"
+repository = "https://github.com/stepkun/behaviortree.git"
 documentation = "https://docs.rs/behaviortree-derive/latest/behaviortree-derive/"
-repository = "https://github.com/stepkun/behaviortree"
-readme = "../README.md"
+readme = "README.md"
 exclude = [
     "benches/**",
     "examples/**",

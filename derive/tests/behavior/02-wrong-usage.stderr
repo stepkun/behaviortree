@@ -1,0 +1,5 @@
+error: expected attribute, found derive macro `behaviortree_derive::Behavior`
+ --> tests/behavior/02-wrong-usage.rs:5:3
+  |
+5 | #[behaviortree_derive::Behavior]
+  |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not an attribute
