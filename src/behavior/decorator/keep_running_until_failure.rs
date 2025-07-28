@@ -10,9 +10,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{
+        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
+    },
+    tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -32,35 +35,35 @@ pub struct KeepRunningUntilFailure;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for KeepRunningUntilFailure {
-	async fn tick(
-		&mut self,
-		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		match children[0].tick(runtime).await? {
-			BehaviorState::Failure => {
-				children.halt(runtime)?;
-				Ok(BehaviorState::Failure)
-			}
-			BehaviorState::Idle => Err(BehaviorError::Composition(
-				"KeepRunningUntilFailure should never return 'Idle'".into(),
-			)),
-			BehaviorState::Running => Ok(BehaviorState::Running),
-			BehaviorState::Skipped => Err(BehaviorError::Composition(
-				"KeepRunningUntilFailure should never return 'Skipped'".into(),
-			)),
-			BehaviorState::Success => {
-				children.halt(runtime)?;
-				Ok(BehaviorState::Running)
-			}
-		}
-	}
+    async fn tick(
+        &mut self,
+        _behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        match children[0].tick(runtime).await? {
+            BehaviorState::Failure => {
+                children.halt(runtime)?;
+                Ok(BehaviorState::Failure)
+            }
+            BehaviorState::Idle => Err(BehaviorError::Composition(
+                "KeepRunningUntilFailure should never return 'Idle'".into(),
+            )),
+            BehaviorState::Running => Ok(BehaviorState::Running),
+            BehaviorState::Skipped => Err(BehaviorError::Composition(
+                "KeepRunningUntilFailure should never return 'Skipped'".into(),
+            )),
+            BehaviorState::Success => {
+                children.halt(runtime)?;
+                Ok(BehaviorState::Running)
+            }
+        }
+    }
 }
 
 impl BehaviorStatic for KeepRunningUntilFailure {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Decorator
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Decorator
+    }
 }
 // endregion:   --- KeepRunningUntilFailure

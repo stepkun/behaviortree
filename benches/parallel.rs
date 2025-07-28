@@ -8,17 +8,17 @@ extern crate alloc;
 
 use std::time::Duration;
 
-use criterion::{Criterion, criterion_group, criterion_main};
 use behaviortree::{
-	behavior::{
-		BehaviorState::{Running, Success},
-		BehaviorStatic,
-		action::ChangeStateAfter,
-		control::{Parallel, ParallelAll, Sequence},
-	},
-	factory::BehaviorTreeFactory,
-	register_behavior,
+    behavior::{
+        BehaviorState::{Running, Success},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{Parallel, ParallelAll, Sequence},
+    },
+    factory::BehaviorTreeFactory,
+    register_behavior,
 };
+use criterion::{Criterion, criterion_group, criterion_main};
 
 const SAMPLES: usize = 10;
 const ITERATIONS: usize = 10;
@@ -73,49 +73,55 @@ const SUBTREE: &str = r#"
 "#;
 
 fn parallel(c: &mut Criterion) {
-	let runtime = tokio::runtime::Builder::new_multi_thread()
-		.build()
-		.expect("snh");
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .build()
+        .expect("snh");
 
-	let mut group = c.benchmark_group("parallel");
-	group
-		.measurement_time(DURATION)
-		.sample_size(SAMPLES);
+    let mut group = c.benchmark_group("parallel");
+    group.measurement_time(DURATION).sample_size(SAMPLES);
 
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).expect("snh");
-	register_behavior!(factory, Parallel, "Parallel").expect("snh");
-	register_behavior!(factory, ParallelAll, "ParallelAll").expect("snh");
-	register_behavior!(factory, Sequence, "Sequence").expect("snh");
-	factory
-		.register_behavior_tree_from_text(SUBTREE)
-		.expect("snh");
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "AlwaysSuccess",
+        Running,
+        Success,
+        5
+    )
+    .expect("snh");
+    register_behavior!(factory, Parallel, "Parallel").expect("snh");
+    register_behavior!(factory, ParallelAll, "ParallelAll").expect("snh");
+    register_behavior!(factory, Sequence, "Sequence").expect("snh");
+    factory
+        .register_behavior_tree_from_text(SUBTREE)
+        .expect("snh");
 
-	let mut tree = factory.create_from_text(STANDARD).expect("snh");
-	group.bench_function("standard", |b| {
-		b.iter(|| {
-			runtime.block_on(async {
-				for _ in 1..=ITERATIONS {
-					tree.reset().await.expect("snh");
-					let _result = tree.tick_while_running().await.expect("snh");
-				}
-				std::hint::black_box(());
-			});
-		});
-	});
+    let mut tree = factory.create_from_text(STANDARD).expect("snh");
+    group.bench_function("standard", |b| {
+        b.iter(|| {
+            runtime.block_on(async {
+                for _ in 1..=ITERATIONS {
+                    tree.reset().await.expect("snh");
+                    let _result = tree.tick_while_running().await.expect("snh");
+                }
+                std::hint::black_box(());
+            });
+        });
+    });
 
-	let mut tree = factory.create_from_text(ALL).expect("snh");
-	group.bench_function("all", |b| {
-		b.iter(|| {
-			runtime.block_on(async {
-				for _ in 1..=ITERATIONS {
-					tree.reset().await.expect("snh");
-					let _result = tree.tick_while_running().await.expect("snh");
-				}
-				std::hint::black_box(());
-			});
-		});
-	});
+    let mut tree = factory.create_from_text(ALL).expect("snh");
+    group.bench_function("all", |b| {
+        b.iter(|| {
+            runtime.block_on(async {
+                for _ in 1..=ITERATIONS {
+                    tree.reset().await.expect("snh");
+                    let _result = tree.tick_while_running().await.expect("snh");
+                }
+                std::hint::black_box(());
+            });
+        });
+    });
 }
 
 criterion_group!(benches, parallel);

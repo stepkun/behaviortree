@@ -10,9 +10,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{
+        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
+    },
+    tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -26,74 +29,74 @@ use crate::{
 /// If that tick succeeds the sequence continues, children that already succeeded will not be ticked again.
 #[derive(Behavior, Debug)]
 pub struct Sequence {
-	/// Defaults to '0'
-	child_idx: usize,
-	/// Defaults to 'true'
-	all_skipped: bool,
+    /// Defaults to '0'
+    child_idx: usize,
+    /// Defaults to 'true'
+    all_skipped: bool,
 }
 
 impl Default for Sequence {
-	fn default() -> Self {
-		Self {
-			child_idx: 0,
-			all_skipped: true,
-		}
-	}
+    fn default() -> Self {
+        Self {
+            child_idx: 0,
+            all_skipped: true,
+        }
+    }
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for Sequence {
-	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.child_idx = 0;
-		self.all_skipped = true;
-		Ok(())
-	}
-	async fn tick(
-		&mut self,
-		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		while self.child_idx < children.len() {
-			let child = &mut children[self.child_idx];
-			let new_state = child.tick(runtime).await?;
+    fn on_halt(&mut self) -> Result<(), BehaviorError> {
+        self.child_idx = 0;
+        self.all_skipped = true;
+        Ok(())
+    }
+    async fn tick(
+        &mut self,
+        _behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        while self.child_idx < children.len() {
+            let child = &mut children[self.child_idx];
+            let new_state = child.tick(runtime).await?;
 
-			self.all_skipped &= new_state == BehaviorState::Skipped;
+            self.all_skipped &= new_state == BehaviorState::Skipped;
 
-			match new_state {
-				BehaviorState::Failure => {
-					children.halt(runtime)?;
-					self.child_idx = 0;
-					return Ok(BehaviorState::Failure);
-				}
-				BehaviorState::Idle => {
-					return Err(BehaviorError::State("Sequence".into(), "Idle".into()));
-				}
-				BehaviorState::Running => return Ok(BehaviorState::Running),
-				BehaviorState::Skipped | BehaviorState::Success => {
-					self.child_idx += 1;
-				}
-			}
-		}
+            match new_state {
+                BehaviorState::Failure => {
+                    children.halt(runtime)?;
+                    self.child_idx = 0;
+                    return Ok(BehaviorState::Failure);
+                }
+                BehaviorState::Idle => {
+                    return Err(BehaviorError::State("Sequence".into(), "Idle".into()));
+                }
+                BehaviorState::Running => return Ok(BehaviorState::Running),
+                BehaviorState::Skipped | BehaviorState::Success => {
+                    self.child_idx += 1;
+                }
+            }
+        }
 
-		// All children returned Success
-		if self.child_idx >= children.len() {
-			// Reset children
-			children.halt(runtime)?;
-			self.child_idx = 0;
-		}
+        // All children returned Success
+        if self.child_idx >= children.len() {
+            // Reset children
+            children.halt(runtime)?;
+            self.child_idx = 0;
+        }
 
-		if self.all_skipped {
-			Ok(BehaviorState::Skipped)
-		} else {
-			Ok(BehaviorState::Success)
-		}
-	}
+        if self.all_skipped {
+            Ok(BehaviorState::Skipped)
+        } else {
+            Ok(BehaviorState::Success)
+        }
+    }
 }
 
 impl BehaviorStatic for Sequence {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Control
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Control
+    }
 }
 // endregion:   --- Sequence

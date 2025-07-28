@@ -10,9 +10,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{
+        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
+    },
+    tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -26,33 +29,33 @@ pub struct Inverter;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for Inverter {
-	async fn tick(
-		&mut self,
-		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let child = &mut children[0];
-		let new_state = child.tick(runtime).await?;
+    async fn tick(
+        &mut self,
+        _behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        let child = &mut children[0];
+        let new_state = child.tick(runtime).await?;
 
-		match new_state {
-			BehaviorState::Failure => {
-				children.halt(runtime)?;
-				Ok(BehaviorState::Success)
-			}
-			BehaviorState::Idle => Err(BehaviorError::State("Inverter".into(), "Idle".into())),
-			state @ (BehaviorState::Running | BehaviorState::Skipped) => Ok(state),
-			BehaviorState::Success => {
-				children.halt(runtime)?;
-				Ok(BehaviorState::Failure)
-			}
-		}
-	}
+        match new_state {
+            BehaviorState::Failure => {
+                children.halt(runtime)?;
+                Ok(BehaviorState::Success)
+            }
+            BehaviorState::Idle => Err(BehaviorError::State("Inverter".into(), "Idle".into())),
+            state @ (BehaviorState::Running | BehaviorState::Skipped) => Ok(state),
+            BehaviorState::Success => {
+                children.halt(runtime)?;
+                Ok(BehaviorState::Failure)
+            }
+        }
+    }
 }
 
 impl BehaviorStatic for Inverter {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Decorator
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Decorator
+    }
 }
 // endregion:   --- Inverter

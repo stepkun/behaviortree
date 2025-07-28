@@ -8,8 +8,8 @@
 
 mod common;
 
-use common::test_data::{MoveBaseAction, SaySomething};
 use behaviortree::{behavior::BehaviorState, factory::BehaviorTreeFactory, register_behavior};
+use common::test_data::{MoveBaseAction, SaySomething};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -36,38 +36,38 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> anyhow::Result<BehaviorState> {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
-	register_behavior!(factory, MoveBaseAction, "MoveBase")?;
+    register_behavior!(factory, SaySomething, "SaySomething")?;
+    register_behavior!(factory, MoveBaseAction, "MoveBase")?;
 
-	factory.register_behavior_tree_from_text(XML)?;
-	let mut tree = factory.create_tree("MainTree")?;
-	drop(factory);
+    factory.register_behavior_tree_from_text(XML)?;
+    let mut tree = factory.create_tree("MainTree")?;
+    drop(factory);
 
-	let result = tree.tick_while_running().await?;
-	assert_eq!(result, BehaviorState::Success);
-	println!("------ Root BB ------");
-	// @TODO: tree.subtree(0)?.blackboard().debug_message();
-	println!("----- Second BB -----");
-	// @TODO: tree.subtree(1)?.blackboard().debug_message();
-	Ok(result)
+    let result = tree.tick_while_running().await?;
+    assert_eq!(result, BehaviorState::Success);
+    println!("------ Root BB ------");
+    // @TODO: tree.subtree(0)?.blackboard().debug_message();
+    println!("----- Second BB -----");
+    // @TODO: tree.subtree(1)?.blackboard().debug_message();
+    Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	example().await?;
-	Ok(())
+    example().await?;
+    Ok(())
 }
 
 #[cfg(test)]
 mod test {
-	use super::*;
+    use super::*;
 
-	#[tokio::test]
-	async fn t06_subtree_port_remapping() -> anyhow::Result<()> {
-		let result = example().await?;
-		assert_eq!(result, BehaviorState::Success);
-		Ok(())
-	}
+    #[tokio::test]
+    async fn t06_subtree_port_remapping() -> anyhow::Result<()> {
+        let result = example().await?;
+        assert_eq!(result, BehaviorState::Success);
+        Ok(())
+    }
 }

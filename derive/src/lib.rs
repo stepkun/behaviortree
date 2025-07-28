@@ -78,13 +78,13 @@ use syn::DeriveInput;
 /// - if used on enums or unions
 #[proc_macro_derive(Behavior, attributes(behaviortree))]
 pub fn derive_behavior(input: TokenStream) -> TokenStream {
-	// Construct a representation of the Rust code
-	let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
+    // Construct a representation of the Rust code
+    let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
 
-	// Check type of input
-	match &input.data {
-		syn::Data::Struct(_struct) => derive_behavior_struct(&input).into(),
-		syn::Data::Enum(_enum) => panic!("enums not supported"),
-		syn::Data::Union(_union) => panic!("unions not supported"),
-	}
+    // Check type of input
+    match &input.data {
+        syn::Data::Struct(_struct) => derive_behavior_struct(&input).into(),
+        syn::Data::Enum(_enum) => panic!("enums not supported"),
+        syn::Data::Union(_union) => panic!("unions not supported"),
+    }
 }

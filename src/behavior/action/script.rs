@@ -9,12 +9,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
-	input_port,
-	port::PortList,
-	port_list,
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    input_port,
+    port::PortList,
+    port_list,
+    tree::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
 
@@ -24,39 +24,41 @@ pub struct Script;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for Script {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let code = behavior.get::<String>("code")?;
-		let value = runtime
-			.lock()
-			.run(&code, behavior.blackboard_mut())?;
+    async fn tick(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        let code = behavior.get::<String>("code")?;
+        let value = runtime.lock().run(&code, behavior.blackboard_mut())?;
 
-		let state = if value.is_bool() {
-			let val = value.as_bool()?;
-			if val { BehaviorState::Success } else { BehaviorState::Failure }
-		} else {
-			BehaviorState::Success
-		};
+        let state = if value.is_bool() {
+            let val = value.as_bool()?;
+            if val {
+                BehaviorState::Success
+            } else {
+                BehaviorState::Failure
+            }
+        } else {
+            BehaviorState::Success
+        };
 
-		Ok(state)
-	}
+        Ok(state)
+    }
 }
 
 impl BehaviorStatic for Script {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Action
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Action
+    }
 
-	fn provided_ports() -> PortList {
-		port_list![input_port!(
-			String,
-			"code",
-			"",
-			"Piece of code that can be parsed."
-		)]
-	}
+    fn provided_ports() -> PortList {
+        port_list![input_port!(
+            String,
+            "code",
+            "",
+            "Piece of code that can be parsed."
+        )]
+    }
 }

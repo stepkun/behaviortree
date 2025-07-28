@@ -14,12 +14,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::port::{PortList, strip_bb_pointer};
-use crate::{input_port, port_list};
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    tree::ConstBehaviorTreeElementList,
 };
+use crate::{input_port, port_list};
 // endregion:   --- modules
 
 // region:      --- UnsetBlackboard
@@ -29,51 +29,46 @@ use crate::{
 #[derive(Behavior, Debug, Default)]
 pub struct UnsetBlackboard<T>
 where
-	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
+    T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
 {
-	_marker: PhantomData<T>,
+    _marker: PhantomData<T>,
 }
 
 #[async_trait::async_trait]
 impl<T> BehaviorInstance for UnsetBlackboard<T>
 where
-	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
+    T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let key = behavior.get::<String>("key")?;
-		match strip_bb_pointer(&key) {
-			Some(stripped_key) => {
-				let _ = behavior.delete::<String>(&stripped_key);
-			}
-			None => {
-				let _ = behavior.delete::<String>(&key);
-			}
-		}
+    async fn tick(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        let key = behavior.get::<String>("key")?;
+        match strip_bb_pointer(&key) {
+            Some(stripped_key) => {
+                let _ = behavior.delete::<String>(&stripped_key);
+            }
+            None => {
+                let _ = behavior.delete::<String>(&key);
+            }
+        }
 
-		Ok(BehaviorState::Success)
-	}
+        Ok(BehaviorState::Success)
+    }
 }
 
 impl<T> BehaviorStatic for UnsetBlackboard<T>
 where
-	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
+    T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Action
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Action
+    }
 
-	fn provided_ports() -> PortList {
-		port_list![input_port!(
-			String,
-			"key",
-			"",
-			"Key of the entry to remove"
-		),]
-	}
+    fn provided_ports() -> PortList {
+        port_list![input_port!(String, "key", "", "Key of the entry to remove"),]
+    }
 }
 // endregion:   --- UnsetBlackboard

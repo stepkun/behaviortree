@@ -5,14 +5,14 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{
-		BehaviorState::{self, *},
-		BehaviorStatic,
-		action::ChangeStateAfter,
-		control::Fallback,
-	},
-	factory::BehaviorTreeFactory,
-	register_behavior,
+    behavior::{
+        BehaviorState::{self, *},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::Fallback,
+    },
+    factory::BehaviorTreeFactory,
+    register_behavior,
 };
 
 use rstest::rstest;
@@ -46,33 +46,54 @@ const TREE_DEFINITION: &str = r#"
 #[case(Skipped, Skipped, Failure, Failure)]
 #[case(Success, Failure, Failure, Success)]
 async fn simple_fallback(
-	#[case] input1: BehaviorState,
-	#[case] input2: BehaviorState,
-	#[case] input3: BehaviorState,
-	#[case] expected: BehaviorState,
+    #[case] input1: BehaviorState,
+    #[case] input2: BehaviorState,
+    #[case] input3: BehaviorState,
+    #[case] expected: BehaviorState,
 ) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
-	register_behavior!(factory, Fallback, "Fallback")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input1,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior2",
+        BehaviorState::Running,
+        input2,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior3",
+        BehaviorState::Running,
+        input3,
+        0
+    )?;
+    register_behavior!(factory, Fallback, "Fallback")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	let mut result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    let mut result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	tree.reset().await?;
+    tree.reset().await?;
 
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	Ok(())
+    Ok(())
 }
 
 #[tokio::test]
@@ -84,22 +105,43 @@ async fn simple_fallback(
 #[case(Idle, Skipped, Idle)]
 #[case(Skipped, Skipped, Idle)]
 async fn simple_fallback_errors(
-	#[case] input1: BehaviorState,
-	#[case] input2: BehaviorState,
-	#[case] input3: BehaviorState,
+    #[case] input1: BehaviorState,
+    #[case] input2: BehaviorState,
+    #[case] input3: BehaviorState,
 ) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
-	register_behavior!(factory, Fallback, "Fallback")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input1,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior2",
+        BehaviorState::Running,
+        input2,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior3",
+        BehaviorState::Running,
+        input3,
+        0
+    )?;
+    register_behavior!(factory, Fallback, "Fallback")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	let result = tree.tick_once().await;
-	assert!(result.is_err());
-	Ok(())
+    let result = tree.tick_once().await;
+    assert!(result.is_err());
+    Ok(())
 }
 
 #[tokio::test]
@@ -107,43 +149,43 @@ async fn simple_fallback_errors(
 #[case(Success, Failure, Success, Success, Success, Success)]
 #[case(Failure, Success, Running, Running, Running, Failure)]
 async fn simple_fallback_reactiveness1(
-	#[case] input1: BehaviorState,
-	#[case] input2: BehaviorState,
-	#[case] expected1: BehaviorState,
-	#[case] expected2: BehaviorState,
-	#[case] expected3: BehaviorState,
-	#[case] expected4: BehaviorState,
+    #[case] input1: BehaviorState,
+    #[case] input2: BehaviorState,
+    #[case] expected1: BehaviorState,
+    #[case] expected2: BehaviorState,
+    #[case] expected3: BehaviorState,
+    #[case] expected4: BehaviorState,
 ) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
-	register_behavior!(factory, Fallback, "Fallback")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
+    register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
+    register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
+    register_behavior!(factory, Fallback, "Fallback")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	let mut result = tree.tick_once().await?;
-	assert_eq!(result, expected1);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected2);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected3);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected4);
+    let mut result = tree.tick_once().await?;
+    assert_eq!(result, expected1);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected2);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected3);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected4);
 
-	tree.reset().await?;
+    tree.reset().await?;
 
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected1);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected2);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected3);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected4);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected1);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected2);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected3);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected4);
 
-	Ok(())
+    Ok(())
 }
 
 #[tokio::test]
@@ -151,41 +193,41 @@ async fn simple_fallback_reactiveness1(
 #[case(Success, Failure, Running, Running, Success, Running)]
 #[case(Failure, Success, Running, Running, Running, Failure)]
 async fn simple_fallback_reactiveness2(
-	#[case] input1: BehaviorState,
-	#[case] input2: BehaviorState,
-	#[case] expected1: BehaviorState,
-	#[case] expected2: BehaviorState,
-	#[case] expected3: BehaviorState,
-	#[case] expected4: BehaviorState,
+    #[case] input1: BehaviorState,
+    #[case] input2: BehaviorState,
+    #[case] expected1: BehaviorState,
+    #[case] expected2: BehaviorState,
+    #[case] expected3: BehaviorState,
+    #[case] expected4: BehaviorState,
 ) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;
-	register_behavior!(factory, Fallback, "Fallback")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
+    register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
+    register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;
+    register_behavior!(factory, Fallback, "Fallback")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	let mut result = tree.tick_once().await?;
-	assert_eq!(result, expected1);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected2);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected3);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected4);
+    let mut result = tree.tick_once().await?;
+    assert_eq!(result, expected1);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected2);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected3);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected4);
 
-	tree.reset().await?;
+    tree.reset().await?;
 
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected1);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected2);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected3);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected4);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected1);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected2);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected3);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected4);
 
-	Ok(())
+    Ok(())
 }

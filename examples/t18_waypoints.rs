@@ -10,19 +10,20 @@
 extern crate alloc;
 mod common;
 
-use common::test_data::Pose2D;
 use behaviortree::behavior::decorator::SharedQueue;
 use behaviortree::{
-	Behavior, SharedRuntime,
-	behavior::{
-		BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, decorator::Loop,
-	},
-	factory::BehaviorTreeFactory,
-	input_port, output_port,
-	port::PortList,
-	port_list, register_behavior,
-	tree::ConstBehaviorTreeElementList,
+    Behavior, SharedRuntime,
+    behavior::{
+        BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState,
+        BehaviorStatic, decorator::Loop,
+    },
+    factory::BehaviorTreeFactory,
+    input_port, output_port,
+    port::PortList,
+    port_list, register_behavior,
+    tree::ConstBehaviorTreeElementList,
 };
+use common::test_data::Pose2D;
 use std::time::Duration;
 
 #[derive(Behavior, Debug, Default)]
@@ -30,35 +31,35 @@ struct GenerateWaypoints;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for GenerateWaypoints {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let shared_queue = SharedQueue::default();
-		for i in 0..5 {
-			shared_queue.push_back(Pose2D {
-				x: f64::from(i),
-				y: f64::from(i),
-				theta: 0_f64,
-			});
-		}
+    async fn tick(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        let shared_queue = SharedQueue::default();
+        for i in 0..5 {
+            shared_queue.push_back(Pose2D {
+                x: f64::from(i),
+                y: f64::from(i),
+                theta: 0_f64,
+            });
+        }
 
-		behavior.set("waypoints", shared_queue)?;
+        behavior.set("waypoints", shared_queue)?;
 
-		Ok(BehaviorState::Success)
-	}
+        Ok(BehaviorState::Success)
+    }
 }
 
 impl BehaviorStatic for GenerateWaypoints {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Action
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Action
+    }
 
-	fn provided_ports() -> PortList {
-		port_list![output_port!(SharedQueue<Pose2D>, "waypoints"),]
-	}
+    fn provided_ports() -> PortList {
+        port_list![output_port!(SharedQueue<Pose2D>, "waypoints"),]
+    }
 }
 
 #[derive(Behavior, Debug, Default)]
@@ -66,27 +67,27 @@ struct PrintNumber;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for PrintNumber {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let value: f64 = behavior.get("value")?;
-		println!("PrintNumber: {}", value);
+    async fn tick(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        let value: f64 = behavior.get("value")?;
+        println!("PrintNumber: {}", value);
 
-		Ok(BehaviorState::Success)
-	}
+        Ok(BehaviorState::Success)
+    }
 }
 
 impl BehaviorStatic for PrintNumber {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Action
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Action
+    }
 
-	fn provided_ports() -> PortList {
-		port_list![input_port!(f64, "value"),]
-	}
+    fn provided_ports() -> PortList {
+        port_list![input_port!(f64, "value"),]
+    }
 }
 
 #[derive(Behavior, Debug, Default)]
@@ -94,30 +95,30 @@ struct UseWaypoint;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for UseWaypoint {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		if let Ok(wp) = behavior.get::<Pose2D>("waypoint") {
-			tokio::time::sleep(Duration::from_millis(100)).await;
-			println!("Using waypoint: {}/{}", wp.x, wp.y);
-			Ok(BehaviorState::Success)
-		} else {
-			Ok(BehaviorState::Failure)
-		}
-	}
+    async fn tick(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        if let Ok(wp) = behavior.get::<Pose2D>("waypoint") {
+            tokio::time::sleep(Duration::from_millis(100)).await;
+            println!("Using waypoint: {}/{}", wp.x, wp.y);
+            Ok(BehaviorState::Success)
+        } else {
+            Ok(BehaviorState::Failure)
+        }
+    }
 }
 
 impl BehaviorStatic for UseWaypoint {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Action
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Action
+    }
 
-	fn provided_ports() -> PortList {
-		port_list![input_port!(Pose2D, "waypoint",),]
-	}
+    fn provided_ports() -> PortList {
+        port_list![input_port!(Pose2D, "waypoint",),]
+    }
 }
 
 const XML: &str = r#"
@@ -138,37 +139,37 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> anyhow::Result<BehaviorState> {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-	// @TODO:
-	factory.register_behavior_type::<Loop<Pose2D>>("LoopPose")?;
-	//register_behavior!(factory, Loop<Pose2D>, "LoopPose")?;
+    // @TODO:
+    factory.register_behavior_type::<Loop<Pose2D>>("LoopPose")?;
+    //register_behavior!(factory, Loop<Pose2D>, "LoopPose")?;
 
-	register_behavior!(factory, UseWaypoint, "UseWaypoint")?;
-	register_behavior!(factory, PrintNumber, "PrintNumber")?;
-	register_behavior!(factory, GenerateWaypoints, "GenerateWaypoints")?;
+    register_behavior!(factory, UseWaypoint, "UseWaypoint")?;
+    register_behavior!(factory, PrintNumber, "PrintNumber")?;
+    register_behavior!(factory, GenerateWaypoints, "GenerateWaypoints")?;
 
-	let mut tree = factory.create_from_text(XML)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(XML)?;
+    drop(factory);
 
-	let result = tree.tick_while_running().await?;
-	Ok(result)
+    let result = tree.tick_while_running().await?;
+    Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	example().await?;
-	Ok(())
+    example().await?;
+    Ok(())
 }
 
 #[cfg(test)]
 mod test {
-	use super::*;
+    use super::*;
 
-	#[tokio::test]
-	async fn t18_waypoints() -> anyhow::Result<()> {
-		let result = example().await?;
-		assert_eq!(result, BehaviorState::Success);
-		Ok(())
-	}
+    #[tokio::test]
+    async fn t18_waypoints() -> anyhow::Result<()> {
+        let result = example().await?;
+        assert_eq!(result, BehaviorState::Success);
+        Ok(())
+    }
 }

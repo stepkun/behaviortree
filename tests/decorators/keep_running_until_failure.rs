@@ -5,14 +5,14 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{
-		BehaviorState::{self, *},
-		BehaviorStatic,
-		action::ChangeStateAfter,
-		decorator::KeepRunningUntilFailure,
-	},
-	factory::BehaviorTreeFactory,
-	register_behavior,
+    behavior::{
+        BehaviorState::{self, *},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        decorator::KeepRunningUntilFailure,
+    },
+    factory::BehaviorTreeFactory,
+    register_behavior,
 };
 
 use rstest::rstest;
@@ -33,27 +33,37 @@ const TREE_DEFINITION: &str = r#"
 #[case(Running, Running)]
 #[case(Failure, Failure)]
 #[case(Success, Running)]
-async fn keep_runnning_until_failure(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
+async fn keep_runnning_until_failure(
+    #[case] input: BehaviorState,
+    #[case] expected: BehaviorState,
+) -> anyhow::Result<()> {
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input,
+        0
+    )?;
+    register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	let mut result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    let mut result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	tree.reset().await?;
+    tree.reset().await?;
 
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	Ok(())
+    Ok(())
 }
 
 #[tokio::test]
@@ -61,14 +71,21 @@ async fn keep_runnning_until_failure(#[case] input: BehaviorState, #[case] expec
 #[case(Idle)]
 #[case(Skipped)]
 async fn keep_runnning_until_failure_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input,
+        0
+    )?;
+    register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	let result = tree.tick_once().await;
-	assert!(result.is_err());
-	Ok(())
+    let result = tree.tick_once().await;
+    assert!(result.is_err());
+    Ok(())
 }

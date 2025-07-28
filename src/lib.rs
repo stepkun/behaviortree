@@ -63,7 +63,7 @@ pub type ConstString = Arc<str>;
 ///
 /// Register a struct with multiple functions:
 /// ```no-test
-/// let wrapped_struct = register_behavior!(factory, <struct_item>, 
+/// let wrapped_struct = register_behavior!(factory, <struct_item>,
 ///         <first_func>, "NameForFirstFunc", BehaviorKind::<kind of first func>,
 ///         <second_func>, "NameForSecondFunc", BehaviorKind::<kind of second func>,
 ///         ...

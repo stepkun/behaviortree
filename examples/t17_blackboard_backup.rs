@@ -11,20 +11,23 @@
 extern crate alloc;
 
 use std::{
-	fmt::{Display, Formatter},
-	num::ParseIntError,
-	str::FromStr,
+    fmt::{Display, Formatter},
+    num::ParseIntError,
+    str::FromStr,
 };
 
 use behaviortree::{
-	Behavior, SharedRuntime,
-	behavior::{BehaviorError, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
-	blackboard::{BlackboardInterface, SharedBlackboard},
-	factory::BehaviorTreeFactory,
-	input_port, output_port,
-	port::PortList,
-	port_list,
-	tree::BehaviorTreeElementList,
+    Behavior, SharedRuntime,
+    behavior::{
+        BehaviorError, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState,
+        BehaviorStatic,
+    },
+    blackboard::{BlackboardInterface, SharedBlackboard},
+    factory::BehaviorTreeFactory,
+    input_port, output_port,
+    port::PortList,
+    port_list,
+    tree::BehaviorTreeElementList,
 };
 
 const XML: &str = r#"
@@ -37,33 +40,33 @@ const XML: &str = r#"
 
 // @TODO: implement
 async fn example() -> anyhow::Result<BehaviorState> {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-	// register_behavior!(factory, SaySomething, "SaySomething")?;
+    // register_behavior!(factory, SaySomething, "SaySomething")?;
 
-	factory.register_behavior_tree_from_text(XML)?;
+    factory.register_behavior_tree_from_text(XML)?;
 
-	let mut tree = factory.create_tree("MainTree")?;
-	drop(factory);
+    let mut tree = factory.create_tree("MainTree")?;
+    drop(factory);
 
-	let result = tree.tick_while_running().await?;
-	Ok(result)
+    let result = tree.tick_while_running().await?;
+    Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	example().await?;
-	Ok(())
+    example().await?;
+    Ok(())
 }
 
 #[cfg(test)]
 mod test {
-	use super::*;
+    use super::*;
 
-	#[tokio::test]
-	async fn t17_blackboard_backup() -> anyhow::Result<()> {
-		let result = example().await?;
-		assert_eq!(result, BehaviorState::Success);
-		Ok(())
-	}
+    #[tokio::test]
+    async fn t17_blackboard_backup() -> anyhow::Result<()> {
+        let result = example().await?;
+        assert_eq!(result, BehaviorState::Success);
+        Ok(())
+    }
 }

@@ -5,15 +5,15 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{
-		BehaviorState::{self, *},
-		BehaviorStatic,
-		action::ChangeStateAfter,
-		control::Switch,
-	},
-	blackboard::BlackboardInterface,
-	factory::BehaviorTreeFactory,
-	register_behavior,
+    behavior::{
+        BehaviorState::{self, *},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::Switch,
+    },
+    blackboard::BlackboardInterface,
+    factory::BehaviorTreeFactory,
+    register_behavior,
 };
 
 use rstest::rstest;
@@ -57,49 +57,83 @@ const TREE_DEFINITION_2_CHILDREN: &str = r#"
 #[case(Failure, Failure, Success, Failure, Failure, "case_2", Success)]
 #[case(Failure, Failure, Failure, Success, Failure, "case_3", Success)]
 async fn switch4(
-	#[case] input1: BehaviorState,
-	#[case] input2: BehaviorState,
-	#[case] input3: BehaviorState,
-	#[case] input4: BehaviorState,
-	#[case] default: BehaviorState,
-	#[case] case: &str,
-	#[case] expected: BehaviorState,
+    #[case] input1: BehaviorState,
+    #[case] input2: BehaviorState,
+    #[case] input3: BehaviorState,
+    #[case] input4: BehaviorState,
+    #[case] default: BehaviorState,
+    #[case] case: &str,
+    #[case] expected: BehaviorState,
 ) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior4", BehaviorState::Running, input4, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Default", BehaviorState::Running, default, 0)?;
-	factory.register_behavior_type::<Switch<4>>("Switch4")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input1,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior2",
+        BehaviorState::Running,
+        input2,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior3",
+        BehaviorState::Running,
+        input3,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior4",
+        BehaviorState::Running,
+        input4,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Default",
+        BehaviorState::Running,
+        default,
+        0
+    )?;
+    factory.register_behavior_type::<Switch<4>>("Switch4")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION_4_CHILDREN)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION_4_CHILDREN)?;
+    drop(factory);
 
-	tree.blackboard_mut()
-		.set("case_0", String::from("case_0"))?;
-	tree.blackboard_mut()
-		.set("case_1", String::from("case_1"))?;
-	tree.blackboard_mut()
-		.set("case_2", String::from("case_2"))?;
-	tree.blackboard_mut()
-		.set("case_3", String::from("case_3"))?;
-	tree.blackboard_mut()
-		.set("variable", String::from(case))?;
+    tree.blackboard_mut()
+        .set("case_0", String::from("case_0"))?;
+    tree.blackboard_mut()
+        .set("case_1", String::from("case_1"))?;
+    tree.blackboard_mut()
+        .set("case_2", String::from("case_2"))?;
+    tree.blackboard_mut()
+        .set("case_3", String::from("case_3"))?;
+    tree.blackboard_mut().set("variable", String::from(case))?;
 
-	let mut result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    let mut result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	tree.reset().await?;
+    tree.reset().await?;
 
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	Ok(())
+    Ok(())
 }
 
 #[tokio::test]
@@ -111,61 +145,102 @@ async fn switch4(
 #[case(Success, Failure, Failure, "case_0", Success)]
 #[case(Failure, Success, Failure, "case_1", Success)]
 async fn switch2(
-	#[case] input1: BehaviorState,
-	#[case] input2: BehaviorState,
-	#[case] default: BehaviorState,
-	#[case] case: &str,
-	#[case] expected: BehaviorState,
+    #[case] input1: BehaviorState,
+    #[case] input2: BehaviorState,
+    #[case] default: BehaviorState,
+    #[case] case: &str,
+    #[case] expected: BehaviorState,
 ) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Default", BehaviorState::Running, default, 0)?;
-	factory.register_behavior_type::<Switch<2>>("Switch2")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input1,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior2",
+        BehaviorState::Running,
+        input2,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Default",
+        BehaviorState::Running,
+        default,
+        0
+    )?;
+    factory.register_behavior_type::<Switch<2>>("Switch2")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION_2_CHILDREN)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION_2_CHILDREN)?;
+    drop(factory);
 
-	tree.blackboard_mut()
-		.set("case_0", String::from("case_0"))?;
-	tree.blackboard_mut()
-		.set("case_1", String::from("case_1"))?;
-	tree.blackboard_mut()
-		.set("variable", String::from(case))?;
+    tree.blackboard_mut()
+        .set("case_0", String::from("case_0"))?;
+    tree.blackboard_mut()
+        .set("case_1", String::from("case_1"))?;
+    tree.blackboard_mut().set("variable", String::from(case))?;
 
-	let mut result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    let mut result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	tree.reset().await?;
+    tree.reset().await?;
 
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	Ok(())
+    Ok(())
 }
 
 #[tokio::test]
 #[rstest]
 #[case(Idle, Idle, Idle)]
 async fn switch_errors(
-	#[case] input1: BehaviorState,
-	#[case] input2: BehaviorState,
-	#[case] default: BehaviorState,
+    #[case] input1: BehaviorState,
+    #[case] input2: BehaviorState,
+    #[case] default: BehaviorState,
 ) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Default", BehaviorState::Running, default, 0)?;
-	factory.register_behavior_type::<Switch<2>>("Switch2")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input1,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior2",
+        BehaviorState::Running,
+        input2,
+        0
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Default",
+        BehaviorState::Running,
+        default,
+        0
+    )?;
+    factory.register_behavior_type::<Switch<2>>("Switch2")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION_2_CHILDREN)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION_2_CHILDREN)?;
+    drop(factory);
 
-	let result = tree.tick_once().await;
-	assert!(result.is_err());
-	Ok(())
+    let result = tree.tick_once().await;
+    assert!(result.is_err());
+    Ok(())
 }

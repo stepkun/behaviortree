@@ -10,12 +10,15 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
-	input_port,
-	port::PortList,
-	port_list,
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{
+        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
+    },
+    input_port,
+    port::PortList,
+    port_list,
+    tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -39,93 +42,96 @@ use crate::{
 /// ```
 #[derive(Behavior, Debug)]
 pub struct RetryUntilSuccessful {
-	/// Defaults to `-1`
-	max_attempts: i32,
-	/// Defaults to `0`
-	try_count: i32,
-	/// Defaults to `true`
-	all_skipped: bool,
+    /// Defaults to `-1`
+    max_attempts: i32,
+    /// Defaults to `0`
+    try_count: i32,
+    /// Defaults to `true`
+    all_skipped: bool,
 }
 
 impl Default for RetryUntilSuccessful {
-	fn default() -> Self {
-		Self {
-			max_attempts: -1,
-			try_count: 0,
-			all_skipped: true,
-		}
-	}
+    fn default() -> Self {
+        Self {
+            max_attempts: -1,
+            try_count: 0,
+            all_skipped: true,
+        }
+    }
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for RetryUntilSuccessful {
-	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.try_count = 0;
-		self.all_skipped = true;
-		Ok(())
-	}
+    fn on_halt(&mut self) -> Result<(), BehaviorError> {
+        self.try_count = 0;
+        self.all_skipped = true;
+        Ok(())
+    }
 
-	fn on_start(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> Result<(), BehaviorError> {
-		// Load num_cycles from the port value
-		self.max_attempts = behavior.get::<i32>("num_attempts")?;
+    fn on_start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> Result<(), BehaviorError> {
+        // Load num_cycles from the port value
+        self.max_attempts = behavior.get::<i32>("num_attempts")?;
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	async fn tick(
-		&mut self,
-		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		while self.try_count < self.max_attempts || self.max_attempts == -1 {
-			// A `Decorator` has only 1 child
-			let child = &mut children[0];
-			let new_state = child.tick(runtime).await?;
+    async fn tick(
+        &mut self,
+        _behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        while self.try_count < self.max_attempts || self.max_attempts == -1 {
+            // A `Decorator` has only 1 child
+            let child = &mut children[0];
+            let new_state = child.tick(runtime).await?;
 
-			self.all_skipped &= new_state == BehaviorState::Skipped;
+            self.all_skipped &= new_state == BehaviorState::Skipped;
 
-			match new_state {
-				BehaviorState::Failure => {
-					self.try_count += 1;
-					children.halt(runtime)?;
-				}
-				BehaviorState::Idle => {
-					return Err(BehaviorError::State("RetryUntilSuccessful".into(), "Idle".into()));
-				}
-				BehaviorState::Running => return Ok(BehaviorState::Running),
-				BehaviorState::Skipped => {
-					children.halt(runtime)?;
-					return Ok(BehaviorState::Skipped);
-				}
-				BehaviorState::Success => {
-					children.halt(runtime)?;
-					self.try_count = 0;
-					return Ok(BehaviorState::Success);
-				}
-			}
-		}
+            match new_state {
+                BehaviorState::Failure => {
+                    self.try_count += 1;
+                    children.halt(runtime)?;
+                }
+                BehaviorState::Idle => {
+                    return Err(BehaviorError::State(
+                        "RetryUntilSuccessful".into(),
+                        "Idle".into(),
+                    ));
+                }
+                BehaviorState::Running => return Ok(BehaviorState::Running),
+                BehaviorState::Skipped => {
+                    children.halt(runtime)?;
+                    return Ok(BehaviorState::Skipped);
+                }
+                BehaviorState::Success => {
+                    children.halt(runtime)?;
+                    self.try_count = 0;
+                    return Ok(BehaviorState::Success);
+                }
+            }
+        }
 
-		if self.all_skipped {
-			Ok(BehaviorState::Skipped)
-		} else {
-			Ok(BehaviorState::Failure)
-		}
-	}
+        if self.all_skipped {
+            Ok(BehaviorState::Skipped)
+        } else {
+            Ok(BehaviorState::Failure)
+        }
+    }
 }
 
 impl BehaviorStatic for RetryUntilSuccessful {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Decorator
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Decorator
+    }
 
-	fn provided_ports() -> PortList {
-		port_list![input_port!(i32, "num_attempts")]
-	}
+    fn provided_ports() -> PortList {
+        port_list![input_port!(i32, "num_attempts")]
+    }
 }
 // endregion:   --- RetryUntilSuccessful

@@ -10,9 +10,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{
+        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
+    },
+    tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -28,91 +31,93 @@ use crate::{
 /// This is equivalent to adding [`AlwaysFailure`](crate::behavior::action::ChangeStateAfter) as 3rd child.
 #[derive(Behavior, Debug, Default)]
 pub struct IfThenElse {
-	child_index: usize,
+    child_index: usize,
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for IfThenElse {
-	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.child_index = 0;
-		Ok(())
-	}
+    fn on_halt(&mut self) -> Result<(), BehaviorError> {
+        self.child_index = 0;
+        Ok(())
+    }
 
-	fn on_start(
-		&mut self,
-		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> Result<(), BehaviorError> {
-		// check composition only once at start
-		if !(2..=3).contains(&children.len()) {
-			return Err(BehaviorError::Composition(
-				"IfThenElse must have either 2 or 3 children.".into(),
-			));
-		}
-		behavior.set_state(BehaviorState::Running);
+    fn on_start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> Result<(), BehaviorError> {
+        // check composition only once at start
+        if !(2..=3).contains(&children.len()) {
+            return Err(BehaviorError::Composition(
+                "IfThenElse must have either 2 or 3 children.".into(),
+            ));
+        }
+        behavior.set_state(BehaviorState::Running);
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		behavior.set_state(BehaviorState::Running);
+    async fn tick(
+        &mut self,
+        behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        behavior.set_state(BehaviorState::Running);
 
-		let children_count = children.len();
+        let children_count = children.len();
 
-		if self.child_index == 0 {
-			let condition_state = children[0].tick(runtime).await?;
-			match condition_state {
-				BehaviorState::Failure => match children_count {
-					3 => {
-						self.child_index = 2;
-					}
-					2 => {
-						return Ok(condition_state);
-					}
-					_ => {
-						return Err(BehaviorError::Composition("Should not happen in 'IfThenElse'".into()));
-					}
-				},
-				BehaviorState::Idle => {
-					return Err(BehaviorError::State("IfThenElse".into(), "Idle".into()));
-				}
-				BehaviorState::Running => {
-					return Ok(BehaviorState::Running);
-				}
-				BehaviorState::Skipped => {
-					return Ok(BehaviorState::Skipped);
-				}
-				BehaviorState::Success => {
-					self.child_index = 1;
-				}
-			}
-		}
+        if self.child_index == 0 {
+            let condition_state = children[0].tick(runtime).await?;
+            match condition_state {
+                BehaviorState::Failure => match children_count {
+                    3 => {
+                        self.child_index = 2;
+                    }
+                    2 => {
+                        return Ok(condition_state);
+                    }
+                    _ => {
+                        return Err(BehaviorError::Composition(
+                            "Should not happen in 'IfThenElse'".into(),
+                        ));
+                    }
+                },
+                BehaviorState::Idle => {
+                    return Err(BehaviorError::State("IfThenElse".into(), "Idle".into()));
+                }
+                BehaviorState::Running => {
+                    return Ok(BehaviorState::Running);
+                }
+                BehaviorState::Skipped => {
+                    return Ok(BehaviorState::Skipped);
+                }
+                BehaviorState::Success => {
+                    self.child_index = 1;
+                }
+            }
+        }
 
-		// execute the branch
-		if self.child_index > 0 {
-			let state = children[self.child_index].tick(runtime).await?;
-			if state != BehaviorState::Running {
-				children.halt(runtime)?;
-				self.child_index = 0;
-			}
-			Ok(state)
-		} else {
-			Err(BehaviorError::Composition(
-				"Something unexpected happened in IfThenElse".into(),
-			))
-		}
-	}
+        // execute the branch
+        if self.child_index > 0 {
+            let state = children[self.child_index].tick(runtime).await?;
+            if state != BehaviorState::Running {
+                children.halt(runtime)?;
+                self.child_index = 0;
+            }
+            Ok(state)
+        } else {
+            Err(BehaviorError::Composition(
+                "Something unexpected happened in IfThenElse".into(),
+            ))
+        }
+    }
 }
 
 impl BehaviorStatic for IfThenElse {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Control
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Control
+    }
 }
 // endregion:   --- IfThenElse

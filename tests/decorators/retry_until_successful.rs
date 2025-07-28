@@ -5,14 +5,14 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{
-		BehaviorState::{self, *},
-		BehaviorStatic,
-		action::ChangeStateAfter,
-		decorator::RetryUntilSuccessful,
-	},
-	factory::BehaviorTreeFactory,
-	register_behavior,
+    behavior::{
+        BehaviorState::{self, *},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        decorator::RetryUntilSuccessful,
+    },
+    factory::BehaviorTreeFactory,
+    register_behavior,
 };
 
 use rstest::rstest;
@@ -34,43 +34,60 @@ const TREE_DEFINITION: &str = r#"
 #[case(Skipped, Skipped)]
 #[case(Failure, Failure)]
 #[case(Success, Success)]
-async fn retry_until_successful(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Failure, input, 0)?;
-	register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
+async fn retry_until_successful(
+    #[case] input: BehaviorState,
+    #[case] expected: BehaviorState,
+) -> anyhow::Result<()> {
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Failure,
+        input,
+        0
+    )?;
+    register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	tree.tick_once().await?;
-	let mut result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    tree.tick_once().await?;
+    let mut result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	tree.reset().await?;
+    tree.reset().await?;
 
-	tree.tick_once().await?;
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
+    tree.tick_once().await?;
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
+    result = tree.tick_once().await?;
+    assert_eq!(result, expected);
 
-	Ok(())
+    Ok(())
 }
 
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
 async fn retry_until_successful_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "Behavior1",
+        BehaviorState::Running,
+        input,
+        0
+    )?;
+    register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
 
-	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+    drop(factory);
 
-	let result = tree.tick_once().await;
-	assert!(result.is_err());
-	Ok(())
+    let result = tree.tick_once().await;
+    assert!(result.is_err());
+    Ok(())
 }

@@ -8,17 +8,20 @@ extern crate alloc;
 
 use std::time::Duration;
 
-use criterion::{Criterion, criterion_group, criterion_main};
 use behaviortree::{
-	behavior::{
-		BehaviorState::{Failure, Running, Success},
-		BehaviorStatic,
-		action::ChangeStateAfter,
-		control::{Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence, SequenceWithMemory},
-	},
-	factory::{BehaviorTreeFactory, error::Error},
-	register_behavior,
+    behavior::{
+        BehaviorState::{Failure, Running, Success},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{
+            Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
+            SequenceWithMemory,
+        },
+    },
+    factory::{BehaviorTreeFactory, error::Error},
+    register_behavior,
 };
+use criterion::{Criterion, criterion_group, criterion_main};
 
 const SAMPLES: usize = 10;
 const ITERATIONS: usize = 10;
@@ -92,50 +95,60 @@ const SUBTREE: &str = r#"
 "#;
 
 fn create_factory() -> Result<BehaviorTreeFactory, Error> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5)?;
-	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5)?;
-	register_behavior!(factory, Fallback, "Fallback")?;
-	register_behavior!(factory, Parallel, "Parallel")?;
-	register_behavior!(factory, ParallelAll, "ParallelAll")?;
-	register_behavior!(factory, ReactiveFallback, "ReactiveFallback")?;
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
-	register_behavior!(factory, Sequence, "Sequence")?;
-	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
-	factory
-		.register_behavior_tree_from_text(SUBTREE)
-		.expect("snh");
-	factory
-		.register_behavior_tree_from_text(TREE)
-		.expect("snh");
-	Ok(factory)
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "AlwaysFailure",
+        Running,
+        Failure,
+        5
+    )?;
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "AlwaysSuccess",
+        Running,
+        Success,
+        5
+    )?;
+    register_behavior!(factory, Fallback, "Fallback")?;
+    register_behavior!(factory, Parallel, "Parallel")?;
+    register_behavior!(factory, ParallelAll, "ParallelAll")?;
+    register_behavior!(factory, ReactiveFallback, "ReactiveFallback")?;
+    register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
+    register_behavior!(factory, Sequence, "Sequence")?;
+    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
+    factory
+        .register_behavior_tree_from_text(SUBTREE)
+        .expect("snh");
+    factory.register_behavior_tree_from_text(TREE).expect("snh");
+    Ok(factory)
 }
 
 fn factory(c: &mut Criterion) {
-	let mut group = c.benchmark_group("factory");
-	group
-		.measurement_time(DURATION)
-		.sample_size(SAMPLES);
+    let mut group = c.benchmark_group("factory");
+    group.measurement_time(DURATION).sample_size(SAMPLES);
 
-	group.bench_function("instantiation", |b| {
-		b.iter(|| {
-			for _ in 1..=ITERATIONS {
-				let factory = create_factory().expect("snh");
-				drop(factory);
-			}
-			std::hint::black_box(());
-		});
-	});
+    group.bench_function("instantiation", |b| {
+        b.iter(|| {
+            for _ in 1..=ITERATIONS {
+                let factory = create_factory().expect("snh");
+                drop(factory);
+            }
+            std::hint::black_box(());
+        });
+    });
 
-	let mut factory = create_factory().expect("snh");
-	group.bench_function("tree creation", |b| {
-		b.iter(|| {
-			for _ in 1..=100 {
-				let _tree = factory.create_tree("MainTree").expect("snh");
-			}
-			std::hint::black_box(());
-		});
-	});
+    let mut factory = create_factory().expect("snh");
+    group.bench_function("tree creation", |b| {
+        b.iter(|| {
+            for _ in 1..=100 {
+                let _tree = factory.create_tree("MainTree").expect("snh");
+            }
+            std::hint::black_box(());
+        });
+    });
 }
 
 criterion_group!(benches, factory);

@@ -10,8 +10,11 @@
 extern crate alloc;
 mod common;
 
+use behaviortree::{
+    behavior::BehaviorState, factory::BehaviorTreeFactory, register_behavior,
+    register_scripting_enum,
+};
 use common::test_data::SaySomething;
-use behaviortree::{behavior::BehaviorState, factory::BehaviorTreeFactory, register_behavior, register_scripting_enum};
 use tinyscript::ScriptEnum;
 
 const XML: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
@@ -37,41 +40,41 @@ const XML: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 #[derive(ScriptEnum)]
 #[allow(unused, clippy::upper_case_acronyms)]
 enum Color {
-	RED = 1,
-	BLUE,
-	GREEN = 4,
+    RED = 1,
+    BLUE,
+    GREEN = 4,
 }
 
 async fn example() -> anyhow::Result<BehaviorState> {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-	register_scripting_enum!(factory, Color);
-	register_scripting_enum!(factory, "THE_ANSWER", 42, "OTHER", 43);
+    register_scripting_enum!(factory, Color);
+    register_scripting_enum!(factory, "THE_ANSWER", 42, "OTHER", 43);
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+    register_behavior!(factory, SaySomething, "SaySomething")?;
 
-	let mut tree = factory.create_from_text(XML)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(XML)?;
+    drop(factory);
 
-	let result = tree.tick_while_running().await?;
-	Ok(result)
+    let result = tree.tick_while_running().await?;
+    Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	let result = example().await?;
-	assert_eq!(result, BehaviorState::Success);
-	Ok(())
+    let result = example().await?;
+    assert_eq!(result, BehaviorState::Success);
+    Ok(())
 }
 
 #[cfg(test)]
 mod test {
-	use super::*;
+    use super::*;
 
-	#[tokio::test]
-	async fn t09_scripting() -> anyhow::Result<()> {
-		let result = example().await?;
-		assert_eq!(result, BehaviorState::Success);
-		Ok(())
-	}
+    #[tokio::test]
+    async fn t09_scripting() -> anyhow::Result<()> {
+        let result = example().await?;
+        assert_eq!(result, BehaviorState::Success);
+        Ok(())
+    }
 }

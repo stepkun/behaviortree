@@ -10,9 +10,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{
+        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
+    },
+    tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -24,72 +27,72 @@ use crate::{
 /// - If a child returns SUCCESS, stop the loop and return SUCCESS.
 #[derive(Behavior, Debug)]
 pub struct Fallback {
-	/// Defaults to '0'
-	child_idx: usize,
-	/// Defaults to 'true'
-	all_skipped: bool,
+    /// Defaults to '0'
+    child_idx: usize,
+    /// Defaults to 'true'
+    all_skipped: bool,
 }
 
 impl Default for Fallback {
-	fn default() -> Self {
-		Self {
-			child_idx: 0,
-			all_skipped: true,
-		}
-	}
+    fn default() -> Self {
+        Self {
+            child_idx: 0,
+            all_skipped: true,
+        }
+    }
 }
 #[async_trait::async_trait]
 impl BehaviorInstance for Fallback {
-	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.child_idx = 0;
-		self.all_skipped = true;
-		Ok(())
-	}
+    fn on_halt(&mut self) -> Result<(), BehaviorError> {
+        self.child_idx = 0;
+        self.all_skipped = true;
+        Ok(())
+    }
 
-	async fn tick(
-		&mut self,
-		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		while self.child_idx < children.len() {
-			let child = &mut children[self.child_idx];
-			let new_state = child.tick(runtime).await?;
+    async fn tick(
+        &mut self,
+        _behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        while self.child_idx < children.len() {
+            let child = &mut children[self.child_idx];
+            let new_state = child.tick(runtime).await?;
 
-			self.all_skipped &= new_state == BehaviorState::Skipped;
+            self.all_skipped &= new_state == BehaviorState::Skipped;
 
-			match new_state {
-				BehaviorState::Failure | BehaviorState::Skipped => {
-					self.child_idx += 1;
-				}
-				BehaviorState::Idle => {
-					return Err(BehaviorError::State("Fallback".into(), "Idle".into()));
-				}
-				BehaviorState::Running => return Ok(BehaviorState::Running),
-				BehaviorState::Success => {
-					children.halt(runtime)?;
-					self.child_idx = 0;
-					return Ok(BehaviorState::Success);
-				}
-			}
-		}
+            match new_state {
+                BehaviorState::Failure | BehaviorState::Skipped => {
+                    self.child_idx += 1;
+                }
+                BehaviorState::Idle => {
+                    return Err(BehaviorError::State("Fallback".into(), "Idle".into()));
+                }
+                BehaviorState::Running => return Ok(BehaviorState::Running),
+                BehaviorState::Success => {
+                    children.halt(runtime)?;
+                    self.child_idx = 0;
+                    return Ok(BehaviorState::Success);
+                }
+            }
+        }
 
-		if self.child_idx >= children.len() {
-			children.halt(runtime)?;
-			self.child_idx = 0;
-		}
+        if self.child_idx >= children.len() {
+            children.halt(runtime)?;
+            self.child_idx = 0;
+        }
 
-		if self.all_skipped {
-			Ok(BehaviorState::Skipped)
-		} else {
-			Ok(BehaviorState::Failure)
-		}
-	}
+        if self.all_skipped {
+            Ok(BehaviorState::Skipped)
+        } else {
+            Ok(BehaviorState::Failure)
+        }
+    }
 }
 
 impl BehaviorStatic for Fallback {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Control
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Control
+    }
 }
 // endregion:   --- Fallback

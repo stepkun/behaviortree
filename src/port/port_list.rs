@@ -22,56 +22,56 @@ use super::{PortDefinition, error::Error};
 pub struct PortList(pub Vec<PortDefinition>);
 
 impl Deref for PortList {
-	type Target = Vec<PortDefinition>;
+    type Target = Vec<PortDefinition>;
 
-	fn deref(&self) -> &Self::Target {
-		&self.0
-	}
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl DerefMut for PortList {
-	fn deref_mut(&mut self) -> &mut Self::Target {
-		&mut self.0
-	}
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
 impl PortList {
-	/// Add an entry to the [`PortList`]
-	/// # Errors
-	/// - if entry already exists
-	pub fn add(&mut self, port_definition: PortDefinition) -> Result<(), Error> {
-		for entry in &self.0 {
-			if entry.name() == port_definition.name() {
-				return Err(Error::AlreadyInPortList(entry.name().clone()));
-			}
-		}
-		self.0.push(port_definition);
-		Ok(())
-	}
+    /// Add an entry to the [`PortList`]
+    /// # Errors
+    /// - if entry already exists
+    pub fn add(&mut self, port_definition: PortDefinition) -> Result<(), Error> {
+        for entry in &self.0 {
+            if entry.name() == port_definition.name() {
+                return Err(Error::AlreadyInPortList(entry.name().clone()));
+            }
+        }
+        self.0.push(port_definition);
+        Ok(())
+    }
 
-	/// Create a list of the `Port` names in the list
-	#[must_use]
-	pub fn entries(&self) -> ConstString {
-		let comma = false;
-		let mut result = String::new();
-		for entry in &self.0 {
-			if comma {
-				result += ", ";
-			}
-			result += entry.name();
-		}
-		result.into()
-	}
+    /// Create a list of the `Port` names in the list
+    #[must_use]
+    pub fn entries(&self) -> ConstString {
+        let comma = false;
+        let mut result = String::new();
+        for entry in &self.0 {
+            if comma {
+                result += ", ";
+            }
+            result += entry.name();
+        }
+        result.into()
+    }
 
-	/// Lookup a [`PortDefinition`].
-	#[must_use]
-	pub fn find(&self, name: &str) -> Option<PortDefinition> {
-		for entry in &self.0 {
-			if entry.name().as_ref() == name {
-				return Some(entry.clone());
-			}
-		}
-		None
-	}
+    /// Lookup a [`PortDefinition`].
+    #[must_use]
+    pub fn find(&self, name: &str) -> Option<PortDefinition> {
+        for entry in &self.0 {
+            if entry.name().as_ref() == name {
+                return Some(entry.clone());
+            }
+        }
+        None
+    }
 }
 // endregion:	--- PortList

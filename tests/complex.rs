@@ -5,13 +5,16 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{
-		BehaviorState, BehaviorStatic,
-		action::ChangeStateAfter,
-		control::{Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence, SequenceWithMemory},
-	},
-	factory::BehaviorTreeFactory,
-	register_behavior,
+    behavior::{
+        BehaviorState, BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{
+            Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
+            SequenceWithMemory,
+        },
+    },
+    factory::BehaviorTreeFactory,
+    register_behavior,
 };
 
 const TREE: &str = r#"
@@ -78,40 +81,40 @@ const TREE: &str = r#"
 
 #[tokio::test]
 async fn complex() -> anyhow::Result<()> {
-	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"AlwaysFailure",
-		BehaviorState::Running,
-		BehaviorState::Failure,
-		5
-	)
-	.expect("snh");
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"AlwaysSuccess",
-		BehaviorState::Running,
-		BehaviorState::Success,
-		5
-	)
-	.expect("snh");
-	register_behavior!(factory, Fallback, "Fallback").expect("snh");
-	register_behavior!(factory, Parallel, "Parallel").expect("snh");
-	register_behavior!(factory, ParallelAll, "ParallelAll").expect("snh");
-	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect("snh");
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect("snh");
-	register_behavior!(factory, Sequence, "Sequence").expect("snh");
-	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect("snh");
+    let mut factory = BehaviorTreeFactory::default();
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "AlwaysFailure",
+        BehaviorState::Running,
+        BehaviorState::Failure,
+        5
+    )
+    .expect("snh");
+    register_behavior!(
+        factory,
+        ChangeStateAfter,
+        "AlwaysSuccess",
+        BehaviorState::Running,
+        BehaviorState::Success,
+        5
+    )
+    .expect("snh");
+    register_behavior!(factory, Fallback, "Fallback").expect("snh");
+    register_behavior!(factory, Parallel, "Parallel").expect("snh");
+    register_behavior!(factory, ParallelAll, "ParallelAll").expect("snh");
+    register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect("snh");
+    register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect("snh");
+    register_behavior!(factory, Sequence, "Sequence").expect("snh");
+    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect("snh");
 
-	let mut tree = factory.create_from_text(TREE)?;
-	drop(factory);
+    let mut tree = factory.create_from_text(TREE)?;
+    drop(factory);
 
-	let mut result = tree.tick_while_running().await?;
-	assert_eq!(result, BehaviorState::Success);
-	tree.reset().await.expect("snh");
-	result = tree.tick_while_running().await?;
-	assert_eq!(result, BehaviorState::Success);
-	Ok(())
+    let mut result = tree.tick_while_running().await?;
+    assert_eq!(result, BehaviorState::Success);
+    tree.reset().await.expect("snh");
+    result = tree.tick_while_running().await?;
+    assert_eq!(result, BehaviorState::Success);
+    Ok(())
 }

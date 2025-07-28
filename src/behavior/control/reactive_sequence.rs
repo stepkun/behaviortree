@@ -10,9 +10,12 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::BehaviorData;
 use crate::{
-	Behavior,
-	behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+    Behavior,
+    behavior::{
+        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
+    },
+    tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -28,91 +31,97 @@ use crate::{
 ///            asynchronous child.
 #[derive(Behavior, Debug)]
 pub struct ReactiveSequence {
-	/// Defaults to '-1'
-	running_child_idx: i32,
+    /// Defaults to '-1'
+    running_child_idx: i32,
 }
 
 impl Default for ReactiveSequence {
-	fn default() -> Self {
-		Self { running_child_idx: -1 }
-	}
+    fn default() -> Self {
+        Self {
+            running_child_idx: -1,
+        }
+    }
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for ReactiveSequence {
-	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.running_child_idx = -1;
-		Ok(())
-	}
+    fn on_halt(&mut self) -> Result<(), BehaviorError> {
+        self.running_child_idx = -1;
+        Ok(())
+    }
 
-	#[allow(clippy::cast_possible_truncation)]
-	#[allow(clippy::cast_possible_wrap)]
-	#[allow(clippy::cast_sign_loss)]
-	async fn tick(
-		&mut self,
-		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
-		runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let mut all_skipped = true;
+    #[allow(clippy::cast_possible_truncation)]
+    #[allow(clippy::cast_possible_wrap)]
+    #[allow(clippy::cast_sign_loss)]
+    async fn tick(
+        &mut self,
+        _behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        let mut all_skipped = true;
 
-		let children_count = children.len();
-		for child_idx in 0..children_count {
-			let child = &mut children[child_idx];
-			let new_state = child.tick(runtime).await?;
+        let children_count = children.len();
+        for child_idx in 0..children_count {
+            let child = &mut children[child_idx];
+            let new_state = child.tick(runtime).await?;
 
-			all_skipped &= new_state == BehaviorState::Skipped;
+            all_skipped &= new_state == BehaviorState::Skipped;
 
-			match new_state {
-				BehaviorState::Failure => {
-					self.running_child_idx = -1;
-					children.halt(runtime)?;
-					return Ok(BehaviorState::Failure);
-				}
-				BehaviorState::Idle => {
-					return Err(BehaviorError::State("ReactiveSequence".into(), "Idle".into()));
-				}
-				BehaviorState::Running => {
-					// halt previously running child
-					if self.running_child_idx != (child_idx as i32) && self.running_child_idx != -1 {
-						children[self.running_child_idx as usize].halt_children(runtime)?;
-						self.running_child_idx = -1;
-					}
-					if self.running_child_idx == -1 {
-						self.running_child_idx = child_idx as i32;
-					} else if self.running_child_idx != (child_idx as i32) {
-						// Multiple children running at the same time
-						return Err(BehaviorError::Composition(
-							"[ReactiveSequence]: Only a single child can return Running.".into(),
-						));
-					}
-					return Ok(BehaviorState::Running);
-				}
-				BehaviorState::Skipped => {
-					// halt current child
-					child.halt_children(runtime)?;
-					self.running_child_idx = -1;
-				}
-				BehaviorState::Success => {
-					self.running_child_idx = -1;
-				}
-			}
-		}
+            match new_state {
+                BehaviorState::Failure => {
+                    self.running_child_idx = -1;
+                    children.halt(runtime)?;
+                    return Ok(BehaviorState::Failure);
+                }
+                BehaviorState::Idle => {
+                    return Err(BehaviorError::State(
+                        "ReactiveSequence".into(),
+                        "Idle".into(),
+                    ));
+                }
+                BehaviorState::Running => {
+                    // halt previously running child
+                    if self.running_child_idx != (child_idx as i32) && self.running_child_idx != -1
+                    {
+                        children[self.running_child_idx as usize].halt_children(runtime)?;
+                        self.running_child_idx = -1;
+                    }
+                    if self.running_child_idx == -1 {
+                        self.running_child_idx = child_idx as i32;
+                    } else if self.running_child_idx != (child_idx as i32) {
+                        // Multiple children running at the same time
+                        return Err(BehaviorError::Composition(
+                            "[ReactiveSequence]: Only a single child can return Running.".into(),
+                        ));
+                    }
+                    return Ok(BehaviorState::Running);
+                }
+                BehaviorState::Skipped => {
+                    // halt current child
+                    child.halt_children(runtime)?;
+                    self.running_child_idx = -1;
+                }
+                BehaviorState::Success => {
+                    self.running_child_idx = -1;
+                }
+            }
+        }
 
-		// Reset children
-		children.halt(runtime)?;
+        // Reset children
+        children.halt(runtime)?;
 
-		if all_skipped {
-			Ok(BehaviorState::Skipped)
-		} else {
-			Ok(BehaviorState::Success)
-		}
-	}
+        if all_skipped {
+            Ok(BehaviorState::Skipped)
+        } else {
+            Ok(BehaviorState::Success)
+        }
+    }
 }
 
 impl BehaviorStatic for ReactiveSequence {
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Control
-	}
+    fn kind() -> BehaviorKind {
+        BehaviorKind::Control
+    }
 }
 // endregion:   --- ReactiveSequence
