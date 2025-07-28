@@ -52,10 +52,6 @@ harness = false
 name = "tree"
 harness = false
 
-[[bench]]
-name = "observer"
-harness = false
-
 [lib]
 name = "behaviortree"
 

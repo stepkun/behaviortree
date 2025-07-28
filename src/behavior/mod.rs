@@ -284,12 +284,14 @@ impl BehaviorData {
 
     /// Method to set the state.
     pub fn set_state(&mut self, state: BehaviorState) {
-        // Callback before setting state
-        let mut state = state;
-        for (_, callback) in &self.pre_state_change_hooks {
-            callback(self, &mut state);
+        if state != self.state {
+            // Callback before setting state
+            let mut state = state;
+            for (_, callback) in &self.pre_state_change_hooks {
+                callback(self, &mut state);
+            }
+            self.state = state;
         }
-        self.state = state;
     }
 
     /// Add a pre state change callback with the given name.

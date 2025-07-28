@@ -10,16 +10,13 @@ use std::time::Duration;
 
 use behaviortree::{
     behavior::{
-        BehaviorState::{Failure, Running, Success},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        control::{
+        action::ChangeStateAfter, control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
             SequenceWithMemory,
-        },
+        }, BehaviorState::{Failure, Running, Success}, BehaviorStatic
     },
-    factory::{BehaviorTreeFactory, error::Error},
-    register_behavior,
+    factory::{error::Error, BehaviorTreeFactory},
+    register_behavior, BehaviorTreeObserver, Groot2Connector,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 use tokio::try_join;
@@ -189,8 +186,10 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
     Ok(factory)
 }
 
-fn complex(c: &mut Criterion) {
+#[allow(clippy::too_many_lines)]
+fn trees(c: &mut Criterion) {
     let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_io()
         .build()
         .expect("snh");
 
@@ -208,6 +207,40 @@ fn complex(c: &mut Criterion) {
                 }
                 std::hint::black_box(());
             });
+        });
+    });
+
+    let mut tree = factory.create_tree("MainTree").expect("snh");
+    runtime.block_on(async {
+        let _observer = BehaviorTreeObserver::new(&mut tree);
+    });
+    group.bench_function("tree observer", |b| {
+        b.iter(|| {
+            runtime.block_on(async {
+                for _ in 1..=ITERATIONS {
+                    tree.reset().await.expect("snh");
+                    tree.tick_while_running().await.expect("snh");
+                }
+                std::hint::black_box(());
+            });
+            std::hint::black_box(());
+        });
+    });
+
+    let mut tree = factory.create_tree("MainTree").expect("snh");
+    runtime.block_on(async {
+        let _publisher = Groot2Connector::new(&mut tree, 9999);
+    });
+    group.bench_function("groot2 connector", |b| {
+        b.iter(|| {
+            runtime.block_on(async {
+                for _ in 1..=ITERATIONS {
+                    tree.reset().await.expect("snh");
+                    tree.tick_while_running().await.expect("snh");
+                }
+                std::hint::black_box(());
+            });
+            std::hint::black_box(());
         });
     });
 
@@ -278,6 +311,6 @@ fn complex(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, complex);
+criterion_group!(benches, trees);
 
 criterion_main!(benches);

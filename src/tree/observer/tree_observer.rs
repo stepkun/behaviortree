@@ -69,6 +69,7 @@ impl Statistics {
 // region:      --- BehaviorTreeObserver
 /// An observer collecting [`BehaviorTree`] statistics
 pub struct BehaviorTreeObserver {
+    /// The shared statistics data
     statistics: Arc<Mutex<Vec<Statistics>>>,
 }
 
@@ -82,31 +83,27 @@ impl BehaviorTreeObserver {
         for element in root.iter_mut() {
             statistics.lock().push(Statistics::default());
             let statistics_clone: Arc<Mutex<Vec<Statistics>>> = statistics.clone();
+			// the callback
             let callback = move |behavior: &BehaviorData, new_state: &mut BehaviorState| {
-                let old_state = behavior.state();
-                if old_state != *new_state {
-                    let timestamp = Instant::now();
-                    let mut stats = statistics_clone.lock();
-                    let entry = &mut stats[behavior.uid() as usize];
-                    if *new_state != behavior.state() {
-                        entry.transitions_count += 1;
-                        match new_state {
-                            BehaviorState::Failure => {
-                                entry.failure_count += 1;
-                                entry.last_result = *new_state;
-                            }
-                            BehaviorState::Idle | BehaviorState::Running => {}
-                            BehaviorState::Skipped => entry.skip_count += 1,
-                            BehaviorState::Success => {
-                                entry.success_count += 1;
-                                entry.last_result = *new_state;
-                            }
-                        }
-                        entry.current_state = *new_state;
-                        entry.timestamp = timestamp;
+                let mut stats = statistics_clone.lock();
+                let entry = &mut stats[behavior.uid() as usize];
+                entry.transitions_count += 1;
+                match new_state {
+                    BehaviorState::Failure => {
+                        entry.failure_count += 1;
+                        entry.last_result = *new_state;
                     }
-                    drop(stats);
+                    BehaviorState::Idle | BehaviorState::Running => {}
+                    BehaviorState::Skipped => entry.skip_count += 1,
+                    BehaviorState::Success => {
+                        entry.success_count += 1;
+                        entry.last_result = *new_state;
+                    }
                 }
+                entry.current_state = *new_state;
+                // #[cfg(feature = "std")]
+                entry.timestamp = Instant::now();
+                drop(stats);
             };
             element.add_pre_state_change_callback(id.clone(), callback);
         }

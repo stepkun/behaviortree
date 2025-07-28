@@ -87,6 +87,10 @@ async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     // special creation/registration uf multiple methods of a struct
+    #[cfg(test)]
+    let _crossdoor = CrossDoor::register_behaviors(&mut factory)?;
+
+    #[cfg(not(test))]
     let crossdoor = CrossDoor::register_behaviors(&mut factory)?;
     // Nodes registration, as usual
     register_behavior!(factory, UpdatePosition, "UpdatePosition")?;
@@ -217,13 +221,13 @@ const METADATA_RESULT: &str = r#"<root BTCPP_format="4">
     </Sequence>
   </BehaviorTree>
   <BehaviorTree ID="DoorClosed" _fullpath="DoorClosed::7">
-      <Fallback name="tryOpen" _uid="8" _onSuccess="door_open:=true">
-        <OpenDoor name="OpenDoor" _uid="9"/>
-        <RetryUntilSuccessful name="RetryUntilSuccessful" _uid="10" num_attempts="5">
-          <PickLock name="PickLock" _uid="11"/>
-        </RetryUntilSuccessful>
-        <SmashDoor name="SmashDoor" _uid="12"/>
-      </Fallback>
+    <Fallback name="tryOpen" _uid="8" _onSuccess="door_open:=true">
+      <OpenDoor name="OpenDoor" _uid="9"/>
+      <RetryUntilSuccessful name="RetryUntilSuccessful" _uid="10" num_attempts="5">
+        <PickLock name="PickLock" _uid="11"/>
+      </RetryUntilSuccessful>
+      <SmashDoor name="SmashDoor" _uid="12"/>
+    </Fallback>
   </BehaviorTree>
   <TreeNodesModel>
     <Condition ID="IsDoorClosed"/>

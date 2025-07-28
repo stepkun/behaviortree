@@ -1,8 +1,7 @@
 // Copyright © 2025 Stephan Kunz
 #![allow(unused)]
 
-//! [`Groot2Connector`] implementation.
-//!
+//! Groot2 protocol implementation.
 
 extern crate std;
 
@@ -80,9 +79,10 @@ const GET_TRANSITIONS: &str = "get_transitions";
 impl Display for Groot2RequestType {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let text = match self {
-            Self::Undefined => UNDEFINED,
-            Self::FullTree => FULLTREE,
             Self::State => STATUS,
+            Self::GetTransitions => GET_TRANSITIONS,
+            Self::FullTree => FULLTREE,
+            Self::Undefined => UNDEFINED,
             Self::BlackBoard => BLACKBOARD,
             Self::HookInsert => HOOK_INSERT,
             Self::HookRemove => HOOK_REMOVE,
@@ -92,7 +92,6 @@ impl Display for Groot2RequestType {
             Self::BreakpointReached => BREAKPOINT_REACHED,
             Self::BreakpointUnlock => BREAKPOINT_UNLOCK,
             Self::ToggleRecording => TOGGLE_RECORDING,
-            Self::GetTransitions => GET_TRANSITIONS,
         };
         write!(f, "{text}")
     }
@@ -109,8 +108,9 @@ impl TryFrom<u8> for Groot2RequestType {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
-            b'T' => Ok(Self::FullTree),
             b'S' => Ok(Self::State),
+            b't' => Ok(Self::GetTransitions),
+            b'T' => Ok(Self::FullTree),
             b'B' => Ok(Self::BlackBoard),
             b'I' => Ok(Self::HookInsert),
             b'R' => Ok(Self::HookRemove),
@@ -120,7 +120,6 @@ impl TryFrom<u8> for Groot2RequestType {
             b'N' => Ok(Self::BreakpointReached),
             b'U' => Ok(Self::BreakpointUnlock),
             b'r' => Ok(Self::ToggleRecording),
-            b't' => Ok(Self::GetTransitions),
             _ => Err(Self::Error::InvalidRequestType(value)),
         }
     }
@@ -215,7 +214,7 @@ pub struct Groot2TransitionInfo {
 impl From<&Groot2TransitionInfo> for Bytes {
     fn from(value: &Groot2TransitionInfo) -> Self {
         let mut bytes = BytesMut::with_capacity(9);
-        let timestamp = value.timestamp.to_ne_bytes();
+        let timestamp = value.timestamp.to_le_bytes();
         bytes.extend_from_slice(&timestamp[..6]);
         let uid = value.uid.to_ne_bytes();
         bytes.extend_from_slice(&uid[..]);

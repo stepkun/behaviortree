@@ -31,7 +31,10 @@ use crate::{ConstString, XmlCreator};
 use crate::tree::BehaviorTree;
 // endregion:   --- modules
 
-const TRANSITION_SIZE: u32 = 25;
+/// Predefined size of the behavior state transition buffer.
+/// This amount will be buffered between sends.
+/// If there are more state transitions happening, the eldest will be dropped.
+const TRANSITION_SIZE: u32 = 100;
 
 // region:      --- Groot2Connector
 /// The [`Groot2Connector`] is used to create an interface between Groot2
@@ -40,16 +43,23 @@ const TRANSITION_SIZE: u32 = 25;
 /// The connection is via TCP and has to be established by Groot2.
 /// So the connector on tree side only needs to know the port it shall listen on.
 pub struct Groot2Connector<'a> {
-    /// Flag for recording transitions, accessible from multiple tasks
-    recording: Arc<Mutex<bool>>,
     /// A reference to the observed tree
     root: &'a BehaviorTree,
-    /// The state buffer for Groot communication
-    state_buffer: Arc<Mutex<BytesMut>>,
-    /// The transitions buffer for Groot communication
-    transitions_buffer: Arc<Mutex<VecDeque<Groot2TransitionInfo>>>,
+    /// Shared data across multiple tasks (callbacks)
+    shared: Arc<Mutex<Inner>>,
     /// Response server
     server_handle: JoinHandle<Result<(), zeromq::ZmqError>>,
+}
+
+struct Inner {
+    /// The state buffer for Groot communication
+    state_buffer: BytesMut,
+    /// Flag for recording transitions, accessible from multiple tasks
+    recording: bool,
+	/// Current size of the transition buffer
+	transitions: u32,
+    /// The transitions buffer for Groot communication
+    transitions_buffer: VecDeque<Groot2TransitionInfo>,
 }
 
 impl<'a> Groot2Connector<'a> {
@@ -58,51 +68,48 @@ impl<'a> Groot2Connector<'a> {
     #[must_use]
     #[allow(clippy::too_many_lines)]
     pub fn new(root: &'a mut BehaviorTree, port: u16) -> Self {
-        let recording = Arc::new(Mutex::new(false));
         // an empty transitions buffer
-        let transitions_buffer = Arc::new(Mutex::new(VecDeque::new()));
+        let transitions_buffer = VecDeque::new();
         // a state buffer
         let tree_size = root.size() - 1; // without root
-        let state_buffer = Arc::new(Mutex::new(BytesMut::zeroed((3 * tree_size) as usize)));
+        let mut state_buffer = BytesMut::zeroed((3 * tree_size) as usize);
         // initialize state buffer
-        let mut buf = state_buffer.lock();
         for i in 0..tree_size {
             let index = (3 * i) as usize;
             let bytes = (i + 1).to_be_bytes();
-            buf[index] = bytes[0];
-            buf[index] = bytes[1];
+            state_buffer[index] = bytes[0];
+            state_buffer[index] = bytes[1];
         }
-        drop(buf);
 
+		let shared = Arc::new(Mutex::new(Inner {
+			state_buffer,
+			recording: false,
+			transitions: 0,
+			transitions_buffer
+		}));
         let id: ConstString = "groot_state".into();
         // add a callback for each tree element
         let size = Arc::new(Mutex::new(0));
         for element in root.iter_mut() {
-            let size_clone = size.clone();
-            let recording_clone = recording.clone();
-            let transitions_buffer_clone = transitions_buffer.clone();
-            let state_buffer_clone = state_buffer.clone();
+			let shared_clone = shared.clone();
+			// the callback
             let callback = move |behavior: &BehaviorData, new_state: &mut BehaviorState| {
-                let old_state = behavior.state();
-                if old_state != *new_state {
-                    let timestamp = Instant::now();
-                    // Groot does not want a state for root
-                    if behavior.uid() > 0 && *new_state != behavior.state() {
+                if behavior.state() != *new_state {
+                    // Groot does not need a state for root
+                    if behavior.uid() != 0 {
                         let state = if *new_state == BehaviorState::Idle {
                             behavior.state() as u8 + 10
                         } else {
                             *new_state as u8
                         };
+    					let mut shared_guard = shared_clone.lock();
+						let uid = behavior.uid().to_le_bytes();
                         let index = 3 * ((behavior.uid() - 1) as usize);
-                        {
-                            let mut buf = state_buffer_clone.lock();
-                            let bytes = behavior.uid().to_be_bytes();
-                            buf[index] = bytes[0];
-                            buf[index] = bytes[1];
-                            buf[index + 2] = state;
-                        }
+						shared_guard.state_buffer[index] = uid[0];
+						shared_guard.state_buffer[index + 1] = uid[1];
+						shared_guard.state_buffer[index + 2] = state;
 
-                        if *recording_clone.lock() {
+                        if shared_guard.recording {
                             #[cfg(feature = "std")]
                             #[allow(clippy::cast_possible_truncation)]
                             let timestamp = std::time::SystemTime::now()
@@ -113,19 +120,16 @@ impl<'a> Groot2Connector<'a> {
                             let timestamp = 1753525195699631u64;
                             let info =
                                 Groot2TransitionInfo::new(timestamp, behavior.uid(), *new_state);
-                            let mut buf_guard = transitions_buffer_clone.lock();
-                            let mut buf_size_guard = size_clone.lock();
-                            if buf_guard.is_empty() {
-                                *buf_size_guard = 0;
-                            } else if *buf_size_guard >= TRANSITION_SIZE {
-                                buf_guard.pop_front();
+                            if shared_guard.transitions_buffer.is_empty() {
+                                shared_guard.transitions = 0;
+                            } else if shared_guard.transitions >= TRANSITION_SIZE {
+                                shared_guard.transitions_buffer.pop_front();
                             } else {
-                                *buf_size_guard += 1;
+                                shared_guard.transitions += 1;
                             }
-                            buf_guard.push_back(info);
-                            drop(buf_size_guard);
-                            drop(buf_guard);
+                            shared_guard.transitions_buffer.push_back(info);
                         }
+						drop(shared_guard);
                     }
                 }
             };
@@ -133,11 +137,9 @@ impl<'a> Groot2Connector<'a> {
         }
 
         // @TODO: proper error handling
-        let state_buffer_clone = state_buffer.clone();
-        let transitions_buffer_clone = transitions_buffer.clone();
+		let shared_clone = shared.clone();
         let tree_id = root.uuid();
         let xml = XmlCreator::groot_write_tree(root).expect("snh");
-        let recording_flag = recording.clone();
 
         let server_handle = tokio::spawn(async move {
             let server_address = String::from("tcp://0.0.0.0:") + &port.to_string();
@@ -157,7 +159,7 @@ impl<'a> Groot2Connector<'a> {
                             // most requests will be "State"
                             Groot2RequestType::State => {
                                 // std::println!("{:?}", buffer.lock());
-                                reply.push_back(state_buffer_clone.lock().clone().into());
+                                reply.push_back(shared_clone.lock().state_buffer.clone().into());
                             }
                             Groot2RequestType::FullTree => {
                                 reply.push_back(xml.as_bytes().to_owned().into());
@@ -200,14 +202,13 @@ impl<'a> Groot2Connector<'a> {
                                     match &cmd[..] {
                                         b"start" => {
                                             // activate transition recording
-                                            *recording_flag.lock() = true;
-                                            {
-                                                let mut buf = transitions_buffer_clone.lock();
-                                                // clear transition buffer
-                                                buf.clear();
-                                                // ensure that we can store at least TRANSITION_SIZE elements
-                                                buf.reserve(TRANSITION_SIZE as usize);
-                                            }
+											let mut shared_guard = shared_clone.lock();
+                                            shared_guard.recording = true;
+											// clear transition buffer
+											shared_guard.transitions_buffer.clear();
+											// ensure that we can store at least TRANSITION_SIZE elements
+											shared_guard.transitions_buffer.reserve(TRANSITION_SIZE as usize);
+											drop(shared_guard);
                                             // return the microseconds since 01.01.1970
                                             #[cfg(feature = "std")]
                                             #[allow(clippy::cast_possible_truncation)]
@@ -222,7 +223,7 @@ impl<'a> Groot2Connector<'a> {
                                         }
                                         b"stop" => {
                                             // de-activate transition recording
-                                            *recording_flag.lock() = false;
+                                            shared_clone.lock().recording = false;
                                         }
                                         _ => {
                                             // this will only happen if there is some new Groot feature
@@ -239,13 +240,13 @@ impl<'a> Groot2Connector<'a> {
                                 // @TODO: send transition buffer
                                 let mut bytes =
                                     BytesMut::with_capacity((TRANSITION_SIZE * 9) as usize);
-                                let mut buf = transitions_buffer_clone.lock();
-                                for info in buf.iter() {
+                                let mut shared_guard = shared_clone.lock();
+                                for info in &shared_guard.transitions_buffer {
                                     bytes.extend(Bytes::from(info));
                                 }
                                 // std::println!("{:?}", &bytes);
                                 reply.push_back(Bytes::from(bytes));
-                                buf.clear();
+                                shared_guard.transitions_buffer.clear();
                             }
                             Groot2RequestType::Undefined => {
                                 std::dbg!(&request);
@@ -267,10 +268,8 @@ impl<'a> Groot2Connector<'a> {
         });
 
         Self {
-            recording,
             root,
-            state_buffer,
-            transitions_buffer,
+			shared,
             server_handle,
         }
     }
