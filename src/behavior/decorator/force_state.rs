@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::behavior::{BehaviorData, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -44,7 +44,7 @@ impl BehaviorInstance for ForceState {
                 children.halt(runtime)?;
                 Ok(self.state)
             }
-            BehaviorState::Idle => Err(BehaviorError::State("ForceState".into(), "Idle".into())),
+            BehaviorState::Idle => Err(BehaviorError::State("ForceState".into(), IDLE.into())),
             state @ (BehaviorState::Running | BehaviorState::Skipped) => Ok(state),
         }
     }

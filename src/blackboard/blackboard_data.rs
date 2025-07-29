@@ -5,7 +5,7 @@
 //! Blackboard for behaviortree
 
 // region:      --- modules
-use crate::ConstString;
+use crate::{ConstString, SHOULD_NOT_HAPPEN};
 use alloc::{
     borrow::ToOwned,
     boxed::Box,
@@ -191,34 +191,34 @@ impl Environment for BlackboardData {
                 // let entry = **(entry);
                 let type_id = (**entry).type_id();
                 if type_id == TypeId::of::<String>() {
-                    let s = entry.downcast_ref::<String>().expect("snh");
+                    let s = entry.downcast_ref::<String>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::String(s.to_owned()))
                 } else if type_id == TypeId::of::<f64>() {
-                    let f = entry.downcast_ref::<f64>().expect("snh");
+                    let f = entry.downcast_ref::<f64>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Float64(f.to_owned()))
                 } else if type_id == TypeId::of::<f32>() {
-                    let f = entry.downcast_ref::<f32>().expect("snh");
+                    let f = entry.downcast_ref::<f32>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Float64(f64::from(f.to_owned())))
                 } else if type_id == TypeId::of::<i64>() {
-                    let i = entry.downcast_ref::<i64>().expect("snh");
+                    let i = entry.downcast_ref::<i64>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Int64(i.to_owned()))
                 } else if type_id == TypeId::of::<i32>() {
-                    let i = entry.downcast_ref::<i32>().expect("snh");
+                    let i = entry.downcast_ref::<i32>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
                 } else if type_id == TypeId::of::<u32>() {
-                    let i = entry.downcast_ref::<u32>().expect("snh");
+                    let i = entry.downcast_ref::<u32>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
                 } else if type_id == TypeId::of::<i16>() {
-                    let i = entry.downcast_ref::<i16>().expect("snh");
+                    let i = entry.downcast_ref::<i16>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
                 } else if type_id == TypeId::of::<u16>() {
-                    let i = entry.downcast_ref::<u16>().expect("snh");
+                    let i = entry.downcast_ref::<u16>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
                 } else if type_id == TypeId::of::<u8>() {
-                    let i = entry.downcast_ref::<u8>().expect("snh");
+                    let i = entry.downcast_ref::<u8>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
                 } else if type_id == TypeId::of::<i8>() {
-                    let i = entry.downcast_ref::<i8>().expect("snh");
+                    let i = entry.downcast_ref::<i8>().expect(SHOULD_NOT_HAPPEN);
                     Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
                 } else {
                     Err(ScriptingError::GlobalHasUnknownType(name.into()))

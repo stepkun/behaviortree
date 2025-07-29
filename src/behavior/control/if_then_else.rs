@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::behavior::{BehaviorData, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -85,7 +85,7 @@ impl BehaviorInstance for IfThenElse {
                     }
                 },
                 BehaviorState::Idle => {
-                    return Err(BehaviorError::State("IfThenElse".into(), "Idle".into()));
+                    return Err(BehaviorError::State("IfThenElse".into(), IDLE.into()));
                 }
                 BehaviorState::Running => {
                     return Ok(BehaviorState::Running);

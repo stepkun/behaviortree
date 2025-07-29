@@ -8,8 +8,8 @@ use alloc::boxed::Box;
 use alloc::collections::btree_set::BTreeSet;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::{self as behaviortree, MAX_FAILURES};
+use crate::behavior::{BehaviorData, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -64,7 +64,7 @@ impl BehaviorInstance for ParallelAll {
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
         // check composition only once at start
-        self.failure_threshold = behavior.get("max_failures").unwrap_or(-1);
+        self.failure_threshold = behavior.get(MAX_FAILURES).unwrap_or(-1);
 
         if (children.len() as i32) < self.failure_threshold {
             return Err(BehaviorError::Composition(
@@ -106,7 +106,7 @@ impl BehaviorInstance for ParallelAll {
                 BehaviorState::Running => {}
                 // Throw error, should never happen
                 BehaviorState::Idle => {
-                    return Err(BehaviorError::State("ParallelAll".into(), "Idle".into()));
+                    return Err(BehaviorError::State("ParallelAll".into(), IDLE.into()));
                 }
             }
         }
@@ -142,7 +142,7 @@ impl BehaviorStatic for ParallelAll {
     }
 
     fn provided_ports() -> PortList {
-        port_list![input_port!(i32, "max_failures")]
+        port_list![input_port!(i32, MAX_FAILURES)]
     }
 }
 // endregion:   --- ParallelAll

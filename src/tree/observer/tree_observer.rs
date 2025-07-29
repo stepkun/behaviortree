@@ -83,7 +83,7 @@ impl BehaviorTreeObserver {
         for element in root.iter_mut() {
             statistics.lock().push(Statistics::default());
             let statistics_clone: Arc<Mutex<Vec<Statistics>>> = statistics.clone();
-			// the callback
+            // the callback
             let callback = move |behavior: &BehaviorData, new_state: &mut BehaviorState| {
                 let mut stats = statistics_clone.lock();
                 let entry = &mut stats[behavior.uid() as usize];

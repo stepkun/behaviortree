@@ -19,6 +19,7 @@ use alloc::{
 use roxmltree::Document;
 
 use crate::{
+    SHOULD_NOT_HAPPEN,
     behavior::{
         Behavior, BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState,
         BehaviorStatic, ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn,
@@ -408,11 +409,12 @@ impl BehaviorTreeFactory {
     pub fn register_from_plugin(&mut self, name: &str) -> Result<(), Error> {
         // create path from exe path
         // in dev environment maybe we have to remove a '/deps'
+
         let exe_path = std::env::current_exe()?
             .parent()
-            .expect("snh")
+            .expect(SHOULD_NOT_HAPPEN)
             .to_str()
-            .expect("snh")
+            .expect(SHOULD_NOT_HAPPEN)
             .trim_end_matches("/deps")
             .to_string();
 

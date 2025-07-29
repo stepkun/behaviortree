@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::behavior::{BehaviorData, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -43,7 +43,7 @@ impl BehaviorInstance for Inverter {
                 children.halt(runtime)?;
                 Ok(BehaviorState::Success)
             }
-            BehaviorState::Idle => Err(BehaviorError::State("Inverter".into(), "Idle".into())),
+            BehaviorState::Idle => Err(BehaviorError::State("Inverter".into(), IDLE.into())),
             state @ (BehaviorState::Running | BehaviorState::Skipped) => Ok(state),
             BehaviorState::Success => {
                 children.halt(runtime)?;

@@ -7,7 +7,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::ConstString;
+use crate::{ConstString, SHOULD_NOT_HAPPEN};
 use alloc::{
     collections::btree_map::BTreeMap,
     string::{String, ToString},
@@ -164,7 +164,7 @@ impl XmlCreator {
         }
 
         let inner = writer.into_inner();
-        let res = String::from_utf8(inner).expect("snh");
+        let res = String::from_utf8(inner).expect(SHOULD_NOT_HAPPEN);
         Ok(res.into())
     }
 
@@ -307,7 +307,7 @@ impl XmlCreator {
         }
 
         let inner = writer.into_inner();
-        let res = String::from_utf8(inner).expect("snh");
+        let res = String::from_utf8(inner).expect(SHOULD_NOT_HAPPEN);
         Ok(res.into())
     }
 

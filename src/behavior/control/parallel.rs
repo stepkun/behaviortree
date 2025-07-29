@@ -9,7 +9,7 @@ use alloc::collections::btree_set::BTreeSet;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::behavior::{BehaviorData, IDLE};
 use crate::behavior::error::BehaviorError;
 use crate::{
     Behavior,
@@ -38,6 +38,10 @@ pub struct Parallel {
     /// The list of completed sub behaviors
     completed_list: BTreeSet<usize>,
 }
+
+/// The port names
+const SUCCESS_COUNT: &str = "success_count";
+const FAILURE_COUNT: &str = "failure_count";
 
 impl Default for Parallel {
     fn default() -> Self {
@@ -72,8 +76,8 @@ impl BehaviorInstance for Parallel {
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
         // check composition only once at start
-        self.success_threshold = behavior.get("success_count").unwrap_or(-1);
-        self.failure_threshold = behavior.get("failure_count").unwrap_or(-1);
+        self.success_threshold = behavior.get(SUCCESS_COUNT).unwrap_or(-1);
+        self.failure_threshold = behavior.get(FAILURE_COUNT).unwrap_or(-1);
 
         let children_count = children.len();
 
@@ -122,7 +126,7 @@ impl BehaviorInstance for Parallel {
                     BehaviorState::Running => {}
                     // Throw error, should never happen
                     BehaviorState::Idle => {
-                        return Err(BehaviorError::State("Parallel".into(), "Idle".into()));
+                        return Err(BehaviorError::State("Parallel".into(), IDLE.into()));
                     }
                 }
             }
@@ -165,8 +169,8 @@ impl BehaviorStatic for Parallel {
 
     fn provided_ports() -> PortList {
         port_list![
-            input_port!(i32, "failure_count"),
-            input_port!(i32, "success_count")
+            input_port!(i32, SUCCESS_COUNT),
+            input_port!(i32, FAILURE_COUNT)
         ]
     }
 }

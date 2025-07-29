@@ -26,7 +26,7 @@ use crate::behavior::{BehaviorData, BehaviorState};
 use crate::tree::observer::groot2_protocol::{
     Groot2ReplyHeader, Groot2RequestHeader, Groot2RequestType, Groot2TransitionInfo,
 };
-use crate::{ConstString, XmlCreator};
+use crate::{ConstString, XmlCreator, SHOULD_NOT_HAPPEN};
 
 use crate::tree::BehaviorTree;
 // endregion:   --- modules
@@ -42,9 +42,7 @@ const TRANSITION_SIZE: u32 = 100;
 ///
 /// The connection is via TCP and has to be established by Groot2.
 /// So the connector on tree side only needs to know the port it shall listen on.
-pub struct Groot2Connector<'a> {
-    /// A reference to the observed tree
-    root: &'a BehaviorTree,
+pub struct Groot2Connector {
     /// Shared data across multiple tasks (callbacks)
     shared: Arc<Mutex<Inner>>,
     /// Response server
@@ -56,22 +54,22 @@ struct Inner {
     state_buffer: BytesMut,
     /// Flag for recording transitions, accessible from multiple tasks
     recording: bool,
-	/// Current size of the transition buffer
-	transitions: u32,
+    /// Current size of the transition buffer
+    transitions: u32,
     /// The transitions buffer for Groot communication
     transitions_buffer: VecDeque<Groot2TransitionInfo>,
 }
 
-impl<'a> Groot2Connector<'a> {
+impl Groot2Connector {
     /// Construct a new [`Groot2Connector`].
     /// # Panics
     #[must_use]
     #[allow(clippy::too_many_lines)]
-    pub fn new(root: &'a mut BehaviorTree, port: u16) -> Self {
+    pub fn new(tree: &mut BehaviorTree, port: u16) -> Self {
         // an empty transitions buffer
         let transitions_buffer = VecDeque::new();
         // a state buffer
-        let tree_size = root.size() - 1; // without root
+        let tree_size = tree.size() - 1; // without root
         let mut state_buffer = BytesMut::zeroed((3 * tree_size) as usize);
         // initialize state buffer
         for i in 0..tree_size {
@@ -81,18 +79,18 @@ impl<'a> Groot2Connector<'a> {
             state_buffer[index] = bytes[1];
         }
 
-		let shared = Arc::new(Mutex::new(Inner {
-			state_buffer,
-			recording: false,
-			transitions: 0,
-			transitions_buffer
-		}));
+        let shared = Arc::new(Mutex::new(Inner {
+            state_buffer,
+            recording: false,
+            transitions: 0,
+            transitions_buffer,
+        }));
         let id: ConstString = "groot_state".into();
         // add a callback for each tree element
         let size = Arc::new(Mutex::new(0));
-        for element in root.iter_mut() {
-			let shared_clone = shared.clone();
-			// the callback
+        for element in tree.iter_mut() {
+            let shared_clone = shared.clone();
+            // the callback
             let callback = move |behavior: &BehaviorData, new_state: &mut BehaviorState| {
                 if behavior.state() != *new_state {
                     // Groot does not need a state for root
@@ -102,12 +100,12 @@ impl<'a> Groot2Connector<'a> {
                         } else {
                             *new_state as u8
                         };
-    					let mut shared_guard = shared_clone.lock();
-						let uid = behavior.uid().to_le_bytes();
+                        let mut shared_guard = shared_clone.lock();
+                        let uid = behavior.uid().to_le_bytes();
                         let index = 3 * ((behavior.uid() - 1) as usize);
-						shared_guard.state_buffer[index] = uid[0];
-						shared_guard.state_buffer[index + 1] = uid[1];
-						shared_guard.state_buffer[index + 2] = state;
+                        shared_guard.state_buffer[index] = uid[0];
+                        shared_guard.state_buffer[index + 1] = uid[1];
+                        shared_guard.state_buffer[index + 2] = state;
 
                         if shared_guard.recording {
                             #[cfg(feature = "std")]
@@ -129,7 +127,7 @@ impl<'a> Groot2Connector<'a> {
                             }
                             shared_guard.transitions_buffer.push_back(info);
                         }
-						drop(shared_guard);
+                        drop(shared_guard);
                     }
                 }
             };
@@ -137,9 +135,9 @@ impl<'a> Groot2Connector<'a> {
         }
 
         // @TODO: proper error handling
-		let shared_clone = shared.clone();
-        let tree_id = root.uuid();
-        let xml = XmlCreator::groot_write_tree(root).expect("snh");
+        let shared_clone = shared.clone();
+        let tree_id = tree.uuid();
+        let xml = XmlCreator::groot_write_tree(tree).expect(SHOULD_NOT_HAPPEN);
 
         let server_handle = tokio::spawn(async move {
             let server_address = String::from("tcp://0.0.0.0:") + &port.to_string();
@@ -202,13 +200,15 @@ impl<'a> Groot2Connector<'a> {
                                     match &cmd[..] {
                                         b"start" => {
                                             // activate transition recording
-											let mut shared_guard = shared_clone.lock();
+                                            let mut shared_guard = shared_clone.lock();
                                             shared_guard.recording = true;
-											// clear transition buffer
-											shared_guard.transitions_buffer.clear();
-											// ensure that we can store at least TRANSITION_SIZE elements
-											shared_guard.transitions_buffer.reserve(TRANSITION_SIZE as usize);
-											drop(shared_guard);
+                                            // clear transition buffer
+                                            shared_guard.transitions_buffer.clear();
+                                            // ensure that we can store at least TRANSITION_SIZE elements
+                                            shared_guard
+                                                .transitions_buffer
+                                                .reserve(TRANSITION_SIZE as usize);
+                                            drop(shared_guard);
                                             // return the microseconds since 01.01.1970
                                             #[cfg(feature = "std")]
                                             #[allow(clippy::cast_possible_truncation)]
@@ -268,8 +268,7 @@ impl<'a> Groot2Connector<'a> {
         });
 
         Self {
-            root,
-			shared,
+            shared,
             server_handle,
         }
     }

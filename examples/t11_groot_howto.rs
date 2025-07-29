@@ -122,7 +122,7 @@ async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
 
     // Connect the Groot2Publisher. This will allow Groot2 to
     // get the tree and poll status updates.
-    let _publisher = Groot2Connector::new(&mut tree, 1667);
+    let _publisher = Groot2Connector::new(&mut tree, 5555);
 
     #[cfg(test)]
     let result = tree.tick_while_running().await?;
@@ -132,9 +132,6 @@ async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
         println!("Start");
         tree.reset().await?;
         crossdoor.lock().reset();
-        // tree.tick_exactly_once().await?.is_completed() {
-        // 	tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
-        // }
         tree.tick_while_running().await?;
 
         tokio::time::sleep(tokio::time::Duration::from_millis(2000)).await;

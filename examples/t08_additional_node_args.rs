@@ -9,13 +9,9 @@
 extern crate alloc;
 
 use behaviortree::{
-    Behavior,
     behavior::{
         BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-    tree::{BehaviorTree, ConstBehaviorTreeElementList},
+    }, factory::BehaviorTreeFactory, register_behavior, tree::{BehaviorTree, ConstBehaviorTreeElementList}, Behavior, SHOULD_NOT_HAPPEN
 };
 use tinyscript::SharedRuntime;
 
@@ -129,7 +125,7 @@ async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
                 .behavior_mut()
                 .as_any_mut()
                 .downcast_mut::<ActionB>()
-                .expect("snh");
+                .expect(SHOULD_NOT_HAPPEN);
             action.initialize(69, "interesting value".into());
         }
     }
@@ -158,7 +154,7 @@ mod test {
         let mut iter = result.1.iter();
         assert_eq!(
             iter.next()
-                .expect("snh")
+                .expect(SHOULD_NOT_HAPPEN)
                 .data()
                 .description()
                 .name()
@@ -167,7 +163,7 @@ mod test {
         );
         assert_eq!(
             iter.next()
-                .expect("snh")
+                .expect(SHOULD_NOT_HAPPEN)
                 .data()
                 .description()
                 .name()
@@ -176,7 +172,7 @@ mod test {
         );
         assert_eq!(
             iter.next()
-                .expect("snh")
+                .expect(SHOULD_NOT_HAPPEN)
                 .data()
                 .description()
                 .name()
@@ -185,7 +181,7 @@ mod test {
         );
         assert_eq!(
             iter.next()
-                .expect("snh")
+                .expect(SHOULD_NOT_HAPPEN)
                 .data()
                 .description()
                 .name()

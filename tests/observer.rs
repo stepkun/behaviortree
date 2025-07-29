@@ -5,10 +5,10 @@
 extern crate alloc;
 
 use behaviortree::{
-    behavior::{BehaviorState, BehaviorStatic, action::ChangeStateAfter, control::Fallback},
+    behavior::{action::ChangeStateAfter, control::Fallback, BehaviorState, BehaviorStatic},
     factory::BehaviorTreeFactory,
     register_behavior,
-    tree::observer::BehaviorTreeObserver,
+    tree::observer::BehaviorTreeObserver, SHOULD_NOT_HAPPEN,
 };
 
 const TREE: &str = r#"
@@ -35,7 +35,7 @@ async fn tree_observer() -> anyhow::Result<()> {
         BehaviorState::Failure,
         2
     )
-    .expect("snh");
+    .expect(SHOULD_NOT_HAPPEN);
     register_behavior!(
         factory,
         ChangeStateAfter,
@@ -44,8 +44,8 @@ async fn tree_observer() -> anyhow::Result<()> {
         BehaviorState::Success,
         2
     )
-    .expect("snh");
-    register_behavior!(factory, Fallback, "Fallback").expect("snh");
+    .expect(SHOULD_NOT_HAPPEN);
+    register_behavior!(factory, Fallback, "Fallback").expect(SHOULD_NOT_HAPPEN);
 
     let mut tree = factory.create_from_text(TREE)?;
     let observer = BehaviorTreeObserver::new(&mut tree);
@@ -54,15 +54,15 @@ async fn tree_observer() -> anyhow::Result<()> {
     let result = tree.tick_while_running().await?;
     assert_eq!(result, BehaviorState::Success);
     assert_eq!(
-        observer.get_statistics(4).expect("snh").transitions_count,
+        observer.get_statistics(4).expect(SHOULD_NOT_HAPPEN).transitions_count,
         3
     );
     assert_eq!(
-        observer.get_statistics(4).expect("snh").transitions_count,
+        observer.get_statistics(4).expect(SHOULD_NOT_HAPPEN).transitions_count,
         3
     );
     assert_eq!(
-        observer.get_statistics(0).expect("snh").transitions_count,
+        observer.get_statistics(0).expect(SHOULD_NOT_HAPPEN).transitions_count,
         2
     );
     Ok(())

@@ -7,8 +7,8 @@
 use alloc::{boxed::Box, string::String};
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::{self as behaviortree, ELSE, IF};
+use crate::behavior::{BehaviorData, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
 use crate::behavior::error::BehaviorError;
 use crate::{
     Behavior,
@@ -34,7 +34,7 @@ impl BehaviorInstance for Precondition {
         children: &mut ConstBehaviorTreeElementList,
         runtime: &SharedRuntime,
     ) -> BehaviorResult {
-        let if_branch = behavior.get::<String>("if")?;
+        let if_branch = behavior.get::<String>(IF)?;
         let value = runtime.lock().run(&if_branch, behavior.blackboard_mut())?;
 
         let new_state = if value.is_bool() {
@@ -46,13 +46,13 @@ impl BehaviorInstance for Precondition {
             } else {
                 // halt eventually running child
                 child.halt_children(runtime)?;
-                let else_branch = behavior.get::<String>("else")?;
+                let else_branch = behavior.get::<String>(ELSE)?;
                 match else_branch.as_ref() {
-                    "Failure" => BehaviorState::Failure,
-                    "Idle" => BehaviorState::Idle,
-                    "Running" => BehaviorState::Running,
-                    "Skipped" => BehaviorState::Skipped,
-                    "Success" => BehaviorState::Success,
+                    FAILURE => BehaviorState::Failure,
+                    IDLE => BehaviorState::Idle,
+                    RUNNING => BehaviorState::Running,
+                    SKIPPED => BehaviorState::Skipped,
+                    SUCCESS => BehaviorState::Success,
                     _ => {
                         let value = runtime
                             .lock()
@@ -85,8 +85,8 @@ impl BehaviorStatic for Precondition {
 
     fn provided_ports() -> PortList {
         port_list![
-            input_port!(String, "if", "", "Condition to check."),
-            input_port!(String, "else", "", "Return state if condition is false."),
+            input_port!(String, IF, "", "Condition to check."),
+            input_port!(String, ELSE, "", "Return state if condition is false."),
         ]
     }
 }

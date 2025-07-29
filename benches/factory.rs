@@ -10,16 +10,13 @@ use std::time::Duration;
 
 use behaviortree::{
     behavior::{
-        BehaviorState::{Failure, Running, Success},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        control::{
+        action::ChangeStateAfter, control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
             SequenceWithMemory,
-        },
+        }, BehaviorState::{Failure, Running, Success}, BehaviorStatic
     },
-    factory::{BehaviorTreeFactory, error::Error},
-    register_behavior,
+    factory::{error::Error, BehaviorTreeFactory},
+    register_behavior, SHOULD_NOT_HAPPEN,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 
@@ -121,8 +118,8 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
     register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
     factory
         .register_behavior_tree_from_text(SUBTREE)
-        .expect("snh");
-    factory.register_behavior_tree_from_text(TREE).expect("snh");
+        .expect(SHOULD_NOT_HAPPEN);
+    factory.register_behavior_tree_from_text(TREE).expect(SHOULD_NOT_HAPPEN);
     Ok(factory)
 }
 
@@ -133,18 +130,18 @@ fn factory(c: &mut Criterion) {
     group.bench_function("instantiation", |b| {
         b.iter(|| {
             for _ in 1..=ITERATIONS {
-                let factory = create_factory().expect("snh");
+                let factory = create_factory().expect(SHOULD_NOT_HAPPEN);
                 drop(factory);
             }
             std::hint::black_box(());
         });
     });
 
-    let mut factory = create_factory().expect("snh");
+    let mut factory = create_factory().expect(SHOULD_NOT_HAPPEN);
     group.bench_function("tree creation", |b| {
         b.iter(|| {
             for _ in 1..=100 {
-                let _tree = factory.create_tree("MainTree").expect("snh");
+                let _tree = factory.create_tree("MainTree").expect(SHOULD_NOT_HAPPEN);
             }
             std::hint::black_box(());
         });

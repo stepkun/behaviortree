@@ -7,8 +7,8 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::{self as behaviortree, NUM_CYCLES};
+use crate::behavior::{BehaviorData, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -63,7 +63,7 @@ impl BehaviorInstance for Repeat {
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
         // Load num_cycles from the port value
-        self.num_cycles = behavior.get::<i32>("num_cycles")?;
+        self.num_cycles = behavior.get::<i32>(NUM_CYCLES)?;
 
         Ok(())
     }
@@ -84,7 +84,7 @@ impl BehaviorInstance for Repeat {
                     children.halt(runtime)?;
                     Ok(BehaviorState::Failure)
                 }
-                BehaviorState::Idle => Err(BehaviorError::State("Repeat".into(), "Idle".into())),
+                BehaviorState::Idle => Err(BehaviorError::State("Repeat".into(), IDLE.into())),
                 BehaviorState::Running => return Ok(BehaviorState::Running),
                 BehaviorState::Skipped => {
                     children.halt(runtime)?;
@@ -110,7 +110,7 @@ impl BehaviorStatic for Repeat {
     fn provided_ports() -> PortList {
         port_list![input_port!(
             i32,
-            "num_cycles",
+            NUM_CYCLES,
             "",
             "Repeat a successful child up to N times. Use -1 to create an infinite loop."
         )]

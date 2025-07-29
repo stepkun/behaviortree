@@ -35,6 +35,38 @@ use alloc::sync::Arc;
 pub type ConstString = Arc<str>;
 // endregion:   --- types
 
+// region:		--- literal constants
+/// Port names
+const CASE: &str = "case_";
+const CODE: &str = "code";
+const DELAY_MSEC: &str = "delay_msec";
+const ENTRY: &str = "entry";
+const ELSE: &str = "else";
+const IF: &str = "if";
+const IF_EMPTY: &str = "if_empty";
+const KEY: &str = "key";
+const MAX_FAILURES: &str = "max_failures";
+const MSEC: &str = "msec";
+const NUM_ATTEMPTS: &str = "num_attempts";
+const NUM_CYCLES: &str = "num_cycles";
+const OUTPUT_KEY: &str = "output_key";
+const QUEUE: &str = "queue";
+const THEN_SKIP: &str = "then_skip";
+const VALUE: &str = "value";
+const VARIABLE: &str = "variable";
+
+/// Behavior states
+const IDLE: &str = "Idle";
+const RUNNING: &str = "Running";
+const SUCCESS: &str = "Success";
+const FAILURE: &str = "Failure";
+const SKIPPED: &str = "Skipped";
+
+/// Global constant for expect statements that should never happen
+pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
+
+// endregion:	--- literal constants
+
 // region:		---macros
 /// Macro to register a behavior with additional arguments.
 ///
@@ -156,13 +188,13 @@ macro_rules! register_behavior {
 /// ```
 #[macro_export]
 macro_rules! register_scripting_enum {
-	// an enum type
+	// register an enum type
 	($factory:ident, $tp:ty) => {
 		for (key, value) in <$tp>::key_value_tuples() {
 			$factory.register_enum_tuple(key, value)?;
 		}
 	};
-	//
+	// register a key value pair
 	($factory:ident, $($key:literal, $value:literal),+ $(,)?) => {
 		$( $factory.register_enum_tuple($key, $value)?; )+;
 	};

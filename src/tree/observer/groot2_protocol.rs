@@ -280,6 +280,8 @@ pub struct ConditionVariable {}
 
 #[cfg(test)]
 mod tests {
+    use crate::SHOULD_NOT_HAPPEN;
+
     use super::*;
 
     #[test]
@@ -290,7 +292,7 @@ mod tests {
             rq_type: Groot2RequestType::FullTree,
         };
         let bytes = Bytes::from(&header);
-        let deserialized = Groot2RequestHeader::try_from(&bytes).expect("snh");
+        let deserialized = Groot2RequestHeader::try_from(&bytes).expect(SHOULD_NOT_HAPPEN);
         assert_eq!(deserialized.protocol_id, header.protocol_id);
         assert_eq!(deserialized.rq_type, header.rq_type);
         assert_eq!(deserialized.uid, header.uid);

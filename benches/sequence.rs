@@ -10,13 +10,10 @@ use std::time::Duration;
 
 use behaviortree::{
     behavior::{
-        BehaviorState::{Failure, Running, Success},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        control::{ReactiveSequence, Sequence, SequenceWithMemory},
+        action::ChangeStateAfter, control::{ReactiveSequence, Sequence, SequenceWithMemory}, BehaviorState::{Failure, Running, Success}, BehaviorStatic
     },
     factory::BehaviorTreeFactory,
-    register_behavior,
+    register_behavior, SHOULD_NOT_HAPPEN,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 
@@ -84,7 +81,7 @@ const WITH_MEMORY: &str = r#"
 fn sequence(c: &mut Criterion) {
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .build()
-        .expect("snh");
+        .expect(SHOULD_NOT_HAPPEN);
 
     let mut group = c.benchmark_group("sequence");
     group.measurement_time(DURATION).sample_size(SAMPLES);
@@ -98,7 +95,7 @@ fn sequence(c: &mut Criterion) {
         Failure,
         5
     )
-    .expect("snh");
+    .expect(SHOULD_NOT_HAPPEN);
     register_behavior!(
         factory,
         ChangeStateAfter,
@@ -107,44 +104,44 @@ fn sequence(c: &mut Criterion) {
         Success,
         5
     )
-    .expect("snh");
-    register_behavior!(factory, Sequence, "Sequence").expect("snh");
-    register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect("snh");
-    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect("snh");
+    .expect(SHOULD_NOT_HAPPEN);
+    register_behavior!(factory, Sequence, "Sequence").expect(SHOULD_NOT_HAPPEN);
+    register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
+    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
 
-    let mut tree = factory.create_from_text(STANDARD).expect("snh");
+    let mut tree = factory.create_from_text(STANDARD).expect(SHOULD_NOT_HAPPEN);
     group.bench_function("standard", |b| {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect("snh");
-                    let _result = tree.tick_while_running().await.expect("snh");
+                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
             });
         });
     });
 
-    let mut tree = factory.create_from_text(REACTIVE).expect("snh");
+    let mut tree = factory.create_from_text(REACTIVE).expect(SHOULD_NOT_HAPPEN);
     group.bench_function("reactive", |b| {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect("snh");
-                    let _result = tree.tick_while_running().await.expect("snh");
+                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
             });
         });
     });
 
-    let mut tree = factory.create_from_text(WITH_MEMORY).expect("snh");
+    let mut tree = factory.create_from_text(WITH_MEMORY).expect(SHOULD_NOT_HAPPEN);
     group.bench_function("with memory", |b| {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect("snh");
-                    let _result = tree.tick_while_running().await.expect("snh");
+                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
             });

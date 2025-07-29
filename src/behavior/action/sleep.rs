@@ -9,7 +9,7 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use tokio::task::JoinHandle;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, MSEC};
 use crate::behavior::{BehaviorData, BehaviorError};
 use crate::tree::ConstBehaviorTreeElementList;
 use crate::{
@@ -37,7 +37,7 @@ impl BehaviorInstance for Sleep {
         _children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
-        let millis: u64 = behavior.get("msec")?;
+        let millis: u64 = behavior.get(MSEC)?;
         self.handle = Some(tokio::task::spawn(async move {
             tokio::time::sleep(Duration::from_millis(millis)).await;
         }));
@@ -70,7 +70,7 @@ impl BehaviorStatic for Sleep {
     }
 
     fn provided_ports() -> PortList {
-        port_list![input_port!(u64, "msec", "", "Time to sleep in [msec].")]
+        port_list![input_port!(u64, MSEC, "", "Time to sleep in [msec].")]
     }
 }
 // endregion:	--- Sleep

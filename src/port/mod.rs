@@ -154,7 +154,7 @@ impl PortDirection {
 /// macro for creation of an input port definition
 #[macro_export]
 macro_rules! input_port {
-    ($tp:ty, $name:literal $(,)?) => {{
+    ($tp:ty, $name:expr $(,)?) => {{
         $crate::port::create_port::<$tp>(
             $crate::port::PortDirection::In,
             stringify!($tp),
@@ -162,9 +162,9 @@ macro_rules! input_port {
             "",
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     }};
-    ($tp:ty, $name:literal, $default:literal $(,)?) => {
+    ($tp:ty, $name:expr, $default:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
             $crate::port::PortDirection::In,
             stringify!($tp),
@@ -172,9 +172,9 @@ macro_rules! input_port {
             $default,
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
-    ($tp:ty, $name:literal, $default:literal, $desc:literal $(,)?) => {
+    ($tp:ty, $name:expr, $default:literal, $desc:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
             $crate::port::PortDirection::In,
             stringify!($tp),
@@ -182,7 +182,7 @@ macro_rules! input_port {
             $default,
             $desc,
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:expr $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -192,7 +192,7 @@ macro_rules! input_port {
             &$default.to_string(),
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:expr, $desc:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -202,7 +202,17 @@ macro_rules! input_port {
             &$default.to_string(),
             $desc,
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
+    };
+    ($tp:ty, $name:ident, $default:expr, $desc:literal $(,)?) => {
+        $crate::port::create_port::<$tp>(
+            $crate::port::PortDirection::In,
+            stringify!($tp),
+            $name,
+            &$default.to_string(),
+            $desc,
+        )
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:expr $(,)?) => {{
         $crate::port::create_port::<$tp>(
@@ -212,7 +222,7 @@ macro_rules! input_port {
             "",
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     }};
 }
 
@@ -227,7 +237,7 @@ macro_rules! inout_port {
             "",
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -237,7 +247,7 @@ macro_rules! inout_port {
             $default,
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:literal, $desc:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -247,7 +257,37 @@ macro_rules! inout_port {
             $default,
             $desc,
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
+    };
+    ($tp:ty, $name:ident $(,)?) => {
+        $crate::port::create_port::<$tp>(
+            $crate::port::PortDirection::InOut,
+            stringify!($tp),
+            $name,
+            "",
+            "",
+        )
+        .expect($crate::SHOULD_NOT_HAPPEN)
+    };
+    ($tp:ty, $name:ident, $default:literal $(,)?) => {
+        $crate::port::create_port::<$tp>(
+            $crate::port::PortDirection::InOut,
+            stringify!($tp),
+            $name,
+            $default,
+            "",
+        )
+        .expect($crate::SHOULD_NOT_HAPPEN)
+    };
+    ($tp:ty, $name:ident, $default:literal, $desc:literal $(,)?) => {
+        $crate::port::create_port::<$tp>(
+            $crate::port::PortDirection::InOut,
+            stringify!($tp),
+            $name,
+            $default,
+            $desc,
+        )
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:expr $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -257,7 +297,7 @@ macro_rules! inout_port {
             &$default.to_string(),
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:expr, $desc:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -267,7 +307,7 @@ macro_rules! inout_port {
             &$default.to_string(),
             $desc,
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
 }
 
@@ -282,7 +322,7 @@ macro_rules! output_port {
             "",
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -292,7 +332,7 @@ macro_rules! output_port {
             $default,
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:literal, $desc:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -302,7 +342,7 @@ macro_rules! output_port {
             $default,
             $desc,
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:expr $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -312,7 +352,7 @@ macro_rules! output_port {
             &$default.to_string(),
             "",
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
     ($tp:ty, $name:literal, $default:expr, $desc:literal $(,)?) => {
         $crate::port::create_port::<$tp>(
@@ -322,7 +362,7 @@ macro_rules! output_port {
             &$default.to_string(),
             $desc,
         )
-        .expect("snh")
+        .expect($crate::SHOULD_NOT_HAPPEN)
     };
 }
 

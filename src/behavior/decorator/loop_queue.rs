@@ -14,7 +14,7 @@ use tinyscript::SharedRuntime;
 
 use crate::behavior::BehaviorData;
 use crate::port::PortList;
-use crate::{self as behaviortree, inout_port, input_port, output_port, port_list};
+use crate::{self as behaviortree, inout_port, input_port, output_port, port_list, IF_EMPTY, QUEUE};
 use crate::{
     Behavior,
     behavior::{
@@ -138,9 +138,9 @@ where
                 ));
             }
             // fetch if_empty value
-            self.state = behavior.get::<BehaviorState>("if_empty")?;
+            self.state = behavior.get::<BehaviorState>(IF_EMPTY)?;
             // fetch the shared queue
-            self.queue = Some(behavior.get::<SharedQueue<T>>("queue")?);
+            self.queue = Some(behavior.get::<SharedQueue<T>>(QUEUE)?);
         }
         Ok(())
     }
@@ -184,10 +184,10 @@ where
 
     fn provided_ports() -> PortList {
         port_list![
-            inout_port!(SharedQueue<T>, "queue"),
+            inout_port!(SharedQueue<T>, QUEUE),
             input_port!(
                 BehaviorState,
-                "if_empty",
+                IF_EMPTY,
                 BehaviorState::Success,
                 "State to return if queue is empty: SUCCESS, FAILURE, SKIPPED"
             ),

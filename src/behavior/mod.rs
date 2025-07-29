@@ -12,7 +12,7 @@ pub mod error;
 pub mod pre_post_conditions;
 mod simple_behavior;
 
-use crate::ConstString;
+use crate::{ConstString, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
 // flatten
 pub use error::BehaviorError;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
@@ -473,12 +473,6 @@ impl BehaviorKind {
 // endregion:	--- BehaviorKind
 
 // region:      --- BehaviorState
-// Internal static strings to allow returning a &str
-const IDLE: &str = "Idle";
-const RUNNING: &str = "Running";
-const SUCCESS: &str = "Success";
-const FAILURE: &str = "Failure";
-const SKIPPED: &str = "Skipped";
 
 /// Behavior state.
 ///

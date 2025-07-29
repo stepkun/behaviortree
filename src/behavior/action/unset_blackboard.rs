@@ -11,7 +11,7 @@ use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, KEY};
 use crate::behavior::BehaviorData;
 use crate::port::{PortList, strip_bb_pointer};
 use crate::{
@@ -45,7 +45,7 @@ where
         _children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> BehaviorResult {
-        let key = behavior.get::<String>("key")?;
+        let key = behavior.get::<String>(KEY)?;
         match strip_bb_pointer(&key) {
             Some(stripped_key) => {
                 let _ = behavior.delete::<String>(&stripped_key);
@@ -68,7 +68,7 @@ where
     }
 
     fn provided_ports() -> PortList {
-        port_list![input_port!(String, "key", "", "Key of the entry to remove"),]
+        port_list![input_port!(String, KEY, "", "Key of the entry to remove"),]
     }
 }
 // endregion:   --- UnsetBlackboard

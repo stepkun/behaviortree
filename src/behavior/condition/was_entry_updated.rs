@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use alloc::string::String;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, ENTRY};
 use crate::ConstString;
 use crate::behavior::{BehaviorData, BehaviorError};
 use crate::port::{PortList, strip_bb_pointer};
@@ -41,7 +41,7 @@ impl BehaviorInstance for WasEntryUpdated {
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
         self.sequence_id = 0;
-        if let Some(key) = behavior.remappings.find(&"entry".into()) {
+        if let Some(key) = behavior.remappings.find(&ENTRY.into()) {
             match strip_bb_pointer(&key) {
                 Some(stripped) => self.entry_key = behavior.get::<String>(&stripped)?.into(),
                 None => self.entry_key = key,
@@ -79,7 +79,7 @@ impl BehaviorStatic for WasEntryUpdated {
     fn provided_ports() -> PortList {
         port_list![input_port!(
             String,
-            "entry",
+            ENTRY,
             "",
             "The blackboard entry to check."
         )]

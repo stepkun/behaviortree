@@ -6,7 +6,7 @@
 use alloc::{boxed::Box, string::String};
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, CODE};
 use crate::behavior::BehaviorData;
 use crate::{
     Behavior,
@@ -30,7 +30,7 @@ impl BehaviorInstance for ScriptCondition {
         _children: &mut ConstBehaviorTreeElementList,
         runtime: &SharedRuntime,
     ) -> BehaviorResult {
-        let code = behavior.get::<String>("code")?;
+        let code = behavior.get::<String>(CODE)?;
         let value = runtime.lock().run(&code, behavior.blackboard_mut())?;
 
         let state = if value.is_bool() {
@@ -56,7 +56,7 @@ impl BehaviorStatic for ScriptCondition {
     fn provided_ports() -> PortList {
         port_list![input_port!(
             String,
-            "code",
+            CODE,
             "",
             "Piece of code that can be parsed. Must return false or true."
         )]

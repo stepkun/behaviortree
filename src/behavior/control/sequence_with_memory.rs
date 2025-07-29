@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::behavior::{BehaviorData, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -74,7 +74,7 @@ impl BehaviorInstance for SequenceWithMemory {
                 BehaviorState::Idle => {
                     return Err(BehaviorError::State(
                         "SequenceWithMemory".into(),
-                        "Idle".into(),
+                        IDLE.into(),
                     ));
                 }
                 BehaviorState::Running => return Ok(BehaviorState::Running),

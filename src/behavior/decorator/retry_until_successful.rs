@@ -7,8 +7,8 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::{self as behaviortree, NUM_ATTEMPTS};
+use crate::behavior::{BehaviorData, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -75,7 +75,7 @@ impl BehaviorInstance for RetryUntilSuccessful {
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
         // Load num_cycles from the port value
-        self.max_attempts = behavior.get::<i32>("num_attempts")?;
+        self.max_attempts = behavior.get::<i32>(NUM_ATTEMPTS)?;
 
         Ok(())
     }
@@ -101,7 +101,7 @@ impl BehaviorInstance for RetryUntilSuccessful {
                 BehaviorState::Idle => {
                     return Err(BehaviorError::State(
                         "RetryUntilSuccessful".into(),
-                        "Idle".into(),
+                        IDLE.into(),
                     ));
                 }
                 BehaviorState::Running => return Ok(BehaviorState::Running),
@@ -131,7 +131,7 @@ impl BehaviorStatic for RetryUntilSuccessful {
     }
 
     fn provided_ports() -> PortList {
-        port_list![input_port!(i32, "num_attempts")]
+        port_list![input_port!(i32, NUM_ATTEMPTS)]
     }
 }
 // endregion:   --- RetryUntilSuccessful

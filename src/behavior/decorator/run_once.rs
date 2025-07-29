@@ -7,8 +7,8 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::{BehaviorData, BehaviorError};
+use crate::{self as behaviortree, THEN_SKIP};
+use crate::behavior::{BehaviorData, BehaviorError, IDLE};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
@@ -43,7 +43,7 @@ impl BehaviorInstance for RunOnce {
         _children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
-        self.then_skip = behavior.get::<bool>("then_skip")?;
+        self.then_skip = behavior.get::<bool>(THEN_SKIP)?;
 
         Ok(())
     }
@@ -66,7 +66,7 @@ impl BehaviorInstance for RunOnce {
                 self.already_ticked = true;
                 self.state = state;
             } else if state == BehaviorState::Idle {
-                Err(BehaviorError::State("RunOnce".into(), "Idle".into()))?;
+                Err(BehaviorError::State("RunOnce".into(), IDLE.into()))?;
             }
             Ok(state)
         }
@@ -81,7 +81,7 @@ impl BehaviorStatic for RunOnce {
     fn provided_ports() -> PortList {
         port_list![input_port!(
             bool,
-            "then_skip",
+            THEN_SKIP,
             "true",
             "If true, skip after the first execution, otherwise return the same 'BehaviorState' returned once by the child"
         )]

@@ -8,8 +8,8 @@ use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::{self as behaviortree, CASE, VARIABLE};
+use crate::behavior::{BehaviorData, IDLE};
 use crate::input_port;
 use crate::port::PortList;
 use crate::{
@@ -76,9 +76,9 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
         // default match index
         let default_index = i32::from(T);
         let mut match_index = i32::from(T);
-        if let Ok(var) = behavior.get::<String>("variable") {
+        if let Ok(var) = behavior.get::<String>(VARIABLE) {
             for i in 0..T {
-                let key = String::from("case_") + &i.to_string();
+                let key = String::from(CASE) + &i.to_string();
                 let x = behavior.get::<String>(&key)?;
                 // @TODO: extend with enums, scripting, etc.
                 if var == x {
@@ -105,7 +105,7 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
             // return just Skipped? Going with the latter for now.
             self.running_child_index = -1;
         } else if state == BehaviorState::Idle {
-            return Err(BehaviorError::State("Switch".into(), "Idle".into()));
+            return Err(BehaviorError::State("Switch".into(), IDLE.into()));
         } else if state == BehaviorState::Running {
             self.running_child_index = match_index;
         } else {
@@ -123,13 +123,13 @@ impl<const T: u8> BehaviorStatic for Switch<T> {
 
     fn provided_ports() -> PortList {
         let mut ports = PortList::default();
-        let port = input_port!(String, "variable");
+        let port = input_port!(String, VARIABLE);
         ports
             .add(port)
             .expect("providing port [variable] failed in behavior [Switch<T>]");
 
         for i in 0..T {
-            let name = String::from("case_") + &i.to_string();
+            let name = String::from(CASE) + &i.to_string();
             let port = input_port!(String, name.as_str());
             ports
                 .add(port)

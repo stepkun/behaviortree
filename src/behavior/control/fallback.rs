@@ -7,7 +7,7 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, IDLE};
 use crate::behavior::BehaviorData;
 use crate::{
     Behavior,
@@ -66,7 +66,7 @@ impl BehaviorInstance for Fallback {
                     self.child_idx += 1;
                 }
                 BehaviorState::Idle => {
-                    return Err(BehaviorError::State("Fallback".into(), "Idle".into()));
+                    return Err(BehaviorError::State("Fallback".into(), IDLE.into()));
                 }
                 BehaviorState::Running => return Ok(BehaviorState::Running),
                 BehaviorState::Success => {
