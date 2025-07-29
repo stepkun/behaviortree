@@ -9,12 +9,18 @@ extern crate alloc;
 use std::time::Duration;
 
 use behaviortree::{
+    BehaviorTreeObserver, Groot2Connector, SHOULD_NOT_HAPPEN,
     behavior::{
-        action::ChangeStateAfter, control::{
+        BehaviorState::{Failure, Running, Success},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
             SequenceWithMemory,
-        }, BehaviorState::{Failure, Running, Success}, BehaviorStatic
-    }, factory::{error::Error, BehaviorTreeFactory}, register_behavior, BehaviorTreeObserver, Groot2Connector, SHOULD_NOT_HAPPEN
+        },
+    },
+    factory::{BehaviorTreeFactory, error::Error},
+    register_behavior,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 use tokio::try_join;
@@ -171,7 +177,9 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
     factory
         .register_behavior_tree_from_text(SUBTREE)
         .expect(SHOULD_NOT_HAPPEN);
-    factory.register_behavior_tree_from_text(TREE).expect(SHOULD_NOT_HAPPEN);
+    factory
+        .register_behavior_tree_from_text(TREE)
+        .expect(SHOULD_NOT_HAPPEN);
     factory
         .register_behavior_tree_from_text(TREE1)
         .expect(SHOULD_NOT_HAPPEN);
@@ -301,7 +309,8 @@ fn trees(c: &mut Criterion) {
                         tree3.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                         tree3
                     });
-                    (tree, tree1, tree2, tree3) = try_join!(h, h1, h2, h3).expect(SHOULD_NOT_HAPPEN);
+                    (tree, tree1, tree2, tree3) =
+                        try_join!(h, h1, h2, h3).expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
             });

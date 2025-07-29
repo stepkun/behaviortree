@@ -7,9 +7,9 @@
 use alloc::{boxed::Box, string::String};
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, ELSE, IF};
-use crate::behavior::{BehaviorData, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
 use crate::behavior::error::BehaviorError;
+use crate::behavior::{BehaviorData, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
+use crate::{self as behaviortree, ELSE, IF};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},

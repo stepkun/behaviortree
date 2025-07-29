@@ -9,14 +9,18 @@ extern crate alloc;
 use std::time::Duration;
 
 use behaviortree::{
+    SHOULD_NOT_HAPPEN,
     behavior::{
-        action::ChangeStateAfter, control::{
+        BehaviorState::{Failure, Running, Success},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
             SequenceWithMemory,
-        }, BehaviorState::{Failure, Running, Success}, BehaviorStatic
+        },
     },
-    factory::{error::Error, BehaviorTreeFactory},
-    register_behavior, SHOULD_NOT_HAPPEN,
+    factory::{BehaviorTreeFactory, error::Error},
+    register_behavior,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 
@@ -119,7 +123,9 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
     factory
         .register_behavior_tree_from_text(SUBTREE)
         .expect(SHOULD_NOT_HAPPEN);
-    factory.register_behavior_tree_from_text(TREE).expect(SHOULD_NOT_HAPPEN);
+    factory
+        .register_behavior_tree_from_text(TREE)
+        .expect(SHOULD_NOT_HAPPEN);
     Ok(factory)
 }
 

@@ -45,8 +45,20 @@ impl Default for ReactiveSequence {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for ReactiveSequence {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.running_child_idx = -1;
+        Ok(())
+    }
+
+    #[inline]
+    fn on_start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> Result<(), BehaviorError> {
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 
@@ -75,10 +87,7 @@ impl BehaviorInstance for ReactiveSequence {
                     return Ok(BehaviorState::Failure);
                 }
                 BehaviorState::Idle => {
-                    return Err(BehaviorError::State(
-                        "ReactiveSequence".into(),
-                        IDLE.into(),
-                    ));
+                    return Err(BehaviorError::State("ReactiveSequence".into(), IDLE.into()));
                 }
                 BehaviorState::Running => {
                     // halt previously running child

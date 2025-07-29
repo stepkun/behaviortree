@@ -11,9 +11,9 @@ use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, OUTPUT_KEY, VALUE};
 use crate::behavior::BehaviorData;
 use crate::port::{PortList, strip_bb_pointer};
+use crate::{self as behaviortree, OUTPUT_KEY, VALUE};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},

@@ -8,10 +8,10 @@ use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, CASE, VARIABLE};
 use crate::behavior::{BehaviorData, IDLE};
 use crate::input_port;
 use crate::port::PortList;
+use crate::{self as behaviortree, CASE, VARIABLE};
 use crate::{
     Behavior,
     behavior::{
@@ -51,7 +51,7 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
 
     fn on_start(
         &mut self,
-        _behavior: &mut BehaviorData,
+        behavior: &mut BehaviorData,
         children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
@@ -63,7 +63,7 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
                 "Wrong number of children in Switch behavior: must be (num_cases + 1)!".into(),
             ));
         }
-
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

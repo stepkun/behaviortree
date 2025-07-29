@@ -7,8 +7,8 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, IDLE};
 use crate::behavior::BehaviorData;
+use crate::{self as behaviortree, IDLE};
 use crate::{
     Behavior,
     behavior::{
@@ -43,9 +43,21 @@ impl Default for Fallback {
 }
 #[async_trait::async_trait]
 impl BehaviorInstance for Fallback {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.child_idx = 0;
         self.all_skipped = true;
+        Ok(())
+    }
+
+    #[inline]
+    fn on_start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> Result<(), BehaviorError> {
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

@@ -8,7 +8,7 @@ use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::BehaviorData;
+use crate::behavior::{BehaviorData, BehaviorError, BehaviorState};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorStatic},
@@ -23,6 +23,17 @@ pub struct SubTree;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for SubTree {
+    #[inline]
+    fn on_start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> Result<(), BehaviorError> {
+        behavior.set_state(BehaviorState::Running);
+        Ok(())
+    }
+
     async fn tick(
         &mut self,
         _behavior: &mut BehaviorData,

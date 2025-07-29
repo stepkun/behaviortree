@@ -5,10 +5,11 @@
 extern crate alloc;
 
 use behaviortree::{
-    behavior::{action::ChangeStateAfter, control::Fallback, BehaviorState, BehaviorStatic},
+    SHOULD_NOT_HAPPEN,
+    behavior::{BehaviorState, BehaviorStatic, action::ChangeStateAfter, control::Fallback},
     factory::BehaviorTreeFactory,
     register_behavior,
-    tree::observer::BehaviorTreeObserver, SHOULD_NOT_HAPPEN,
+    tree::observer::BehaviorTreeObserver,
 };
 
 const TREE: &str = r#"
@@ -54,15 +55,24 @@ async fn tree_observer() -> anyhow::Result<()> {
     let result = tree.tick_while_running().await?;
     assert_eq!(result, BehaviorState::Success);
     assert_eq!(
-        observer.get_statistics(4).expect(SHOULD_NOT_HAPPEN).transitions_count,
+        observer
+            .get_statistics(4)
+            .expect(SHOULD_NOT_HAPPEN)
+            .transitions_count,
         3
     );
     assert_eq!(
-        observer.get_statistics(4).expect(SHOULD_NOT_HAPPEN).transitions_count,
+        observer
+            .get_statistics(4)
+            .expect(SHOULD_NOT_HAPPEN)
+            .transitions_count,
         3
     );
     assert_eq!(
-        observer.get_statistics(0).expect(SHOULD_NOT_HAPPEN).transitions_count,
+        observer
+            .get_statistics(0)
+            .expect(SHOULD_NOT_HAPPEN)
+            .transitions_count,
         2
     );
     Ok(())

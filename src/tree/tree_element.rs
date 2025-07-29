@@ -203,14 +203,12 @@ impl BehaviorTreeElement {
     pub async fn tick(&mut self, runtime: &SharedRuntime) -> BehaviorResult {
         // A pre-condition may return the next state which will override the current tick().
         let old_state = self.data.state();
-        // self.data.set_state(BehaviorState::Running);
         let state = if let Some(result) = self.check_pre_conditions(runtime)? {
             result
         } else {
             if self.data.state() == BehaviorState::Idle {
                 self.behavior
                     .on_start(&mut self.data, &mut self.children, runtime)?;
-                self.data.set_state(BehaviorState::Running);
             }
             self.behavior
                 .tick(&mut self.data, &mut self.children, runtime)

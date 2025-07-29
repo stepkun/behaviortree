@@ -26,7 +26,8 @@ use crate::behavior::{BehaviorData, BehaviorState};
 use crate::tree::observer::groot2_protocol::{
     Groot2ReplyHeader, Groot2RequestHeader, Groot2RequestType, Groot2TransitionInfo,
 };
-use crate::{ConstString, XmlCreator, SHOULD_NOT_HAPPEN};
+use crate::tree::tree::BehaviorTreeMessage;
+use crate::{ConstString, SHOULD_NOT_HAPPEN, XmlCreator};
 
 use crate::tree::BehaviorTree;
 // endregion:   --- modules
@@ -36,6 +37,65 @@ use crate::tree::BehaviorTree;
 /// If there are more state transitions happening, the eldest will be dropped.
 const TRANSITION_SIZE: u32 = 100;
 
+/// constants
+pub const GROOT_STATE: &str = "groot_state";
+
+// region:      --- GrootCallback
+/// Attach the Groot2 communication callbacks to a [`BehaviorTree`].
+/// # Panics
+/// - if an unknown message from Groot2 arrives
+pub fn attach_groot_callback(tree: &mut BehaviorTree, shared: Arc<Mutex<Groot2ConnectorData>>) {
+    let id: ConstString = GROOT_STATE.into();
+    // add a callback for each tree element
+    let size = Arc::new(Mutex::new(0));
+    let shared = shared;
+    for element in tree.iter_mut() {
+        let shared_clone = shared.clone();
+        // the callback
+        let callback = move |behavior: &BehaviorData, new_state: &mut BehaviorState| {
+            if behavior.state() != *new_state {
+                // Groot does not need a state for root
+                if behavior.uid() != 0 {
+                    let state = if *new_state == BehaviorState::Idle {
+                        behavior.state() as u8 + 10
+                    } else {
+                        *new_state as u8
+                    };
+                    let mut shared_guard = shared_clone.lock();
+                    let uid = behavior.uid().to_le_bytes();
+                    let index = 3 * ((behavior.uid() - 1) as usize);
+                    shared_guard.state_buffer[index] = uid[0];
+                    shared_guard.state_buffer[index + 1] = uid[1];
+                    shared_guard.state_buffer[index + 2] = state;
+
+                    if shared_guard.recording {
+                        #[cfg(feature = "std")]
+                        #[allow(clippy::cast_possible_truncation)]
+                        let timestamp = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .expect("Time went backwards")
+                            .as_micros() as u64;
+                        #[cfg(not(feature = "std"))]
+                        let timestamp = 1753525195699631u64;
+                        let info = Groot2TransitionInfo::new(timestamp, behavior.uid(), *new_state);
+                        if shared_guard.transitions_buffer.is_empty() {
+                            shared_guard.transitions = 0;
+                        } else if shared_guard.transitions >= TRANSITION_SIZE {
+                            shared_guard.transitions_buffer.pop_front();
+                        } else {
+                            shared_guard.transitions += 1;
+                        }
+                        shared_guard.transitions_buffer.push_back(info);
+                    }
+                    drop(shared_guard);
+                }
+            }
+        };
+        element.add_pre_state_change_callback(id.clone(), callback);
+    }
+}
+// endregion:   --- GrootCallback
+
 // region:      --- Groot2Connector
 /// The [`Groot2Connector`] is used to create an interface between Groot2
 /// and the tree executor.
@@ -43,13 +103,16 @@ const TRANSITION_SIZE: u32 = 100;
 /// The connection is via TCP and has to be established by Groot2.
 /// So the connector on tree side only needs to know the port it shall listen on.
 pub struct Groot2Connector {
+    /// The sender to send messages to tree
+    tx: mpsc::Sender<BehaviorTreeMessage>,
     /// Shared data across multiple tasks (callbacks)
-    shared: Arc<Mutex<Inner>>,
+    shared: Arc<Mutex<Groot2ConnectorData>>,
     /// Response server
     server_handle: JoinHandle<Result<(), zeromq::ZmqError>>,
 }
 
-struct Inner {
+/// The shared data among multiple [`BehaviorTreeElement`]s.
+pub struct Groot2ConnectorData {
     /// The state buffer for Groot communication
     state_buffer: BytesMut,
     /// Flag for recording transitions, accessible from multiple tasks
@@ -79,65 +142,18 @@ impl Groot2Connector {
             state_buffer[index] = bytes[1];
         }
 
-        let shared = Arc::new(Mutex::new(Inner {
+        let shared = Arc::new(Mutex::new(Groot2ConnectorData {
             state_buffer,
             recording: false,
             transitions: 0,
             transitions_buffer,
         }));
-        let id: ConstString = "groot_state".into();
-        // add a callback for each tree element
-        let size = Arc::new(Mutex::new(0));
-        for element in tree.iter_mut() {
-            let shared_clone = shared.clone();
-            // the callback
-            let callback = move |behavior: &BehaviorData, new_state: &mut BehaviorState| {
-                if behavior.state() != *new_state {
-                    // Groot does not need a state for root
-                    if behavior.uid() != 0 {
-                        let state = if *new_state == BehaviorState::Idle {
-                            behavior.state() as u8 + 10
-                        } else {
-                            *new_state as u8
-                        };
-                        let mut shared_guard = shared_clone.lock();
-                        let uid = behavior.uid().to_le_bytes();
-                        let index = 3 * ((behavior.uid() - 1) as usize);
-                        shared_guard.state_buffer[index] = uid[0];
-                        shared_guard.state_buffer[index + 1] = uid[1];
-                        shared_guard.state_buffer[index + 2] = state;
-
-                        if shared_guard.recording {
-                            #[cfg(feature = "std")]
-                            #[allow(clippy::cast_possible_truncation)]
-                            let timestamp = std::time::SystemTime::now()
-                                .duration_since(std::time::UNIX_EPOCH)
-                                .expect("Time went backwards")
-                                .as_micros() as u64;
-                            #[cfg(not(feature = "std"))]
-                            let timestamp = 1753525195699631u64;
-                            let info =
-                                Groot2TransitionInfo::new(timestamp, behavior.uid(), *new_state);
-                            if shared_guard.transitions_buffer.is_empty() {
-                                shared_guard.transitions = 0;
-                            } else if shared_guard.transitions >= TRANSITION_SIZE {
-                                shared_guard.transitions_buffer.pop_front();
-                            } else {
-                                shared_guard.transitions += 1;
-                            }
-                            shared_guard.transitions_buffer.push_back(info);
-                        }
-                        drop(shared_guard);
-                    }
-                }
-            };
-            element.add_pre_state_change_callback(id.clone(), callback);
-        }
 
         // @TODO: proper error handling
         let shared_clone = shared.clone();
         let tree_id = tree.uuid();
         let xml = XmlCreator::groot_write_tree(tree).expect(SHOULD_NOT_HAPPEN);
+        let sender = tree.sender();
 
         let server_handle = tokio::spawn(async move {
             let server_address = String::from("tcp://0.0.0.0:") + &port.to_string();
@@ -160,6 +176,11 @@ impl Groot2Connector {
                                 reply.push_back(shared_clone.lock().state_buffer.clone().into());
                             }
                             Groot2RequestType::FullTree => {
+                                sender
+                                    .send(BehaviorTreeMessage::AddGrootCallback(
+                                        shared_clone.clone(),
+                                    ))
+                                    .await;
                                 reply.push_back(xml.as_bytes().to_owned().into());
                             }
                             Groot2RequestType::BlackBoard => {
@@ -179,8 +200,7 @@ impl Groot2Connector {
                                 todo!()
                             }
                             Groot2RequestType::RemoveAllHooks => {
-                                std::dbg!(&request);
-                                // @TODO: todo!()
+                                sender.send(BehaviorTreeMessage::RemoveAllGrootHooks).await;
                             }
                             Groot2RequestType::DisableAllHooks => {
                                 std::dbg!(&request);
@@ -268,6 +288,7 @@ impl Groot2Connector {
         });
 
         Self {
+            tx: tree.sender(),
             shared,
             server_handle,
         }

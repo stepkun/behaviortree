@@ -14,7 +14,9 @@ use tinyscript::SharedRuntime;
 
 use crate::behavior::BehaviorData;
 use crate::port::PortList;
-use crate::{self as behaviortree, inout_port, input_port, output_port, port_list, IF_EMPTY, QUEUE};
+use crate::{
+    self as behaviortree, IF_EMPTY, QUEUE, inout_port, input_port, output_port, port_list,
+};
 use crate::{
     Behavior,
     behavior::{
@@ -142,6 +144,7 @@ where
             // fetch the shared queue
             self.queue = Some(behavior.get::<SharedQueue<T>>(QUEUE)?);
         }
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

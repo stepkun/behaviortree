@@ -9,9 +9,9 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use tokio::task::JoinHandle;
 
-use crate::{self as behaviortree, MSEC};
 use crate::behavior::{BehaviorData, BehaviorError};
 use crate::tree::ConstBehaviorTreeElementList;
+use crate::{self as behaviortree, MSEC};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
@@ -30,6 +30,7 @@ pub struct Timeout {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for Timeout {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.handle = None;
         Ok(())
@@ -45,7 +46,7 @@ impl BehaviorInstance for Timeout {
         self.handle = Some(tokio::task::spawn(async move {
             tokio::time::sleep(Duration::from_millis(millis)).await;
         }));
-
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

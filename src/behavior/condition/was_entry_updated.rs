@@ -8,10 +8,10 @@ use alloc::boxed::Box;
 use alloc::string::String;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, ENTRY};
 use crate::ConstString;
 use crate::behavior::{BehaviorData, BehaviorError};
 use crate::port::{PortList, strip_bb_pointer};
+use crate::{self as behaviortree, ENTRY};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},

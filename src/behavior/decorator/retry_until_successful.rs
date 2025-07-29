@@ -7,8 +7,8 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, NUM_ATTEMPTS};
 use crate::behavior::{BehaviorData, IDLE};
+use crate::{self as behaviortree, NUM_ATTEMPTS};
 use crate::{
     Behavior,
     behavior::{
@@ -62,6 +62,7 @@ impl Default for RetryUntilSuccessful {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for RetryUntilSuccessful {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.try_count = 0;
         self.all_skipped = true;
@@ -76,7 +77,7 @@ impl BehaviorInstance for RetryUntilSuccessful {
     ) -> Result<(), BehaviorError> {
         // Load num_cycles from the port value
         self.max_attempts = behavior.get::<i32>(NUM_ATTEMPTS)?;
-
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

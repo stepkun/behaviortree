@@ -28,7 +28,7 @@ pub struct WhileDoElse;
 impl BehaviorInstance for WhileDoElse {
     fn on_start(
         &mut self,
-        _behavior: &mut BehaviorData,
+        behavior: &mut BehaviorData,
         children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
@@ -38,7 +38,7 @@ impl BehaviorInstance for WhileDoElse {
                 "WhileDoElse must have either 2 or 3 children.".into(),
             ));
         }
-
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

@@ -9,11 +9,15 @@ extern crate alloc;
 use std::time::Duration;
 
 use behaviortree::{
+    SHOULD_NOT_HAPPEN,
     behavior::{
-        action::ChangeStateAfter, control::{ReactiveSequence, Sequence, SequenceWithMemory}, BehaviorState::{Failure, Running, Success}, BehaviorStatic
+        BehaviorState::{Failure, Running, Success},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{ReactiveSequence, Sequence, SequenceWithMemory},
     },
     factory::BehaviorTreeFactory,
-    register_behavior, SHOULD_NOT_HAPPEN,
+    register_behavior,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 
@@ -135,7 +139,9 @@ fn sequence(c: &mut Criterion) {
         });
     });
 
-    let mut tree = factory.create_from_text(WITH_MEMORY).expect(SHOULD_NOT_HAPPEN);
+    let mut tree = factory
+        .create_from_text(WITH_MEMORY)
+        .expect(SHOULD_NOT_HAPPEN);
     group.bench_function("with memory", |b| {
         b.iter(|| {
             runtime.block_on(async {

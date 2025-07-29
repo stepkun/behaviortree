@@ -9,9 +9,13 @@
 extern crate alloc;
 
 use behaviortree::{
+    Behavior, SHOULD_NOT_HAPPEN,
     behavior::{
         BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-    }, factory::BehaviorTreeFactory, register_behavior, tree::{BehaviorTree, ConstBehaviorTreeElementList}, Behavior, SHOULD_NOT_HAPPEN
+    },
+    factory::BehaviorTreeFactory,
+    register_behavior,
+    tree::{BehaviorTree, ConstBehaviorTreeElementList},
 };
 use tinyscript::SharedRuntime;
 

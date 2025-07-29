@@ -46,11 +46,24 @@ impl Default for Sequence {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for Sequence {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.child_idx = 0;
         self.all_skipped = true;
         Ok(())
     }
+
+    #[inline]
+    fn on_start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> Result<(), BehaviorError> {
+        behavior.set_state(BehaviorState::Running);
+        Ok(())
+    }
+
     async fn tick(
         &mut self,
         _behavior: &mut BehaviorData,

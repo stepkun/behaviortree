@@ -36,6 +36,7 @@ pub struct IfThenElse {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for IfThenElse {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.child_index = 0;
         Ok(())
@@ -54,7 +55,6 @@ impl BehaviorInstance for IfThenElse {
             ));
         }
         behavior.set_state(BehaviorState::Running);
-
         Ok(())
     }
 

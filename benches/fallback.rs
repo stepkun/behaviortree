@@ -9,11 +9,15 @@ extern crate alloc;
 use std::time::Duration;
 
 use behaviortree::{
+    SHOULD_NOT_HAPPEN,
     behavior::{
-        action::ChangeStateAfter, control::{Fallback, ReactiveFallback}, BehaviorState::{Failure, Running, Success}, BehaviorStatic
+        BehaviorState::{Failure, Running, Success},
+        BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{Fallback, ReactiveFallback},
     },
     factory::BehaviorTreeFactory,
-    register_behavior, SHOULD_NOT_HAPPEN,
+    register_behavior,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 

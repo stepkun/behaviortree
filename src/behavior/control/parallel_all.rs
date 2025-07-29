@@ -8,8 +8,8 @@ use alloc::boxed::Box;
 use alloc::collections::btree_set::BTreeSet;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, MAX_FAILURES};
 use crate::behavior::{BehaviorData, IDLE};
+use crate::{self as behaviortree, MAX_FAILURES};
 use crate::{
     Behavior,
     behavior::{
@@ -71,7 +71,7 @@ impl BehaviorInstance for ParallelAll {
                 "Number of children is less than the threshold. Can never fail.".into(),
             ));
         }
-
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

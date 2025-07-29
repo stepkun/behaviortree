@@ -16,6 +16,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.1.0] - 2025-??-??
+## [0.1.0] - 2025-07-29
 
 Version 0.1.0 is an implementation of the core features of [BehaviorTree.CPP](https://www.behaviortree.dev/).
+Feature of "free" [Groot2](https://www.behaviortree.dev/groot) can be used (XML Creation, Monitoring), but not yet any commercial feature (Breakpoints, etc.).

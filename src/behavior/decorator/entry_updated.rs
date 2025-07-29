@@ -9,10 +9,10 @@ use alloc::string::String;
 use alloc::sync::Arc;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, ENTRY};
 use crate::ConstString;
 use crate::behavior::{BehaviorData, BehaviorError};
 use crate::port::{PortList, strip_bb_pointer};
+use crate::{self as behaviortree, ENTRY};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
@@ -58,6 +58,7 @@ impl EntryUpdated {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for EntryUpdated {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.sequence_id = usize::MIN;
         self.is_running = false;

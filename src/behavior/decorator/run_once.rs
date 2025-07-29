@@ -7,8 +7,8 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, THEN_SKIP};
 use crate::behavior::{BehaviorData, BehaviorError, IDLE};
+use crate::{self as behaviortree, THEN_SKIP};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
@@ -31,12 +31,14 @@ pub struct RunOnce {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for RunOnce {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.already_ticked = false;
         self.state = BehaviorState::Idle;
         Ok(())
     }
 
+    #[inline]
     fn on_start(
         &mut self,
         behavior: &mut BehaviorData,
@@ -44,7 +46,6 @@ impl BehaviorInstance for RunOnce {
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
         self.then_skip = behavior.get::<bool>(THEN_SKIP)?;
-
         Ok(())
     }
 

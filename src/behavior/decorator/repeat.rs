@@ -7,8 +7,8 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, NUM_CYCLES};
 use crate::behavior::{BehaviorData, IDLE};
+use crate::{self as behaviortree, NUM_CYCLES};
 use crate::{
     Behavior,
     behavior::{
@@ -51,6 +51,7 @@ impl Default for Repeat {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for Repeat {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.repeat_count = 0;
         Ok(())
@@ -64,7 +65,7 @@ impl BehaviorInstance for Repeat {
     ) -> Result<(), BehaviorError> {
         // Load num_cycles from the port value
         self.num_cycles = behavior.get::<i32>(NUM_CYCLES)?;
-
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 

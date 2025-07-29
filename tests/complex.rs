@@ -5,14 +5,17 @@
 extern crate alloc;
 
 use behaviortree::{
+    SHOULD_NOT_HAPPEN,
     behavior::{
-        action::ChangeStateAfter, control::{
+        BehaviorState, BehaviorStatic,
+        action::ChangeStateAfter,
+        control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
             SequenceWithMemory,
-        }, BehaviorState, BehaviorStatic
+        },
     },
     factory::BehaviorTreeFactory,
-    register_behavior, SHOULD_NOT_HAPPEN,
+    register_behavior,
 };
 
 const TREE: &str = r#"

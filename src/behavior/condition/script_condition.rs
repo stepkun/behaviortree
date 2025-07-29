@@ -6,8 +6,8 @@
 use alloc::{boxed::Box, string::String};
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, CODE};
 use crate::behavior::BehaviorData;
+use crate::{self as behaviortree, CODE};
 use crate::{
     Behavior,
     behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},

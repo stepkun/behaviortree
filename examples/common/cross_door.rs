@@ -108,9 +108,7 @@ impl CrossDoor {
     /// Will always open a door
     /// # Errors
     /// never
-    pub fn smash_door(&mut self) -> BehaviorResult {
-        // smashing the door needs some time ;-)
-        sleep_ms(1000);
+    pub const fn smash_door(&mut self) -> BehaviorResult {
         self.door_locked = false;
         self.door_open = true;
         // smash always works

@@ -47,8 +47,20 @@ impl Default for ReactiveFallback {
 
 #[async_trait::async_trait]
 impl BehaviorInstance for ReactiveFallback {
+    #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         self.running_child_idx = -1;
+        Ok(())
+    }
+
+    #[inline]
+    fn on_start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        _children: &mut ConstBehaviorTreeElementList,
+        _runtime: &SharedRuntime,
+    ) -> Result<(), BehaviorError> {
+        behavior.set_state(BehaviorState::Running);
         Ok(())
     }
 
@@ -75,10 +87,7 @@ impl BehaviorInstance for ReactiveFallback {
                     self.running_child_idx = -1;
                 }
                 BehaviorState::Idle => {
-                    return Err(BehaviorError::State(
-                        "ReactiveFallback".into(),
-                        IDLE.into(),
-                    ));
+                    return Err(BehaviorError::State("ReactiveFallback".into(), IDLE.into()));
                 }
                 BehaviorState::Running => {
                     // halt previously running child

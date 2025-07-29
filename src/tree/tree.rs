@@ -13,13 +13,17 @@ use alloc::{sync::Arc, vec::Vec};
 use libloading::Library;
 use parking_lot::Mutex;
 use tinyscript::SharedRuntime;
+use tokio::sync::mpsc;
 use uuid::Uuid;
 
 use crate::{
     behavior::{BehaviorError, BehaviorResult, BehaviorState},
     blackboard::SharedBlackboard,
     factory::BehaviorRegistry,
-    tree::tree_iter::{TreeIter, TreeIterMut},
+    tree::{
+        observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback},
+        tree_iter::{TreeIter, TreeIterMut},
+    },
 };
 
 use super::{BehaviorTreeElement, error::Error};
@@ -61,6 +65,13 @@ fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error>
 }
 // endregion:	--- helper
 
+// region:      --- BehaviorTreeMessage
+pub enum BehaviorTreeMessage {
+    AddGrootCallback(Arc<Mutex<Groot2ConnectorData>>),
+    RemoveAllGrootHooks,
+}
+// endregion:   --- BehaviorTreeMessage
+
 // region:		--- BehaviorTree
 /// A Tree of [`BehaviorTreeElement`]s.
 /// A certain [`BehaviorTree`] can contain up to 65536 [`BehaviorTreeElement`]s.
@@ -74,6 +85,10 @@ pub struct BehaviorTree {
     /// `libraries` stores a reference to the used shared libraries aka plugins.
     /// This is necessary to avoid memory deallocation of libs while tree is in use.
     _libraries: Vec<Arc<Library>>,
+    /// The sender, to be cloned on purpose
+    tx: mpsc::Sender<BehaviorTreeMessage>,
+    /// The receiver
+    rx: mpsc::Receiver<BehaviorTreeMessage>,
 }
 
 impl BehaviorTree {
@@ -87,11 +102,15 @@ impl BehaviorTree {
         for lib in registry.libraries() {
             libraries.push(lib.clone());
         }
+
+        let (tx, rx) = mpsc::channel::<BehaviorTreeMessage>(10);
         Self {
             uuid: Uuid::new_v4(),
             root,
             runtime,
             _libraries: libraries,
+            tx,
+            rx,
         }
     }
 
@@ -128,6 +147,13 @@ impl BehaviorTree {
         self.uuid
     }
 
+    /// Get a message sender.
+    /// This sender can be used to modify the tree while running.
+    #[must_use]
+    pub fn sender(&self) -> mpsc::Sender<BehaviorTreeMessage> {
+        self.tx.clone()
+    }
+
     /// Get the trees total number of children.
     #[must_use]
     pub fn size(&self) -> u16 {
@@ -139,10 +165,29 @@ impl BehaviorTree {
         count
     }
 
+    /// Handle incomming message    
+    #[allow(clippy::redundant_locals)]
+    fn handle_message(&mut self, message: BehaviorTreeMessage) {
+        let message = message;
+        match message {
+            BehaviorTreeMessage::RemoveAllGrootHooks => {
+                for element in self.iter_mut() {
+                    element.remove_pre_state_change_callback(&GROOT_STATE.into());
+                }
+            }
+            BehaviorTreeMessage::AddGrootCallback(data) => {
+                attach_groot_callback(self, data);
+            }
+        }
+    }
+
     /// Ticks the tree exactly once.
     /// # Errors
     #[inline]
     pub async fn tick_exactly_once(&mut self) -> BehaviorResult {
+        if let Ok(message) = self.rx.try_recv() {
+            self.handle_message(message);
+        }
         self.root.tick(&self.runtime).await
     }
 
@@ -151,6 +196,9 @@ impl BehaviorTree {
     /// # Errors
     #[inline]
     pub async fn tick_once(&mut self) -> BehaviorResult {
+        if let Ok(message) = self.rx.try_recv() {
+            self.handle_message(message);
+        }
         self.root.tick(&self.runtime).await
     }
 
@@ -159,6 +207,9 @@ impl BehaviorTree {
     pub async fn tick_while_running(&mut self) -> BehaviorResult {
         let mut state = BehaviorState::Running;
         while state == BehaviorState::Running || state == BehaviorState::Idle {
+            if let Ok(message) = self.rx.try_recv() {
+                self.handle_message(message);
+            }
             state = self.root.tick(&self.runtime).await?;
 
             // Not implemented: Check for wake-up conditions and tick again if so
