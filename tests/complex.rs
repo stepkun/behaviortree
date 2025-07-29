@@ -111,7 +111,7 @@ async fn complex() -> anyhow::Result<()> {
 
     let mut result = tree.tick_while_running().await?;
     assert_eq!(result, BehaviorState::Success);
-    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+    tree.reset().expect(SHOULD_NOT_HAPPEN);
     result = tree.tick_while_running().await?;
     assert_eq!(result, BehaviorState::Success);
     Ok(())

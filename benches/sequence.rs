@@ -114,7 +114,7 @@ fn sequence(c: &mut Criterion) {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    tree.reset().expect(SHOULD_NOT_HAPPEN);
                     let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
@@ -127,7 +127,7 @@ fn sequence(c: &mut Criterion) {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    tree.reset().expect(SHOULD_NOT_HAPPEN);
                     let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
@@ -140,7 +140,7 @@ fn sequence(c: &mut Criterion) {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    tree.reset().expect(SHOULD_NOT_HAPPEN);
                     let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());

@@ -74,7 +74,7 @@ async fn entry_updated(#[case] input: BehaviorState) -> anyhow::Result<()> {
     assert_eq!(result, BehaviorState::Success);
 
     tree.blackboard_mut().delete::<i32>("test")?;
-    tree.reset().await?;
+    tree.reset()?;
 
     tree.blackboard_mut().set("test", 1)?;
     result = tree.tick_once().await?;

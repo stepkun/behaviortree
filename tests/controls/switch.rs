@@ -126,7 +126,7 @@ async fn switch4(
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
@@ -192,7 +192,7 @@ async fn switch2(
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected);

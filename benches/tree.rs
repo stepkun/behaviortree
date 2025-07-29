@@ -200,7 +200,7 @@ fn trees(c: &mut Criterion) {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    tree.reset().expect(SHOULD_NOT_HAPPEN);
                     tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
@@ -216,7 +216,7 @@ fn trees(c: &mut Criterion) {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    tree.reset().expect(SHOULD_NOT_HAPPEN);
                     tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
@@ -233,7 +233,7 @@ fn trees(c: &mut Criterion) {
         b.iter(|| {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
-                    tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                    tree.reset().expect(SHOULD_NOT_HAPPEN);
                     tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                 }
                 std::hint::black_box(());
@@ -251,19 +251,19 @@ fn trees(c: &mut Criterion) {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
                     let h = async {
-                        tree.reset().await?;
+                        tree.reset()?;
                         tree.tick_while_running().await
                     };
                     let h1 = async {
-                        tree1.reset().await?;
+                        tree1.reset()?;
                         tree1.tick_while_running().await
                     };
                     let h2 = async {
-                        tree2.reset().await?;
+                        tree2.reset()?;
                         tree2.tick_while_running().await
                     };
                     let h3 = async {
-                        tree3.reset().await?;
+                        tree3.reset()?;
                         tree3.tick_while_running().await
                     };
                     try_join!(h, h1, h2, h3).expect(SHOULD_NOT_HAPPEN);
@@ -282,22 +282,22 @@ fn trees(c: &mut Criterion) {
             runtime.block_on(async {
                 for _ in 1..=ITERATIONS {
                     let h = tokio::spawn(async {
-                        tree.reset().await.expect(SHOULD_NOT_HAPPEN);
+                        tree.reset().expect(SHOULD_NOT_HAPPEN);
                         tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                         tree
                     });
                     let h1 = tokio::spawn(async {
-                        tree1.reset().await.expect(SHOULD_NOT_HAPPEN);
+                        tree1.reset().expect(SHOULD_NOT_HAPPEN);
                         tree1.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                         tree1
                     });
                     let h2 = tokio::spawn(async {
-                        tree2.reset().await.expect(SHOULD_NOT_HAPPEN);
+                        tree2.reset().expect(SHOULD_NOT_HAPPEN);
                         tree2.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                         tree2
                     });
                     let h3 = tokio::spawn(async {
-                        tree3.reset().await.expect(SHOULD_NOT_HAPPEN);
+                        tree3.reset().expect(SHOULD_NOT_HAPPEN);
                         tree3.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
                         tree3
                     });

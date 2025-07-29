@@ -89,7 +89,7 @@ async fn reactive_sequence(
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
@@ -177,7 +177,7 @@ async fn reactive_sequence_reactiveness1(
     result = tree.tick_once().await?;
     assert_eq!(result, expected4);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected1);
@@ -221,7 +221,7 @@ async fn reactive_sequence_reactiveness2(
     result = tree.tick_once().await?;
     assert_eq!(result, expected4);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected1);

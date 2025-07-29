@@ -62,7 +62,7 @@ async fn repeat(
     result = tree.tick_once().await?;
     assert_eq!(result, finally);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected);

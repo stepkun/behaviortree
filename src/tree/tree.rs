@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-#![allow(clippy::unused_async)]
 
 //! [`BehaviorTree`] implementation.
 
@@ -189,7 +188,7 @@ impl BehaviorTree {
     /// Reset tree to initial state.
     /// # Errors
     /// - if reset of children failed
-    pub async fn reset(&mut self) -> Result<(), BehaviorError> {
+    pub fn reset(&mut self) -> Result<(), BehaviorError> {
         self.root.halt(&self.runtime)?;
         self.runtime.lock().clear();
         Ok(())

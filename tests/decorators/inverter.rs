@@ -57,7 +57,7 @@ async fn inverter(
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected);

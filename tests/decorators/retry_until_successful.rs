@@ -58,7 +58,7 @@ async fn retry_until_successful(
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     tree.tick_once().await?;
     result = tree.tick_once().await?;

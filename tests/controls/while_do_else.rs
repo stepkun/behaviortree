@@ -93,7 +93,7 @@ async fn while_do_else(
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
@@ -143,7 +143,7 @@ async fn while_do_else_2_children(
     result = tree.tick_once().await?;
     assert_eq!(result, expected);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, expected);

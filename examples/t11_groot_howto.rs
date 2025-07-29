@@ -130,7 +130,7 @@ async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
     #[cfg(not(test))]
     loop {
         println!("Start");
-        tree.reset().await?;
+        tree.reset()?;
         crossdoor.lock().reset();
         tree.tick_while_running().await?;
 

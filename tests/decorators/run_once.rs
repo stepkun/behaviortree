@@ -53,7 +53,7 @@ async fn run_once(#[case] input: BehaviorState) -> anyhow::Result<()> {
     result = tree.tick_once().await?;
     assert_eq!(result, BehaviorState::Skipped);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, input);
@@ -99,7 +99,7 @@ async fn run_once_no_skip(#[case] input: BehaviorState) -> anyhow::Result<()> {
     result = tree.tick_once().await?;
     assert_eq!(result, input);
 
-    tree.reset().await?;
+    tree.reset()?;
 
     result = tree.tick_once().await?;
     assert_eq!(result, input);

@@ -38,7 +38,7 @@ async fn was_entry_updated() -> anyhow::Result<()> {
     assert_eq!(result, BehaviorState::Success);
 
     tree.blackboard_mut().delete::<i32>("test")?;
-    tree.reset().await?;
+    tree.reset()?;
 
     tree.blackboard_mut().set("test", 1)?;
     result = tree.tick_once().await?;
@@ -65,7 +65,7 @@ async fn was_entry_updated_error() -> anyhow::Result<()> {
     result = tree.tick_once().await;
     assert!(result.is_err());
 
-    tree.reset().await?;
+    tree.reset()?;
 
     assert!(result.is_err());
     result = tree.tick_once().await;

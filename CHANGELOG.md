@@ -18,4 +18,4 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ## [0.1.0] - 2025-??-??
 
-Version 0.1.0 focussed on implementation of the core features of [BehaviorTree.CPP](https://www.behaviortree.dev/).
+Version 0.1.0 is an implementation of the core features of [BehaviorTree.CPP](https://www.behaviortree.dev/).
