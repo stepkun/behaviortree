@@ -90,7 +90,8 @@ pub trait BehaviorInstance: core::fmt::Debug + Send + Sync {
     /// intended to do preliminary stuff for your behavior.
     ///
     /// In general it is not necessary to care about children
-    /// and maintaining state, which will be done by the tree.
+    /// and maintaining state, which will be done by the
+    /// default start() method.
     ///
     /// Default implementation does nothing.
     /// # Errors
@@ -105,6 +106,22 @@ pub trait BehaviorInstance: core::fmt::Debug + Send + Sync {
         Ok(())
     }
 
+    /// Method called on first tick of a behavior.
+    /// If this method returns [`BehaviorState::Running`], the
+    /// behavior becomes asynchronous.
+    /// # Errors
+    /// - if something prevents starting the behavior properly
+    #[inline]
+    async fn start(
+        &mut self,
+        behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+        self.on_start(behavior, children, runtime)?;
+        self.tick(behavior, children, runtime).await
+    }
+
     /// Method called to tick a behavior.
     /// # Errors
     async fn tick(
@@ -113,6 +130,20 @@ pub trait BehaviorInstance: core::fmt::Debug + Send + Sync {
         children: &mut ConstBehaviorTreeElementList,
         runtime: &SharedRuntime,
     ) -> BehaviorResult;
+
+    /// Method called to halt a behavior.
+    /// # Errors
+    #[inline]
+    fn halt(
+        &mut self,
+        _behavior: &mut BehaviorData,
+        children: &mut ConstBehaviorTreeElementList,
+        runtime: &SharedRuntime,
+    ) -> BehaviorResult {
+            children.halt(runtime)?;
+            self.on_halt()?;
+            Ok(BehaviorState::Idle)
+    }
 }
 // endregion:	--- BehaviorInstance
 

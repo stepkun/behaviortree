@@ -185,15 +185,13 @@ impl BehaviorTreeElement {
 
     /// Halt the element and all its children considering postconditions.
     /// # Errors
-    #[allow(clippy::unused_async)]
     pub fn halt(&mut self, runtime: &SharedRuntime) -> Result<(), BehaviorError> {
         if self.data.state() != BehaviorState::Idle {
-            self.children.halt(runtime)?;
-            self.behavior.on_halt()?;
+            let state = self.behavior.halt(&mut self.data, &mut self.children, runtime)?;
+            self.data.set_state(state);
             if let Some(script) = self.post_conditions.get("_onHalted") {
                 let _ = runtime.lock().run(script, self.data.blackboard_mut())?;
             }
-            self.data.set_state(BehaviorState::Idle);
         }
         Ok(())
     }
@@ -205,11 +203,11 @@ impl BehaviorTreeElement {
         let old_state = self.data.state();
         let state = if let Some(result) = self.check_pre_conditions(runtime)? {
             result
+        } else if old_state == BehaviorState::Idle {
+            self.behavior
+                .start(&mut self.data, &mut self.children, runtime)
+                .await?
         } else {
-            if self.data.state() == BehaviorState::Idle {
-                self.behavior
-                    .on_start(&mut self.data, &mut self.children, runtime)?;
-            }
             self.behavior
                 .tick(&mut self.data, &mut self.children, runtime)
                 .await?
@@ -218,10 +216,10 @@ impl BehaviorTreeElement {
         self.check_post_conditions(state, runtime);
 
         // Preserve the last state if skipped, but communicate `Skipped` to parent
-        if state == BehaviorState::Skipped {
-            self.data.set_state(old_state);
-        } else {
+        if state != BehaviorState::Skipped {
             self.data.set_state(state);
+        // } else {
+        //     self.data.set_state(old_state);
         }
 
         Ok(state)
