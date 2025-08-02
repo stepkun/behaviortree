@@ -67,7 +67,7 @@ libloading = "0.8.8"
 parking_lot = "0.12.4"
 roxmltree = "0.20.0"
 thiserror = "2.0.12"
-tokio = { version = "1.47.0", features = ["rt-multi-thread", "sync", "time"] }
+tokio = { version = "1.47.1", features = ["rt-multi-thread", "sync", "time"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features=["env-filter"]}
 tinyscript = "0.1.0"

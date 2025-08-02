@@ -285,7 +285,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn serde() {
+    fn de_serialization() {
         let header = Groot2RequestHeader {
             uid: [1, 2, 3, 4],
             protocol_id: 2,

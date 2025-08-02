@@ -207,7 +207,7 @@ impl BehaviorTree {
     pub async fn tick_while_running(&mut self) -> BehaviorResult {
         let mut state = BehaviorState::Running;
         while state == BehaviorState::Running || state == BehaviorState::Idle {
-            if let Ok(message) = self.rx.try_recv() {
+            while let Ok(message) = self.rx.try_recv() {
                 self.handle_message(message);
             }
             state = self.root.tick(&self.runtime).await?;
@@ -221,6 +221,10 @@ impl BehaviorTree {
         // crucial for spawned tasks with bounded channels
         tokio::task::yield_now().await;
 
+        // handle eventually pending messages
+        while let Ok(message) = self.rx.try_recv() {
+            self.handle_message(message);
+        }
         Ok(state)
     }
 

@@ -34,7 +34,7 @@ syn = { version = "2.0", features = ["full", "parsing", "visit-mut"] }
 
 [dev-dependencies]
 behaviortree = { path = "../" }
-trybuild = { version = "1.0.106", features = ["diff"] }
+trybuild = { version = "1.0.110", features = ["diff"] }
 
 [lints]
 workspace = true
