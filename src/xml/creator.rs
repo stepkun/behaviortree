@@ -373,8 +373,10 @@ impl XmlCreator {
         Ok(())
     }
 
+    // @TODO: things like: SharedQueue<T: FromStr + ToString>(pub Arc<Mutex<VecDeque<T>>>);
     fn groot_map_types(input: &str) -> &str {
         match input {
+            "char" => input,
             "i16" => "short",
             "u16" => "unsigned short",
             "i32" => "int",
@@ -385,7 +387,7 @@ impl XmlCreator {
             "f64" => "double",
             "String" => "std::string",
             "BehaviorState" => "BT::NodeStatus",
-            _ => input, // @TODO: things like: SharedQueue<T: FromStr + ToString>(pub Arc<Mutex<VecDeque<T>>>);
+            _ => "BT::Any",
         }
     }
 }

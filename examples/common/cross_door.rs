@@ -14,7 +14,7 @@ use behaviortree::{
     factory::{BehaviorTreeFactory, error::Error},
     register_behavior,
 };
-use parking_lot::Mutex;
+use spin::Mutex;
 use rand::Rng;
 
 fn sleep_ms(millisecs: u64) {

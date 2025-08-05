@@ -16,7 +16,7 @@ use bytes::{BufMut, Bytes, BytesMut};
 use core::default;
 use core::fmt::Display;
 use core::time::Duration;
-use parking_lot::Mutex;
+use spin::Mutex;
 #[cfg(feature = "std")]
 use tokio::{sync::mpsc, task::JoinHandle, time::Instant};
 use uuid::Uuid;

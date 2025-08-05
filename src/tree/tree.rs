@@ -11,7 +11,7 @@ extern crate std;
 use alloc::string::String;
 use alloc::{sync::Arc, vec::Vec};
 use libloading::Library;
-use parking_lot::Mutex;
+use spin::Mutex;
 use tinyscript::SharedRuntime;
 use tokio::sync::mpsc;
 use uuid::Uuid;

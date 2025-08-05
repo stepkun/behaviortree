@@ -9,7 +9,7 @@
 // region:      --- modules
 use alloc::sync::Arc;
 use core::fmt::Debug;
-use parking_lot::RwLock;
+use spin::RwLock;
 
 use super::{BlackboardData, SharedBlackboard};
 

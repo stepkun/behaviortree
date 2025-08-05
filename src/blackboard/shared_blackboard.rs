@@ -18,7 +18,7 @@ use core::{
     ops::{Deref, DerefMut},
     str::FromStr,
 };
-use parking_lot::RwLock;
+use spin::RwLock;
 use tinyscript::{Environment, Error as ScriptingError, execution::ScriptingValue};
 
 use super::{BlackboardInterface, blackboard::Blackboard, blackboard_data::Entry, error::Error};

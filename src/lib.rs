@@ -113,14 +113,14 @@ pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
 macro_rules! register_behavior {
 	// single method of a struct
 	($factory:expr, $item:expr, $fun:ident, $name:literal, $kind:path $(,)?) => {{
-		let item = Arc::new(parking_lot::Mutex::new($item));
+		let item = Arc::new(spin::Mutex::new($item));
 		$factory.register_simple_function($name, alloc::sync::Arc::new(move || { item.lock().$fun() }), $kind)
 	}};
 	// multiple methods of a struct - will indicate only the last error if any
 	// returns a Arc-Mutex-wrapped item of the given struct
 	($factory:expr, $item:expr, $($fun:ident, $name:literal, $kind:path $(,)?)+) => {{
-		let base = alloc::sync::Arc::new(parking_lot::Mutex::new($item));
-		// let mut res: core::result::Result<alloc::sync::Arc<parking_lot::Mutex<$item>>, $crate::factory::error::Error> = Ok(base.clone());
+		let base = alloc::sync::Arc::new(spin::Mutex::new($item));
+		// let mut res: core::result::Result<alloc::sync::Arc<spin::Mutex<$item>>, $crate::factory::error::Error> = Ok(base.clone());
 		let mut res = Ok(base.clone());
 		$({
 			let item = base.clone();

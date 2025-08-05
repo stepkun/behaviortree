@@ -16,17 +16,14 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.1.1] - 2025-??-??
+## [0.1.1] - 2025-08-05
 
 ### Added
 - possibility to override the first tick: async fn start(...) -> BehaviorResult
 - possibility to override the halt method: fn halt(...) -> Result<(), BehaviorError>
 
 ### Changed
-
-### Fixed
-
-### Removed
+- replaced 'parking_lot' with 'spin'
 
 ## [0.1.0] - 2025-07-29
 

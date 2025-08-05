@@ -8,7 +8,7 @@ extern crate std;
 // region:      --- modules
 use crate::ConstString;
 use alloc::{sync::Arc, vec::Vec};
-use parking_lot::Mutex;
+use spin::Mutex;
 #[cfg(feature = "std")]
 use tokio::time::Instant;
 

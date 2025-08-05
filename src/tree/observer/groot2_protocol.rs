@@ -11,7 +11,7 @@ use alloc::string::ToString;
 use bytes::{BufMut, Bytes, BytesMut};
 use core::default;
 use core::fmt::Display;
-use parking_lot::Mutex;
+use spin::Mutex;
 use uuid::Uuid;
 
 use crate::ConstString;

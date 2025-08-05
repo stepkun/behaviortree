@@ -9,7 +9,7 @@ use alloc::sync::Arc;
 use alloc::{boxed::Box, string::ToString};
 use core::fmt::{Debug, Display, Formatter};
 use core::str::FromStr;
-use parking_lot::Mutex;
+use spin::Mutex;
 use tinyscript::SharedRuntime;
 
 use crate::behavior::BehaviorData;
