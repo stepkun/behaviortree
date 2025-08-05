@@ -181,7 +181,7 @@ impl Groot2Connector {
                                         shared_clone.clone(),
                                     ))
                                     .await;
-                                reply.push_back(xml.as_bytes().to_owned().into());
+                                reply.push_back(xml.clone());
                             }
                             Groot2RequestType::BlackBoard => {
                                 std::dbg!(&request);

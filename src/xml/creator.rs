@@ -37,7 +37,7 @@ impl XmlCreator {
     pub fn write_tree_nodes_model(
         factory: &BehaviorTreeFactory,
         pretty: bool,
-    ) -> Result<ConstString, std::io::Error> {
+    ) -> Result<ConstString, woxml::Error> {
         let mut writer = if pretty {
             XmlWriter::pretty_mode(Vec::new())
         } else {
@@ -83,7 +83,7 @@ impl XmlCreator {
         metadata: bool,
         builtin_models: bool,
         pretty: bool,
-    ) -> Result<ConstString, std::io::Error> {
+    ) -> Result<ConstString, woxml::Error> {
         // storage for (non groot2 builtin) behaviors to mention in TreeNodesModel
         let mut behaviors: BTreeMap<ConstString, BehaviorDescription> = BTreeMap::new();
         let mut subtrees: BTreeMap<ConstString, &BehaviorTreeElement> = BTreeMap::new();
@@ -172,7 +172,7 @@ impl XmlCreator {
         element: &'a BehaviorTreeElement,
         writer: &mut XmlWriter<'a, Vec<u8>>,
         metadata: bool,
-    ) -> Result<(), std::io::Error> {
+    ) -> Result<(), woxml::Error> {
         let is_subtree = match element.kind() {
             TreeElementKind::Leaf | TreeElementKind::Node => {
                 writer.begin_elem(element.data().description().id())?;
@@ -239,12 +239,12 @@ impl XmlCreator {
     /// Create XML from tree including `TreeNodesModel`.
     /// # Errors
     /// # Panics
-    pub fn groot_write_tree(tree: &BehaviorTree) -> Result<ConstString, std::io::Error> {
+    pub fn groot_write_tree(tree: &BehaviorTree) -> Result<bytes::Bytes, woxml::Error> {
         // storage for (non groot2 builtin) behaviors to mention in TreeNodesModel
         let mut behaviors: BTreeMap<ConstString, BehaviorDescription> = BTreeMap::new();
         let mut subtrees: BTreeMap<ConstString, &BehaviorTreeElement> = BTreeMap::new();
 
-        let mut writer = XmlWriter::compact_mode(Vec::new());
+        let mut writer = XmlWriter::compact_mode(bytes::BytesMut::new());
         {
             writer.begin_elem("root")?;
             writer.attr("BTCPP_format", "4")?;
@@ -307,14 +307,13 @@ impl XmlCreator {
         }
 
         let inner = writer.into_inner();
-        let res = String::from_utf8(inner).expect(SHOULD_NOT_HAPPEN);
-        Ok(res.into())
+        Ok(inner.into())
     }
 
     fn groot_write_subtree<'a>(
         element: &'a BehaviorTreeElement,
-        writer: &mut XmlWriter<'a, Vec<u8>>,
-    ) -> Result<(), std::io::Error> {
+        writer: &mut XmlWriter<'a, bytes::BytesMut>,
+    ) -> Result<(), woxml::Error> {
         let is_subtree = match element.kind() {
             TreeElementKind::Leaf | TreeElementKind::Node => {
                 writer.begin_elem(element.data().description().id())?;

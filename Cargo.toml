@@ -72,7 +72,7 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features=["env-filter"]}
 tinyscript = "0.1.0"
 uuid = { version = "1.17.0", features = ["v4"]}
-woxml = "0.1.1"
+woxml = "0.3.0"
 zeromq = "0.4.1"
 
 [build-dependencies]
