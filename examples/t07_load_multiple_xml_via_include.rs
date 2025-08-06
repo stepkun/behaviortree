@@ -1,12 +1,13 @@
 // Copyright © 2025 Stephan Kunz
 
 //! This test implements the seventh tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! using the include statement in xml file
 //!
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_07_multiple_xml)
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t07_load_multiple_xml.cpp)
 //!
 
-#[path = "../common/mod.rs"]
+#[path = "./common/mod.rs"]
 mod common;
 
 use behaviortree::{behavior::BehaviorState, factory::BehaviorTreeFactory, register_behavior};
@@ -26,9 +27,9 @@ const XML_WITH_INCLUDE: &str = r#"
 </root>
 "#;
 
-// @TODO: implment path problem solution
 async fn example() -> anyhow::Result<BehaviorState> {
-    // set the necessary directory, currently not working
+    // set the necessary directory, currently only working if in project root directory
+    // @TODO: find a better solution for this.
     let mut dir = std::env::current_dir()?;
     dir.push("examples");
     std::env::set_current_dir(dir)?;
