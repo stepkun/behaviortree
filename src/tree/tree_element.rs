@@ -8,6 +8,7 @@ use alloc::string::ToString;
 use tinyscript::{Error, SharedRuntime};
 
 use crate::ConstString;
+use crate::blackboard::SharedBlackboard;
 use crate::tree::tree_iter::TreeIterMut;
 use crate::{
     behavior::{
@@ -159,6 +160,18 @@ impl BehaviorTreeElement {
         &mut self.behavior
     }
 
+    /// Get a reference to the blackboard.
+    #[must_use]
+    pub const fn blackboard(&self) -> &SharedBlackboard {
+        self.data().blackboard()
+    }
+
+    /// Get a mutable reference to the blackboard.
+    #[must_use]
+    pub const fn blackboard_mut(&mut self) -> &mut SharedBlackboard {
+        self.data_mut().blackboard_mut()
+    }
+
     /// Get the children.
     #[must_use]
     pub const fn children(&self) -> &ConstBehaviorTreeElementList {
@@ -187,7 +200,9 @@ impl BehaviorTreeElement {
     /// # Errors
     pub fn halt(&mut self, runtime: &SharedRuntime) -> Result<(), BehaviorError> {
         if self.data.state() != BehaviorState::Idle {
-            let state = self.behavior.halt(&mut self.data, &mut self.children, runtime)?;
+            let state = self
+                .behavior
+                .halt(&mut self.data, &mut self.children, runtime)?;
             self.data.set_state(state);
             if let Some(script) = self.post_conditions.get("_onHalted") {
                 let _ = runtime.lock().run(script, self.data.blackboard_mut())?;
@@ -218,8 +233,8 @@ impl BehaviorTreeElement {
         // Preserve the last state if skipped, but communicate `Skipped` to parent
         if state != BehaviorState::Skipped {
             self.data.set_state(state);
-        // } else {
-        //     self.data.set_state(old_state);
+            // } else {
+            //     self.data.set_state(old_state);
         }
 
         Ok(state)

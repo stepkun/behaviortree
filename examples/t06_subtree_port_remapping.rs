@@ -48,9 +48,9 @@ async fn example() -> anyhow::Result<BehaviorState> {
     let result = tree.tick_while_running().await?;
     assert_eq!(result, BehaviorState::Success);
     println!("------ Root BB ------");
-    // @TODO: tree.subtree(0)?.blackboard().debug_message();
+    tree.subtree(0)?.blackboard().debug_message();
     println!("----- Second BB -----");
-    // @TODO: tree.subtree(1)?.blackboard().debug_message();
+    tree.subtree(1)?.blackboard().debug_message();
     Ok(result)
 }
 

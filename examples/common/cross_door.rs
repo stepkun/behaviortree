@@ -14,8 +14,8 @@ use behaviortree::{
     factory::{BehaviorTreeFactory, error::Error},
     register_behavior,
 };
-use spin::Mutex;
 use rand::Rng;
+use spin::Mutex;
 
 fn sleep_ms(millisecs: u64) {
     thread::sleep(Duration::from_millis(millisecs));

@@ -9,7 +9,7 @@ extern crate std;
 // region:      --- modules
 #[cfg(feature = "std")]
 use alloc::string::String;
-use alloc::{sync::Arc, vec::Vec};
+use alloc::{string::ToString, sync::Arc, vec::Vec};
 use libloading::Library;
 use spin::Mutex;
 use tinyscript::SharedRuntime;
@@ -21,6 +21,7 @@ use crate::{
     blackboard::SharedBlackboard,
     factory::BehaviorRegistry,
     tree::{
+        TreeElementKind,
         observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback},
         tree_iter::{TreeIter, TreeIterMut},
     },
@@ -137,8 +138,17 @@ impl BehaviorTree {
     /// Get a (sub)tree where index 0 is root tree.
     /// # Errors
     /// - if index is out of bounds.
-    pub fn subtree(&self, _index: usize) -> Result<&BehaviorTreeElement, Error> {
-        todo!("subtree access")
+    pub fn subtree(&self, index: usize) -> Result<&BehaviorTreeElement, Error> {
+        let mut i = 0_usize;
+        for element in self.iter() {
+            if matches!(element.kind(), TreeElementKind::SubTree) {
+                if i == index {
+                    return Ok(element);
+                }
+                i += 1;
+            }
+        }
+        Err(Error::SubtreeNotFound(index.to_string().into()))
     }
 
     /// Get the trees uuid.

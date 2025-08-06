@@ -140,9 +140,9 @@ pub trait BehaviorInstance: core::fmt::Debug + Send + Sync {
         children: &mut ConstBehaviorTreeElementList,
         runtime: &SharedRuntime,
     ) -> BehaviorResult {
-            children.halt(runtime)?;
-            self.on_halt()?;
-            Ok(BehaviorState::Idle)
+        children.halt(runtime)?;
+        self.on_halt()?;
+        Ok(BehaviorState::Idle)
     }
 }
 // endregion:	--- BehaviorInstance
