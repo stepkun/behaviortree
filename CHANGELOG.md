@@ -19,6 +19,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ## [0.1.2] - 2025-??-??
 
 ### Added
+- t12 with JSON default values
 
 ### Changed
 

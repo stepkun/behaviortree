@@ -33,7 +33,9 @@ syn = { version = "2.0", features = ["full", "parsing", "visit-mut"] }
 [build-dependencies]
 
 [dev-dependencies]
+async-trait = "0.1.88"
 behaviortree = { path = "../" }
+tinyscript = "^0.1.3"
 trybuild = { version = "1.0.110", features = ["diff"] }
 
 [lints]

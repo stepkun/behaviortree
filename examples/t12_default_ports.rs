@@ -8,9 +8,8 @@
 
 extern crate alloc;
 
-use std::{
+use core::{
     fmt::{Display, Formatter},
-    num::ParseIntError,
     str::FromStr,
 };
 
@@ -27,6 +26,7 @@ use behaviortree::{
     port_list, register_behavior,
     tree::ConstBehaviorTreeElementList,
 };
+use nanoserde::{DeJson, SerJson};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -38,7 +38,9 @@ const XML: &str = r#"
 </root>
 "#;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+// Add derive of DeJson & SerJson for bi-directional conversion to JSON
+// using crate 'nanoserde'
+#[derive(Clone, Copy, Debug, PartialEq, Eq, DeJson, SerJson)]
 struct Point2D {
     x: i32,
     y: i32,
@@ -51,7 +53,7 @@ impl Display for Point2D {
 }
 
 impl FromStr for Point2D {
-    type Err = ParseIntError;
+    type Err = BehaviorError;
 
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         // remove redundant ' and &apos; from string
@@ -61,10 +63,22 @@ impl FromStr for Point2D {
             .replace("&apos;", "")
             .trim()
             .to_string();
-        let v: Vec<&str> = s.split(',').collect();
-        let x = i32::from_str(v[0])?;
-        let y = i32::from_str(v[1])?;
-        Ok(Self { x, y })
+        // check for json marker
+        if s.starts_with("json:") {
+            let res = DeJson::deserialize_json(&s[5..])?;
+            Ok(res)
+        } else 
+        // check for json content
+        if let Ok(res) = DeJson::deserialize_json(&s) {
+            Ok(res)
+        } else 
+        // try conventional
+        {
+            let v: Vec<&str> = s.split(',').collect();
+            let x = i32::from_str(v[0])?;
+            let y = i32::from_str(v[1])?;
+            Ok(Self { x, y })
+        }
     }
 }
 
@@ -103,13 +117,13 @@ impl BehaviorInstance for BehaviorWithDefaultPoints {
         assert_eq!(point, Point2D { x: 7, y: 8 });
         println!("pointD:  [{},{}]", point.x, point.y);
 
-        // @TODO: parsing json
-        // let msg: String = behavior.get("pointE")?;
-        // dbg!(&msg);
-        // let point = Point2D::from_str(&msg).map_err(|_| BehaviorError::ParsePortValue("pointE".into(), msg.into()))?;
-        // // let point: Point2D = behavior.get("pointE")?;
-        // assert_eq!(point, Point2D{x:9, y:10});
-        // println!("pointE:  [{},{}]", point.x, point.y);
+        let point: Point2D = behavior.get("pointE")?;
+        assert_eq!(point, Point2D{x:9, y:10});
+        println!("pointE:  [{},{}]", point.x, point.y);
+
+        let point: Point2D = behavior.get("pointF")?;
+        assert_eq!(point, Point2D{x:11, y:12});
+        println!("pointF:  [{},{}]", point.x, point.y);
 
         Ok(BehaviorState::Success)
     }
@@ -127,13 +141,14 @@ impl BehaviorStatic for BehaviorWithDefaultPoints {
             input_port!(Point2D, "pointB", "{point}"), // default value inside blackboard {pointB}
             input_port!(Point2D, "pointC", "5,6"), // default value is [5,6],
             input_port!(Point2D, "pointD", "{=}"), // default value inside blackboard {pointD}
-            input_port!(Point2D, "pointE", r#"(json:{"x':9,"y":10})"#)  // default value is [9,10]
+            input_port!(Point2D, "pointE", r#"json:{"x":9,"y":10}"#),  // default value is [9,10]
+            input_port!(Point2D, "pointF", r#"{"x":11,"y":12}"#),  // default value is [11,12]
         )
     }
 }
 
 async fn example() -> anyhow::Result<BehaviorState> {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
     register_behavior!(factory, BehaviorWithDefaultPoints, "NodeWithDefaultPoints")?;
 
