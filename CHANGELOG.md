@@ -16,6 +16,17 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
+## [0.1.2] - 2025-??-??
+
+### Added
+
+### Changed
+
+### Fixed
+- 'Switch' behavior now works
+
+### Removed
+
 ## [0.1.1] - 2025-08-05
 
 ### Added

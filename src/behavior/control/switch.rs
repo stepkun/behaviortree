@@ -1,17 +1,15 @@
 // Copyright © 2025 Stephan Kunz
 
 //! `Switch` behavior implementation
-//!
 
 // region:      --- modules
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use tinyscript::SharedRuntime;
 
-use crate::behavior::{BehaviorData, IDLE};
-use crate::input_port;
-use crate::port::PortList;
-use crate::{self as behaviortree, CASE, VARIABLE};
+use crate::{input_port, ConstString};
+use crate::port::{is_bb_pointer, strip_bb_pointer, PortList};
+use crate::{self as behaviortree, CASE, IDLE, VARIABLE, behavior::BehaviorData};
 use crate::{
     Behavior,
     behavior::{
@@ -23,13 +21,32 @@ use crate::{
 // endregion:   --- modules
 
 // region:      --- Switch
-/// The `Switch` behavior is .
+/// The `Switch` behavior is equivalent to a C/C++ `switch` or a Rust `match` statement,
+/// where a certain branch (child) is executed according to the value of a variable.
+///
+/// Example:
+///
+/// <Switch3 variable="{var}"  case_1="1" case_2="42" case_3="666" >
+///    <ActionA name="action_when_var_eq_1" />
+///    <ActionB name="action_when_var_eq_42" />
+///    <ActionC name="action_when_var_eq_666" />
+///    <ActionD name="default_action" />
+///  </Switch3>
+///
+/// When the Switch behavior is executed (Switch3 is a behavior with 3 cases)
+/// the "variable" will be compared to the cases and execute the correct child
+/// or the default one (last).
+///
+/// Note: The same behaviour can be achieved with multiple `Sequences`, `Fallbacks` and `Conditions`,
+/// but switch is shorter and therefor more readable.
 #[derive(Behavior, Debug)]
 pub struct Switch<const T: u8> {
     /// Defaults to T
     cases: u8,
     /// Defaults to '-1'
     running_child_index: i32,
+    /// Defaults to empty
+    var: ConstString,
 }
 
 impl<const T: u8> Default for Switch<T> {
@@ -37,6 +54,7 @@ impl<const T: u8> Default for Switch<T> {
         Self {
             cases: T,
             running_child_index: -1,
+            var: "".into(),
         }
     }
 }
@@ -63,6 +81,19 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
                 "Wrong number of children in Switch behavior: must be (num_cases + 1)!".into(),
             ));
         }
+        if let Some(var) = behavior.remappings.find(&VARIABLE.into()) {
+            if is_bb_pointer(&var) {
+                if let Some(var) = strip_bb_pointer(&var) {
+                    self.var = var;
+                } else {
+                    return Err(BehaviorError::Composition("port [variable] must be a Blackboard pointer".into()))
+                }
+            } else {
+                return Err(BehaviorError::Composition("port [variable] must be a Blackboard pointer".into()))
+            }
+        } else {
+            return Err(BehaviorError::Composition("port [variable] must be defined".into()))
+        }
         behavior.set_state(BehaviorState::Running);
         Ok(())
     }
@@ -76,14 +107,53 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
         // default match index
         let default_index = i32::from(T);
         let mut match_index = i32::from(T);
-        if let Ok(var) = behavior.get::<String>(VARIABLE) {
-            for i in 0..T {
-                let key = String::from(CASE) + &i.to_string();
-                let x = behavior.get::<String>(&key)?;
-                // @TODO: extend with enums, scripting, etc.
-                if var == x {
-                    match_index = i32::from(i);
-                    break;
+        let var = behavior.get::<String>(&self.var)?;
+        for i in 0..T {
+            // the names start with "case_1", index with 0
+            let key = String::from(CASE) + &(i+1).to_string();
+            let case = behavior.get::<String>(&key)?;
+            
+            // string comparison
+            if var == case {
+                match_index = i32::from(i);
+                break;
+            }
+
+            // compare as enums
+            let guard = runtime.lock();
+            if let Some(c_val) = guard.enum_discriminant(&case) {
+                if let Ok(v_val) = var.parse::<i8>() {
+                    if c_val == v_val {
+                        match_index = i32::from(i);
+                        break;
+                    }
+                } else if let Some(v_val) = guard.enum_discriminant(&var) {
+                    if c_val == v_val {
+                        match_index = i32::from(i);
+                        break;
+                    }
+                }
+            }
+            drop(guard);
+
+            // compare as integers
+            if let Ok(v_val) = var.parse::<i64>() {
+                if let Ok(c_val) = case.parse::<i64>() {
+                    if c_val == v_val {
+                        match_index = i32::from(i);
+                        break;
+                    }
+                }
+            }
+
+            // compare as floats
+            if let Ok(c_val) = case.parse::<f64>() {
+                if let Ok(v_val) = var.parse::<f64>() {
+                    let delta = f64::abs(v_val - c_val);
+                    if delta <= 0.000_000_000_000_002 {
+                        match_index = i32::from(i);
+                        break;
+                    }
                 }
             }
         }
@@ -128,7 +198,8 @@ impl<const T: u8> BehaviorStatic for Switch<T> {
             .add(port)
             .expect("providing port [variable] failed in behavior [Switch<T>]");
 
-        for i in 0..T {
+        // the names start with "case_1"
+        for i in 1..=T {
             let name = String::from(CASE) + &i.to_string();
             let port = input_port!(String, name.as_str());
             ports
@@ -138,4 +209,4 @@ impl<const T: u8> BehaviorStatic for Switch<T> {
         ports
     }
 }
-// endregion:   --- Fallback
+// endregion:   --- Switch

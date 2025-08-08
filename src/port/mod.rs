@@ -39,6 +39,12 @@ const FORBIDDEN_NAMES: &[&str] = &[
 // endregion:   --- types
 
 // region:      --- helper
+/// Check on blackboard pointer.
+#[must_use]
+pub fn is_bb_pointer(port: &str) -> bool {
+    port.starts_with('{') && port.ends_with('}')
+}
+
 /// Remove blackboard pointer decorations from port name.
 #[must_use]
 pub fn strip_bb_pointer(port: &str) -> Option<ConstString> {
