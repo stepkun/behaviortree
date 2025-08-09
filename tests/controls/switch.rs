@@ -1,4 +1,5 @@
 // Copyright © 2025 Stephan Kunz
+#![allow(clippy::too_many_arguments)]
 
 //! Tests the [`Switch`] behavior
 

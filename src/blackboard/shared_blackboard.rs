@@ -365,6 +365,7 @@ impl SharedBlackboard {
         self.write().parent = Some(parent);
     }
 
+    #[must_use]
     pub(crate) fn remappings(&self) -> Option<ConstPortRemappings> {
         self.blackboard.read().remappings_to_parent.clone()
     }

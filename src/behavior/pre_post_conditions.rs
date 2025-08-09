@@ -42,6 +42,7 @@ impl DerefMut for PreConditions {
 
 impl PreConditions {
     /// Get a pre condition.
+    #[must_use]
     pub fn get(&mut self, name: &str) -> Option<&ConstString> {
         if self.0.is_some() {
             let op = (0..PRE_CONDITIONS.len()).find(|&i| PRE_CONDITIONS[i] == name);
@@ -106,6 +107,7 @@ impl DerefMut for PostConditions {
 
 impl PostConditions {
     /// Get a post condition.
+    #[must_use]
     pub fn get(&mut self, name: &str) -> Option<&ConstString> {
         if self.0.is_some() {
             let op = (0..POST_CONDITIONS.len()).find(|&i| POST_CONDITIONS[i] == name);

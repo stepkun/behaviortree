@@ -17,10 +17,10 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum BehaviorError {
     
-    /// Pass through from nanoserde::DeJsonErr
+    /// Pass through from `nanoserde::DeJsonErr`
     #[error("{0}")]
     Nanoserde(#[from] nanoserde::DeJsonErr),
-    /// Pass through from core::num::ParseIntError
+    /// Pass through from `core::num::ParseIntError`
     #[error("{0}")]
     ParseInt(#[from] core::num::ParseIntError),
     /// Pass through blackboard error

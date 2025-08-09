@@ -64,8 +64,8 @@ impl FromStr for Point2D {
             .trim()
             .to_string();
         // check for json marker
-        if s.starts_with("json:") {
-            let res = DeJson::deserialize_json(&s[5..])?;
+        if let Some(stripped) = s.strip_prefix("json:") {
+            let res = DeJson::deserialize_json(stripped)?;
             Ok(res)
         } else 
         // check for json content

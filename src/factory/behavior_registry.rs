@@ -117,6 +117,7 @@ impl BehaviorRegistry {
         )
     }
 
+    #[must_use]
     pub(crate) fn find_tree_definition(&self, name: &str) -> Option<ConstString> {
         self.tree_definitions.get(name).cloned()
     }
