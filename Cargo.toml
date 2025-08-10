@@ -3,30 +3,34 @@
 resolver = "3"
 name = "behaviortree"
 version = "0.1.2"
-authors = ["stepkun <stephan.kunz@kabelbw.de>"]
-description = "A BehaviorTreelibrary"
 edition = "2024"
-rust-version = "1.86.0"
 license-file = "LICENSE"
+authors = ["stepkun <stephan.kunz@kabelbw.de>"]
+description = "A BehaviorTree library"
+rust-version = "1.86.0"
 repository = "https://github.com/stepkun/behaviortree.git"
 homepage = "http://github.com/stepkun/behaviortree.git"
 documentation = "https://docs.rs/behaviortree/"
 readme = "README.md"
 exclude = [
     "benches/**",
+    "embedded/**",
     "examples/**",
     "tests/**",
 ]
 
-[workspace.lints.rust]
+[lib]
+name = "behaviortree"
+
+[lints.rust]
 unsafe_code = "warn"
 missing_docs = "warn"
 #unused="allow" # for dev only
 
-[workspace.lints.rustdoc]
+[lints.rustdoc]
 private_intra_doc_links = "allow"
 
-[workspace.lints.clippy]
+[lints.clippy]
 enum_glob_use = "deny"
 pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
@@ -51,12 +55,6 @@ harness = false
 [[bench]]
 name = "tree"
 harness = false
-
-[lib]
-name = "behaviortree"
-
-[lints]
-workspace = true
 
 [dependencies]
 behaviortree-derive = { path = "derive", version = "0.1.0"}

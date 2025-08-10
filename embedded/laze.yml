@@ -1,0 +1,9 @@
+defaults:
+  apps:
+    context:
+      - ariel-os
+
+subdirs:
+  - t01_build_your_first_tree
+#  - testing
+#  - benchmark
