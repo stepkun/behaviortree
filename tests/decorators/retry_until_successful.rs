@@ -4,16 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        decorator::RetryUntilSuccessful,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, decorator::RetryUntilSuccessful};
 
 use rstest::rstest;
 
@@ -37,7 +30,7 @@ const TREE_DEFINITION: &str = r#"
 async fn retry_until_successful(
     #[case] input: BehaviorState,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -72,7 +65,7 @@ async fn retry_until_successful(
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
-async fn retry_until_successful_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn retry_until_successful_errors(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

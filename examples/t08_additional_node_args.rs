@@ -8,16 +8,7 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    Behavior, SHOULD_NOT_HAPPEN,
-    behavior::{
-        BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-    tree::{BehaviorTree, ConstBehaviorTreeElementList},
-};
-use tinyscript::SharedRuntime;
+use behaviortree::{prelude::*, SHOULD_NOT_HAPPEN};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -113,7 +104,7 @@ impl ActionB {
     }
 }
 
-async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
+async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     register_behavior!(factory, ActionA, "Action_A", 42, "hello world".into())?;
@@ -140,7 +131,7 @@ async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -150,7 +141,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t08_additional_node_args() -> anyhow::Result<()> {
+    async fn t08_additional_node_args() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result.0, BehaviorState::Success);
 

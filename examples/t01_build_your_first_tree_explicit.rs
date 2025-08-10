@@ -9,11 +9,7 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{
-    behavior::{BehaviorKind, BehaviorState},
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
 use common::test_data::{ApproachObject, GripperInterface, check_battery};
 
 /// This definition uses explicit node ID's
@@ -31,7 +27,7 @@ const XML_EXPLICIT: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     // The recommended way to create a Behavior is through inheritance/composition.
@@ -68,7 +64,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -78,7 +74,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t01_build_your_first_tree_explicit() -> anyhow::Result<()> {
+    async fn t01_build_your_first_tree_explicit() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

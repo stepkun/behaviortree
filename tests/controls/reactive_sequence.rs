@@ -4,16 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        control::ReactiveSequence,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, control::ReactiveSequence};
 
 use rstest::rstest;
 
@@ -53,7 +46,7 @@ async fn reactive_sequence(
     #[case] input2: BehaviorState,
     #[case] input3: BehaviorState,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -111,7 +104,7 @@ async fn reactive_sequence_errors(
     #[case] input1: BehaviorState,
     #[case] input2: BehaviorState,
     #[case] input3: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -158,7 +151,7 @@ async fn reactive_sequence_reactiveness1(
     #[case] expected2: BehaviorState,
     #[case] expected3: BehaviorState,
     #[case] expected4: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
@@ -202,7 +195,7 @@ async fn reactive_sequence_reactiveness2(
     #[case] expected2: BehaviorState,
     #[case] expected3: BehaviorState,
     #[case] expected4: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;

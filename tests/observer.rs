@@ -4,11 +4,10 @@
 
 extern crate alloc;
 
+use behaviortree::prelude::*;
 use behaviortree::{
     SHOULD_NOT_HAPPEN,
-    behavior::{BehaviorState, BehaviorStatic, action::ChangeStateAfter, control::Fallback},
-    factory::BehaviorTreeFactory,
-    register_behavior,
+    behavior::{action::ChangeStateAfter, control::Fallback},
     tree::observer::BehaviorTreeObserver,
 };
 
@@ -26,7 +25,7 @@ const TREE: &str = r#"
 "#;
 
 #[tokio::test]
-async fn tree_observer() -> anyhow::Result<()> {
+async fn tree_observer() -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

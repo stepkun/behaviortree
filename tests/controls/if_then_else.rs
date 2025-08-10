@@ -4,16 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        control::IfThenElse,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, control::IfThenElse};
 
 use rstest::rstest;
 
@@ -57,7 +50,7 @@ async fn if_then_else(
     #[case] input2: BehaviorState,
     #[case] input3: BehaviorState,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -115,7 +108,7 @@ async fn if_then_else_2_children(
     #[case] input1: BehaviorState,
     #[case] input2: BehaviorState,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -164,7 +157,7 @@ async fn if_then_else_errors(
     #[case] input1: BehaviorState,
     #[case] input2: BehaviorState,
     #[case] input3: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

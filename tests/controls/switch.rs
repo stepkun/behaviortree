@@ -5,17 +5,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        control::Switch,
-    },
-    blackboard::BlackboardInterface,
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, control::Switch};
 
 use rstest::rstest;
 
@@ -44,7 +36,7 @@ async fn switch2(
     #[case] default: BehaviorState,
     #[case] case: &str,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
@@ -73,7 +65,7 @@ async fn switch2(
 }
 
 #[tokio::test]
-async fn switch_state_errors() -> anyhow::Result<()> {
+async fn switch_state_errors() -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Idle, 0)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Idle, 0)?;
@@ -127,7 +119,7 @@ async fn switch5(
     #[case] default: BehaviorState,
     #[case] case: &str,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
@@ -180,7 +172,7 @@ const WRONG_TREE: &str = r#"
 "#;
 
 #[tokio::test]
-async fn switch_wrong_variable_definition() -> anyhow::Result<()> {
+async fn switch_wrong_variable_definition() -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Success, 0)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Success, 0)?;

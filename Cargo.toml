@@ -2,7 +2,7 @@
 [package]
 resolver = "3"
 name = "behaviortree"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
@@ -13,6 +13,7 @@ homepage = "http://github.com/stepkun/behaviortree.git"
 documentation = "https://docs.rs/behaviortree/"
 readme = "README.md"
 exclude = [
+    "laze*",
     "benches/**",
     "embedded/**",
     "examples/**",
@@ -60,7 +61,6 @@ harness = false
 behaviortree-derive = { path = "derive", version = "0.1.0"}
 async-trait = "0.1.88"
 bytes = "1.10.1"
-futures = "0.3.31"
 libloading = "0.8.8"
 nanoserde = "0.2.1"
 spin = "0.10.0"
@@ -77,7 +77,6 @@ zeromq = "0.4.1"
 [build-dependencies]
 
 [dev-dependencies]
-anyhow = "1.0.98"
 criterion = "0.7.0"
 rand = "0.9.2"
 rstest = "0.26.1"

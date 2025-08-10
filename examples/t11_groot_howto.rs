@@ -9,17 +9,7 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{
-    Behavior, Groot2Connector, SharedRuntime, XmlCreator,
-    behavior::{
-        BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-    },
-    factory::BehaviorTreeFactory,
-    output_port,
-    port::PortList,
-    port_list, register_behavior,
-    tree::{BehaviorTree, ConstBehaviorTreeElementList},
-};
+use behaviortree::{prelude::*, Groot2Connector, XmlCreator};
 use common::cross_door::CrossDoor;
 use common::test_data::Position2D;
 
@@ -83,7 +73,7 @@ impl BehaviorStatic for UpdatePosition {
 }
 
 // @TODO: groot publishing missing
-async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
+async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     // special creation/registration uf multiple methods of a struct
@@ -142,7 +132,7 @@ async fn example() -> anyhow::Result<(BehaviorState, BehaviorTree)> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -152,7 +142,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t11_groot_howto() -> anyhow::Result<()> {
+    async fn t11_groot_howto() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result.0, BehaviorState::Success);
 

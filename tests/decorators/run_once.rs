@@ -4,16 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        decorator::RunOnce,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, decorator::RunOnce};
 
 use rstest::rstest;
 
@@ -33,7 +26,7 @@ const TREE_DEFINITION: &str = r#"
 #[case(Skipped)]
 #[case(Failure)]
 #[case(Success)]
-async fn run_once(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn run_once(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -79,7 +72,7 @@ const TREE_DEFINITION2: &str = r#"
 #[case(Skipped)]
 #[case(Failure)]
 #[case(Success)]
-async fn run_once_no_skip(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn run_once_no_skip(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -112,7 +105,7 @@ async fn run_once_no_skip(#[case] input: BehaviorState) -> anyhow::Result<()> {
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
-async fn run_once_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn run_once_errors(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

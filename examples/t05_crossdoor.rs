@@ -8,7 +8,7 @@
 
 mod common;
 
-use behaviortree::{behavior::BehaviorState, factory::BehaviorTreeFactory};
+use behaviortree::prelude::*;
 use common::cross_door::CrossDoor;
 
 const XML: &str = r#"
@@ -37,7 +37,7 @@ const XML: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     CrossDoor::register_behaviors(&mut factory)?;
@@ -58,7 +58,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -68,7 +68,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t05_crossdoor() -> anyhow::Result<()> {
+    async fn t05_crossdoor() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

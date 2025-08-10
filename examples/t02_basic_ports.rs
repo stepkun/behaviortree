@@ -10,11 +10,7 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{
-    behavior::{BehaviorKind, BehaviorState},
-    factory::BehaviorTreeFactory,
-    input_port, port_list, register_behavior,
-};
+use behaviortree::prelude::*;
 use common::test_data::{SaySomething, ThinkWhatToSay, say_something_simple};
 
 const XML: &str = r#"
@@ -32,7 +28,7 @@ const XML: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     // The struct SaySomething has a method called ports() that defines the INPUTS.
@@ -64,7 +60,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -74,7 +70,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t02_basic_ports() -> anyhow::Result<()> {
+    async fn t02_basic_ports() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

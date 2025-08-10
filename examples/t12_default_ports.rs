@@ -13,19 +13,7 @@ use core::{
     str::FromStr,
 };
 
-use behaviortree::{
-    Behavior, SharedRuntime,
-    behavior::{
-        BehaviorData, BehaviorError, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState,
-        BehaviorStatic,
-    },
-    blackboard::BlackboardInterface,
-    factory::BehaviorTreeFactory,
-    input_port,
-    port::PortList,
-    port_list, register_behavior,
-    tree::ConstBehaviorTreeElementList,
-};
+use behaviortree::prelude::*;
 use nanoserde::{DeJson, SerJson};
 
 const XML: &str = r#"
@@ -147,7 +135,7 @@ impl BehaviorStatic for BehaviorWithDefaultPoints {
     }
 }
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
     register_behavior!(factory, BehaviorWithDefaultPoints, "NodeWithDefaultPoints")?;
@@ -168,7 +156,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -178,7 +166,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t12_default_ports() -> anyhow::Result<()> {
+    async fn t12_default_ports() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

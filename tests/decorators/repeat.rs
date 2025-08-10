@@ -4,16 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        decorator::Repeat,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, decorator::Repeat};
 
 use rstest::rstest;
 
@@ -38,7 +31,7 @@ async fn repeat(
     #[case] input: BehaviorState,
     #[case] expected: BehaviorState,
     #[case] finally: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -79,7 +72,7 @@ async fn repeat(
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
-async fn repeat_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn repeat_errors(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

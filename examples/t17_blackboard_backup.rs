@@ -16,19 +16,7 @@ use std::{
     str::FromStr,
 };
 
-use behaviortree::{
-    Behavior, SharedRuntime,
-    behavior::{
-        BehaviorError, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState,
-        BehaviorStatic,
-    },
-    blackboard::{BlackboardInterface, SharedBlackboard},
-    factory::BehaviorTreeFactory,
-    input_port, output_port,
-    port::PortList,
-    port_list,
-    tree::BehaviorTreeElementList,
-};
+use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -39,7 +27,7 @@ const XML: &str = r#"
 "#;
 
 // @TODO: implement
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     // register_behavior!(factory, SaySomething, "SaySomething")?;
@@ -54,7 +42,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -64,7 +52,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t17_blackboard_backup() -> anyhow::Result<()> {
+    async fn t17_blackboard_backup() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

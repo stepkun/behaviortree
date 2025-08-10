@@ -4,16 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        decorator::Inverter,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, decorator::Inverter};
 
 use rstest::rstest;
 
@@ -37,7 +30,7 @@ const TREE_DEFINITION: &str = r#"
 async fn inverter(
     #[case] input: BehaviorState,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -70,7 +63,7 @@ async fn inverter(
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
-async fn inverter_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn inverter_errors(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

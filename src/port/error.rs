@@ -14,6 +14,7 @@ use thiserror::Error;
 
 // region:		--- Error
 /// `port` error type
+#[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum Error {
     /// Passthrough for Blackboard `Errors`

@@ -9,9 +9,7 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-use behaviortree::{
-    behavior::BehaviorState, factory::BehaviorTreeFactory, tree::observer::BehaviorTreeObserver,
-};
+use behaviortree::{prelude::*, BehaviorTreeObserver};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -40,7 +38,7 @@ const XML: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     factory.register_behavior_tree_from_text(XML)?;
@@ -83,7 +81,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -93,7 +91,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t10_observer() -> anyhow::Result<()> {
+    async fn t10_observer() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

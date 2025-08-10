@@ -10,7 +10,7 @@
 #[path = "./common/mod.rs"]
 mod common;
 
-use behaviortree::{behavior::BehaviorState, factory::BehaviorTreeFactory, register_behavior};
+use behaviortree::prelude::*;
 use common::test_data::SaySomething;
 
 const XML_WITH_INCLUDE: &str = r#"
@@ -27,7 +27,7 @@ const XML_WITH_INCLUDE: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     // set the necessary directory, currently only working if in project root directory
     // @TODO: find a better solution for this.
     let mut dir = std::env::current_dir()?;
@@ -63,7 +63,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -74,7 +74,7 @@ mod test {
 
     #[tokio::test]
     #[ignore = "does not yet work"]
-    async fn t07_load_multiple_xml_with_include() -> anyhow::Result<()> {
+    async fn t07_load_multiple_xml_with_include() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

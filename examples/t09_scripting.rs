@@ -10,12 +10,8 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{
-    behavior::BehaviorState, factory::BehaviorTreeFactory, register_behavior,
-    register_scripting_enum,
-};
+use behaviortree::prelude::*;
 use common::test_data::SaySomething;
-use tinyscript::ScriptEnum;
 
 const XML: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
@@ -45,7 +41,7 @@ enum Color {
     GREEN = 4,
 }
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     register_scripting_enum!(factory, Color);
@@ -61,7 +57,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     let result = example().await?;
     assert_eq!(result, BehaviorState::Success);
     Ok(())
@@ -72,7 +68,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t09_scripting() -> anyhow::Result<()> {
+    async fn t09_scripting() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

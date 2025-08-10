@@ -11,7 +11,8 @@ use thiserror::Error;
 // endregion:	--- modules
 
 // region:		--- Error
-/// `behaviortree` tree error type
+/// `tree` error type
+#[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum Error {
     /// Pass through behavior error

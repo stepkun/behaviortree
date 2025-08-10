@@ -4,17 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorDescription, BehaviorExecution,
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        decorator::ForceState,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, decorator::ForceState};
+use behaviortree::behavior::BehaviorExecution;
 
 use rstest::rstest;
 
@@ -40,7 +33,7 @@ const TREE_DEFINITION: &str = r#"
 async fn force_state(
     #[case] input: BehaviorState,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -84,7 +77,7 @@ async fn force_state(
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
-async fn force_state_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn force_state_errors(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

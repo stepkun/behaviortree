@@ -10,11 +10,7 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{
-    behavior::{BehaviorKind, BehaviorState},
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
 use common::test_data::{MoveBaseAction, SaySomething, check_battery};
 use std::time::Duration;
 
@@ -48,7 +44,7 @@ const XML_REACTIVE: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     register_behavior!(factory, check_battery, "BatteryOK", BehaviorKind::Condition)?;
@@ -78,7 +74,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -88,7 +84,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t04_reactive_sequence() -> anyhow::Result<()> {
+    async fn t04_reactive_sequence() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

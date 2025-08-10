@@ -13,10 +13,10 @@ use thiserror::Error;
 // endregion:	--- modules
 
 // region:		--- BehaviorError
-/// `behaviortree` behavior error type
+/// `behavior` error type
+#[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum BehaviorError {
-    
     /// Pass through from `nanoserde::DeJsonErr`
     #[error("{0}")]
     Nanoserde(#[from] nanoserde::DeJsonErr),

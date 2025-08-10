@@ -10,19 +10,7 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::behavior::decorator::SharedQueue;
-use behaviortree::{
-    Behavior, SharedRuntime,
-    behavior::{
-        BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState,
-        BehaviorStatic, decorator::Loop,
-    },
-    factory::BehaviorTreeFactory,
-    input_port, output_port,
-    port::PortList,
-    port_list, register_behavior,
-    tree::ConstBehaviorTreeElementList,
-};
+use behaviortree::{behavior::decorator::{Loop, SharedQueue}, prelude::*};
 use common::test_data::Pose2D;
 use std::time::Duration;
 
@@ -138,7 +126,7 @@ const XML: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     // @TODO:
@@ -157,7 +145,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -167,7 +155,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t18_waypoints() -> anyhow::Result<()> {
+    async fn t18_waypoints() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

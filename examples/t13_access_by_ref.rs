@@ -14,17 +14,7 @@ use std::{
     str::FromStr,
 };
 
-use behaviortree::{
-    Behavior, SharedRuntime,
-    behavior::{
-        BehaviorData, BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-    },
-    factory::BehaviorTreeFactory,
-    input_port, output_port,
-    port::PortList,
-    port_list, register_behavior,
-    tree::ConstBehaviorTreeElementList,
-};
+use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -166,7 +156,7 @@ impl BehaviorStatic for SegmentObject {
 }
 
 // @TODO: implement
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     register_behavior!(factory, AcquirePointCloud, "AcquirePointCloud")?;
@@ -182,7 +172,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -193,7 +183,7 @@ mod test {
 
     #[tokio::test]
     #[ignore = "not yet implemented"]
-    async fn t13_access_by_ref() -> anyhow::Result<()> {
+    async fn t13_access_by_ref() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

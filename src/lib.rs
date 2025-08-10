@@ -1,13 +1,17 @@
 // Copyright © 2024 Stephan Kunz
 #![no_std]
 
-//! Behavior librarysimilar to .
+//! Behavior tree library similar to [BehaviorTree.CPP](https://www.behaviortree.dev).
 
 #[doc(hidden)]
 extern crate alloc;
 
+// mostly needed stuff
+pub mod prelude;
+
 // modules
 pub mod behavior;
+pub mod error;
 pub mod blackboard;
 pub mod factory;
 pub mod port;
@@ -15,6 +19,7 @@ pub mod tree;
 pub mod xml;
 
 // flatten:
+pub use error::{BehaviorTreeResult, Error};
 pub use behavior::Behavior;
 pub use tree::observer::BehaviorTreeObserver;
 pub use tree::observer::groot2_connector::Groot2Connector;
@@ -22,8 +27,6 @@ pub use xml::creator::XmlCreator;
 
 // re-exports:
 pub use behaviortree_derive::Behavior;
-pub use tinyscript::ScriptEnum;
-pub use tinyscript::SharedRuntime;
 
 // region:		--- modules
 use alloc::sync::Arc;

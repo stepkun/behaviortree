@@ -4,16 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        decorator::KeepRunningUntilFailure,
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, decorator::KeepRunningUntilFailure};
 
 use rstest::rstest;
 
@@ -36,7 +29,7 @@ const TREE_DEFINITION: &str = r#"
 async fn keep_runnning_until_failure(
     #[case] input: BehaviorState,
     #[case] expected: BehaviorState,
-) -> anyhow::Result<()> {
+) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -70,7 +63,7 @@ async fn keep_runnning_until_failure(
 #[rstest]
 #[case(Idle)]
 #[case(Skipped)]
-async fn keep_runnning_until_failure_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn keep_runnning_until_failure_errors(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

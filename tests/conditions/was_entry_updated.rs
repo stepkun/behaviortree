@@ -4,12 +4,7 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{BehaviorState, condition::WasEntryUpdated},
-    blackboard::BlackboardInterface,
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::{behavior::condition::WasEntryUpdated, prelude::*};
 
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
@@ -21,7 +16,7 @@ const TREE_DEFINITION: &str = r#"
 "#;
 
 #[tokio::test]
-async fn was_entry_updated() -> anyhow::Result<()> {
+async fn was_entry_updated() -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 
@@ -53,7 +48,7 @@ async fn was_entry_updated() -> anyhow::Result<()> {
 }
 
 #[tokio::test]
-async fn was_entry_updated_error() -> anyhow::Result<()> {
+async fn was_entry_updated_error() -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 

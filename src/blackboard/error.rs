@@ -12,6 +12,7 @@ use thiserror::Error;
 
 // region:		--- Error
 /// `blackboard` error type
+#[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum Error {
     /// Entry is not in `Blackboard`.

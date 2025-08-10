@@ -9,15 +9,7 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{
-    Behavior, SharedRuntime,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
-    factory::BehaviorTreeFactory,
-    input_port,
-    port::PortList,
-    port_list, register_behavior,
-    tree::ConstBehaviorTreeElementList,
-};
+use behaviortree::prelude::*;
 use common::test_data::SaySomething;
 
 const XML: &str = r#"
@@ -46,7 +38,7 @@ const XML: &str = r#"
 </root>
 "#;
 
-async fn example() -> anyhow::Result<BehaviorState> {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
     register_behavior!(factory, SaySomething, "SaySomething")?;
@@ -63,7 +55,7 @@ async fn example() -> anyhow::Result<BehaviorState> {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<(), Error> {
     example().await?;
     Ok(())
 }
@@ -73,7 +65,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn t14_subtree_model() -> anyhow::Result<()> {
+    async fn t14_subtree_model() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);
         Ok(())

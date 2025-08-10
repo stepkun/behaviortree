@@ -16,17 +16,20 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.1.2] - 2025-??-??
+## [0.2.0] - 2025-??-??
 
 ### Added
+- a prelude with common imports
 - t12 with JSON default values
 
 ### Changed
+- error types are now 'non_exhaustive'
 
 ### Fixed
 - 'Switch' behavior now works
 
 ### Removed
+- dependency to anyhow
 
 ## [0.1.1] - 2025-08-05
 

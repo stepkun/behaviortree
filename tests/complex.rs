@@ -4,18 +4,16 @@
 
 extern crate alloc;
 
+use behaviortree::prelude::*;
 use behaviortree::{
     SHOULD_NOT_HAPPEN,
     behavior::{
-        BehaviorState, BehaviorStatic,
         action::ChangeStateAfter,
         control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
             SequenceWithMemory,
         },
     },
-    factory::BehaviorTreeFactory,
-    register_behavior,
 };
 
 const TREE: &str = r#"
@@ -81,7 +79,7 @@ const TREE: &str = r#"
 "#;
 
 #[tokio::test]
-async fn complex() -> anyhow::Result<()> {
+async fn complex() -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,

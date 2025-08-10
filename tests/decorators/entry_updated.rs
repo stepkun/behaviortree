@@ -4,18 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::{
-    behavior::{
-        BehaviorDescription, BehaviorExecution,
-        BehaviorState::{self, *},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        decorator::EntryUpdated,
-    },
-    blackboard::BlackboardInterface,
-    factory::BehaviorTreeFactory,
-    register_behavior,
-};
+use behaviortree::prelude::*;
+use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{action::ChangeStateAfter, decorator::EntryUpdated};
+use behaviortree::behavior::BehaviorExecution;
 
 use rstest::rstest;
 
@@ -36,7 +28,7 @@ const TREE_DEFINITION: &str = r#"
 #[case(Skipped)]
 #[case(Failure)]
 #[case(Success)]
-async fn entry_updated(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
@@ -95,7 +87,7 @@ async fn entry_updated(#[case] input: BehaviorState) -> anyhow::Result<()> {
 #[case(Failure)]
 #[case(Skipped)]
 #[case(Success)]
-async fn entry_updated_errors(#[case] input: BehaviorState) -> anyhow::Result<()> {
+async fn entry_updated_errors(#[case] input: BehaviorState) -> Result<(), Error> {
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(
         factory,
