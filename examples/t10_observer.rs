@@ -9,7 +9,7 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-use behaviortree::{prelude::*, BehaviorTreeObserver};
+use behaviortree::{BehaviorTreeObserver, prelude::*};
 
 const XML: &str = r#"
 <root BTCPP_format="4">

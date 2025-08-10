@@ -10,11 +10,14 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{behavior::decorator::{Loop, SharedQueue}, prelude::*};
+use behaviortree::{
+    behavior::decorator::{Loop, SharedQueue},
+    prelude::*,
+};
 use common::test_data::Pose2D;
 use std::time::Duration;
 
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 struct GenerateWaypoints;
 
 #[async_trait::async_trait]
@@ -41,16 +44,12 @@ impl BehaviorInstance for GenerateWaypoints {
 }
 
 impl BehaviorStatic for GenerateWaypoints {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![output_port!(SharedQueue<Pose2D>, "waypoints"),]
     }
 }
 
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 struct PrintNumber;
 
 #[async_trait::async_trait]
@@ -69,16 +68,12 @@ impl BehaviorInstance for PrintNumber {
 }
 
 impl BehaviorStatic for PrintNumber {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(f64, "value"),]
     }
 }
 
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 struct UseWaypoint;
 
 #[async_trait::async_trait]
@@ -100,10 +95,6 @@ impl BehaviorInstance for UseWaypoint {
 }
 
 impl BehaviorStatic for UseWaypoint {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(Pose2D, "waypoint",),]
     }

@@ -7,14 +7,13 @@ use alloc::boxed::Box;
 use alloc::string::{String, ToString};
 use tinyscript::SharedRuntime;
 
-use crate::{input_port, ConstString};
-use crate::port::{is_bb_pointer, strip_bb_pointer, PortList};
+use crate::port::{PortList, is_bb_pointer, strip_bb_pointer};
 use crate::{self as behaviortree, CASE, IDLE, VARIABLE, behavior::BehaviorData};
+use crate::{ConstString, input_port};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -39,7 +38,7 @@ use crate::{
 ///
 /// Note: The same behaviour can be achieved with multiple `Sequences`, `Fallbacks` and `Conditions`,
 /// but switch is shorter and therefor more readable.
-#[derive(Behavior, Debug)]
+#[derive(Control, Debug)]
 pub struct Switch<const T: u8> {
     /// Defaults to T
     cases: u8,
@@ -86,13 +85,19 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
                 if let Some(var) = strip_bb_pointer(&var) {
                     self.var = var;
                 } else {
-                    return Err(BehaviorError::Composition("port [variable] must be a Blackboard pointer".into()))
+                    return Err(BehaviorError::Composition(
+                        "port [variable] must be a Blackboard pointer".into(),
+                    ));
                 }
             } else {
-                return Err(BehaviorError::Composition("port [variable] must be a Blackboard pointer".into()))
+                return Err(BehaviorError::Composition(
+                    "port [variable] must be a Blackboard pointer".into(),
+                ));
             }
         } else {
-            return Err(BehaviorError::Composition("port [variable] must be defined".into()))
+            return Err(BehaviorError::Composition(
+                "port [variable] must be defined".into(),
+            ));
         }
         behavior.set_state(BehaviorState::Running);
         Ok(())
@@ -110,9 +115,9 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
         let var = behavior.get::<String>(&self.var)?;
         for i in 0..T {
             // the names start with "case_1", index with 0
-            let key = String::from(CASE) + &(i+1).to_string();
+            let key = String::from(CASE) + &(i + 1).to_string();
             let case = behavior.get::<String>(&key)?;
-            
+
             // string comparison
             if var == case {
                 match_index = i32::from(i);
@@ -187,10 +192,6 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
 }
 
 impl<const T: u8> BehaviorStatic for Switch<T> {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-
     fn provided_ports() -> PortList {
         let mut ports = PortList::default();
         let port = input_port!(String, VARIABLE);

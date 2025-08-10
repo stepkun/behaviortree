@@ -55,11 +55,11 @@ impl FromStr for Point2D {
         if let Some(stripped) = s.strip_prefix("json:") {
             let res = DeJson::deserialize_json(stripped)?;
             Ok(res)
-        } else 
+        } else
         // check for json content
         if let Ok(res) = DeJson::deserialize_json(&s) {
             Ok(res)
-        } else 
+        } else
         // try conventional
         {
             let v: Vec<&str> = s.split(',').collect();
@@ -70,7 +70,7 @@ impl FromStr for Point2D {
     }
 }
 
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 struct BehaviorWithDefaultPoints {}
 
 #[async_trait::async_trait]
@@ -106,11 +106,11 @@ impl BehaviorInstance for BehaviorWithDefaultPoints {
         println!("pointD:  [{},{}]", point.x, point.y);
 
         let point: Point2D = behavior.get("pointE")?;
-        assert_eq!(point, Point2D{x:9, y:10});
+        assert_eq!(point, Point2D { x: 9, y: 10 });
         println!("pointE:  [{},{}]", point.x, point.y);
 
         let point: Point2D = behavior.get("pointF")?;
-        assert_eq!(point, Point2D{x:11, y:12});
+        assert_eq!(point, Point2D { x: 11, y: 12 });
         println!("pointF:  [{},{}]", point.x, point.y);
 
         Ok(BehaviorState::Success)
@@ -118,10 +118,6 @@ impl BehaviorInstance for BehaviorWithDefaultPoints {
 }
 
 impl BehaviorStatic for BehaviorWithDefaultPoints {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list!(
             input_port!(String, "input"), // default value from XML is [-1,-2]
@@ -129,8 +125,8 @@ impl BehaviorStatic for BehaviorWithDefaultPoints {
             input_port!(Point2D, "pointB", "{point}"), // default value inside blackboard {pointB}
             input_port!(Point2D, "pointC", "5,6"), // default value is [5,6],
             input_port!(Point2D, "pointD", "{=}"), // default value inside blackboard {pointD}
-            input_port!(Point2D, "pointE", r#"json:{"x":9,"y":10}"#),  // default value is [9,10]
-            input_port!(Point2D, "pointF", r#"{"x":11,"y":12}"#),  // default value is [11,12]
+            input_port!(Point2D, "pointE", r#"json:{"x":9,"y":10}"#), // default value is [9,10]
+            input_port!(Point2D, "pointF", r#"{"x":11,"y":12}"#), // default value is [11,12]
         )
     }
 }

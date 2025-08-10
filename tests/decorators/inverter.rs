@@ -4,9 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::prelude::*;
 use behaviortree::behavior::BehaviorState::*;
 use behaviortree::behavior::{action::ChangeStateAfter, decorator::Inverter};
+use behaviortree::prelude::*;
 
 use rstest::rstest;
 

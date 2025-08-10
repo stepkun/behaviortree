@@ -45,8 +45,8 @@ const XML: &str = r#"
 </root>
 "#;
 
-/// Behavior `PrintNumber`
-#[derive(Behavior, Debug, Default)]
+/// Action `PrintNumber`
+#[derive(Action, Debug, Default)]
 struct PrintNumber {}
 
 #[async_trait::async_trait]
@@ -68,10 +68,6 @@ impl BehaviorInstance for PrintNumber {
 }
 
 impl BehaviorStatic for PrintNumber {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list!(input_port!(i64, "val"),)
     }

@@ -12,8 +12,8 @@ use crate as behaviortree;
 use crate::behavior::error::BehaviorError;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Control,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     port::PortList,
     tree::ConstBehaviorTreeElementList,
 };
@@ -23,7 +23,7 @@ use crate::{input_port, port_list};
 // region:      --- Parallel
 /// A `Parallel` ticks executes children in
 ///
-#[derive(Behavior, Debug)]
+#[derive(Control, Debug)]
 pub struct Parallel {
     /// The minimum needed Successes to retrun a Success.
     /// "-1" signals any number.
@@ -163,10 +163,6 @@ impl BehaviorInstance for Parallel {
 }
 
 impl BehaviorStatic for Parallel {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-
     fn provided_ports() -> PortList {
         port_list![
             input_port!(i32, SUCCESS_COUNT),

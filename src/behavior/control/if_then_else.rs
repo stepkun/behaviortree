@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -29,7 +28,7 @@ use crate::{
 /// If you have only 2 children, this node will return Failure whenever the
 /// statement returns Failure.
 /// This is equivalent to adding [`AlwaysFailure`](crate::behavior::action::ChangeStateAfter) as 3rd child.
-#[derive(Behavior, Debug, Default)]
+#[derive(Control, Debug, Default)]
 pub struct IfThenElse {
     child_index: usize,
 }
@@ -115,9 +114,5 @@ impl BehaviorInstance for IfThenElse {
     }
 }
 
-impl BehaviorStatic for IfThenElse {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-}
+impl BehaviorStatic for IfThenElse {}
 // endregion:   --- IfThenElse

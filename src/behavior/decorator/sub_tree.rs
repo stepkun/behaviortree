@@ -10,15 +10,15 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, BehaviorError, BehaviorState};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorStatic},
+    Decorator,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorStatic},
     tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
 // region:      --- SubTree
 /// A `Subtree` is a placeholder for behavior (sub)trees with its own [`BehaviorKind`].
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct SubTree;
 
 #[async_trait::async_trait]
@@ -44,9 +44,5 @@ impl BehaviorInstance for SubTree {
     }
 }
 
-impl BehaviorStatic for SubTree {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::SubTree
-    }
-}
+impl BehaviorStatic for SubTree {}
 // endregion:   --- SubTree

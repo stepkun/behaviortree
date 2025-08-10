@@ -24,6 +24,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Changed
 - error types are now 'non_exhaustive'
+- derive of 'Behavior' separated into 'Action', 'Condition', 'Control' & 'Decorator'
 
 ### Fixed
 - 'Switch' behavior now works

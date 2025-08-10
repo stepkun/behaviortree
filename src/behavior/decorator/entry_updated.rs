@@ -14,8 +14,8 @@ use crate::behavior::{BehaviorData, BehaviorError};
 use crate::port::{PortList, strip_bb_pointer};
 use crate::{self as behaviortree, ENTRY};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Decorator,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     tree::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
@@ -29,7 +29,7 @@ use crate::{input_port, port_list};
 ///
 /// # Errors
 /// If the entry does not exist
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct EntryUpdated {
     /// ID of the last checked update
     /// The default of `usize::MIN` is used as never read
@@ -110,10 +110,6 @@ impl BehaviorInstance for EntryUpdated {
 }
 
 impl BehaviorStatic for EntryUpdated {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(
             String,

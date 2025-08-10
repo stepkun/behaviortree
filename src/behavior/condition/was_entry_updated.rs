@@ -13,8 +13,8 @@ use crate::behavior::{BehaviorData, BehaviorError};
 use crate::port::{PortList, strip_bb_pointer};
 use crate::{self as behaviortree, ENTRY};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Condition,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     tree::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
@@ -24,7 +24,7 @@ use crate::{input_port, port_list};
 /// The `WasEntryUpdated` condition returns Success if a blackboard entry was updated otherwise Failure.
 /// # Errors
 /// - if the entry does not exist
-#[derive(Behavior, Debug, Default)]
+#[derive(Condition, Debug, Default)]
 pub struct WasEntryUpdated {
     /// ID of the last checked update
     sequence_id: usize,
@@ -72,10 +72,6 @@ impl BehaviorInstance for WasEntryUpdated {
 }
 
 impl BehaviorStatic for WasEntryUpdated {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Condition
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(
             String,

@@ -10,8 +10,8 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, BehaviorError};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Action,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     tree::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
@@ -21,7 +21,7 @@ use crate::{
 /// - the stored [`BehaviorState`] `state2` after the amount of ticks given by `count`,
 /// - the [`BehaviorState`] `state1` just one tick before reaching `count`,
 /// - before that the [`BehaviorState::Running`].
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 pub struct ChangeStateAfter {
     /// The [`BehaviorState`] to return initially.
     state1: BehaviorState,
@@ -68,11 +68,7 @@ impl BehaviorInstance for ChangeStateAfter {
     }
 }
 
-impl BehaviorStatic for ChangeStateAfter {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-}
+impl BehaviorStatic for ChangeStateAfter {}
 
 impl ChangeStateAfter {
     /// Constructor with arguments.

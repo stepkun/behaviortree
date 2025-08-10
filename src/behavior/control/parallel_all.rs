@@ -11,10 +11,9 @@ use tinyscript::SharedRuntime;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{self as behaviortree, MAX_FAILURES};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     port::PortList,
     tree::ConstBehaviorTreeElementList,
@@ -25,7 +24,7 @@ use crate::{input_port, port_list};
 // region:      --- ParallelAll
 /// A `ParallelAll` executes its children
 ///
-#[derive(Behavior, Debug)]
+#[derive(Control, Debug)]
 pub struct ParallelAll {
     /// The maximum allowed failures.
     /// "-1" signals any number.
@@ -137,10 +136,6 @@ impl BehaviorInstance for ParallelAll {
 }
 
 impl BehaviorStatic for ParallelAll {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(i32, MAX_FAILURES)]
     }

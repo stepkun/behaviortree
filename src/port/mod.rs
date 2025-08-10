@@ -49,7 +49,7 @@ pub fn is_bb_pointer(port: &str) -> bool {
 #[must_use]
 pub fn strip_bb_pointer(port: &str) -> Option<ConstString> {
     if !is_allowed_port_name(&port[1..]) {
-        return None
+        return None;
     }
     Some(port.strip_prefix('{')?.strip_suffix('}')?.into())
 }

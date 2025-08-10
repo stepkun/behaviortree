@@ -9,8 +9,8 @@ use tinyscript::SharedRuntime;
 use crate::behavior::BehaviorData;
 use crate::{self as behaviortree, CODE};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Condition,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     input_port,
     port::PortList,
     port_list,
@@ -19,7 +19,7 @@ use crate::{
 //endregion:    --- modules
 
 /// The `ScriptCondition` behavior returns Success or Failure depending on the result of the scripted code.
-#[derive(Behavior, Debug, Default)]
+#[derive(Condition, Debug, Default)]
 pub struct ScriptCondition;
 
 #[async_trait::async_trait]
@@ -49,10 +49,6 @@ impl BehaviorInstance for ScriptCondition {
 }
 
 impl BehaviorStatic for ScriptCondition {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Condition
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(
             String,

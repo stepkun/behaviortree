@@ -15,8 +15,8 @@ use crate::behavior::BehaviorData;
 use crate::port::{PortList, strip_bb_pointer};
 use crate::{self as behaviortree, KEY};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Action,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     tree::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
@@ -26,7 +26,7 @@ use crate::{input_port, port_list};
 /// The [`UnsetBlackboard`] behavior is used to delete a value of type T
 /// from the Blackboard specified via port `key`.
 /// Will return Success whether the entry exists or not.
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 pub struct UnsetBlackboard<T>
 where
     T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
@@ -63,10 +63,6 @@ impl<T> BehaviorStatic for UnsetBlackboard<T>
 where
     T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(String, KEY, "", "Key of the entry to remove"),]
     }

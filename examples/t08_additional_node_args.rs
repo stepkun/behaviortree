@@ -8,7 +8,7 @@
 
 extern crate alloc;
 
-use behaviortree::{prelude::*, SHOULD_NOT_HAPPEN};
+use behaviortree::{SHOULD_NOT_HAPPEN, prelude::*};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -21,8 +21,8 @@ const XML: &str = r#"
 </root>
 "#;
 
-/// Behavior `ActionA` has a different constructor than the default one.
-#[derive(Behavior, Debug, Default)]
+/// Action `ActionA` has a different constructor than the default one.
+#[derive(Action, Debug, Default)]
 pub struct ActionA {
     arg1: i32,
     arg2: String,
@@ -49,11 +49,7 @@ impl BehaviorInstance for ActionA {
     }
 }
 
-impl BehaviorStatic for ActionA {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-}
+impl BehaviorStatic for ActionA {}
 
 impl ActionA {
     /// Constructor with arguments.
@@ -63,8 +59,8 @@ impl ActionA {
     }
 }
 
-/// Behavior `ActionB` implements an initialize(...) method that must be called once at the beginning.
-#[derive(Behavior, Debug, Default)]
+/// Action `ActionB` implements an initialize(...) method that must be called once at the beginning.
+#[derive(Action, Debug, Default)]
 pub struct ActionB {
     arg1: i32,
     arg2: String,
@@ -90,11 +86,7 @@ impl BehaviorInstance for ActionB {
     }
 }
 
-impl BehaviorStatic for ActionB {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-}
+impl BehaviorStatic for ActionB {}
 
 impl ActionB {
     /// Initialization function.

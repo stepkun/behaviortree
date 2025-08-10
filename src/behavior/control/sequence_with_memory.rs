@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -28,7 +27,7 @@ use crate::{
 /// - If a child returns FAILURE, stop the loop and return FAILURE.
 ///
 ///   Loop is NOT restarted, the same running child will be ticked again.
-#[derive(Behavior, Debug)]
+#[derive(Control, Debug)]
 pub struct SequenceWithMemory {
     /// Defaults to '0'
     child_idx: usize,
@@ -112,9 +111,5 @@ impl BehaviorInstance for SequenceWithMemory {
     }
 }
 
-impl BehaviorStatic for SequenceWithMemory {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-}
+impl BehaviorStatic for SequenceWithMemory {}
 // endregion:   --- SequenceWithMemory

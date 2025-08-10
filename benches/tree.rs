@@ -12,7 +12,7 @@ use behaviortree::{
     BehaviorTreeObserver, Groot2Connector, SHOULD_NOT_HAPPEN,
     behavior::{
         BehaviorState::{Failure, Running, Success},
-        BehaviorStatic,
+        Behavior, BehaviorStatic,
         action::ChangeStateAfter,
         control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,

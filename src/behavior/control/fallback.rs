@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate::behavior::BehaviorData;
 use crate::{self as behaviortree, IDLE};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -25,7 +24,7 @@ use crate::{
 /// - If all the children return FAILURE, this node returns FAILURE.
 /// - If a child returns RUNNING, this node returns RUNNING.
 /// - If a child returns SUCCESS, stop the loop and return SUCCESS.
-#[derive(Behavior, Debug)]
+#[derive(Control, Debug)]
 pub struct Fallback {
     /// Defaults to '0'
     child_idx: usize,
@@ -102,9 +101,5 @@ impl BehaviorInstance for Fallback {
     }
 }
 
-impl BehaviorStatic for Fallback {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-}
+impl BehaviorStatic for Fallback {}
 // endregion:   --- Fallback

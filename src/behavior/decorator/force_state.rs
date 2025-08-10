@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
+    Decorator,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -23,7 +22,7 @@ use crate::{
 /// The `ForceState` behavior is used to return a certain state, independant of what the child returned.
 /// - If child returns Failure or Success, this behavior returns the stored [`BehaviorState`].
 /// - If child returns any other state, that state will be returned.
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct ForceState {
     state: BehaviorState,
 }
@@ -50,11 +49,7 @@ impl BehaviorInstance for ForceState {
     }
 }
 
-impl BehaviorStatic for ForceState {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-}
+impl BehaviorStatic for ForceState {}
 
 impl ForceState {
     /// Constructor with arguments.

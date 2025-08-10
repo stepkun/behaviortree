@@ -13,8 +13,8 @@ use crate::behavior::{BehaviorData, BehaviorError};
 use crate::tree::ConstBehaviorTreeElementList;
 use crate::{self as behaviortree, MSEC};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Decorator,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     input_port,
     port::PortList,
     port_list,
@@ -23,7 +23,7 @@ use crate::{
 
 // region:		--- Timeout
 /// The [`Timeout`] decorator will halt its child after a period given by the port `msec`.
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct Timeout {
     handle: Option<JoinHandle<()>>,
 }
@@ -75,10 +75,6 @@ impl BehaviorInstance for Timeout {
 }
 
 impl BehaviorStatic for Timeout {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(
             u64,

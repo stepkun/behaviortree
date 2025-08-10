@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -29,7 +28,7 @@ use crate::{
 ///
 /// IMPORTANT: to work properly, this node should not have more than a single
 ///            asynchronous child.
-#[derive(Behavior, Debug)]
+#[derive(Control, Debug)]
 pub struct ReactiveSequence {
     /// Defaults to '-1'
     running_child_idx: i32,
@@ -128,9 +127,5 @@ impl BehaviorInstance for ReactiveSequence {
     }
 }
 
-impl BehaviorStatic for ReactiveSequence {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-}
+impl BehaviorStatic for ReactiveSequence {}
 // endregion:   --- ReactiveSequence

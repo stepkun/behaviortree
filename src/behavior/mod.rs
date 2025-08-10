@@ -47,7 +47,15 @@ pub type BehaviorTickCallback = dyn Fn(&BehaviorData, &mut BehaviorState) + Send
 
 // region:      --- supertraits
 /// Supertrait for a behavior.
-pub trait Behavior: BehaviorExecution + BehaviorStatic + BehaviorCreation {}
+pub trait Behavior: BehaviorExecution + BehaviorStatic + Sized {
+    /// Provide the boxed creation function.
+    #[must_use]
+    fn creation_fn() -> Box<BehaviorCreationFn>;
+
+    /// Get the [`BehaviorKind`] of the behavior that shall become a node in a behavior (sub)tree.
+    #[must_use]
+    fn kind() -> BehaviorKind;
+}
 
 /// Supertrait for execution of a behavior.
 pub trait BehaviorExecution: Any + BehaviorInstance + BehaviorRedirection {
@@ -57,15 +65,6 @@ pub trait BehaviorExecution: Any + BehaviorInstance + BehaviorRedirection {
     fn as_any_mut(&mut self) -> &mut dyn Any;
 }
 // endregion:   --- supertraits
-
-// region:      --- BehaviorCreation
-/// Methods needed for behavior creation.
-pub trait BehaviorCreation: Default {
-    /// Provide the boxed creation function.
-    #[must_use]
-    fn creation_fn() -> Box<BehaviorCreationFn>;
-}
-// endregion:   --- BehaviorCreation
 
 // region:		--- BehaviorInstance
 /// Defines the methods common to all behaviors.
@@ -159,11 +158,7 @@ pub trait BehaviorRedirection: core::fmt::Debug + Send + Sync {
 
 // region:      --- BehaviorStatic
 /// Static methods of behaviors.
-pub trait BehaviorStatic: Default {
-    /// Get the [`BehaviorKind`] of the behavior that shall become a node in a behavior (sub)tree.
-    #[must_use]
-    fn kind() -> BehaviorKind;
-
+pub trait BehaviorStatic {
     /// Provide the list of defined ports.
     /// Default implementation returns an empty list.
     #[must_use]

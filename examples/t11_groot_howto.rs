@@ -9,7 +9,7 @@
 extern crate alloc;
 mod common;
 
-use behaviortree::{prelude::*, Groot2Connector, XmlCreator};
+use behaviortree::{Groot2Connector, XmlCreator, prelude::*};
 use common::cross_door::CrossDoor;
 use common::test_data::Position2D;
 
@@ -42,7 +42,7 @@ const XML: &str = r#"
 "#;
 
 /// Action `UpdatePosition`
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 pub struct UpdatePosition {
     pos: Position2D,
 }
@@ -63,10 +63,6 @@ impl BehaviorInstance for UpdatePosition {
 }
 
 impl BehaviorStatic for UpdatePosition {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![output_port!(Position2D, "pos")]
     }

@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -21,7 +20,7 @@ use crate::{
 
 // region:      --- WhileDoElse
 /// The `WhileDoElse` behavior .
-#[derive(Behavior, Debug, Default)]
+#[derive(Control, Debug, Default)]
 pub struct WhileDoElse;
 
 #[async_trait::async_trait]
@@ -97,9 +96,5 @@ impl BehaviorInstance for WhileDoElse {
     }
 }
 
-impl BehaviorStatic for WhileDoElse {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-}
+impl BehaviorStatic for WhileDoElse {}
 // endregion:   --- WhileDoElse

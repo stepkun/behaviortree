@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
+    Decorator,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -24,7 +23,7 @@ use crate::{
 /// - If child returns Success, this behavior returns Failure.
 /// - If child returns Failure, this behavior returns Success.
 /// - If child returns Skipped or Running, this state will be returned.
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct Inverter;
 
 #[async_trait::async_trait]
@@ -53,9 +52,5 @@ impl BehaviorInstance for Inverter {
     }
 }
 
-impl BehaviorStatic for Inverter {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-}
+impl BehaviorStatic for Inverter {}
 // endregion:   --- Inverter

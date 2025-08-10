@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{self as behaviortree, NUM_ATTEMPTS};
 use crate::{
-    Behavior,
+    Decorator,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     input_port,
     port::PortList,
@@ -40,7 +39,7 @@ use crate::{
 ///     <OpenDoor/>
 /// </RetryUntilSuccessful>
 /// ```
-#[derive(Behavior, Debug)]
+#[derive(Decorator, Debug)]
 pub struct RetryUntilSuccessful {
     /// Defaults to `-1`
     max_attempts: i32,
@@ -127,10 +126,6 @@ impl BehaviorInstance for RetryUntilSuccessful {
 }
 
 impl BehaviorStatic for RetryUntilSuccessful {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(i32, NUM_ATTEMPTS)]
     }

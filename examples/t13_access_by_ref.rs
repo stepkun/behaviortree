@@ -79,8 +79,8 @@ impl FromStr for PointCloud {
     }
 }
 
-/// Behavior `AcquirePointCloud`
-#[derive(Behavior, Debug, Default)]
+/// Action `AcquirePointCloud`
+#[derive(Action, Debug, Default)]
 struct AcquirePointCloud {}
 
 #[async_trait::async_trait]
@@ -109,17 +109,13 @@ impl BehaviorInstance for AcquirePointCloud {
 }
 
 impl BehaviorStatic for AcquirePointCloud {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list!(output_port!(PointCloud, "cloud"))
     }
 }
 
-/// Behavior `SegmentObject`
-#[derive(Behavior, Debug, Default)]
+/// Action `SegmentObject`
+#[derive(Action, Debug, Default)]
 struct SegmentObject();
 
 #[async_trait::async_trait]
@@ -142,10 +138,6 @@ impl BehaviorInstance for SegmentObject {
 }
 
 impl BehaviorStatic for SegmentObject {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list!(
             input_port!(PointCloud, "cloud"),

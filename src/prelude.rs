@@ -1,7 +1,7 @@
 // Copyright © 2024 Stephan Kunz
 
 //! Most commonly used interface of `behaviortree`.
-//! 
+//!
 //! Typically it is sufficient to include the prelude with
 //!
 //! ```use behaviortree::prelude::*;```
@@ -11,9 +11,9 @@ pub extern crate alloc;
 pub extern crate tinyscript;
 
 // re-exports
-pub use behaviortree_derive::Behavior;
-pub use tinyscript::SharedRuntime;
+pub use behaviortree_derive::{Action, Condition, Control, Decorator};
 pub use tinyscript::ScriptEnum;
+pub use tinyscript::SharedRuntime;
 
 // exports
 // error handling
@@ -21,12 +21,15 @@ pub use crate::error::{BehaviorTreeResult, Error};
 // behavior macros
 pub use crate::{register_behavior, register_scripting_enum};
 // port macros
-pub use crate::{port_list, inout_port, input_port, output_port};
+pub use crate::{inout_port, input_port, output_port, port_list};
 // behavior
-pub use crate::behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorResult, BehaviorState};
-pub use crate::behavior::BehaviorKind;  // maybe this one will become obsolete
+pub use crate::behavior::{
+    BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState,
+};
 // behavior traits
-pub use crate::behavior::{BehaviorInstance, BehaviorStatic};
+pub use crate::behavior::{
+    Behavior, BehaviorExecution, BehaviorInstance, BehaviorStatic,
+};
 // blackboard
 pub use crate::blackboard::SharedBlackboard;
 // blackboard traits

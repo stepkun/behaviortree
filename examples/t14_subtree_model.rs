@@ -83,8 +83,8 @@ mod move_robot {
 
     use common::test_data::Pose2D;
 
-    /// Behavior `MoveBase`
-    #[derive(Behavior, Debug, Default)]
+    /// Action `MoveBase`
+    #[derive(Action, Debug, Default)]
     struct MoveBase {
         counter: usize,
     }
@@ -125,10 +125,6 @@ mod move_robot {
     }
 
     impl BehaviorStatic for MoveBase {
-        fn kind() -> BehaviorKind {
-            BehaviorKind::Action
-        }
-
         fn provided_ports() -> PortList {
             port_list!(input_port!(Pose2D, "goal"),)
         }

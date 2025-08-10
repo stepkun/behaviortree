@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{self as behaviortree, NUM_CYCLES};
 use crate::{
-    Behavior,
+    Decorator,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     input_port,
     port::PortList,
@@ -32,7 +31,7 @@ use crate::{
 ///     <WaveHand/>
 /// </Repeat>
 /// ```
-#[derive(Behavior, Debug)]
+#[derive(Decorator, Debug)]
 pub struct Repeat {
     /// Defaults to `-1`
     num_cycles: i32,
@@ -104,10 +103,6 @@ impl BehaviorInstance for Repeat {
 }
 
 impl BehaviorStatic for Repeat {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(
             i32,

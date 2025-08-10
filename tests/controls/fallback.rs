@@ -4,9 +4,9 @@
 
 extern crate alloc;
 
-use behaviortree::prelude::*;
 use behaviortree::behavior::BehaviorState::*;
 use behaviortree::behavior::{action::ChangeStateAfter, control::Fallback};
+use behaviortree::prelude::*;
 use rstest::rstest;
 
 const TREE_DEFINITION: &str = r#"
@@ -148,7 +148,6 @@ async fn simple_fallback_reactiveness1(
     #[case] expected3: BehaviorState,
     #[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
-
     let mut factory = BehaviorTreeFactory::default();
     register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;

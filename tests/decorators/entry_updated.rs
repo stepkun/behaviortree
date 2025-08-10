@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::prelude::*;
 use behaviortree::behavior::BehaviorState::*;
+use behaviortree::behavior::{Behavior, BehaviorExecution};
 use behaviortree::behavior::{action::ChangeStateAfter, decorator::EntryUpdated};
-use behaviortree::behavior::BehaviorExecution;
+use behaviortree::prelude::*;
 
 use rstest::rstest;
 

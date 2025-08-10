@@ -13,8 +13,8 @@ use crate::behavior::{BehaviorData, BehaviorError};
 use crate::tree::ConstBehaviorTreeElementList;
 use crate::{self as behaviortree, DELAY_MSEC};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Decorator,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     input_port,
     port::PortList,
     port_list,
@@ -24,7 +24,7 @@ use crate::{
 // region:		--- Delay
 /// The [`Delay`] decorator will introduce a delay given by the port `delay_msec` and then tick its child.
 /// Consider also using the action [`Sleep`](crate::behavior::action::Sleep)
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct Delay {
     handle: Option<JoinHandle<()>>,
 }
@@ -76,10 +76,6 @@ impl BehaviorInstance for Delay {
 }
 
 impl BehaviorStatic for Delay {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(
             u64,

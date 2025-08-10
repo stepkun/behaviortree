@@ -11,22 +11,22 @@ pub mod prelude;
 
 // modules
 pub mod behavior;
-pub mod error;
 pub mod blackboard;
+pub mod error;
 pub mod factory;
 pub mod port;
 pub mod tree;
 pub mod xml;
 
 // flatten:
-pub use error::{BehaviorTreeResult, Error};
 pub use behavior::Behavior;
+pub use error::{BehaviorTreeResult, Error};
 pub use tree::observer::BehaviorTreeObserver;
 pub use tree::observer::groot2_connector::Groot2Connector;
 pub use xml::creator::XmlCreator;
 
 // re-exports:
-pub use behaviortree_derive::Behavior;
+pub use behaviortree_derive::{Action, Condition, Control, Decorator};
 
 // region:		--- modules
 use alloc::sync::Arc;

@@ -10,8 +10,8 @@ use tinyscript::SharedRuntime;
 use crate::behavior::{BehaviorData, BehaviorError, IDLE};
 use crate::{self as behaviortree, THEN_SKIP};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Decorator,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     input_port,
     port::PortList,
     port_list,
@@ -22,7 +22,7 @@ use crate::{
 // region:      --- RunOnce
 /// The [`RunOnce`] decorator ticks its child exactly once and returns the state.
 /// Afterwards, if `ţhen_skip` is set to `true` Skipped will be returned, otherwise the state of the first run.
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct RunOnce {
     already_ticked: bool,
     then_skip: bool,
@@ -75,10 +75,6 @@ impl BehaviorInstance for RunOnce {
 }
 
 impl BehaviorStatic for RunOnce {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(
             bool,

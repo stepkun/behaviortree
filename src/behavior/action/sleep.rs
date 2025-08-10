@@ -13,8 +13,8 @@ use crate::behavior::{BehaviorData, BehaviorError};
 use crate::tree::ConstBehaviorTreeElementList;
 use crate::{self as behaviortree, MSEC};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Action,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     input_port,
     port::PortList,
     port_list,
@@ -24,7 +24,7 @@ use crate::{
 // region:		--- Sleep
 /// The [`Sleep`] behavior sleeps for the amount of time given via port msec.
 /// Consider also using the decorator [`Delay`](crate::behavior::decorator::Delay)
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 pub struct Sleep {
     handle: Option<JoinHandle<()>>,
 }
@@ -65,10 +65,6 @@ impl BehaviorInstance for Sleep {
 }
 
 impl BehaviorStatic for Sleep {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(u64, MSEC, "", "Time to sleep in [msec].")]
     }

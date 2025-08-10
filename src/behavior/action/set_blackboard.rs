@@ -15,8 +15,8 @@ use crate::behavior::BehaviorData;
 use crate::port::{PortList, strip_bb_pointer};
 use crate::{self as behaviortree, OUTPUT_KEY, VALUE};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Action,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     tree::ConstBehaviorTreeElementList,
 };
 use crate::{inout_port, input_port, port_list};
@@ -26,7 +26,7 @@ use crate::{inout_port, input_port, port_list};
 /// The [`SetBlackboard`] behavior is used to store a value of type T
 /// into an entry of the Blackboard specified via port `output_key`.
 ///
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 pub struct SetBlackboard<T>
 where
     T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
@@ -64,10 +64,6 @@ impl<T> BehaviorStatic for SetBlackboard<T>
 where
     T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![
             input_port!(T, VALUE, "", "Value to be written into the output_key"),

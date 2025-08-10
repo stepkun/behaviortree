@@ -11,8 +11,8 @@ use crate::behavior::error::BehaviorError;
 use crate::behavior::{BehaviorData, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
 use crate::{self as behaviortree, ELSE, IF};
 use crate::{
-    Behavior,
-    behavior::{BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic},
+    Decorator,
+    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     input_port,
     port::PortList,
     port_list,
@@ -23,7 +23,7 @@ use crate::{
 // region:      --- Precondition
 /// The `Precondition` behavior is used to check a scripted condition before
 /// executing its child.
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct Precondition;
 
 #[async_trait::async_trait]
@@ -79,10 +79,6 @@ impl BehaviorInstance for Precondition {
 }
 
 impl BehaviorStatic for Precondition {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![
             input_port!(String, IF, "", "Condition to check."),

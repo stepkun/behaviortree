@@ -5,9 +5,9 @@
 
 extern crate alloc;
 
-use behaviortree::prelude::*;
 use behaviortree::behavior::BehaviorState::*;
 use behaviortree::behavior::{action::ChangeStateAfter, control::Switch};
+use behaviortree::prelude::*;
 
 use rstest::rstest;
 
@@ -46,8 +46,7 @@ async fn switch2(
     let mut tree = factory.create_from_text(SWITCH2_TREE)?;
     drop(factory);
 
-    tree.blackboard_mut()
-        .set("var", String::from(case))?;
+    tree.blackboard_mut().set("var", String::from(case))?;
 
     let mut result = tree.tick_once().await?;
     assert_eq!(result, expected);
@@ -101,15 +100,44 @@ const SWITCH_5_TREE: &str = r#"
 #[case(Idle, Idle, Idle, Idle, Idle, Running, "default", Running)]
 #[case(Idle, Idle, Idle, Idle, Idle, Success, "default", Success)]
 #[case(Success, Success, Success, Success, Success, Failure, "24", Failure)]
-#[case(Success, Failure, Failure, Failure, Failure, Failure, "string", Success)]
+#[case(
+    Success, Failure, Failure, Failure, Failure, Failure, "string", Success
+)]
 #[case(Failure, Success, Failure, Failure, Failure, Failure, "1", Success)]
 #[case(Failure, Failure, Success, Failure, Failure, Failure, "BLUE", Success)]
 #[case(Failure, Failure, Success, Failure, Failure, Failure, "2", Success)]
 #[case(Idle, Idle, Idle, Idle, Idle, Failure, "3", Failure)]
-#[case(Failure, Failure, Failure, Success, Failure, Failure, "3.1399999999999996", Success)]    // 09
+#[case(
+    Failure,
+    Failure,
+    Failure,
+    Success,
+    Failure,
+    Failure,
+    "3.1399999999999996",
+    Success
+)] // 09
 #[case(Failure, Failure, Failure, Failure, Success, Failure, "42", Success)]
-#[case(Failure, Failure, Failure, Failure, Success, Failure, "the_answer", Failure)]
-#[case(Failure, Failure, Failure, Failure, Success, Failure, "{the_answer}", Failure)]
+#[case(
+    Failure,
+    Failure,
+    Failure,
+    Failure,
+    Success,
+    Failure,
+    "the_answer",
+    Failure
+)]
+#[case(
+    Failure,
+    Failure,
+    Failure,
+    Failure,
+    Success,
+    Failure,
+    "{the_answer}",
+    Failure
+)]
 async fn switch5(
     #[case] input1: BehaviorState,
     #[case] input2: BehaviorState,
@@ -136,12 +164,10 @@ async fn switch5(
     let mut tree = factory.create_from_text(SWITCH_5_TREE)?;
     drop(factory);
 
-    tree.blackboard_mut()
-        .set("var", String::from(case))?;
+    tree.blackboard_mut().set("var", String::from(case))?;
 
     // set the bb value 'the_answer'
-    tree.blackboard_mut()
-        .set("the_answer", 42)?;
+    tree.blackboard_mut().set("the_answer", 42)?;
 
     let mut result = tree.tick_once().await?;
     assert_eq!(result, expected);

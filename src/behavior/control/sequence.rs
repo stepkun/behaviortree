@@ -10,10 +10,9 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Behavior,
+    Control,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -27,7 +26,7 @@ use crate::{
 ///
 /// While running, the loop is not restarted, first the running child will be ticked again.
 /// If that tick succeeds the sequence continues, children that already succeeded will not be ticked again.
-#[derive(Behavior, Debug)]
+#[derive(Control, Debug)]
 pub struct Sequence {
     /// Defaults to '0'
     child_idx: usize,
@@ -107,9 +106,5 @@ impl BehaviorInstance for Sequence {
     }
 }
 
-impl BehaviorStatic for Sequence {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Control
-    }
-}
+impl BehaviorStatic for Sequence {}
 // endregion:   --- Sequence

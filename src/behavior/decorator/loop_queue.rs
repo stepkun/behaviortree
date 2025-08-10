@@ -18,10 +18,9 @@ use crate::{
     self as behaviortree, IF_EMPTY, QUEUE, inout_port, input_port, output_port, port_list,
 };
 use crate::{
-    Behavior,
+    Decorator,
     behavior::{
-        BehaviorInstance, BehaviorKind, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
+        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
     },
     tree::ConstBehaviorTreeElementList,
 };
@@ -111,7 +110,7 @@ where
 /// This element is copied into the port "value" and the child will be executed
 /// as long as there are elements in the queue.
 ///
-#[derive(Behavior, Debug, Default)]
+#[derive(Decorator, Debug, Default)]
 pub struct Loop<T>
 where
     T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
@@ -181,10 +180,6 @@ impl<T> BehaviorStatic for Loop<T>
 where
     T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Decorator
-    }
-
     fn provided_ports() -> PortList {
         port_list![
             inout_port!(SharedQueue<T>, QUEUE),

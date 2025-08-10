@@ -12,7 +12,7 @@ use behaviortree::{
     SHOULD_NOT_HAPPEN,
     behavior::{
         BehaviorState::{Running, Success},
-        BehaviorStatic,
+        BehaviorStatic, Behavior,
         action::ChangeStateAfter,
         control::{Parallel, ParallelAll, Sequence},
     },

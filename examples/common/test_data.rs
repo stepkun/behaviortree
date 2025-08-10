@@ -17,9 +17,9 @@ use std::{
 use behaviortree::prelude::*;
 // endregion:	--- modules
 
-/// Behavior `ApproachObject`
+/// Action `ApproachObject`
 /// Example of custom `ActionNode` (synchronous action) without ports.
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 pub struct ApproachObject {}
 
 #[async_trait::async_trait]
@@ -35,13 +35,9 @@ impl BehaviorInstance for ApproachObject {
     }
 }
 
-impl BehaviorStatic for ApproachObject {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-}
+impl BehaviorStatic for ApproachObject {}
 
-/// Function for behavior `CheckBattery`
+/// Function for condition `CheckBattery`
 /// # Errors
 /// In this case never :-)
 pub fn check_battery() -> BehaviorResult {
@@ -73,9 +69,9 @@ impl GripperInterface {
         Ok(BehaviorState::Success)
     }
 }
-/// Behavior `SaySomething`
+/// Action `SaySomething`
 /// Example of custom `ActionNode` (synchronous action) with an input port.
-#[derive(Behavior, Debug, Default)]
+#[derive(Action, Debug, Default)]
 pub struct SaySomething {}
 
 #[async_trait::async_trait]
@@ -93,17 +89,13 @@ impl BehaviorInstance for SaySomething {
 }
 
 impl BehaviorStatic for SaySomething {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list! {input_port!(String, "message")}
     }
 }
 
-/// Behavior `ThinkWhatToSay`
-#[derive(Behavior, Debug, Default)]
+/// Action `ThinkWhatToSay`
+#[derive(Action, Debug, Default)]
 pub struct ThinkWhatToSay {}
 
 #[async_trait::async_trait]
@@ -120,10 +112,6 @@ impl BehaviorInstance for ThinkWhatToSay {
 }
 
 impl BehaviorStatic for ThinkWhatToSay {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![output_port!(String, "text")]
     }
@@ -170,8 +158,8 @@ impl Display for Position2D {
     }
 }
 
-/// Behavior `CalculateGoal`
-#[derive(Behavior, Debug, Default)]
+/// Action `CalculateGoal`
+#[derive(Action, Debug, Default)]
 pub struct CalculateGoal {}
 
 #[async_trait::async_trait]
@@ -189,17 +177,13 @@ impl BehaviorInstance for CalculateGoal {
 }
 
 impl BehaviorStatic for CalculateGoal {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![output_port!(Position2D, "goal")]
     }
 }
 
-/// Behavior `PrintTarget`
-#[derive(Behavior, Debug, Default)]
+/// Action `PrintTarget`
+#[derive(Action, Debug, Default)]
 pub struct PrintTarget {}
 
 #[async_trait::async_trait]
@@ -217,10 +201,6 @@ impl BehaviorInstance for PrintTarget {
 }
 
 impl BehaviorStatic for PrintTarget {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(Position2D, "target")]
     }
@@ -262,8 +242,8 @@ impl Display for Pose2D {
     }
 }
 
-/// Behavior `MoveBase`
-#[derive(Behavior, Debug)]
+/// Action `MoveBase`
+#[derive(Action, Debug)]
 pub struct MoveBaseAction {
     start_time: Instant,
     completion_time: Duration,
@@ -312,10 +292,6 @@ impl BehaviorInstance for MoveBaseAction {
 }
 
 impl BehaviorStatic for MoveBaseAction {
-    fn kind() -> BehaviorKind {
-        BehaviorKind::Action
-    }
-
     fn provided_ports() -> PortList {
         port_list![input_port!(Pose2D, "goal")]
     }

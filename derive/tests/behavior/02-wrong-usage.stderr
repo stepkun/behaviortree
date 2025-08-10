@@ -1,5 +1,5 @@
-error: expected attribute, found derive macro `behaviortree_derive::Behavior`
- --> tests/behavior/02-wrong-usage.rs:5:3
+error[E0433]: failed to resolve: could not find `Behavior` in `behaviortree_derive`
+ --> tests/behavior/02-wrong-usage.rs:5:24
   |
 5 | #[behaviortree_derive::Behavior]
-  |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not an attribute
+  |                        ^^^^^^^^ could not find `Behavior` in `behaviortree_derive`
