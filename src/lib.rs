@@ -27,6 +27,7 @@ pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, SharedBlac
 pub use error::{BehaviorTreeResult, Error};
 pub use factory::BehaviorTreeFactory;
 pub use port::PortList;
+#[cfg(feature = "std")]
 pub use tree::observer::groot2_connector::Groot2Connector;
 pub use tree::observer::tree_observer::BehaviorTreeObserver;
 pub use tree::{
