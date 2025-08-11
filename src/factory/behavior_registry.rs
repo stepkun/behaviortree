@@ -37,6 +37,7 @@ pub struct BehaviorRegistry {
     /// List of loaded libraries.
     /// Every tree must keep a reference to its needed libraries to keep the libraries in memory
     /// until end of programm.
+    #[cfg(feature = "std")]
     libraries: Vec<Arc<Library>>,
 }
 
@@ -73,6 +74,7 @@ impl BehaviorRegistry {
     /// The Library must be kept in storage until the behaviort tree is destroyed.
     /// Therefore the library is stored in the behavior registry and later a cloned
     /// reference is handed over to every created tree.
+    #[cfg(feature = "std")]
     pub fn add_library(&mut self, library: Library) {
         self.libraries.push(Arc::new(library));
     }
@@ -97,7 +99,7 @@ impl BehaviorRegistry {
         tree_definition: ConstString,
     ) -> Result<(), Error> {
         let key: ConstString = id.into();
-        if let std::collections::btree_map::Entry::Vacant(e) = self.tree_definitions.entry(key) {
+        if let alloc::collections::btree_map::Entry::Vacant(e) = self.tree_definitions.entry(key) {
             e.insert(tree_definition);
             Ok(())
         } else {
@@ -134,6 +136,7 @@ impl BehaviorRegistry {
     }
 
     /// Get a reference to the registered libraries
+    #[cfg(feature = "std")]
     #[must_use]
     pub(crate) const fn libraries(&self) -> &Vec<Arc<Library>> {
         &self.libraries

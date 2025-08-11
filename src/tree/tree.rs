@@ -8,14 +8,15 @@ extern crate std;
 
 // region:      --- modules
 #[cfg(feature = "std")]
-use alloc::string::String;
-use alloc::{string::ToString, sync::Arc, vec::Vec};
+use alloc::vec::Vec;
+use alloc::{string::{String, ToString}, sync::Arc};
 #[cfg(feature = "std")]
 use libloading::Library;
 use spin::Mutex;
 use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use tokio::sync::mpsc;
+#[cfg(feature = "std")]
 use uuid::Uuid;
 
 use crate::{
@@ -23,11 +24,12 @@ use crate::{
     blackboard::SharedBlackboard,
     factory::BehaviorRegistry,
     tree::{
-        observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback},
         tree_element::TreeElementKind,
         tree_iter::{TreeIter, TreeIterMut},
     },
 };
+#[cfg(feature = "std")]
+use crate::tree::observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback};
 
 use super::{error::Error, tree_element::BehaviorTreeElement};
 // endregion:   --- modules
@@ -36,7 +38,6 @@ use super::{error::Error, tree_element::BehaviorTreeElement};
 /// Recursion function to print a (sub)tree recursively
 /// # Errors
 /// - Limit is a tree-depth of 127
-#[cfg(feature = "std")]
 fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error> {
     if level == i8::MAX {
         return Err(Error::Unexpected(
@@ -52,6 +53,7 @@ fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error>
         indentation.push_str("  ");
     }
 
+    #[cfg(feature = "std")]
     std::println!("{indentation}{}", node.data().description().name());
     for child in &**node.children() {
         print_recursively(next_level, child)?;
@@ -61,6 +63,7 @@ fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error>
 // endregion:	--- helper
 
 // region:      --- BehaviorTreeMessage
+#[cfg(feature = "std")]
 pub enum BehaviorTreeMessage {
     AddGrootCallback(Arc<Mutex<Groot2ConnectorData>>),
     RemoveAllGrootHooks,
@@ -72,6 +75,7 @@ pub enum BehaviorTreeMessage {
 /// A certain [`BehaviorTree`] can contain up to 65536 [`BehaviorTreeElement`]s.
 pub struct BehaviorTree {
     /// The trees unique id
+    #[cfg(feature = "std")]
     uuid: Uuid,
     /// The root element
     root: BehaviorTreeElement,
@@ -96,6 +100,7 @@ impl BehaviorTree {
         // create a clone of the scripting runtime
         let runtime = Arc::new(Mutex::new(registry.runtime().clone()));
         // clone the current state of registered libraries
+        #[cfg(feature = "std")]
         let mut libraries = Vec::new();
         #[cfg(feature = "std")]
         for lib in registry.libraries() {
@@ -105,6 +110,7 @@ impl BehaviorTree {
         #[cfg(feature = "std")]
         let (tx, rx) = mpsc::channel::<BehaviorTreeMessage>(10);
         Self {
+            #[cfg(feature = "std")]
             uuid: Uuid::new_v4(),
             root,
             runtime,
@@ -154,6 +160,7 @@ impl BehaviorTree {
     }
 
     /// Get the trees uuid.
+    #[cfg(feature = "std")]
     #[must_use]
     pub const fn uuid(&self) -> Uuid {
         self.uuid
@@ -178,7 +185,8 @@ impl BehaviorTree {
         count
     }
 
-    /// Handle incomming message    
+    /// Handle incoming message    
+    #[cfg(feature = "std")]
     #[allow(clippy::redundant_locals)]
     fn handle_message(&mut self, message: BehaviorTreeMessage) {
         let message = message;
@@ -198,6 +206,7 @@ impl BehaviorTree {
     /// # Errors
     #[inline]
     pub async fn tick_exactly_once(&mut self) -> BehaviorResult {
+        #[cfg(feature = "std")]
         if let Ok(message) = self.rx.try_recv() {
             self.handle_message(message);
         }
@@ -209,6 +218,7 @@ impl BehaviorTree {
     /// # Errors
     #[inline]
     pub async fn tick_once(&mut self) -> BehaviorResult {
+        #[cfg(feature = "std")]
         if let Ok(message) = self.rx.try_recv() {
             self.handle_message(message);
         }
@@ -220,6 +230,7 @@ impl BehaviorTree {
     pub async fn tick_while_running(&mut self) -> BehaviorResult {
         let mut state = BehaviorState::Running;
         while state == BehaviorState::Running || state == BehaviorState::Idle {
+            #[cfg(feature = "std")]
             while let Ok(message) = self.rx.try_recv() {
                 self.handle_message(message);
             }
@@ -242,9 +253,11 @@ impl BehaviorTree {
         }
 
         // handle eventually pending messages
+        #[cfg(feature = "std")]
         while let Ok(message) = self.rx.try_recv() {
             self.handle_message(message);
         }
+        #[cfg(feature = "std")]
         Ok(state)
     }
 

@@ -112,8 +112,13 @@ pub enum Error {
     #[error("root element must be named 'root'")]
     WrongRootName,
     /// Passthrough for roxmltree Errors
+    #[cfg(feature = "std")]
     #[error("{0}")]
     XmlParser(#[from] roxmltree::Error),
+    /// roxmltree Errors
+    #[cfg(not(feature = "std"))]
+    #[error("Error parsing XML")]
+    XmlParser,
 
     /// A really unexpected error happened
     #[error("unexpected [{0}] in file [{1}] at line [{2}]")]

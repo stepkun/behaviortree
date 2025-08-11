@@ -29,6 +29,7 @@ pub use factory::BehaviorTreeFactory;
 pub use port::PortList;
 #[cfg(feature = "std")]
 pub use tree::observer::groot2_connector::Groot2Connector;
+#[cfg(feature = "std")]
 pub use tree::observer::tree_observer::BehaviorTreeObserver;
 pub use tree::{
     tree::BehaviorTree, tree_element::BehaviorTreeElement,

@@ -4,6 +4,7 @@
 
 // region:      --- modules
 use alloc::boxed::Box;
+#[cfg(feature = "std")]
 use core::time::Duration;
 use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
@@ -28,6 +29,7 @@ use crate::{
 /// Consider also using the decorator [`Delay`](crate::behavior::decorator::Delay)
 #[derive(Action, Debug, Default)]
 pub struct Sleep {
+    #[cfg(feature = "std")]
     handle: Option<JoinHandle<()>>,
 }
 
@@ -39,18 +41,24 @@ impl BehaviorInstance for Sleep {
         _children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
+        #[cfg(not(feature = "std"))]
+        let _ = behavior;
+        #[cfg(not(feature = "std"))]
+        let _ = MSEC;
+        #[cfg(feature = "std")]
         let millis: u64 = behavior.get(MSEC)?;
         #[cfg(feature = "std")]
         {
             self.handle = Some(tokio::task::spawn(async move {
                 tokio::time::sleep(Duration::from_millis(millis)).await;
             }));
+            behavior.set_state(BehaviorState::Running);
+            Ok(())
         }
         #[cfg(not(feature = "std"))]
         {
             todo!();
         }
-        Ok(())
     }
 
     async fn tick(
@@ -59,6 +67,7 @@ impl BehaviorInstance for Sleep {
         _children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> BehaviorResult {
+        #[cfg(feature = "std")]
         if let Some(handle) = self.handle.as_ref() {
             if handle.is_finished() {
                 self.handle = None;
@@ -69,6 +78,9 @@ impl BehaviorInstance for Sleep {
         } else {
             Ok(BehaviorState::Failure)
         }
+
+        #[cfg(not(feature = "std"))]
+        Ok(BehaviorState::Failure)
     }
 }
 

@@ -3,11 +3,11 @@
 
 //! Embedded version of [t01_buid_your_first_tree](examples/t01_build_your_first_tree.rs)
 
-use ariel_os::debug::{ExitCode, exit, log::*};
+use ariel_os::debug::{ExitCode, exit};
 
 use behaviortree::prelude::*;
 
-const XML: &str = r#"
+const _XML: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">
 	<BehaviorTree ID="MainTree">

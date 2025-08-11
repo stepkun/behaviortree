@@ -70,7 +70,7 @@ thiserror = { version = "2", default-features = false }
 tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros", "sync", "time"], optional = true }
 tracing = { version = "0.1.41", default-features = false, features = ["attributes"] }
 tinyscript = { version = "^0.1.4", default-features = false }
-uuid = { version = "1.18.0", default-features = false , features = ["v4"]}
+uuid = { version = "1.18.0", default-features = false , features = ["v4"], optional = true }
 woxml = { version = "0.3.0", default-features = false }
 zeromq = { version = "0.4.1", default-features = false, features = ["tcp-transport"], optional = true }
 
@@ -83,7 +83,7 @@ trybuild = { version = "1.0.110", features = ["diff"] }
 
 [features]
 default = ["std"]
-std = ["libloading", "roxmltree/std", "rand", "spin/std", "tokio", "zeromq", "zeromq/tokio-runtime"]
+std = ["libloading", "roxmltree/std", "rand", "spin/std", "tokio", "uuid", "zeromq", "zeromq/tokio-runtime"]
 
 [profile.release]
 opt-level = 's'			# Optimize for size.

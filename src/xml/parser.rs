@@ -59,10 +59,17 @@ impl XmlParser {
         next
     }
 
+    #[cfg(feature = "std")]
     #[instrument(level = Level::DEBUG, skip_all)]
     fn register_document(registry: &mut BehaviorRegistry, xml: &str) -> Result<(), Error> {
         // general checks
+        #[cfg(feature = "std")]
         let doc = Document::parse(xml)?;
+        #[cfg(not(feature = "std"))]
+        let doc = match Document::parse(xml) {
+            Ok(doc) => doc,
+            Err(_err) => return Err(Error::XmlParser)
+        };
         let root = doc.root_element();
         if root.tag_name().name() != "root" {
             return Err(Error::WrongRootName);
@@ -295,7 +302,13 @@ impl XmlParser {
         registry.find_tree_definition(name).map_or_else(
             || Err(Error::SubtreeNotFound(name.into())),
             |definition| {
+                #[cfg(feature = "std")]
                 let doc = Document::parse(&definition)?;
+                #[cfg(not(feature = "std"))]
+                let doc = match Document::parse(&definition) {
+                    Ok(doc) => doc,
+                    Err(_err) => return Err(Error::XmlParser)
+                };
                 let node = doc.root_element();
                 // look for the "SubTree" behavior in the `BehaviorRegistry` and create it.
                 let (bhvr_desc, bhvr_creation_fn) = registry.fetch("SubTree")?;
@@ -445,7 +458,13 @@ impl XmlParser {
                     let definition = registry.find_tree_definition(id);
                     match definition {
                         Some(definition) => {
+                            #[cfg(feature = "std")]
                             let doc = Document::parse(&definition)?;
+                            #[cfg(not(feature = "std"))]
+                            let doc = match Document::parse(&definition) {
+                                Ok(doc) => doc,
+                                Err(_err) => return Err(Error::XmlParser)
+                            };
                             let node = doc.root_element();
                             // A SubTree gets a new Blackboard with parent and remappings.
                             let blackboard1 = SharedBlackboard::with_parent(

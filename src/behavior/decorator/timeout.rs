@@ -4,6 +4,7 @@
 
 // region:      --- modules
 use alloc::boxed::Box;
+#[cfg(feature = "std")]
 use core::time::Duration;
 use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
@@ -27,6 +28,7 @@ use crate::{
 /// The [`Timeout`] decorator will halt its child after a period given by the port `msec`.
 #[derive(Decorator, Debug, Default)]
 pub struct Timeout {
+    #[cfg(feature = "std")]
     handle: Option<JoinHandle<()>>,
 }
 
@@ -34,7 +36,8 @@ pub struct Timeout {
 impl BehaviorInstance for Timeout {
     #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
-        self.handle = None;
+        #[cfg(feature = "std")]
+        { self.handle = None; }
         Ok(())
     }
 
@@ -44,19 +47,24 @@ impl BehaviorInstance for Timeout {
         _children: &mut ConstBehaviorTreeElementList,
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
+        #[cfg(not(feature = "std"))]
+        let _ = behavior;
+        #[cfg(not(feature = "std"))]
+        let _ = MSEC;
+        #[cfg(feature = "std")]
         let millis: u64 = behavior.get(MSEC)?;
         #[cfg(feature = "std")]
         {
             self.handle = Some(tokio::task::spawn(async move {
                 tokio::time::sleep(Duration::from_millis(millis)).await;
             }));
+            behavior.set_state(BehaviorState::Running);
+            Ok(())
         }
         #[cfg(not(feature = "std"))]
         {
             todo!();
         }
-        behavior.set_state(BehaviorState::Running);
-        Ok(())
     }
 
     async fn tick(
@@ -65,6 +73,11 @@ impl BehaviorInstance for Timeout {
         children: &mut ConstBehaviorTreeElementList,
         runtime: &SharedRuntime,
     ) -> BehaviorResult {
+        #[cfg(not(feature = "std"))]
+        let _ = children;
+        #[cfg(not(feature = "std"))]
+        let _ = runtime;
+        #[cfg(feature = "std")]
         if let Some(handle) = self.handle.as_ref() {
             let state = children[0].tick(runtime).await?;
             if state.is_completed() {
@@ -80,6 +93,9 @@ impl BehaviorInstance for Timeout {
         } else {
             Ok(BehaviorState::Failure)
         }
+
+        #[cfg(not(feature = "std"))]
+        Ok(BehaviorState::Failure)
     }
 }
 

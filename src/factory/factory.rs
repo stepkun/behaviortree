@@ -11,15 +11,18 @@ extern crate std;
 
 // region:      --- modules
 use crate::{ConstString, behavior::SubTree};
+#[cfg(feature = "std")]
+use alloc::string::ToString;
 use alloc::{
     boxed::Box,
-    string::{String, ToString},
+    string::String,
     vec::Vec,
 };
 use roxmltree::Document;
 
+#[cfg(feature = "std")]
+use crate::SHOULD_NOT_HAPPEN;
 use crate::{
-    SHOULD_NOT_HAPPEN,
     behavior::{
         Behavior, BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState,
         BehaviorStatic, ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn,
@@ -368,7 +371,13 @@ impl BehaviorTreeFactory {
     /// - if tree description is not in BTCPP v4
     pub fn register_behavior_tree_from_text(&mut self, xml: &str) -> Result<(), Error> {
         // general checks
+        #[cfg(feature = "std")]
         let doc = Document::parse(xml)?;
+        #[cfg(not(feature = "std"))]
+        let doc = match Document::parse(xml) {
+            Ok(doc) => doc,
+            Err(_err) => return Err(Error::XmlParser)
+        };
         let root = doc.root_element();
         if root.tag_name().name() != "root" {
             return Err(Error::WrongRootName);
