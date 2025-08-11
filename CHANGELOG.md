@@ -31,6 +31,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 - dependency to anyhow
+- trait/derive 'Debug' where avoidable
 
 ## [0.1.1] - 2025-08-05
 

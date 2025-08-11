@@ -20,7 +20,7 @@ use crate::{
 
 // region:      --- WhileDoElse
 /// The `WhileDoElse` behavior .
-#[derive(Control, Debug, Default)]
+#[derive(Control, Default)]
 pub struct WhileDoElse;
 
 #[async_trait::async_trait]

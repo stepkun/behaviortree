@@ -88,7 +88,7 @@ impl BlackboardInterface for SharedBlackboard {
 
     fn delete<T>(&mut self, key: &str) -> Result<T, Error>
     where
-        T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         // if it is a key starting with an '@' redirect to root bb
         if let Some(key_stripped) = key.strip_prefix('@') {
@@ -114,7 +114,7 @@ impl BlackboardInterface for SharedBlackboard {
 
     fn get<T>(&self, key: &str) -> Result<T, Error>
     where
-        T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         // if it is a key starting with an '@' redirect to root bb
         if let Some(key_stripped) = key.strip_prefix('@') {
@@ -183,7 +183,7 @@ impl BlackboardInterface for SharedBlackboard {
 
     fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
     where
-        T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         // if it is a key starting with an '@' redirect to root bb
         if let Some(key_stripped) = key.strip_prefix('@') {

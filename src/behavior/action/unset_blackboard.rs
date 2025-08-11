@@ -6,7 +6,6 @@
 // region:      --- modules
 use alloc::string::String;
 use alloc::{boxed::Box, string::ToString};
-use core::fmt::Debug;
 use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
@@ -26,10 +25,10 @@ use crate::{input_port, port_list};
 /// The [`UnsetBlackboard`] behavior is used to delete a value of type T
 /// from the Blackboard specified via port `key`.
 /// Will return Success whether the entry exists or not.
-#[derive(Action, Debug, Default)]
+#[derive(Action, Default)]
 pub struct UnsetBlackboard<T>
 where
-    T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
+    T: Clone + Default + FromStr + ToString + Send + Sync + 'static,
 {
     _marker: PhantomData<T>,
 }
@@ -37,7 +36,7 @@ where
 #[async_trait::async_trait]
 impl<T> BehaviorInstance for UnsetBlackboard<T>
 where
-    T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
+    T: Clone + Default + FromStr + ToString + Send + Sync,
 {
     async fn tick(
         &mut self,
@@ -61,7 +60,7 @@ where
 
 impl<T> BehaviorStatic for UnsetBlackboard<T>
 where
-    T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
+    T: Clone + Default + FromStr + ToString + Send + Sync,
 {
     fn provided_ports() -> PortList {
         port_list![input_port!(String, KEY, "", "Key of the entry to remove"),]

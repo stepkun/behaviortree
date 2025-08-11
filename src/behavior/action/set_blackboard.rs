@@ -6,7 +6,6 @@
 // region:      --- modules
 use alloc::string::String;
 use alloc::{boxed::Box, string::ToString};
-use core::fmt::Debug;
 use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
@@ -26,10 +25,10 @@ use crate::{inout_port, input_port, port_list};
 /// The [`SetBlackboard`] behavior is used to store a value of type T
 /// into an entry of the Blackboard specified via port `output_key`.
 ///
-#[derive(Action, Debug, Default)]
+#[derive(Action, Default)]
 pub struct SetBlackboard<T>
 where
-    T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
+    T: Clone + Default + FromStr + ToString + Send + Sync + 'static,
 {
     _marker: PhantomData<T>,
 }
@@ -37,7 +36,7 @@ where
 #[async_trait::async_trait]
 impl<T> BehaviorInstance for SetBlackboard<T>
 where
-    T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
+    T: Clone + Default + FromStr + ToString + Send + Sync,
 {
     async fn tick(
         &mut self,
@@ -62,7 +61,7 @@ where
 
 impl<T> BehaviorStatic for SetBlackboard<T>
 where
-    T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
+    T: Clone + Default + FromStr + ToString + Send + Sync,
 {
     fn provided_ports() -> PortList {
         port_list![

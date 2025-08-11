@@ -23,7 +23,7 @@ use crate::{
 /// - If child returns Success, this behavior returns Failure.
 /// - If child returns Failure, this behavior returns Success.
 /// - If child returns Skipped or Running, this state will be returned.
-#[derive(Decorator, Debug, Default)]
+#[derive(Decorator, Default)]
 pub struct Inverter;
 
 #[async_trait::async_trait]

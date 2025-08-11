@@ -29,7 +29,7 @@ use crate::{
 ///     <OpenDoor/>
 /// </KeepRunningUntilFailure>
 /// ```
-#[derive(Decorator, Debug, Default)]
+#[derive(Decorator, Default)]
 pub struct KeepRunningUntilFailure;
 
 #[async_trait::async_trait]

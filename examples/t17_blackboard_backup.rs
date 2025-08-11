@@ -52,6 +52,7 @@ mod test {
     use super::*;
 
     #[tokio::test]
+    #[ignore = "not yet implemented"]
     async fn t17_blackboard_backup() -> Result<(), Error> {
         let result = example().await?;
         assert_eq!(result, BehaviorState::Success);

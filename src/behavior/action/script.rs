@@ -19,7 +19,7 @@ use crate::{
 //endregion:    --- modules
 
 /// The `Script` behavior returns Success or Failure depending on the result of the scripted code.
-#[derive(Action, Debug, Default)]
+#[derive(Action, Default)]
 pub struct Script;
 
 #[async_trait::async_trait]

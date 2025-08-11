@@ -44,7 +44,7 @@ impl BlackboardInterface for BlackboardData {
 
     fn delete<T>(&mut self, key: &str) -> Result<T, Error>
     where
-        T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         if let Some(old_entry) = self.storage.get(key) {
             let e = &*old_entry.0.0;
@@ -63,7 +63,7 @@ impl BlackboardInterface for BlackboardData {
 
     fn get<T>(&self, key: &str) -> Result<T, Error>
     where
-        T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         self.storage.get(key).map_or_else(
             || Err(Error::NotFound(key.into())),
@@ -133,7 +133,7 @@ impl BlackboardInterface for BlackboardData {
 
     fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
     where
-        T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         if let Some(old_entry) = self.storage.get(key) {
             let new_id = if old_entry.0.1 < usize::MAX {

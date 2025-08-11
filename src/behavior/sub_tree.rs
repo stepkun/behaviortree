@@ -20,7 +20,7 @@ use crate::{
 
 // region:      --- SubTree
 /// A `Subtree` is a placeholder for behavior (sub)trees with its own [`BehaviorKind`].
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct SubTree;
 
 impl Behavior for SubTree {

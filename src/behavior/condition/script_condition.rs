@@ -19,7 +19,7 @@ use crate::{
 //endregion:    --- modules
 
 /// The `ScriptCondition` behavior returns Success or Failure depending on the result of the scripted code.
-#[derive(Condition, Debug, Default)]
+#[derive(Condition, Default)]
 pub struct ScriptCondition;
 
 #[async_trait::async_trait]

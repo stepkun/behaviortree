@@ -33,14 +33,6 @@ pub struct SimpleBehavior {
     provided_ports: PortList,
 }
 
-impl core::fmt::Debug for SimpleBehavior {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.debug_struct("SimpleBehavior")
-            // @TODO: .field("tick_fn", &self.tick_fn)
-            .finish()
-    }
-}
-
 impl BehaviorExecution for SimpleBehavior {
     fn as_any(&self) -> &dyn Any {
         self

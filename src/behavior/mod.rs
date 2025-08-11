@@ -217,7 +217,7 @@ impl BehaviorData {
     /// - if entry is not found
     pub fn delete<T>(&mut self, key: &str) -> Result<T, crate::blackboard::error::Error>
     where
-        T: Any + Clone + core::fmt::Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         self.blackboard.delete(key)
     }
@@ -227,7 +227,7 @@ impl BehaviorData {
     /// - if value is not found
     pub fn get<T>(&self, key: &str) -> Result<T, Error>
     where
-        T: Any + Clone + core::fmt::Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         if let Some(remapped) = self.remappings.find(&key.into()) {
             match strip_bb_pointer(&remapped) {
@@ -256,7 +256,7 @@ impl BehaviorData {
     /// - if value can not be set
     pub fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
     where
-        T: Any + Clone + core::fmt::Debug + FromStr + ToString + Send + Sync,
+        T: Any + Clone + FromStr + ToString + Send + Sync,
     {
         if let Some(remapped) = self.remappings.find(&key.into()) {
             if let Some(stripped) = strip_bb_pointer(&remapped) {
