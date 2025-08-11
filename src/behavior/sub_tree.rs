@@ -11,7 +11,7 @@ use crate::behavior::{BehaviorData, BehaviorError, BehaviorKind, BehaviorState};
 use crate::port::PortList;
 use crate::{
     behavior::{
-        Behavior, BehaviorExecution, BehaviorInstance, BehaviorRedirection, BehaviorResult,
+        Behavior, BehaviorExecution, BehaviorInstance, BehaviorResult,
         BehaviorStatic,
     },
     tree::ConstBehaviorTreeElementList,
@@ -41,9 +41,7 @@ impl BehaviorExecution for SubTree {
     fn as_any_mut(&mut self) -> &mut dyn core::any::Any {
         self
     }
-}
 
-impl BehaviorRedirection for SubTree {
     fn static_provided_ports(&self) -> PortList {
         PortList::default()
     }

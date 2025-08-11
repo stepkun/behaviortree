@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate::{behavior::BehaviorData, port::PortList, tree::ConstBehaviorTreeElementList};
 
 use super::{
-    BehaviorCreationFn, BehaviorExecution, BehaviorInstance, BehaviorRedirection, BehaviorResult,
+    BehaviorCreationFn, BehaviorExecution, BehaviorInstance, BehaviorResult,
 };
 // endregion:   --- modules
 
@@ -36,7 +36,7 @@ pub struct SimpleBehavior {
 impl core::fmt::Debug for SimpleBehavior {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("SimpleBehavior")
-            //.field("tick_fn", &self.tick_fn)
+            // @TODO: .field("tick_fn", &self.tick_fn)
             .finish()
     }
 }
@@ -48,6 +48,10 @@ impl BehaviorExecution for SimpleBehavior {
 
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
+    }
+
+    fn static_provided_ports(&self) -> PortList {
+        self.provided_ports.clone()
     }
 }
 
@@ -74,14 +78,6 @@ impl BehaviorInstance for SimpleBehavior {
         )
     }
 }
-
-impl BehaviorRedirection for SimpleBehavior {
-    fn static_provided_ports(&self) -> PortList {
-        self.provided_ports.clone()
-    }
-}
-
-//impl BehaviorStaticMethods for SimpleBehavior {}
 
 /// Implementation resembles the macro generated impl code
 impl SimpleBehavior {

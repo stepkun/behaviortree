@@ -50,14 +50,7 @@ pub fn derive_behavior_struct(input: &DeriveInput, kind: super::Kind) -> TokenSt
         impl #impl_generics behaviortree::behavior::BehaviorExecution for #ident #type_generics #where_clause {
             fn as_any(&self) -> &dyn core::any::Any { self }
             fn as_any_mut(&mut self) -> &mut dyn core::any::Any { self }
-        }
-
-        #derived
-        #diagnostic
-        impl #impl_generics behaviortree::behavior::BehaviorRedirection for #ident #type_generics #where_clause {
-            fn static_provided_ports(&self) -> behaviortree::port::PortList {
-                Self::provided_ports()
-            }
+            fn static_provided_ports(&self) -> behaviortree::port::PortList { Self::provided_ports() }
         }
     }
 }
