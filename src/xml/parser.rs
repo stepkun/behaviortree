@@ -317,7 +317,7 @@ impl XmlParser {
                 // for tree root "path" is empty
                 let children = self.build_children("", node, registry, &blackboard)?;
                 if children.len() > 1 {
-                    return Err(Error::SubtreeOnlyOneChild(node.tag_name().name().into()));
+                    return Err(Error::SubtreeOneChild(node.tag_name().name().into()));
                 }
                 let bhvr_data = BehaviorData::new(uid, name, "", remappings, blackboard, bhvr_desc);
                 let behaviortree = BehaviorTreeElement::create_subtree(
@@ -433,8 +433,8 @@ impl XmlParser {
                 // A node uses a cloned Blackboard
                 let children = self.build_children(&path, node, registry, &blackboard)?;
 
-                if kind == BehaviorKind::Decorator && children.len() > 1 {
-                    return Err(Error::DecoratorOnlyOneChild(node.tag_name().name().into()));
+                if kind == BehaviorKind::Decorator && children.len() != 1 {
+                    return Err(Error::DecoratorOneChild(node.tag_name().name().into()));
                 }
                 let bhvr_data =
                     BehaviorData::new(uid, &node_name, &path, remappings, blackboard, bhvr_desc);
@@ -454,9 +454,7 @@ impl XmlParser {
                             let children =
                                 self.build_children(&path, node, registry, &blackboard1)?;
                             if children.len() > 1 {
-                                return Err(Error::SubtreeOnlyOneChild(
-                                    node.tag_name().name().into(),
-                                ));
+                                return Err(Error::SubtreeOneChild(node.tag_name().name().into()));
                             }
                             // the PortRemappings have been used against parent BlackBoard
                             let bhvr_data = BehaviorData::new(

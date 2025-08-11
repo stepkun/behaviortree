@@ -13,7 +13,6 @@ mod repeat;
 mod retry_until_successful;
 mod run_once;
 mod script_precondition;
-mod sub_tree;
 mod timeout;
 
 // flatten
@@ -27,5 +26,4 @@ pub use repeat::Repeat;
 pub use retry_until_successful::RetryUntilSuccessful;
 pub use run_once::RunOnce;
 pub use script_precondition::Precondition;
-pub use sub_tree::SubTree;
 pub use timeout::Timeout;

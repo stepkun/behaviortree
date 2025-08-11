@@ -11,8 +11,9 @@ use std::time::Duration;
 use behaviortree::{
     SHOULD_NOT_HAPPEN,
     behavior::{
+        Behavior,
         BehaviorState::{Running, Success},
-        BehaviorStatic, Behavior,
+        BehaviorStatic,
         action::ChangeStateAfter,
         control::{Parallel, ParallelAll, Sequence},
     },

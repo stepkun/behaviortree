@@ -11,11 +11,13 @@ pub mod decorator;
 pub mod error;
 pub mod pre_post_conditions;
 mod simple_behavior;
+mod sub_tree;
 
 use crate::{ConstString, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
 // flatten
 pub use error::BehaviorError;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
+pub use sub_tree::SubTree;
 
 // region:      --- modules
 use alloc::{boxed::Box, string::ToString, vec::Vec};

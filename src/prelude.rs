@@ -27,9 +27,7 @@ pub use crate::behavior::{
     BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState,
 };
 // behavior traits
-pub use crate::behavior::{
-    Behavior, BehaviorExecution, BehaviorInstance, BehaviorStatic,
-};
+pub use crate::behavior::{Behavior, BehaviorExecution, BehaviorInstance, BehaviorStatic};
 // blackboard
 pub use crate::blackboard::SharedBlackboard;
 // blackboard traits

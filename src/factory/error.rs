@@ -46,10 +46,10 @@ pub enum Error {
     Env(#[from] std::io::Error),
     /// Decorator with more than 1 child
     #[error("the Decorator [{0}] has more than 1 child")]
-    DecoratorOnlyOneChild(ConstString),
+    DecoratorOneChild(ConstString),
     /// Decorator with more than 1 child
     #[error("the (Sub)Tree [{0}] has more than 1 child")]
-    SubtreeOnlyOneChild(ConstString),
+    SubtreeOneChild(ConstString),
     /// Unsupported XML element:
     #[error("element [{0}] is not supported")]
     ElementNotSupported(ConstString),

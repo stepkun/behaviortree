@@ -10,7 +10,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::ConstString;
+use crate::{ConstString, behavior::SubTree};
 use alloc::{
     boxed::Box,
     string::{String, ToString},
@@ -31,7 +31,7 @@ use crate::{
         },
         decorator::{
             Delay, EntryUpdated, ForceState, Inverter, KeepRunningUntilFailure, Loop, Precondition,
-            Repeat, RetryUntilSuccessful, RunOnce, SubTree, Timeout,
+            Repeat, RetryUntilSuccessful, RunOnce, Timeout,
         },
     },
     blackboard::SharedBlackboard,

@@ -11,8 +11,9 @@ use std::time::Duration;
 use behaviortree::{
     BehaviorTreeObserver, Groot2Connector, SHOULD_NOT_HAPPEN,
     behavior::{
+        Behavior,
         BehaviorState::{Failure, Running, Success},
-        Behavior, BehaviorStatic,
+        BehaviorStatic,
         action::ChangeStateAfter,
         control::{
             Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
