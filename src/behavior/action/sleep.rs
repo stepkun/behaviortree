@@ -9,15 +9,17 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use tokio::task::JoinHandle;
 
-use crate::behavior::{BehaviorData, BehaviorError};
-use crate::tree::ConstBehaviorTreeElementList;
-use crate::{self as behaviortree, MSEC};
+use crate as behaviortree;
 use crate::{
-    Action,
-    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+    Action, MSEC,
+    behavior::{
+        BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState,
+        BehaviorStatic,
+    },
     input_port,
     port::PortList,
     port_list,
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
 
@@ -38,10 +40,16 @@ impl BehaviorInstance for Sleep {
         _runtime: &SharedRuntime,
     ) -> Result<(), BehaviorError> {
         let millis: u64 = behavior.get(MSEC)?;
-        self.handle = Some(tokio::task::spawn(async move {
-            tokio::time::sleep(Duration::from_millis(millis)).await;
-        }));
-
+        #[cfg(feature = "std")]
+        {
+            self.handle = Some(tokio::task::spawn(async move {
+                tokio::time::sleep(Duration::from_millis(millis)).await;
+            }));
+        }
+        #[cfg(not(feature = "std"))]
+        {
+            todo!();
+        }
         Ok(())
     }
 

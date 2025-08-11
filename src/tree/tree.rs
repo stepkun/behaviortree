@@ -10,9 +10,11 @@ extern crate std;
 #[cfg(feature = "std")]
 use alloc::string::String;
 use alloc::{string::ToString, sync::Arc, vec::Vec};
+#[cfg(feature = "std")]
 use libloading::Library;
 use spin::Mutex;
 use tinyscript::SharedRuntime;
+#[cfg(feature = "std")]
 use tokio::sync::mpsc;
 use uuid::Uuid;
 
@@ -21,24 +23,16 @@ use crate::{
     blackboard::SharedBlackboard,
     factory::BehaviorRegistry,
     tree::{
-        TreeElementKind,
         observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback},
+        tree_element::TreeElementKind,
         tree_iter::{TreeIter, TreeIterMut},
     },
 };
 
-use super::{BehaviorTreeElement, error::Error};
+use super::{error::Error, tree_element::BehaviorTreeElement};
 // endregion:   --- modules
 
 // region:		--- helper
-/// Helper function to print a (sub)tree recursively
-/// # Errors
-/// - if recursion is deeper than 127
-#[cfg(feature = "std")]
-pub fn print_tree(start_node: &BehaviorTreeElement) -> Result<(), Error> {
-    print_recursively(0, start_node)
-}
-
 /// Recursion function to print a (sub)tree recursively
 /// # Errors
 /// - Limit is a tree-depth of 127
@@ -85,10 +79,13 @@ pub struct BehaviorTree {
     runtime: SharedRuntime,
     /// `libraries` stores a reference to the used shared libraries aka plugins.
     /// This is necessary to avoid memory deallocation of libs while tree is in use.
+    #[cfg(feature = "std")]
     _libraries: Vec<Arc<Library>>,
     /// The sender, to be cloned on purpose
+    #[cfg(feature = "std")]
     tx: mpsc::Sender<BehaviorTreeMessage>,
     /// The receiver
+    #[cfg(feature = "std")]
     rx: mpsc::Receiver<BehaviorTreeMessage>,
 }
 
@@ -100,17 +97,22 @@ impl BehaviorTree {
         let runtime = Arc::new(Mutex::new(registry.runtime().clone()));
         // clone the current state of registered libraries
         let mut libraries = Vec::new();
+        #[cfg(feature = "std")]
         for lib in registry.libraries() {
             libraries.push(lib.clone());
         }
 
+        #[cfg(feature = "std")]
         let (tx, rx) = mpsc::channel::<BehaviorTreeMessage>(10);
         Self {
             uuid: Uuid::new_v4(),
             root,
             runtime,
+            #[cfg(feature = "std")]
             _libraries: libraries,
+            #[cfg(feature = "std")]
             tx,
+            #[cfg(feature = "std")]
             rx,
         }
     }
@@ -159,6 +161,7 @@ impl BehaviorTree {
 
     /// Get a message sender.
     /// This sender can be used to modify the tree while running.
+    #[cfg(feature = "std")]
     #[must_use]
     pub fn sender(&self) -> mpsc::Sender<BehaviorTreeMessage> {
         self.tx.clone()
@@ -229,7 +232,14 @@ impl BehaviorTree {
 
         // be cooperative & allow pending tasks to catch up
         // crucial for spawned tasks with bounded channels
-        tokio::task::yield_now().await;
+        #[cfg(feature = "std")]
+        {
+            tokio::task::yield_now().await;
+        }
+        #[cfg(not(feature = "std"))]
+        {
+            todo!();
+        }
 
         // handle eventually pending messages
         while let Ok(message) = self.rx.try_recv() {

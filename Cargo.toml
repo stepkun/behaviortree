@@ -70,7 +70,7 @@ tokio = { version = "1.47.1", features = ["rt-multi-thread", "sync", "time"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features=["env-filter"]}
 tinyscript = { version = "^0.1.3", default-features = false }
-uuid = { version = "1.17.0", features = ["v4"]}
+uuid = { version = "1.18.0", default-features = false , features = ["v4"]}
 woxml = { version = "0.3.0", default-features = false }
 zeromq = "0.4.1"
 

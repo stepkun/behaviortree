@@ -57,6 +57,7 @@ pub fn strip_bb_pointer(port: &str) -> Option<ConstString> {
 /// Create a [`PortDefinition`]
 /// # Errors
 /// - if the name violates the conventions.
+#[allow(clippy::extra_unused_type_parameters)]
 pub fn create_port<T>(
     direction: PortDirection,
     type_name: &str,
@@ -149,7 +150,7 @@ impl PortDirection {
 
     /// Get the [`PortDirection`] as `type_port` str
     #[must_use]
-    pub const fn type_str(&self) -> &'static str {
+    pub const fn type_str(self) -> &'static str {
         match self {
             Self::In => INPUT_TYPE,
             Self::Out => OUTPUT_TYPE,

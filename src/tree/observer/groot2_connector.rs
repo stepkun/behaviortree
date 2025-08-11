@@ -29,7 +29,7 @@ use crate::tree::observer::groot2_protocol::{
 use crate::tree::tree::BehaviorTreeMessage;
 use crate::{ConstString, SHOULD_NOT_HAPPEN, XmlCreator};
 
-use crate::tree::BehaviorTree;
+use crate::tree::tree::BehaviorTree;
 // endregion:   --- modules
 
 /// Predefined size of the behavior state transition buffer.
@@ -155,6 +155,7 @@ impl Groot2Connector {
         let xml = XmlCreator::groot_write_tree(tree).expect(SHOULD_NOT_HAPPEN);
         let sender = tree.sender();
 
+        #[cfg(feature = "std")]
         let server_handle = tokio::spawn(async move {
             let server_address = String::from("tcp://0.0.0.0:") + &port.to_string();
             let mut server_socket = zeromq::RepSocket::new();
@@ -286,8 +287,12 @@ impl Groot2Connector {
             }
             Ok(())
         });
-
+        #[cfg(not(feature = "std"))]
+        {
+            todo!()
+        }
         Self {
+            #[cfg(feature = "std")]
             tx: tree.sender(),
             shared,
             server_handle,

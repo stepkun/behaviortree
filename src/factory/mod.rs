@@ -3,7 +3,7 @@
 //! Factory library
 //!
 
-pub(crate) mod behavior_registry;
+pub mod behavior_registry;
 pub mod error;
 #[allow(clippy::module_inception)]
 mod factory;

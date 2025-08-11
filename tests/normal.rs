@@ -3,9 +3,9 @@
 //! Tests
 
 use behaviortree::{
-    blackboard::{Blackboard, BlackboardData, SharedBlackboard},
+    BehaviorTree, BehaviorTreeElement, BehaviorTreeElementList, Blackboard, BlackboardData,
+    SharedBlackboard,
     port::{PortDefinition, PortList, PortRemappings},
-    tree::{BehaviorTree, BehaviorTreeElement, BehaviorTreeElementList},
 };
 
 // check, that the auto traits are available

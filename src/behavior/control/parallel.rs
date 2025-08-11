@@ -9,13 +9,14 @@ use alloc::collections::btree_set::BTreeSet;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::error::BehaviorError;
-use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Control,
-    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+    Control, IDLE,
+    behavior::{
+        BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState,
+        BehaviorStatic,
+    },
     port::PortList,
-    tree::ConstBehaviorTreeElementList,
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
 // endregion:   --- modules

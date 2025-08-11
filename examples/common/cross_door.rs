@@ -10,10 +10,11 @@ extern crate alloc;
 use std::{sync::Arc, thread, time::Duration};
 
 use behaviortree::{
+    BehaviorTreeFactory, Error,
     behavior::{BehaviorKind, BehaviorResult, BehaviorState},
-    factory::{BehaviorTreeFactory, error::Error},
     register_behavior,
 };
+#[cfg(feature = "std")]
 use rand::Rng;
 use spin::Mutex;
 
@@ -97,8 +98,16 @@ impl CrossDoor {
 
     /// Reset `CrossDoor`
     pub fn reset(&mut self) {
-        let mut rng = rand::rng();
-        let needed = rng.random::<u8>() % 7;
+        let needed;
+        #[cfg(feature = "std")]
+        {
+            let mut rng = rand::rng();
+            needed = rng.random::<u8>() % 7;
+        }
+        #[cfg(not(feature = "std"))]
+        {
+            todo!();
+        }
         self.door_open = false;
         self.door_locked = true;
         self.pick_attempts = 0;

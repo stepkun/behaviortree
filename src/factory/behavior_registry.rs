@@ -10,6 +10,7 @@ extern crate std;
 // region:      --- modules
 use crate::ConstString;
 use alloc::{collections::btree_map::BTreeMap, sync::Arc, vec::Vec};
+#[cfg(feature = "std")]
 use libloading::Library;
 use tinyscript::Runtime;
 

@@ -24,7 +24,7 @@ use crate::{
     },
     blackboard::SharedBlackboard,
     port::{ConstPortRemappings, PortRemappings, is_allowed_port_name},
-    tree::{BehaviorTreeElement, BehaviorTreeElementList},
+    tree::{tree_element::BehaviorTreeElement, tree_element_list::BehaviorTreeElementList},
 };
 
 use crate::factory::{behavior_registry::BehaviorRegistry, error::Error};

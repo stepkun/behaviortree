@@ -36,7 +36,7 @@ use crate::{
     },
     blackboard::SharedBlackboard,
     port::PortList,
-    tree::BehaviorTree,
+    tree::tree::BehaviorTree,
     xml::parser::XmlParser,
 };
 

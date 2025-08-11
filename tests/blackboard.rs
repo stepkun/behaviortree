@@ -4,9 +4,7 @@
 //! Tests for [`Blackboard`] and [`BlackboardNode`]
 
 use behaviortree::{
-    SHOULD_NOT_HAPPEN,
-    blackboard::{BlackboardData, BlackboardInterface, SharedBlackboard},
-    port::PortRemappings,
+    BlackboardData, BlackboardInterface, SHOULD_NOT_HAPPEN, SharedBlackboard, port::PortRemappings,
 };
 
 #[test]

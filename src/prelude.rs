@@ -15,7 +15,7 @@ pub use behaviortree_derive::{Action, Condition, Control, Decorator};
 pub use tinyscript::ScriptEnum;
 pub use tinyscript::SharedRuntime;
 
-// exports
+// public exports
 // error handling
 pub use crate::error::{BehaviorTreeResult, Error};
 // behavior macros
@@ -37,4 +37,4 @@ pub use crate::factory::BehaviorTreeFactory;
 // port
 pub use crate::port::PortList;
 // tree
-pub use crate::tree::{BehaviorTree, ConstBehaviorTreeElementList};
+pub use crate::tree::{tree::BehaviorTree, tree_element_list::ConstBehaviorTreeElementList};

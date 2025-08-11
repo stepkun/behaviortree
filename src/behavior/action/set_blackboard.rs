@@ -10,13 +10,12 @@ use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
 
-use crate::behavior::BehaviorData;
-use crate::port::{PortList, strip_bb_pointer};
-use crate::{self as behaviortree, OUTPUT_KEY, VALUE};
+use crate as behaviortree;
 use crate::{
-    Action,
-    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
-    tree::ConstBehaviorTreeElementList,
+    Action, OUTPUT_KEY, VALUE,
+    behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+    port::{PortList, strip_bb_pointer},
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{inout_port, input_port, port_list};
 // endregion:   --- modules

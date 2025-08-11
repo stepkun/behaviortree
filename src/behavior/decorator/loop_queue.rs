@@ -12,17 +12,17 @@ use core::str::FromStr;
 use spin::Mutex;
 use tinyscript::SharedRuntime;
 
-use crate::behavior::BehaviorData;
-use crate::port::PortList;
+use crate as behaviortree;
 use crate::{
-    self as behaviortree, IF_EMPTY, QUEUE, inout_port, input_port, output_port, port_list,
-};
-use crate::{
-    Decorator,
+    Decorator, IF_EMPTY, QUEUE,
     behavior::{
-        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
+        BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
     },
-    tree::ConstBehaviorTreeElementList,
+    inout_port, input_port, output_port,
+    port::PortList,
+    port_list,
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -79,12 +79,12 @@ where
         Self(Arc::new(Mutex::new(VecDeque::with_capacity(capacity))))
     }
 
-    /// Removes the last element from the queue and returns it,
-    /// or None if it is empty.
-    #[must_use]
-    pub fn pop_back(&self) -> Option<T> {
-        self.0.lock().pop_back()
-    }
+    // /// Removes the last element from the queue and returns it,
+    // /// or None if it is empty.
+    // #[must_use]
+    // pub fn pop_back(&self) -> Option<T> {
+    //     self.0.lock().pop_back()
+    // }
 
     /// Removes the first element from the queue and returns it,
     /// or None if it is empty.
@@ -98,10 +98,10 @@ where
         self.0.lock().push_back(value);
     }
 
-    /// Prepends an element to the queue.
-    pub fn push_front(&mut self, value: T) {
-        self.0.lock().push_front(value);
-    }
+    // /// Prepends an element to the queue.
+    // pub fn push_front(&self, value: T) {
+    //     self.0.lock().push_front(value);
+    // }
 }
 // endregion:	--- SharedQueue
 

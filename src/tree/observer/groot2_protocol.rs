@@ -17,7 +17,7 @@ use uuid::Uuid;
 use crate::ConstString;
 use crate::behavior::BehaviorState;
 
-use crate::tree::BehaviorTree;
+use crate::tree::tree::BehaviorTree;
 // endregion:   --- modules
 
 // region:      --- Groot2RequestType

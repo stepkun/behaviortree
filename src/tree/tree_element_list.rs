@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 
 use crate::behavior::error::BehaviorError;
 
-use super::BehaviorTreeElement;
+use super::tree_element::BehaviorTreeElement;
 // endregion:   --- modules
 
 // region:		--- ConstBehaviorTreeElementList

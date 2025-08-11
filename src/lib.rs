@@ -10,19 +10,29 @@ extern crate alloc;
 pub mod prelude;
 
 // modules
-pub mod behavior;
-pub mod blackboard;
-pub mod error;
-pub mod factory;
-pub mod port;
-pub mod tree;
-pub mod xml;
+pub mod behavior; // due to macros!!
+mod blackboard;
+mod error;
+pub mod factory; // due to macros!!
+pub mod port; // due to macros!!
+mod tree;
+mod xml;
 
 // flatten:
-pub use behavior::Behavior;
+pub use behavior::{Behavior, BehaviorExecution, BehaviorInstance, BehaviorStatic};
+pub use behavior::{
+    BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState,
+};
+pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, SharedBlackboard};
 pub use error::{BehaviorTreeResult, Error};
-pub use tree::observer::BehaviorTreeObserver;
+pub use factory::BehaviorTreeFactory;
+pub use port::PortList;
 pub use tree::observer::groot2_connector::Groot2Connector;
+pub use tree::observer::tree_observer::BehaviorTreeObserver;
+pub use tree::{
+    tree::BehaviorTree, tree_element::BehaviorTreeElement,
+    tree_element_list::BehaviorTreeElementList,
+};
 pub use xml::creator::XmlCreator;
 
 // re-exports:

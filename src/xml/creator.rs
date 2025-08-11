@@ -20,7 +20,7 @@ use crate::{
         pre_post_conditions::{POST_CONDITIONS, PRE_CONDITIONS},
     },
     factory::BehaviorTreeFactory,
-    tree::{BehaviorTree, BehaviorTreeElement, TreeElementKind},
+    tree::{tree::BehaviorTree, tree_element::BehaviorTreeElement, tree_element::TreeElementKind},
 };
 use woxml::XmlWriter;
 

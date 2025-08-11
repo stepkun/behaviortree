@@ -7,15 +7,17 @@
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate::behavior::{BehaviorData, BehaviorError, IDLE};
-use crate::{self as behaviortree, THEN_SKIP};
+use crate as behaviortree;
 use crate::{
-    Decorator,
-    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+    Decorator, IDLE, THEN_SKIP,
+    behavior::{
+        BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState,
+        BehaviorStatic,
+    },
     input_port,
     port::PortList,
     port_list,
-    tree::ConstBehaviorTreeElementList,
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 

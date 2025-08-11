@@ -40,7 +40,7 @@ pub enum Error {
         "search for subtree in registry [{0}] caused a deadlock, most probably because this subtree contains himself"
     )]
     DeadLock(ConstString),
-    /// Passthrough for libloading Errors
+    /// Passthrough for `std::io::Error`s
     #[cfg(feature = "std")]
     #[error("{0}")]
     Env(#[from] std::io::Error),
@@ -53,7 +53,8 @@ pub enum Error {
     /// Unsupported XML element:
     #[error("element [{0}] is not supported")]
     ElementNotSupported(ConstString),
-    /// Passthrough for libloading Errors
+    /// Passthrough for `libloading::Error`s
+    #[cfg(feature = "std")]
     #[error("{0}")]
     Libloading(#[from] libloading::Error),
     /// Missing a corresponing end tag

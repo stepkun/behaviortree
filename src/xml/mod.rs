@@ -3,6 +3,4 @@
 //! XML library
 
 pub mod creator;
-pub(crate) mod parser;
-
-// flatten
+pub mod parser;

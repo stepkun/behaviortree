@@ -6,9 +6,8 @@ extern crate alloc;
 
 use behaviortree::prelude::*;
 use behaviortree::{
-    SHOULD_NOT_HAPPEN,
+    BehaviorTreeObserver, SHOULD_NOT_HAPPEN,
     behavior::{action::ChangeStateAfter, control::Fallback},
-    tree::observer::BehaviorTreeObserver,
 };
 
 const TREE: &str = r#"

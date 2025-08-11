@@ -8,15 +8,15 @@ use alloc::boxed::Box;
 use alloc::collections::btree_set::BTreeSet;
 use tinyscript::SharedRuntime;
 
-use crate::behavior::{BehaviorData, IDLE};
-use crate::{self as behaviortree, MAX_FAILURES};
+use crate as behaviortree;
 use crate::{
-    Control,
+    Control, IDLE, MAX_FAILURES,
     behavior::{
-        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
+        BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
     },
     port::PortList,
-    tree::ConstBehaviorTreeElementList,
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
 // endregion:   --- modules

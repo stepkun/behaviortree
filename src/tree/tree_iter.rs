@@ -15,7 +15,7 @@ extern crate std;
 use alloc::{vec, vec::Vec};
 use core::marker::PhantomData;
 
-use super::BehaviorTreeElement;
+use super::tree_element::BehaviorTreeElement;
 // endregion:   --- modules
 
 // region:		--- TreeIter

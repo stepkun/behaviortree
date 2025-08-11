@@ -29,7 +29,7 @@ pub enum Error {
     ParsePortValue(ConstString, ConstString),
     /// Port is not defined.
     #[error("Couldn't find port [{0}]")]
-    PortError(ConstString),
+    Port(ConstString),
 
     /// Something weird happened.
     #[error("unexpected [{0}] in file [{1}] at line [{2}]")]

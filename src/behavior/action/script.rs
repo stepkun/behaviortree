@@ -6,15 +6,14 @@
 use alloc::{boxed::Box, string::String};
 use tinyscript::SharedRuntime;
 
-use crate::behavior::BehaviorData;
-use crate::{self as behaviortree, CODE};
+use crate as behaviortree;
 use crate::{
-    Action,
-    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+    Action, CODE,
+    behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
     input_port,
     port::PortList,
     port_list,
-    tree::ConstBehaviorTreeElementList,
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
 

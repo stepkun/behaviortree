@@ -9,14 +9,15 @@ use alloc::string::String;
 use alloc::sync::Arc;
 use tinyscript::SharedRuntime;
 
-use crate::ConstString;
-use crate::behavior::{BehaviorData, BehaviorError};
-use crate::port::{PortList, strip_bb_pointer};
-use crate::{self as behaviortree, ENTRY};
+use crate as behaviortree;
 use crate::{
-    Decorator,
-    behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
-    tree::ConstBehaviorTreeElementList,
+    ConstString, Decorator, ENTRY,
+    behavior::{
+        BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState,
+        BehaviorStatic,
+    },
+    port::{PortList, strip_bb_pointer},
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
 // endregion:   --- modules

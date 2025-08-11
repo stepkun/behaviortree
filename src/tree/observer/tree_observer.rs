@@ -14,7 +14,7 @@ use tokio::time::Instant;
 
 use crate::{
     behavior::{BehaviorData, BehaviorState},
-    tree::BehaviorTree,
+    tree::tree::BehaviorTree,
 };
 // endregion:   --- modules
 
@@ -48,6 +48,7 @@ impl Default for Statistics {
             success_count: Default::default(),
             failure_count: Default::default(),
             skip_count: Default::default(),
+            #[cfg(feature = "std")]
             timestamp: Instant::now(),
         }
     }
@@ -101,8 +102,10 @@ impl BehaviorTreeObserver {
                     }
                 }
                 entry.current_state = *new_state;
-                // #[cfg(feature = "std")]
-                entry.timestamp = Instant::now();
+                #[cfg(feature = "std")]
+                {
+                    entry.timestamp = Instant::now();
+                }
                 drop(stats);
             };
             element.add_pre_state_change_callback(id.clone(), callback);

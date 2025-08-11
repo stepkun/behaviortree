@@ -12,7 +12,7 @@ use super::error::BehaviorError;
 
 // region:      --- Conditions
 /// Helper struct to reduce amount of parameters
-pub(crate) struct Conditions {
+pub struct Conditions {
     pub(crate) pre: PreConditions,
     pub(crate) post: PostConditions,
 }
@@ -43,16 +43,14 @@ impl DerefMut for PreConditions {
 impl PreConditions {
     /// Get a pre condition.
     #[must_use]
-    pub fn get(&mut self, name: &str) -> Option<&ConstString> {
+    pub fn get(&self, name: &str) -> Option<&ConstString> {
         if self.0.is_some() {
             let op = (0..PRE_CONDITIONS.len()).find(|&i| PRE_CONDITIONS[i] == name);
-            if let Some(index) = op {
+            op.and_then(|index| {
                 self.0
                     .as_ref()
                     .map_or_else(|| None, |array| array[index].as_ref())
-            } else {
-                None
-            }
+            })
         } else {
             None
         }
@@ -108,16 +106,14 @@ impl DerefMut for PostConditions {
 impl PostConditions {
     /// Get a post condition.
     #[must_use]
-    pub fn get(&mut self, name: &str) -> Option<&ConstString> {
+    pub fn get(&self, name: &str) -> Option<&ConstString> {
         if self.0.is_some() {
             let op = (0..POST_CONDITIONS.len()).find(|&i| POST_CONDITIONS[i] == name);
-            if let Some(index) = op {
+            op.and_then(|index| {
                 self.0
                     .as_ref()
                     .map_or_else(|| None, |array| array[index].as_ref())
-            } else {
-                None
-            }
+            })
         } else {
             None
         }

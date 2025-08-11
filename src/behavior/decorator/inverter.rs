@@ -8,13 +8,13 @@ use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
-use crate::behavior::{BehaviorData, IDLE};
 use crate::{
-    Decorator,
+    Decorator, IDLE,
     behavior::{
-        BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError,
+        BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic,
+        error::BehaviorError,
     },
-    tree::ConstBehaviorTreeElementList,
+    tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
