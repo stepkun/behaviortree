@@ -9,12 +9,9 @@ use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
 use crate::{
-    Decorator, IDLE,
-    behavior::{
-        BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
-    },
-    tree::tree_element_list::ConstBehaviorTreeElementList,
+	Decorator, IDLE,
+	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -24,43 +21,43 @@ use crate::{
 /// - If child returns any other state, that state will be returned.
 #[derive(Decorator, Debug, Default)]
 pub struct ForceState {
-    state: BehaviorState,
+	state: BehaviorState,
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for ForceState {
-    async fn tick(
-        &mut self,
-        _behavior: &mut BehaviorData,
-        children: &mut ConstBehaviorTreeElementList,
-        runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        let child = &mut children[0];
-        let new_state = child.tick(runtime).await?;
+	async fn tick(
+		&mut self,
+		_behavior: &mut BehaviorData,
+		children: &mut ConstBehaviorTreeElementList,
+		runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		let child = &mut children[0];
+		let new_state = child.tick(runtime).await?;
 
-        match new_state {
-            BehaviorState::Failure | BehaviorState::Success => {
-                children.halt(runtime)?;
-                Ok(self.state)
-            }
-            BehaviorState::Idle => Err(BehaviorError::State("ForceState".into(), IDLE.into())),
-            state @ (BehaviorState::Running | BehaviorState::Skipped) => Ok(state),
-        }
-    }
+		match new_state {
+			BehaviorState::Failure | BehaviorState::Success => {
+				children.halt(runtime)?;
+				Ok(self.state)
+			}
+			BehaviorState::Idle => Err(BehaviorError::State("ForceState".into(), IDLE.into())),
+			state @ (BehaviorState::Running | BehaviorState::Skipped) => Ok(state),
+		}
+	}
 }
 
 impl BehaviorStatic for ForceState {}
 
 impl ForceState {
-    /// Constructor with arguments.
-    #[must_use]
-    pub const fn new(state: BehaviorState) -> Self {
-        Self { state }
-    }
+	/// Constructor with arguments.
+	#[must_use]
+	pub const fn new(state: BehaviorState) -> Self {
+		Self { state }
+	}
 
-    /// Initialization function.
-    pub const fn initialize(&mut self, state: BehaviorState) {
-        self.state = state;
-    }
+	/// Initialization function.
+	pub const fn initialize(&mut self, state: BehaviorState) {
+		self.state = state;
+	}
 }
 // endregion:   --- ForceState

@@ -27,58 +27,41 @@ const TREE_DEFINITION: &str = r#"
 #[case(Skipped, Skipped)]
 #[case(Failure, Success)]
 #[case(Success, Failure)]
-async fn inverter(
-    #[case] input: BehaviorState,
-    #[case] expected: BehaviorState,
-) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input,
-        0
-    )?;
-    register_behavior!(factory, Inverter, "Inverter")?;
+async fn inverter(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	register_behavior!(factory, Inverter, "Inverter")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    Ok(())
+	Ok(())
 }
 
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
 async fn inverter_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input,
-        0
-    )?;
-    register_behavior!(factory, Inverter, "Inverter")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	register_behavior!(factory, Inverter, "Inverter")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let result = tree.tick_once().await;
-    assert!(result.is_err());
-    Ok(())
+	let result = tree.tick_once().await;
+	assert!(result.is_err());
+	Ok(())
 }

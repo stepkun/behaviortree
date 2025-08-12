@@ -44,112 +44,112 @@ const XML: &str = r#"
 /// Action `UpdatePosition`
 #[derive(Action, Debug, Default)]
 pub struct UpdatePosition {
-    pos: Position2D,
+	pos: Position2D,
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for UpdatePosition {
-    async fn tick(
-        &mut self,
-        behavior: &mut BehaviorData,
-        _children: &mut ConstBehaviorTreeElementList,
-        _runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        self.pos.x += 0.2;
-        self.pos.y += 0.1;
-        behavior.set("pos", self.pos.clone())?;
-        Ok(BehaviorState::Success)
-    }
+	async fn tick(
+		&mut self,
+		behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		self.pos.x += 0.2;
+		self.pos.y += 0.1;
+		behavior.set("pos", self.pos.clone())?;
+		Ok(BehaviorState::Success)
+	}
 }
 
 impl BehaviorStatic for UpdatePosition {
-    fn provided_ports() -> PortList {
-        port_list![output_port!(Position2D, "pos")]
-    }
+	fn provided_ports() -> PortList {
+		port_list![output_port!(Position2D, "pos")]
+	}
 }
 
 // @TODO: groot publishing missing
 async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    // special creation/registration uf multiple methods of a struct
-    #[cfg(test)]
-    let _crossdoor = CrossDoor::register_behaviors(&mut factory)?;
+	// special creation/registration uf multiple methods of a struct
+	#[cfg(test)]
+	let _crossdoor = CrossDoor::register_behaviors(&mut factory)?;
 
-    #[cfg(not(test))]
-    let crossdoor = CrossDoor::register_behaviors(&mut factory)?;
-    // Nodes registration, as usual
-    register_behavior!(factory, UpdatePosition, "UpdatePosition")?;
+	#[cfg(not(test))]
+	let crossdoor = CrossDoor::register_behaviors(&mut factory)?;
+	// Nodes registration, as usual
+	register_behavior!(factory, UpdatePosition, "UpdatePosition")?;
 
-    // Groot2 editor requires a model of your registered Nodes.
-    // You don't need to write that by hand, it can be automatically
-    // generated using the following command.
-    let xml_model = XmlCreator::write_tree_nodes_model(&factory, true)?;
-    println!("-------- TreeNodesModel --------");
-    println!("{xml_model}");
-    println!("--------------------------------");
+	// Groot2 editor requires a model of your registered Nodes.
+	// You don't need to write that by hand, it can be automatically
+	// generated using the following command.
+	let xml_model = XmlCreator::write_tree_nodes_model(&factory, true)?;
+	println!("-------- TreeNodesModel --------");
+	println!("{xml_model}");
+	println!("--------------------------------");
 
-    factory.register_behavior_tree_from_text(XML)?;
+	factory.register_behavior_tree_from_text(XML)?;
 
-    // Add this to allow Groot2 to visualize your custom type
-    // @TODO:
-    //BT::RegisterJsonDefinition<Position2D>();
+	// Add this to allow Groot2 to visualize your custom type
+	// @TODO:
+	//BT::RegisterJsonDefinition<Position2D>();
 
-    let mut tree = factory.create_tree("MainTree")?;
-    drop(factory);
+	let mut tree = factory.create_tree("MainTree")?;
+	drop(factory);
 
-    // Print the full tree with model
-    let xml = XmlCreator::write_tree(&tree, false, false, true)?;
-    assert_eq!(RESULT, xml.as_ref());
-    // let xml = XmlCreator::groot_write_tree(&tree)?;
-    println!("----------- XML file  ----------");
-    println!("{}", &xml);
-    println!("--------------------------------");
+	// Print the full tree with model
+	let xml = XmlCreator::write_tree(&tree, false, false, true)?;
+	assert_eq!(RESULT, xml.as_ref());
+	// let xml = XmlCreator::groot_write_tree(&tree)?;
+	println!("----------- XML file  ----------");
+	println!("{}", &xml);
+	println!("--------------------------------");
 
-    // Connect the Groot2Publisher. This will allow Groot2 to
-    // get the tree and poll status updates.
-    let _publisher = Groot2Connector::new(&mut tree, 5555);
+	// Connect the Groot2Publisher. This will allow Groot2 to
+	// get the tree and poll status updates.
+	let _publisher = Groot2Connector::new(&mut tree, 5555);
 
-    #[cfg(test)]
-    let result = tree.tick_while_running().await?;
+	#[cfg(test)]
+	let result = tree.tick_while_running().await?;
 
-    #[cfg(not(test))]
-    loop {
-        println!("Start");
-        tree.reset()?;
-        crossdoor.lock().reset();
-        tree.tick_while_running().await?;
+	#[cfg(not(test))]
+	loop {
+		println!("Start");
+		tree.reset()?;
+		crossdoor.lock().reset();
+		tree.tick_while_running().await?;
 
-        tokio::time::sleep(tokio::time::Duration::from_millis(2000)).await;
-    }
+		tokio::time::sleep(tokio::time::Duration::from_millis(2000)).await;
+	}
 
-    #[cfg(test)]
-    Ok((result, tree))
+	#[cfg(test)]
+	Ok((result, tree))
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t11_groot_howto() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result.0, BehaviorState::Success);
+	#[tokio::test]
+	async fn t11_groot_howto() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result.0, BehaviorState::Success);
 
-        let metadata_xml = XmlCreator::write_tree(&result.1, true, false, true)?;
-        assert_eq!(METADATA_RESULT, metadata_xml.as_ref());
+		let metadata_xml = XmlCreator::write_tree(&result.1, true, false, true)?;
+		assert_eq!(METADATA_RESULT, metadata_xml.as_ref());
 
-        // let full_xml = XmlCreator::write_tree(&tree, true, true, true)?;
-        // assert_eq!(FULL_RESULT, full_xml.as_ref());
+		// let full_xml = XmlCreator::write_tree(&tree, true, true, true)?;
+		// assert_eq!(FULL_RESULT, full_xml.as_ref());
 
-        Ok(())
-    }
+		Ok(())
+	}
 }
 
 #[allow(unused)]

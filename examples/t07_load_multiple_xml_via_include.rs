@@ -28,55 +28,55 @@ const XML_WITH_INCLUDE: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    // set the necessary directory, currently only working if in project root directory
-    // @TODO: find a better solution for this.
-    let mut dir = std::env::current_dir()?;
-    dir.push("examples");
-    std::env::set_current_dir(dir)?;
+	// set the necessary directory, currently only working if in project root directory
+	// @TODO: find a better solution for this.
+	let mut dir = std::env::current_dir()?;
+	dir.push("examples");
+	std::env::set_current_dir(dir)?;
 
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    register_behavior!(factory, SaySomething, "SaySomething")?;
+	register_behavior!(factory, SaySomething, "SaySomething")?;
 
-    // Register the behavior tree definition, but do not instantiate the tree yet.
-    factory.register_behavior_tree_from_text(XML_WITH_INCLUDE)?;
+	// Register the behavior tree definition, but do not instantiate the tree yet.
+	factory.register_behavior_tree_from_text(XML_WITH_INCLUDE)?;
 
-    //Check that the BTs have been registered correctly
-    println!("Registered BehaviorTrees:");
-    for bt_name in factory.registered_behavior_trees() {
-        println!(" - {bt_name}");
-    }
+	//Check that the BTs have been registered correctly
+	println!("Registered BehaviorTrees:");
+	for bt_name in factory.registered_behavior_trees() {
+		println!(" - {bt_name}");
+	}
 
-    // You can create the MainTree and the subtrees will be added automatically.
-    let mut tree = factory.create_tree("MainTree")?;
-    // ... and/or you can create only one of the subtrees
-    let mut sub_tree_a = factory.create_tree("SubA")?;
-    drop(factory);
+	// You can create the MainTree and the subtrees will be added automatically.
+	let mut tree = factory.create_tree("MainTree")?;
+	// ... and/or you can create only one of the subtrees
+	let mut sub_tree_a = factory.create_tree("SubA")?;
+	drop(factory);
 
-    println!("----- MainTree tick ----");
-    let result = tree.tick_while_running().await?;
+	println!("----- MainTree tick ----");
+	let result = tree.tick_while_running().await?;
 
-    println!("----- SubA tick ----");
-    sub_tree_a.tick_while_running().await?;
+	println!("----- SubA tick ----");
+	sub_tree_a.tick_while_running().await?;
 
-    Ok(result)
+	Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    #[ignore = "does not yet work"]
-    async fn t07_load_multiple_xml_with_include() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	#[ignore = "does not yet work"]
+	async fn t07_load_multiple_xml_with_include() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }

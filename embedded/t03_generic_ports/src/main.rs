@@ -103,17 +103,17 @@ impl BehaviorStatic for PrintTarget {
     }
 }
 
-async fn example() -> BehaviorResult {
-    let mut factory = BehaviorTreeFactory::with_core_behaviors().unwrap();
+async fn example() -> BehaviorTreeResult {
+    let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
-    register_behavior!(factory, CalculateGoal, "CalculateGoal").unwrap();
-    register_behavior!(factory, PrintTarget, "PrintTarget").unwrap();
+    register_behavior!(factory, CalculateGoal, "CalculateGoal")?;
+    register_behavior!(factory, PrintTarget, "PrintTarget")?;
 
-    let mut tree = factory.create_from_text(XML).unwrap();
+    let mut tree = factory.create_from_text(XML)?;
     // dropping the factory to free memory
     drop(factory);
 
-    let result = tree.tick_while_running().await.unwrap();
+    let result = tree.tick_while_running().await?;
     Ok(result)
 }
 

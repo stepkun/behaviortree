@@ -74,38 +74,26 @@ impl GripperInterface {
     }
 }
 
-async fn example() -> BehaviorResult {
+async fn example() -> BehaviorTreeResult {
     let mut factory = BehaviorTreeFactory::default();
 
     // The recommended way to create a Behavior is through inheritance/composition.
     // Even if it requires more boilerplate, it allows you to use more functionalities
     // like ports (we will discuss this in future tutorials).
-    register_behavior!(factory, ApproachObject, "ApproachObject").unwrap();
+    register_behavior!(factory, ApproachObject, "ApproachObject")?;
 
     // Registering a SimpleAction/SimpleCondition using a function pointer.
-    register_behavior!(
-        factory,
-        check_battery,
-        "CheckBattery",
-        BehaviorKind::Condition
-    ).unwrap();
+    register_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
 
     // You can also create SimpleAction/SimpleCondition using methods of a struct.
-    register_behavior!(
-        factory,
-        GripperInterface::default(),
-        open,
-        "OpenGripper",
-        BehaviorKind::Action,
-        close,
-        "CloseGripper",
-        BehaviorKind::Action,
-    ).unwrap();
+    register_behavior!(factory, GripperInterface::default(), 
+        open, "OpenGripper", BehaviorKind::Action,
+        close, "CloseGripper", BehaviorKind::Action)?;
 
     // Trees are created at run-time, but only once at the beginning.
     // The currently supported format is XML.
     // IMPORTANT: When the object "tree" goes out of scope, all the tree components are destroyed
-    let mut tree = factory.create_from_text(XML).unwrap();
+    let mut tree = factory.create_from_text(XML)?;
     // dropping the factory to free memory
     drop(factory);
 
@@ -113,7 +101,7 @@ async fn example() -> BehaviorResult {
     // The tick is propagated to the children based on the logic of the tree.
     // In this case, the entire sequence is executed, because all the children
     // of the Sequence return SUCCESS.
-    let result = tree.tick_while_running().await.unwrap();
+    let result = tree.tick_while_running().await?;
     Ok(result)
 }
 

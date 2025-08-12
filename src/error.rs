@@ -21,24 +21,24 @@ pub type BehaviorTreeResult<Output = crate::behavior::BehaviorState> = Result<Ou
 /// `behaviortree` error type
 #[derive(Error, Debug)]
 pub enum Error {
-    /// Pass through from `crate::behavior::BehaviorError`
-    #[error("{0}")]
-    Behavior(#[from] crate::behavior::error::BehaviorError),
-    /// Pass through from `crate::blackboard::Error`
-    #[error("{0}")]
-    Blackboard(#[from] crate::blackboard::error::Error),
-    /// Pass through from `crate::factory::Error`
-    #[error("{0}")]
-    Factory(#[from] crate::factory::error::Error),
-    #[cfg(feature = "std")]
-    /// Pass through from `std::io::Error`
-    #[error("{0}")]
-    StdIo(#[from] std::io::Error),
-    /// Pass through from `crate::tree::Error`
-    #[error("{0}")]
-    Tree(#[from] crate::tree::error::Error),
-    /// Pass through from `woxml::Error`
-    #[error("{0}")]
-    Woxml(#[from] woxml::Error),
+	/// Pass through from `crate::behavior::BehaviorError`
+	#[error("{0}")]
+	Behavior(#[from] crate::behavior::error::BehaviorError),
+	/// Pass through from `crate::blackboard::Error`
+	#[error("{0}")]
+	Blackboard(#[from] crate::blackboard::error::Error),
+	/// Pass through from `crate::factory::Error`
+	#[error("{0}")]
+	Factory(#[from] crate::factory::error::Error),
+	#[cfg(feature = "std")]
+	/// Pass through from `std::io::Error`
+	#[error("{0}")]
+	StdIo(#[from] std::io::Error),
+	/// Pass through from `crate::tree::Error`
+	#[error("{0}")]
+	Tree(#[from] crate::tree::error::Error),
+	/// Pass through from `woxml::Error`
+	#[error("{0}")]
+	Woxml(#[from] woxml::Error),
 }
 // region:		--- Error

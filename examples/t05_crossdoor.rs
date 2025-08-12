@@ -38,39 +38,39 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    CrossDoor::register_behaviors(&mut factory)?;
+	CrossDoor::register_behaviors(&mut factory)?;
 
-    // In this example a single XML contains multiple <BehaviorTree>
-    // To determine which one is the "main one", we should first register
-    // the XML and then allocate a specific tree, using its ID
-    factory.register_behavior_tree_from_text(XML)?;
-    let mut tree = factory.create_main_tree()?;
-    drop(factory);
+	// In this example a single XML contains multiple <BehaviorTree>
+	// To determine which one is the "main one", we should first register
+	// the XML and then allocate a specific tree, using its ID
+	factory.register_behavior_tree_from_text(XML)?;
+	let mut tree = factory.create_main_tree()?;
+	drop(factory);
 
-    // helper function to print the tree
-    tree.print()?;
+	// helper function to print the tree
+	tree.print()?;
 
-    // Tick multiple times, until either FAILURE of SUCCESS is returned
-    let result = tree.tick_while_running().await?;
-    Ok(result)
+	// Tick multiple times, until either FAILURE of SUCCESS is returned
+	let result = tree.tick_while_running().await?;
+	Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t05_crossdoor() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	async fn t05_crossdoor() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }

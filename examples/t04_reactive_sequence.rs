@@ -45,48 +45,48 @@ const XML_REACTIVE: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
-    register_behavior!(factory, check_battery, "BatteryOK", BehaviorKind::Condition)?;
-    register_behavior!(factory, MoveBaseAction, "MoveBase")?;
-    register_behavior!(factory, SaySomething, "SaySomething")?;
+	register_behavior!(factory, check_battery, "BatteryOK", BehaviorKind::Condition)?;
+	register_behavior!(factory, MoveBaseAction, "MoveBase")?;
+	register_behavior!(factory, SaySomething, "SaySomething")?;
 
-    let mut tree = factory.create_from_text(XML)?;
-    let mut reactive_tree = factory.create_from_text(XML_REACTIVE)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(XML)?;
+	let mut reactive_tree = factory.create_from_text(XML_REACTIVE)?;
+	drop(factory);
 
-    // run the BT using own loop with sleep to avoid busy loop
-    println!("=> Running BT with std sequence:");
-    let mut result = tree.tick_once().await?;
-    while result == BehaviorState::Running {
-        tokio::time::sleep(Duration::from_millis(100)).await;
-        result = tree.tick_once().await?;
-    }
+	// run the BT using own loop with sleep to avoid busy loop
+	println!("=> Running BT with std sequence:");
+	let mut result = tree.tick_once().await?;
+	while result == BehaviorState::Running {
+		tokio::time::sleep(Duration::from_millis(100)).await;
+		result = tree.tick_once().await?;
+	}
 
-    // run the reactive BT using own loop with sleep to avoid busy loop
-    println!("\n\n=> Running BT with reactive sequence:");
-    let mut result = reactive_tree.tick_once().await?;
-    while result == BehaviorState::Running {
-        tokio::time::sleep(Duration::from_millis(100)).await;
-        result = reactive_tree.tick_once().await?;
-    }
-    Ok(result)
+	// run the reactive BT using own loop with sleep to avoid busy loop
+	println!("\n\n=> Running BT with reactive sequence:");
+	let mut result = reactive_tree.tick_once().await?;
+	while result == BehaviorState::Running {
+		tokio::time::sleep(Duration::from_millis(100)).await;
+		result = reactive_tree.tick_once().await?;
+	}
+	Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t04_reactive_sequence() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	async fn t04_reactive_sequence() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }

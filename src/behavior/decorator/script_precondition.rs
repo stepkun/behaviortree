@@ -9,15 +9,12 @@ use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
 use crate::{
-    Decorator, ELSE, FAILURE, IDLE, IF, RUNNING, SKIPPED, SUCCESS,
-    behavior::{
-        BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState,
-        BehaviorStatic,
-    },
-    input_port,
-    port::PortList,
-    port_list,
-    tree::tree_element_list::ConstBehaviorTreeElementList,
+	Decorator, ELSE, FAILURE, IDLE, IF, RUNNING, SKIPPED, SUCCESS,
+	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	input_port,
+	port::PortList,
+	port_list,
+	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -29,62 +26,60 @@ pub struct Precondition;
 
 #[async_trait::async_trait]
 impl BehaviorInstance for Precondition {
-    async fn tick(
-        &mut self,
-        behavior: &mut BehaviorData,
-        children: &mut ConstBehaviorTreeElementList,
-        runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        let if_branch = behavior.get::<String>(IF)?;
-        let value = runtime.lock().run(&if_branch, behavior.blackboard_mut())?;
+	async fn tick(
+		&mut self,
+		behavior: &mut BehaviorData,
+		children: &mut ConstBehaviorTreeElementList,
+		runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		let if_branch = behavior.get::<String>(IF)?;
+		let value = runtime
+			.lock()
+			.run(&if_branch, behavior.blackboard_mut())?;
 
-        let new_state = if value.is_bool() {
-            let val = value.as_bool()?;
-            let child = &mut children[0];
-            if val {
-                // tick child and return the resulting value
-                child.tick(runtime).await?
-            } else {
-                // halt eventually running child
-                child.halt_children(runtime)?;
-                let else_branch = behavior.get::<String>(ELSE)?;
-                match else_branch.as_ref() {
-                    FAILURE => BehaviorState::Failure,
-                    IDLE => BehaviorState::Idle,
-                    RUNNING => BehaviorState::Running,
-                    SKIPPED => BehaviorState::Skipped,
-                    SUCCESS => BehaviorState::Success,
-                    _ => {
-                        let value = runtime
-                            .lock()
-                            .run(&else_branch, behavior.blackboard_mut())?;
-                        if value.is_bool() {
-                            let val = value.as_bool()?;
-                            if val {
-                                BehaviorState::Success
-                            } else {
-                                BehaviorState::Failure
-                            }
-                        } else {
-                            return Err(BehaviorError::NotABool);
-                        }
-                    }
-                }
-            }
-        } else {
-            return Err(BehaviorError::NotABool);
-        };
+		let new_state = if value.is_bool() {
+			let val = value.as_bool()?;
+			let child = &mut children[0];
+			if val {
+				// tick child and return the resulting value
+				child.tick(runtime).await?
+			} else {
+				// halt eventually running child
+				child.halt_children(runtime)?;
+				let else_branch = behavior.get::<String>(ELSE)?;
+				match else_branch.as_ref() {
+					FAILURE => BehaviorState::Failure,
+					IDLE => BehaviorState::Idle,
+					RUNNING => BehaviorState::Running,
+					SKIPPED => BehaviorState::Skipped,
+					SUCCESS => BehaviorState::Success,
+					_ => {
+						let value = runtime
+							.lock()
+							.run(&else_branch, behavior.blackboard_mut())?;
+						if value.is_bool() {
+							let val = value.as_bool()?;
+							if val { BehaviorState::Success } else { BehaviorState::Failure }
+						} else {
+							return Err(BehaviorError::NotABool);
+						}
+					}
+				}
+			}
+		} else {
+			return Err(BehaviorError::NotABool);
+		};
 
-        Ok(new_state)
-    }
+		Ok(new_state)
+	}
 }
 
 impl BehaviorStatic for Precondition {
-    fn provided_ports() -> PortList {
-        port_list![
-            input_port!(String, IF, "", "Condition to check."),
-            input_port!(String, ELSE, "", "Return state if condition is false."),
-        ]
-    }
+	fn provided_ports() -> PortList {
+		port_list![
+			input_port!(String, IF, "", "Condition to check."),
+			input_port!(String, ELSE, "", "Return state if condition is false."),
+		]
+	}
 }
 // endregion:   --- Precondition

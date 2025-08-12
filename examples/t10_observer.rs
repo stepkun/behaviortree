@@ -39,61 +39,61 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    factory.register_behavior_tree_from_text(XML)?;
+	factory.register_behavior_tree_from_text(XML)?;
 
-    let mut tree = factory.create_tree("MainTree")?;
-    drop(factory);
+	let mut tree = factory.create_tree("MainTree")?;
+	drop(factory);
 
-    // add the observer
-    let observer = BehaviorTreeObserver::new(&mut tree);
+	// add the observer
+	let observer = BehaviorTreeObserver::new(&mut tree);
 
-    // print tree structure
-    tree.print()?;
-    println!();
+	// print tree structure
+	tree.print()?;
+	println!();
 
-    // Print the unique ID and the corresponding human readable path
-    // Path is also expected to be unique.
-    for node in tree.iter() {
-        println!("{} <-> {}", node.uid(), node.data().description().path());
-    }
-    println!();
+	// Print the unique ID and the corresponding human readable path
+	// Path is also expected to be unique.
+	for node in tree.iter() {
+		println!("{} <-> {}", node.uid(), node.data().description().path());
+	}
+	println!();
 
-    let result = tree.tick_while_running().await?;
+	let result = tree.tick_while_running().await?;
 
-    // print statistics
-    for item in tree.iter() {
-        let stats = observer
-            .get_statistics(item.uid())
-            .expect("should be there");
-        println!(
-            "[{}]  T/S/F: {}/{}/{}",
-            item.data().description().path(),
-            stats.transitions_count,
-            stats.success_count,
-            stats.failure_count
-        );
-    }
-    println!();
+	// print statistics
+	for item in tree.iter() {
+		let stats = observer
+			.get_statistics(item.uid())
+			.expect("should be there");
+		println!(
+			"[{}]  T/S/F: {}/{}/{}",
+			item.data().description().path(),
+			stats.transitions_count,
+			stats.success_count,
+			stats.failure_count
+		);
+	}
+	println!();
 
-    Ok(result)
+	Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t10_observer() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	async fn t10_observer() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }

@@ -25,9 +25,9 @@ use core::{any::Any, str::FromStr};
 use tinyscript::SharedRuntime;
 
 use crate::{
-    blackboard::{BlackboardInterface, SharedBlackboard},
-    port::{ConstPortRemappings, PortList, error::Error, strip_bb_pointer},
-    tree::tree_element_list::ConstBehaviorTreeElementList,
+	blackboard::{BlackboardInterface, SharedBlackboard},
+	port::{ConstPortRemappings, PortList, error::Error, strip_bb_pointer},
+	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -50,26 +50,26 @@ pub type BehaviorTickCallback = dyn Fn(&BehaviorData, &mut BehaviorState) + Send
 // region:      --- supertraits
 /// Supertrait for a behavior.
 pub trait Behavior: BehaviorExecution + BehaviorStatic {
-    /// Provide the boxed creation function.
-    #[must_use]
-    fn creation_fn() -> Box<BehaviorCreationFn>;
+	/// Provide the boxed creation function.
+	#[must_use]
+	fn creation_fn() -> Box<BehaviorCreationFn>;
 
-    /// Get the [`BehaviorKind`] of the behavior that shall become a node in a behavior (sub)tree.
-    #[must_use]
-    fn kind() -> BehaviorKind;
+	/// Get the [`BehaviorKind`] of the behavior that shall become a node in a behavior (sub)tree.
+	#[must_use]
+	fn kind() -> BehaviorKind;
 }
 
 /// Supertrait for execution of a behavior.
 pub trait BehaviorExecution: Any + BehaviorInstance {
-    /// Needed for dynamic downcasting
-    fn as_any(&self) -> &dyn Any;
+	/// Needed for dynamic downcasting
+	fn as_any(&self) -> &dyn Any;
 
-    /// Needed for mutable dynamic downcasting
-    fn as_any_mut(&mut self) -> &mut dyn Any;
+	/// Needed for mutable dynamic downcasting
+	fn as_any_mut(&mut self) -> &mut dyn Any;
 
-    /// Get the `static` list of defined ports.
-    #[must_use]
-    fn static_provided_ports(&self) -> PortList;
+	/// Get the `static` list of defined ports.
+	#[must_use]
+	fn static_provided_ports(&self) -> PortList;
 }
 // endregion:   --- supertraits
 
@@ -78,90 +78,90 @@ pub trait BehaviorExecution: Any + BehaviorInstance {
 /// These methods are available when traversing a behavior tree.
 #[async_trait::async_trait]
 pub trait BehaviorInstance: Send + Sync {
-    /// Method called during stop/cancel/halt of a behavior,
-    /// intended to reset the internal fields of your behavior.
-    ///
-    /// It is not necessary to care about children and maintaining state,
-    /// which at this point has already be done by the tree.
-    ///
-    /// Default implementation does nothing.
-    /// # Errors
-    /// - if something prevents stopping the behavior properly
-    #[inline]
-    fn on_halt(&mut self) -> Result<(), BehaviorError> {
-        Ok(())
-    }
+	/// Method called during stop/cancel/halt of a behavior,
+	/// intended to reset the internal fields of your behavior.
+	///
+	/// It is not necessary to care about children and maintaining state,
+	/// which at this point has already be done by the tree.
+	///
+	/// Default implementation does nothing.
+	/// # Errors
+	/// - if something prevents stopping the behavior properly
+	#[inline]
+	fn on_halt(&mut self) -> Result<(), BehaviorError> {
+		Ok(())
+	}
 
-    /// Method called before starting to tick a behavior,
-    /// intended to do preliminary stuff for your behavior.
-    ///
-    /// In general it is not necessary to care about children
-    /// and maintaining state, which will be done by the
-    /// default `start()` method.
-    ///
-    /// Default implementation does nothing.
-    /// # Errors
-    /// - if something prevents starting the behavior properly
-    #[inline]
-    fn on_start(
-        &mut self,
-        _behavior: &mut BehaviorData,
-        _children: &mut ConstBehaviorTreeElementList,
-        _runtime: &SharedRuntime,
-    ) -> Result<(), BehaviorError> {
-        Ok(())
-    }
+	/// Method called before starting to tick a behavior,
+	/// intended to do preliminary stuff for your behavior.
+	///
+	/// In general it is not necessary to care about children
+	/// and maintaining state, which will be done by the
+	/// default `start()` method.
+	///
+	/// Default implementation does nothing.
+	/// # Errors
+	/// - if something prevents starting the behavior properly
+	#[inline]
+	fn on_start(
+		&mut self,
+		_behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> Result<(), BehaviorError> {
+		Ok(())
+	}
 
-    /// Method called on first tick of a behavior.
-    /// If this method returns [`BehaviorState::Running`], the
-    /// behavior becomes asynchronous.
-    /// # Errors
-    /// - if something prevents starting the behavior properly
-    #[inline]
-    async fn start(
-        &mut self,
-        behavior: &mut BehaviorData,
-        children: &mut ConstBehaviorTreeElementList,
-        runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        self.on_start(behavior, children, runtime)?;
-        self.tick(behavior, children, runtime).await
-    }
+	/// Method called on first tick of a behavior.
+	/// If this method returns [`BehaviorState::Running`], the
+	/// behavior becomes asynchronous.
+	/// # Errors
+	/// - if something prevents starting the behavior properly
+	#[inline]
+	async fn start(
+		&mut self,
+		behavior: &mut BehaviorData,
+		children: &mut ConstBehaviorTreeElementList,
+		runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		self.on_start(behavior, children, runtime)?;
+		self.tick(behavior, children, runtime).await
+	}
 
-    /// Method called to tick a behavior.
-    /// # Errors
-    async fn tick(
-        &mut self,
-        behavior: &mut BehaviorData,
-        children: &mut ConstBehaviorTreeElementList,
-        runtime: &SharedRuntime,
-    ) -> BehaviorResult;
+	/// Method called to tick a behavior.
+	/// # Errors
+	async fn tick(
+		&mut self,
+		behavior: &mut BehaviorData,
+		children: &mut ConstBehaviorTreeElementList,
+		runtime: &SharedRuntime,
+	) -> BehaviorResult;
 
-    /// Method called to halt a behavior.
-    /// # Errors
-    #[inline]
-    fn halt(
-        &mut self,
-        _behavior: &mut BehaviorData,
-        children: &mut ConstBehaviorTreeElementList,
-        runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        children.halt(runtime)?;
-        self.on_halt()?;
-        Ok(BehaviorState::Idle)
-    }
+	/// Method called to halt a behavior.
+	/// # Errors
+	#[inline]
+	fn halt(
+		&mut self,
+		_behavior: &mut BehaviorData,
+		children: &mut ConstBehaviorTreeElementList,
+		runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		children.halt(runtime)?;
+		self.on_halt()?;
+		Ok(BehaviorState::Idle)
+	}
 }
 // endregion:	--- BehaviorInstance
 
 // region:      --- BehaviorStatic
 /// Static methods of behaviors.
 pub trait BehaviorStatic {
-    /// Provide the list of defined ports.
-    /// Default implementation returns an empty list.
-    #[must_use]
-    fn provided_ports() -> PortList {
-        PortList::default()
-    }
+	/// Provide the list of defined ports.
+	/// Default implementation returns an empty list.
+	#[must_use]
+	fn provided_ports() -> PortList {
+		PortList::default()
+	}
 }
 // endregion:   --- BehaviorStatic
 
@@ -169,181 +169,182 @@ pub trait BehaviorStatic {
 /// Structure for implementing behaviors.
 #[derive(Default)]
 pub struct BehaviorData {
-    /// UID of the behavior within the [`BehaviorTree`](crate::tree::BehaviorTree).
-    /// 65536 behaviors in a [`BehaviorTree`](crate::tree::BehaviorTree) should be sufficient.
-    /// The ordering of the uid is following the creation order by the [`XmlParser`](crate::factory::xml_parser::XmlParser).
-    /// This should end up in a depth first ordering.
-    uid: u16,
-    /// Current state of the behavior.
-    state: BehaviorState,
-    /// List of internal [`PortRemappings`] including
-    /// direct assigned values to a `Port`, e.g. default values.
-    remappings: ConstPortRemappings,
-    /// Reference to the [`Blackboard`] for the element.
-    blackboard: SharedBlackboard,
-    /// List of pre state change callbacks with an identifier.
-    /// These callbacks can be used for observation of the [`BehaviorTreeElement`] and
-    /// for manipulation of the resulting [`BehaviorState`] of a tick.
-    pre_state_change_hooks: Vec<(ConstString, Box<BehaviorTickCallback>)>,
-    /// Description of the Behavior.
-    description: BehaviorDescription,
+	/// UID of the behavior within the [`BehaviorTree`](crate::tree::BehaviorTree).
+	/// 65536 behaviors in a [`BehaviorTree`](crate::tree::BehaviorTree) should be sufficient.
+	/// The ordering of the uid is following the creation order by the [`XmlParser`](crate::factory::xml_parser::XmlParser).
+	/// This should end up in a depth first ordering.
+	uid: u16,
+	/// Current state of the behavior.
+	state: BehaviorState,
+	/// List of internal [`PortRemappings`] including
+	/// direct assigned values to a `Port`, e.g. default values.
+	remappings: ConstPortRemappings,
+	/// Reference to the [`Blackboard`] for the element.
+	blackboard: SharedBlackboard,
+	/// List of pre state change callbacks with an identifier.
+	/// These callbacks can be used for observation of the [`BehaviorTreeElement`] and
+	/// for manipulation of the resulting [`BehaviorState`] of a tick.
+	pre_state_change_hooks: Vec<(ConstString, Box<BehaviorTickCallback>)>,
+	/// Description of the Behavior.
+	description: BehaviorDescription,
 }
 
 impl BehaviorData {
-    /// Constructor
-    #[must_use]
-    pub fn new(
-        uid: u16,
-        name: &str,
-        path: &str,
-        remappings: ConstPortRemappings,
-        blackboard: SharedBlackboard,
-        mut description: BehaviorDescription,
-    ) -> Self {
-        description.set_name(name);
-        description.set_path(path);
-        Self {
-            uid,
-            state: BehaviorState::default(),
-            remappings,
-            blackboard,
-            pre_state_change_hooks: Vec::default(),
-            description,
-        }
-    }
+	/// Constructor
+	#[must_use]
+	pub fn new(
+		uid: u16,
+		name: &str,
+		path: &str,
+		remappings: ConstPortRemappings,
+		blackboard: SharedBlackboard,
+		mut description: BehaviorDescription,
+	) -> Self {
+		description.set_name(name);
+		description.set_path(path);
+		Self {
+			uid,
+			state: BehaviorState::default(),
+			remappings,
+			blackboard,
+			pre_state_change_hooks: Vec::default(),
+			description,
+		}
+	}
 
-    /// Delete an entry of type `T` from Blackboard.
-    /// # Errors
-    /// - if entry is not found
-    pub fn delete<T>(&mut self, key: &str) -> Result<T, crate::blackboard::error::Error>
-    where
-        T: Any + Clone + FromStr + ToString + Send + Sync,
-    {
-        self.blackboard.delete(key)
-    }
+	/// Delete an entry of type `T` from Blackboard.
+	/// # Errors
+	/// - if entry is not found
+	pub fn delete<T>(&mut self, key: &str) -> Result<T, crate::blackboard::error::Error>
+	where
+		T: Any + Clone + FromStr + ToString + Send + Sync,
+	{
+		self.blackboard.delete(key)
+	}
 
-    /// Get a value of type `T` from Blackboard.
-    /// # Errors
-    /// - if value is not found
-    pub fn get<T>(&self, key: &str) -> Result<T, Error>
-    where
-        T: Any + Clone + FromStr + ToString + Send + Sync,
-    {
-        if let Some(remapped) = self.remappings.find(&key.into()) {
-            match strip_bb_pointer(&remapped) {
-                Some(key) => Ok(self.blackboard.get::<T>(&key)?),
-                None => match T::from_str(&remapped) {
-                    Ok(res) => Ok(res),
-                    Err(_err) => Err(Error::CouldNotConvert(remapped)),
-                },
-            }
-        } else {
-            Ok(self.blackboard.get::<T>(key)?)
-        }
-    }
+	/// Get a value of type `T` from Blackboard.
+	/// # Errors
+	/// - if value is not found
+	pub fn get<T>(&self, key: &str) -> Result<T, Error>
+	where
+		T: Any + Clone + FromStr + ToString + Send + Sync,
+	{
+		if let Some(remapped) = self.remappings.find(&key.into()) {
+			match strip_bb_pointer(&remapped) {
+				Some(key) => Ok(self.blackboard.get::<T>(&key)?),
+				None => match T::from_str(&remapped) {
+					Ok(res) => Ok(res),
+					Err(_err) => Err(Error::CouldNotConvert(remapped)),
+				},
+			}
+		} else {
+			Ok(self.blackboard.get::<T>(key)?)
+		}
+	}
 
-    /// Get the sequence ID of a Blackboard entry.
-    /// # Errors
-    /// - if key is not found in blackboard
-    #[inline]
-    pub fn get_sequence_id(&self, key: &str) -> Result<usize, crate::blackboard::error::Error> {
-        self.blackboard.get_sequence_id(key)
-    }
+	/// Get the sequence ID of a Blackboard entry.
+	/// # Errors
+	/// - if key is not found in blackboard
+	#[inline]
+	pub fn get_sequence_id(&self, key: &str) -> Result<usize, crate::blackboard::error::Error> {
+		self.blackboard.get_sequence_id(key)
+	}
 
-    /// Set a value of type `T` into Blackboard.
-    /// Returns old value if any.
-    /// # Errors
-    /// - if value can not be set
-    pub fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
-    where
-        T: Any + Clone + FromStr + ToString + Send + Sync,
-    {
-        if let Some(remapped) = self.remappings.find(&key.into()) {
-            if let Some(stripped) = strip_bb_pointer(&remapped) {
-                Ok(self.blackboard.set::<T>(&stripped, value)?)
-            } else {
-                Ok(self.blackboard.set::<T>(key, value)?)
-            }
-        } else {
-            Ok(self.blackboard.set::<T>(key, value)?)
-        }
-    }
+	/// Set a value of type `T` into Blackboard.
+	/// Returns old value if any.
+	/// # Errors
+	/// - if value can not be set
+	pub fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
+	where
+		T: Any + Clone + FromStr + ToString + Send + Sync,
+	{
+		if let Some(remapped) = self.remappings.find(&key.into()) {
+			if let Some(stripped) = strip_bb_pointer(&remapped) {
+				Ok(self.blackboard.set::<T>(&stripped, value)?)
+			} else {
+				Ok(self.blackboard.set::<T>(key, value)?)
+			}
+		} else {
+			Ok(self.blackboard.set::<T>(key, value)?)
+		}
+	}
 
-    /// Method to access the blackboard.
-    #[must_use]
-    pub const fn blackboard(&self) -> &SharedBlackboard {
-        &self.blackboard
-    }
+	/// Method to access the blackboard.
+	#[must_use]
+	pub const fn blackboard(&self) -> &SharedBlackboard {
+		&self.blackboard
+	}
 
-    /// Method to access the blackboard mutable.
-    #[must_use]
-    pub const fn blackboard_mut(&mut self) -> &mut SharedBlackboard {
-        &mut self.blackboard
-    }
+	/// Method to access the blackboard mutable.
+	#[must_use]
+	pub const fn blackboard_mut(&mut self) -> &mut SharedBlackboard {
+		&mut self.blackboard
+	}
 
-    /// Method to get the desription.
-    #[must_use]
-    pub const fn description(&self) -> &BehaviorDescription {
-        &self.description
-    }
+	/// Method to get the desription.
+	#[must_use]
+	pub const fn description(&self) -> &BehaviorDescription {
+		&self.description
+	}
 
-    /// Method to get the desription mutable.
-    #[must_use]
-    pub const fn description_mut(&mut self) -> &mut BehaviorDescription {
-        &mut self.description
-    }
+	/// Method to get the desription mutable.
+	#[must_use]
+	pub const fn description_mut(&mut self) -> &mut BehaviorDescription {
+		&mut self.description
+	}
 
-    /// Method to get the uid.
-    #[must_use]
-    pub const fn uid(&self) -> u16 {
-        self.uid
-    }
+	/// Method to get the uid.
+	#[must_use]
+	pub const fn uid(&self) -> u16 {
+		self.uid
+	}
 
-    /// Method to get the state.
-    #[must_use]
-    pub const fn state(&self) -> BehaviorState {
-        self.state
-    }
+	/// Method to get the state.
+	#[must_use]
+	pub const fn state(&self) -> BehaviorState {
+		self.state
+	}
 
-    /// Method to set the state.
-    pub fn set_state(&mut self, state: BehaviorState) {
-        if state != self.state {
-            // Callback before setting state
-            let mut state = state;
-            for (_, callback) in &self.pre_state_change_hooks {
-                callback(self, &mut state);
-            }
-            self.state = state;
-        }
-    }
+	/// Method to set the state.
+	pub fn set_state(&mut self, state: BehaviorState) {
+		if state != self.state {
+			// Callback before setting state
+			let mut state = state;
+			for (_, callback) in &self.pre_state_change_hooks {
+				callback(self, &mut state);
+			}
+			self.state = state;
+		}
+	}
 
-    /// Add a pre state change callback with the given name.
-    /// The name is not unique, which is important when removing callback.
-    pub fn add_pre_state_change_callback<T>(&mut self, name: ConstString, callback: T)
-    where
-        T: Fn(&Self, &mut BehaviorState) + Send + Sync + 'static,
-    {
-        self.pre_state_change_hooks.push((name, Box::new(callback)));
-    }
+	/// Add a pre state change callback with the given name.
+	/// The name is not unique, which is important when removing callback.
+	pub fn add_pre_state_change_callback<T>(&mut self, name: ConstString, callback: T)
+	where
+		T: Fn(&Self, &mut BehaviorState) + Send + Sync + 'static,
+	{
+		self.pre_state_change_hooks
+			.push((name, Box::new(callback)));
+	}
 
-    /// Remove any pre state change callback with the given name.
-    pub fn remove_pre_state_change_callback(&mut self, name: &ConstString) {
-        // first collect all subscriber with that name ...
-        let mut indices = Vec::new();
-        for (index, (cb_name, _)) in self.pre_state_change_hooks.iter().enumerate() {
-            if cb_name == name {
-                indices.push(index);
-            }
-        }
-        // ... then remove them from vec
-        for index in indices {
-            let _ = self.pre_state_change_hooks.remove(index);
-        }
-    }
+	/// Remove any pre state change callback with the given name.
+	pub fn remove_pre_state_change_callback(&mut self, name: &ConstString) {
+		// first collect all subscriber with that name ...
+		let mut indices = Vec::new();
+		for (index, (cb_name, _)) in self.pre_state_change_hooks.iter().enumerate() {
+			if cb_name == name {
+				indices.push(index);
+			}
+		}
+		// ... then remove them from vec
+		for index in indices {
+			let _ = self.pre_state_change_hooks.remove(index);
+		}
+	}
 
-    pub(crate) const fn remappings(&self) -> &ConstPortRemappings {
-        &self.remappings
-    }
+	pub(crate) const fn remappings(&self) -> &ConstPortRemappings {
+		&self.remappings
+	}
 }
 // endregion:	--- BehaviorData
 
@@ -351,101 +352,101 @@ impl BehaviorData {
 /// Description of a Behavior, used in xml parsing and creating.
 #[derive(Clone, Debug, Default)]
 pub struct BehaviorDescription {
-    /// Name of the behavior.
-    name: ConstString,
-    /// id of the behavior.
-    id: ConstString,
-    /// Path to the element.
-    /// In contrast to BehaviorTree.CPP this path is fully qualified,
-    /// which means that every level is denoted explicitly, including the tree root.
-    path: ConstString,
-    /// Kind of the behavior.
-    kind: BehaviorKind,
-    /// The [`PortList`]
-    ports: PortList,
-    /// Flag to indicate whether this behavior is builtin by Groot2.
-    groot2: bool,
-    /// Path for Groot2
-    groot2_path: ConstString,
+	/// Name of the behavior.
+	name: ConstString,
+	/// id of the behavior.
+	id: ConstString,
+	/// Path to the element.
+	/// In contrast to BehaviorTree.CPP this path is fully qualified,
+	/// which means that every level is denoted explicitly, including the tree root.
+	path: ConstString,
+	/// Kind of the behavior.
+	kind: BehaviorKind,
+	/// The [`PortList`]
+	ports: PortList,
+	/// Flag to indicate whether this behavior is builtin by Groot2.
+	groot2: bool,
+	/// Path for Groot2
+	groot2_path: ConstString,
 }
 
 impl BehaviorDescription {
-    /// Create a behavior description.
-    #[must_use]
-    pub fn new(name: &str, id: &str, kind: BehaviorKind, groot2: bool, ports: PortList) -> Self {
-        Self {
-            name: name.into(),
-            id: id.into(),
-            path: "".into(),
-            kind,
-            ports,
-            groot2_path: "".into(),
-            groot2,
-        }
-    }
+	/// Create a behavior description.
+	#[must_use]
+	pub fn new(name: &str, id: &str, kind: BehaviorKind, groot2: bool, ports: PortList) -> Self {
+		Self {
+			name: name.into(),
+			id: id.into(),
+			path: "".into(),
+			kind,
+			ports,
+			groot2_path: "".into(),
+			groot2,
+		}
+	}
 
-    /// Get name
-    #[must_use]
-    pub const fn name(&self) -> &ConstString {
-        &self.name
-    }
+	/// Get name
+	#[must_use]
+	pub const fn name(&self) -> &ConstString {
+		&self.name
+	}
 
-    /// Method to set the name.
-    pub fn set_name(&mut self, name: &str) {
-        self.name = name.into();
-    }
+	/// Method to set the name.
+	pub fn set_name(&mut self, name: &str) {
+		self.name = name.into();
+	}
 
-    /// Get id
-    #[must_use]
-    pub const fn id(&self) -> &ConstString {
-        &self.id
-    }
+	/// Get id
+	#[must_use]
+	pub const fn id(&self) -> &ConstString {
+		&self.id
+	}
 
-    /// Method to get the path.
-    #[must_use]
-    pub const fn path(&self) -> &ConstString {
-        &self.path
-    }
+	/// Method to get the path.
+	#[must_use]
+	pub const fn path(&self) -> &ConstString {
+		&self.path
+	}
 
-    /// Method to set the path.
-    pub fn set_path(&mut self, path: &str) {
-        self.path = path.into();
-    }
+	/// Method to set the path.
+	pub fn set_path(&mut self, path: &str) {
+		self.path = path.into();
+	}
 
-    /// Get kind
-    #[must_use]
-    pub const fn kind(&self) -> BehaviorKind {
-        self.kind
-    }
+	/// Get kind
+	#[must_use]
+	pub const fn kind(&self) -> BehaviorKind {
+		self.kind
+	}
 
-    /// Get kind as str
-    #[must_use]
-    pub const fn kind_str(&self) -> &'static str {
-        self.kind.as_str()
-    }
+	/// Get kind as str
+	#[must_use]
+	pub const fn kind_str(&self) -> &'static str {
+		self.kind.as_str()
+	}
 
-    /// Get ports
-    #[must_use]
-    pub const fn ports(&self) -> &PortList {
-        &self.ports
-    }
+	/// Get ports
+	#[must_use]
+	pub const fn ports(&self) -> &PortList {
+		&self.ports
+	}
 
-    /// If is builtin of Groot2
-    #[must_use]
-    pub const fn groot2(&self) -> bool {
-        self.groot2
-    }
+	/// If is builtin of Groot2
+	#[must_use]
+	pub const fn groot2(&self) -> bool {
+		self.groot2
+	}
 
-    /// Get the path for Groot2.
-    #[must_use]
-    pub const fn groot2_path(&self) -> &ConstString {
-        &self.groot2_path
-    }
+	/// Get the path for Groot2.
+	#[must_use]
+	pub const fn groot2_path(&self) -> &ConstString {
+		&self.groot2_path
+	}
 
-    /// Set the path for Groot2.
-    pub fn set_groot2_path(&mut self, groot2_path: ConstString) {
-        self.groot2_path = groot2_path;
-    }
+	/// Set the path for Groot2.
+	pub fn set_groot2_path(&mut self, groot2_path: ConstString) {
+		self.groot2_path = groot2_path;
+	}
 }
 // endregion:	--- BehaviorDescription
 
@@ -461,37 +462,37 @@ const SUBTREE: &str = "SubTree";
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[repr(u8)]
 pub enum BehaviorKind {
-    /// Action
-    #[default]
-    Action,
-    /// Condition
-    Condition,
-    /// Control
-    Control,
-    /// Decorator
-    Decorator,
-    /// Subtree
-    SubTree,
+	/// Action
+	#[default]
+	Action,
+	/// Condition
+	Condition,
+	/// Control
+	Control,
+	/// Decorator
+	Decorator,
+	/// Subtree
+	SubTree,
 }
 
 impl core::fmt::Display for BehaviorKind {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "{}", self.as_str())
+	}
 }
 
 impl BehaviorKind {
-    /// Provide kind as a static str reference.
-    #[must_use]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::Action => ACTION,
-            Self::Condition => CONDITION,
-            Self::Control => CONTROL,
-            Self::Decorator => DECORATOR,
-            Self::SubTree => SUBTREE,
-        }
-    }
+	/// Provide kind as a static str reference.
+	#[must_use]
+	pub const fn as_str(&self) -> &'static str {
+		match self {
+			Self::Action => ACTION,
+			Self::Condition => CONDITION,
+			Self::Control => CONTROL,
+			Self::Decorator => DECORATOR,
+			Self::SubTree => SUBTREE,
+		}
+	}
 }
 // endregion:	--- BehaviorKind
 
@@ -505,70 +506,67 @@ impl BehaviorKind {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[repr(u8)]
 pub enum BehaviorState {
-    /// Behavior is not executing.
-    #[default]
-    Idle = 0,
-    /// Behavior is still executing.
-    Running = 1,
-    /// Behavior finished with success.
-    Success = 2,
-    /// Behavior execution failed.
-    Failure = 3,
-    /// Behavior has been skipped.
-    Skipped = 4,
+	/// Behavior is not executing.
+	#[default]
+	Idle = 0,
+	/// Behavior is still executing.
+	Running = 1,
+	/// Behavior finished with success.
+	Success = 2,
+	/// Behavior execution failed.
+	Failure = 3,
+	/// Behavior has been skipped.
+	Skipped = 4,
 }
 
 impl BehaviorState {
-    /// Check if state is signaling that the behavior is active
-    #[must_use]
-    pub const fn is_active(&self) -> bool {
-        matches!(self, Self::Idle | Self::Skipped)
-    }
+	/// Check if state is signaling that the behavior is active
+	#[must_use]
+	pub const fn is_active(&self) -> bool {
+		matches!(self, Self::Idle | Self::Skipped)
+	}
 
-    /// Check if state is signaling that the behavior is completed
-    #[must_use]
-    pub const fn is_completed(&self) -> bool {
-        matches!(self, Self::Success | Self::Failure)
-    }
+	/// Check if state is signaling that the behavior is completed
+	#[must_use]
+	pub const fn is_completed(&self) -> bool {
+		matches!(self, Self::Success | Self::Failure)
+	}
 
-    /// Provide kind as a static str reference.
-    #[must_use]
-    pub const fn as_str(&self) -> &'static str {
-        match self {
-            Self::Idle => IDLE,
-            Self::Running => RUNNING,
-            Self::Success => SUCCESS,
-            Self::Failure => FAILURE,
-            Self::Skipped => SKIPPED,
-        }
-    }
+	/// Provide kind as a static str reference.
+	#[must_use]
+	pub const fn as_str(&self) -> &'static str {
+		match self {
+			Self::Idle => IDLE,
+			Self::Running => RUNNING,
+			Self::Success => SUCCESS,
+			Self::Failure => FAILURE,
+			Self::Skipped => SKIPPED,
+		}
+	}
 }
 
 impl core::fmt::Display for BehaviorState {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "{}", self.as_str())
+	}
 }
 
 impl core::str::FromStr for BehaviorState {
-    type Err = BehaviorError;
+	type Err = BehaviorError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.to_ascii_lowercase();
-        let res = match s.as_ref() {
-            "idle" => Self::Idle,
-            "running" => Self::Running,
-            "success" => Self::Success,
-            "failure" => Self::Failure,
-            "skipped" => Self::Skipped,
-            _ => {
-                return Err(BehaviorError::ParseError(
-                    s.into(),
-                    "BehaviorState::from_str()".into(),
-                ));
-            }
-        };
-        Ok(res)
-    }
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		let s = s.to_ascii_lowercase();
+		let res = match s.as_ref() {
+			"idle" => Self::Idle,
+			"running" => Self::Running,
+			"success" => Self::Success,
+			"failure" => Self::Failure,
+			"skipped" => Self::Skipped,
+			_ => {
+				return Err(BehaviorError::ParseError(s.into(), "BehaviorState::from_str()".into()));
+			}
+		};
+		Ok(res)
+	}
 }
 // endregion:   --- BehaviorState

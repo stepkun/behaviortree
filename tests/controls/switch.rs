@@ -31,52 +31,53 @@ const SWITCH2_TREE: &str = r#"
 #[case(Success, Failure, Failure, "1", Success)]
 #[case(Failure, Success, Failure, "42", Success)]
 async fn switch2(
-    #[case] input1: BehaviorState,
-    #[case] input2: BehaviorState,
-    #[case] default: BehaviorState,
-    #[case] case: &str,
-    #[case] expected: BehaviorState,
+	#[case] input1: BehaviorState,
+	#[case] input2: BehaviorState,
+	#[case] default: BehaviorState,
+	#[case] case: &str,
+	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
-    factory.register_behavior_type::<Switch<2>>("Switch2")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
+	factory.register_behavior_type::<Switch<2>>("Switch2")?;
 
-    let mut tree = factory.create_from_text(SWITCH2_TREE)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(SWITCH2_TREE)?;
+	drop(factory);
 
-    tree.blackboard_mut().set("var", String::from(case))?;
+	tree.blackboard_mut()
+		.set("var", String::from(case))?;
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    Ok(())
+	Ok(())
 }
 
 #[tokio::test]
 async fn switch_state_errors() -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Idle, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Idle, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Default", Running, Idle, 0)?;
-    factory.register_behavior_type::<Switch<2>>("Switch2")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Idle, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Idle, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Default", Running, Idle, 0)?;
+	factory.register_behavior_type::<Switch<2>>("Switch2")?;
 
-    let mut tree = factory.create_from_text(SWITCH2_TREE)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(SWITCH2_TREE)?;
+	drop(factory);
 
-    let result = tree.tick_once().await;
-    assert!(result.is_err());
-    Ok(())
+	let result = tree.tick_once().await;
+	assert!(result.is_err());
+	Ok(())
 }
 
 const SWITCH_5_TREE: &str = r#"
@@ -100,88 +101,60 @@ const SWITCH_5_TREE: &str = r#"
 #[case(Idle, Idle, Idle, Idle, Idle, Running, "default", Running)]
 #[case(Idle, Idle, Idle, Idle, Idle, Success, "default", Success)]
 #[case(Success, Success, Success, Success, Success, Failure, "24", Failure)]
-#[case(
-    Success, Failure, Failure, Failure, Failure, Failure, "string", Success
-)]
+#[case(Success, Failure, Failure, Failure, Failure, Failure, "string", Success)]
 #[case(Failure, Success, Failure, Failure, Failure, Failure, "1", Success)]
 #[case(Failure, Failure, Success, Failure, Failure, Failure, "BLUE", Success)]
 #[case(Failure, Failure, Success, Failure, Failure, Failure, "2", Success)]
 #[case(Idle, Idle, Idle, Idle, Idle, Failure, "3", Failure)]
-#[case(
-    Failure,
-    Failure,
-    Failure,
-    Success,
-    Failure,
-    Failure,
-    "3.1399999999999996",
-    Success
-)] // 09
+#[case(Failure, Failure, Failure, Success, Failure, Failure, "3.1399999999999996", Success)] // 09
 #[case(Failure, Failure, Failure, Failure, Success, Failure, "42", Success)]
-#[case(
-    Failure,
-    Failure,
-    Failure,
-    Failure,
-    Success,
-    Failure,
-    "the_answer",
-    Failure
-)]
-#[case(
-    Failure,
-    Failure,
-    Failure,
-    Failure,
-    Success,
-    Failure,
-    "{the_answer}",
-    Failure
-)]
+#[case(Failure, Failure, Failure, Failure, Success, Failure, "the_answer", Failure)]
+#[case(Failure, Failure, Failure, Failure, Success, Failure, "{the_answer}", Failure)]
 async fn switch5(
-    #[case] input1: BehaviorState,
-    #[case] input2: BehaviorState,
-    #[case] input3: BehaviorState,
-    #[case] input4: BehaviorState,
-    #[case] input5: BehaviorState,
-    #[case] default: BehaviorState,
-    #[case] case: &str,
-    #[case] expected: BehaviorState,
+	#[case] input1: BehaviorState,
+	#[case] input2: BehaviorState,
+	#[case] input3: BehaviorState,
+	#[case] input4: BehaviorState,
+	#[case] input5: BehaviorState,
+	#[case] default: BehaviorState,
+	#[case] case: &str,
+	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior3", Running, input3, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior4", Running, input4, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior5", Running, input5, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
-    factory.register_behavior_type::<Switch<5>>("Switch5")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior3", Running, input3, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior4", Running, input4, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior5", Running, input5, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
+	factory.register_behavior_type::<Switch<5>>("Switch5")?;
 
-    // register the Enum values: BLUE=2
-    factory.register_enum_tuple("GREEN", 1)?;
-    factory.register_enum_tuple("BLUE", 2)?;
+	// register the Enum values: BLUE=2
+	factory.register_enum_tuple("GREEN", 1)?;
+	factory.register_enum_tuple("BLUE", 2)?;
 
-    let mut tree = factory.create_from_text(SWITCH_5_TREE)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(SWITCH_5_TREE)?;
+	drop(factory);
 
-    tree.blackboard_mut().set("var", String::from(case))?;
+	tree.blackboard_mut()
+		.set("var", String::from(case))?;
 
-    // set the bb value 'the_answer'
-    tree.blackboard_mut().set("the_answer", 42)?;
+	// set the bb value 'the_answer'
+	tree.blackboard_mut().set("the_answer", 42)?;
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    Ok(())
+	Ok(())
 }
 
 const WRONG_TREE: &str = r#"
@@ -199,16 +172,16 @@ const WRONG_TREE: &str = r#"
 
 #[tokio::test]
 async fn switch_wrong_variable_definition() -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Success, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Success, 0)?;
-    register_behavior!(factory, ChangeStateAfter, "Default", Running, Success, 0)?;
-    factory.register_behavior_type::<Switch<2>>("Switch2")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Success, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Success, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Default", Running, Success, 0)?;
+	factory.register_behavior_type::<Switch<2>>("Switch2")?;
 
-    let mut tree = factory.create_from_text(WRONG_TREE)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(WRONG_TREE)?;
+	drop(factory);
 
-    let result = tree.tick_once().await;
-    assert!(result.is_err());
-    Ok(())
+	let result = tree.tick_once().await;
+	assert!(result.is_err());
+	Ok(())
 }

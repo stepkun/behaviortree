@@ -17,54 +17,54 @@ const TREE_DEFINITION: &str = r#"
 
 #[tokio::test]
 async fn was_entry_updated() -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    tree.blackboard_mut().set("test", 1)?;
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Failure);
-    tree.blackboard_mut().set("test", 2)?;
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
+	tree.blackboard_mut().set("test", 1)?;
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	tree.blackboard_mut().set("test", 2)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
 
-    tree.blackboard_mut().delete::<i32>("test")?;
-    tree.reset()?;
+	tree.blackboard_mut().delete::<i32>("test")?;
+	tree.reset()?;
 
-    tree.blackboard_mut().set("test", 1)?;
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Failure);
-    tree.blackboard_mut().set("test", 2)?;
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
+	tree.blackboard_mut().set("test", 1)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	tree.blackboard_mut().set("test", 2)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
 
-    Ok(())
+	Ok(())
 }
 
 #[tokio::test]
 async fn was_entry_updated_error() -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await;
-    assert!(result.is_err());
-    result = tree.tick_once().await;
-    assert!(result.is_err());
+	let mut result = tree.tick_once().await;
+	assert!(result.is_err());
+	result = tree.tick_once().await;
+	assert!(result.is_err());
 
-    tree.reset()?;
+	tree.reset()?;
 
-    assert!(result.is_err());
-    result = tree.tick_once().await;
-    assert!(result.is_err());
+	assert!(result.is_err());
+	result = tree.tick_once().await;
+	assert!(result.is_err());
 
-    Ok(())
+	Ok(())
 }

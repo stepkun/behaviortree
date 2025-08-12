@@ -51,88 +51,81 @@ struct PrintNumber {}
 
 #[async_trait::async_trait]
 impl BehaviorInstance for PrintNumber {
-    async fn tick(
-        &mut self,
-        behavior: &mut BehaviorData,
-        _children: &mut ConstBehaviorTreeElementList,
-        _runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        let value: i64 = behavior.get("val")?;
-        println!(
-            "PrintNumber [{}] has val: {value}",
-            behavior.description().name()
-        );
+	async fn tick(
+		&mut self,
+		behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		let value: i64 = behavior.get("val")?;
+		println!("PrintNumber [{}] has val: {value}", behavior.description().name());
 
-        Ok(BehaviorState::Success)
-    }
+		Ok(BehaviorState::Success)
+	}
 }
 
 impl BehaviorStatic for PrintNumber {
-    fn provided_ports() -> PortList {
-        port_list!(input_port!(i64, "val"),)
-    }
+	fn provided_ports() -> PortList {
+		port_list!(input_port!(i64, "val"),)
+	}
 }
 
 async fn example() -> BehaviorTreeResult {
-    // create an external blackboard which will survive the tree
-    let mut global_blackboard = SharedBlackboard::default();
-    // BT-Trees blackboard has global blackboard as parent
-    let root_blackboard = SharedBlackboard::with_parent(
-        "global",
-        global_blackboard.clone(),
-        ConstPortRemappings::default(),
-        false,
-    );
+	// create an external blackboard which will survive the tree
+	let mut global_blackboard = SharedBlackboard::default();
+	// BT-Trees blackboard has global blackboard as parent
+	let root_blackboard =
+		SharedBlackboard::with_parent("global", global_blackboard.clone(), ConstPortRemappings::default(), false);
 
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    register_behavior!(factory, PrintNumber, "PrintNumber")?;
+	register_behavior!(factory, PrintNumber, "PrintNumber")?;
 
-    factory.register_behavior_tree_from_text(XML)?;
+	factory.register_behavior_tree_from_text(XML)?;
 
-    let mut tree = factory.create_tree_with("MainTree", root_blackboard)?;
-    drop(factory);
+	let mut tree = factory.create_tree_with("MainTree", root_blackboard)?;
+	drop(factory);
 
-    // direct interaction with the global blackboard
-    for value in 1..=3 {
-        global_blackboard.set("value", value);
-        let result = tree.tick_once().await?;
-        assert_eq!(result, BehaviorState::Success);
+	// direct interaction with the global blackboard
+	for value in 1..=3 {
+		global_blackboard.set("value", value);
+		let result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
 
-        let value_sqr = global_blackboard.get::<i64>("@value_sqr")?;
-        if value_sqr != value * value {
-            return Ok(BehaviorState::Failure);
-        }
-        println!("[While loop] value: {value} value_sqr: {value_sqr}");
+		let value_sqr = global_blackboard.get::<i64>("@value_sqr")?;
+		if value_sqr != value * value {
+			return Ok(BehaviorState::Failure);
+		}
+		println!("[While loop] value: {value} value_sqr: {value_sqr}");
 
-        let value_pow3 = global_blackboard.get::<i64>("@value_pow3")?;
-        if value_pow3 != value * value * value {
-            return Ok(BehaviorState::Failure);
-        }
+		let value_pow3 = global_blackboard.get::<i64>("@value_pow3")?;
+		if value_pow3 != value * value * value {
+			return Ok(BehaviorState::Failure);
+		}
 
-        let value_pow4 = global_blackboard.get::<i64>("@value_pow4")?;
-        if value_pow4 != value * value * value * value {
-            return Ok(BehaviorState::Failure);
-        }
-    }
+		let value_pow4 = global_blackboard.get::<i64>("@value_pow4")?;
+		if value_pow4 != value * value * value * value {
+			return Ok(BehaviorState::Failure);
+		}
+	}
 
-    Ok(BehaviorState::Success)
+	Ok(BehaviorState::Success)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t16_global_blackboard() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	async fn t16_global_blackboard() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }

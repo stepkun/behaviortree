@@ -6,11 +6,11 @@ extern crate alloc;
 
 use behaviortree::prelude::*;
 use behaviortree::{
-    SHOULD_NOT_HAPPEN,
-    behavior::{
-        action::ChangeStateAfter,
-        control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
-    },
+	SHOULD_NOT_HAPPEN,
+	behavior::{
+		action::ChangeStateAfter,
+		control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
+	},
 };
 
 const TREE: &str = r#"
@@ -77,37 +77,37 @@ const TREE: &str = r#"
 
 #[tokio::test]
 async fn complex() -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "AlwaysFailure",
-        BehaviorState::Running,
-        BehaviorState::Failure,
-        5
-    )
-    .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "AlwaysSuccess",
-        BehaviorState::Running,
-        BehaviorState::Success,
-        5
-    )
-    .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, ParallelAll, "ParallelAll").expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"AlwaysFailure",
+		BehaviorState::Running,
+		BehaviorState::Failure,
+		5
+	)
+	.expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"AlwaysSuccess",
+		BehaviorState::Running,
+		BehaviorState::Success,
+		5
+	)
+	.expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, ParallelAll, "ParallelAll").expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
 
-    let mut tree = factory.create_from_text(TREE)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE)?;
+	drop(factory);
 
-    let mut result = tree.tick_while_running().await?;
-    assert_eq!(result, BehaviorState::Success);
-    tree.reset().expect(SHOULD_NOT_HAPPEN);
-    result = tree.tick_while_running().await?;
-    assert_eq!(result, BehaviorState::Success);
-    Ok(())
+	let mut result = tree.tick_while_running().await?;
+	assert_eq!(result, BehaviorState::Success);
+	tree.reset().expect(SHOULD_NOT_HAPPEN);
+	result = tree.tick_while_running().await?;
+	assert_eq!(result, BehaviorState::Success);
+	Ok(())
 }

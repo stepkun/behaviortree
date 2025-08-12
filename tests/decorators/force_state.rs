@@ -30,80 +30,61 @@ const TREE_DEFINITION: &str = r#"
 #[case(Success, Failure)]
 #[case(Failure, Success)]
 #[case(Success, Success)]
-async fn force_state(
-    #[case] input: BehaviorState,
-    #[case] expected: BehaviorState,
-) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input,
-        0
-    )?;
-    let bhvr_desc = BehaviorDescription::new(
-        "ForceState",
-        "ForceState",
-        ForceState::kind(),
-        true,
-        ForceState::provided_ports(),
-    );
-    let bhvr_creation_fn =
-        Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(expected)) });
-    factory
-        .registry_mut()
-        .add_behavior(bhvr_desc, bhvr_creation_fn)?;
+async fn force_state(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	let bhvr_desc = BehaviorDescription::new(
+		"ForceState",
+		"ForceState",
+		ForceState::kind(),
+		true,
+		ForceState::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(expected)) });
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    Ok(())
+	Ok(())
 }
 
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
 async fn force_state_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input,
-        0
-    )?;
-    let bhvr_desc = BehaviorDescription::new(
-        "ForceState",
-        "ForceState",
-        ForceState::kind(),
-        true,
-        ForceState::provided_ports(),
-    );
-    let bhvr_creation_fn =
-        Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(input)) });
-    factory
-        .registry_mut()
-        .add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	let bhvr_desc = BehaviorDescription::new(
+		"ForceState",
+		"ForceState",
+		ForceState::kind(),
+		true,
+		ForceState::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(input)) });
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let result = tree.tick_once().await;
-    assert!(result.is_err());
-    Ok(())
+	let result = tree.tick_once().await;
+	assert!(result.is_err());
+	Ok(())
 }

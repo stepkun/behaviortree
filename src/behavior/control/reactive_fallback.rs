@@ -9,12 +9,9 @@ use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
 use crate::{
-    Control, IDLE,
-    behavior::{
-        BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic,
-        error::BehaviorError,
-    },
-    tree::tree_element_list::ConstBehaviorTreeElementList,
+	Control, IDLE,
+	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -32,99 +29,96 @@ use crate::{
 ///            a single asynchronous child.
 #[derive(Control, Debug)]
 pub struct ReactiveFallback {
-    /// Defaults to '-1'
-    running_child_idx: i32,
+	/// Defaults to '-1'
+	running_child_idx: i32,
 }
 
 impl Default for ReactiveFallback {
-    fn default() -> Self {
-        Self {
-            running_child_idx: -1,
-        }
-    }
+	fn default() -> Self {
+		Self { running_child_idx: -1 }
+	}
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for ReactiveFallback {
-    #[inline]
-    fn on_halt(&mut self) -> Result<(), BehaviorError> {
-        self.running_child_idx = -1;
-        Ok(())
-    }
+	#[inline]
+	fn on_halt(&mut self) -> Result<(), BehaviorError> {
+		self.running_child_idx = -1;
+		Ok(())
+	}
 
-    #[inline]
-    fn on_start(
-        &mut self,
-        behavior: &mut BehaviorData,
-        _children: &mut ConstBehaviorTreeElementList,
-        _runtime: &SharedRuntime,
-    ) -> Result<(), BehaviorError> {
-        behavior.set_state(BehaviorState::Running);
-        Ok(())
-    }
+	#[inline]
+	fn on_start(
+		&mut self,
+		behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> Result<(), BehaviorError> {
+		behavior.set_state(BehaviorState::Running);
+		Ok(())
+	}
 
-    #[allow(clippy::cast_possible_truncation)]
-    #[allow(clippy::cast_possible_wrap)]
-    #[allow(clippy::cast_sign_loss)]
-    async fn tick(
-        &mut self,
-        _behavior: &mut BehaviorData,
-        children: &mut ConstBehaviorTreeElementList,
-        runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        let mut all_skipped = true;
-        self.running_child_idx = -1;
+	#[allow(clippy::cast_possible_truncation)]
+	#[allow(clippy::cast_possible_wrap)]
+	#[allow(clippy::cast_sign_loss)]
+	async fn tick(
+		&mut self,
+		_behavior: &mut BehaviorData,
+		children: &mut ConstBehaviorTreeElementList,
+		runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		let mut all_skipped = true;
+		self.running_child_idx = -1;
 
-        for child_idx in 0..children.len() {
-            let child = &mut children[child_idx];
-            let new_state = child.tick(runtime).await?;
+		for child_idx in 0..children.len() {
+			let child = &mut children[child_idx];
+			let new_state = child.tick(runtime).await?;
 
-            all_skipped &= new_state == BehaviorState::Skipped;
+			all_skipped &= new_state == BehaviorState::Skipped;
 
-            match new_state {
-                BehaviorState::Failure => {
-                    self.running_child_idx = -1;
-                }
-                BehaviorState::Idle => {
-                    return Err(BehaviorError::State("ReactiveFallback".into(), IDLE.into()));
-                }
-                BehaviorState::Running => {
-                    // halt previously running child
-                    if self.running_child_idx != (child_idx as i32) && self.running_child_idx != -1
-                    {
-                        children[self.running_child_idx as usize].halt_children(runtime)?;
-                    }
-                    self.running_child_idx = child_idx as i32;
-                    if self.running_child_idx == -1 {
-                        self.running_child_idx = child_idx as i32;
-                    } else if self.running_child_idx != (child_idx as i32) {
-                        // Multiple children running at the same time
-                        return Err(BehaviorError::Composition(
-                            "[ReactiveFallback]: Only a single child can return Running.".into(),
-                        ));
-                    }
-                    return Ok(BehaviorState::Running);
-                }
-                BehaviorState::Skipped => {
-                    child.halt_children(runtime)?;
-                }
-                BehaviorState::Success => {
-                    children.halt(runtime)?;
-                    self.running_child_idx = -1;
-                    return Ok(BehaviorState::Success);
-                }
-            }
-        }
+			match new_state {
+				BehaviorState::Failure => {
+					self.running_child_idx = -1;
+				}
+				BehaviorState::Idle => {
+					return Err(BehaviorError::State("ReactiveFallback".into(), IDLE.into()));
+				}
+				BehaviorState::Running => {
+					// halt previously running child
+					if self.running_child_idx != (child_idx as i32) && self.running_child_idx != -1 {
+						children[self.running_child_idx as usize].halt_children(runtime)?;
+					}
+					self.running_child_idx = child_idx as i32;
+					if self.running_child_idx == -1 {
+						self.running_child_idx = child_idx as i32;
+					} else if self.running_child_idx != (child_idx as i32) {
+						// Multiple children running at the same time
+						return Err(BehaviorError::Composition(
+							"[ReactiveFallback]: Only a single child can return Running.".into(),
+						));
+					}
+					return Ok(BehaviorState::Running);
+				}
+				BehaviorState::Skipped => {
+					child.halt_children(runtime)?;
+				}
+				BehaviorState::Success => {
+					children.halt(runtime)?;
+					self.running_child_idx = -1;
+					return Ok(BehaviorState::Success);
+				}
+			}
+		}
 
-        children.halt(runtime)?;
-        self.running_child_idx = -1;
+		children.halt(runtime)?;
+		self.running_child_idx = -1;
 
-        if all_skipped {
-            Ok(BehaviorState::Skipped)
-        } else {
-            Ok(BehaviorState::Failure)
-        }
-    }
+		if all_skipped {
+			Ok(BehaviorState::Skipped)
+		} else {
+			Ok(BehaviorState::Failure)
+		}
+	}
 }
 
 impl BehaviorStatic for ReactiveFallback {}

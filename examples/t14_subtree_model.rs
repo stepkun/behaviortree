@@ -39,98 +39,98 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    register_behavior!(factory, SaySomething, "SaySomething")?;
-    // register subtrees nodes
-    move_robot::register_behaviors(&mut factory)?;
+	register_behavior!(factory, SaySomething, "SaySomething")?;
+	// register subtrees nodes
+	move_robot::register_behaviors(&mut factory)?;
 
-    factory.register_behavior_tree_from_text(XML)?;
+	factory.register_behavior_tree_from_text(XML)?;
 
-    let mut tree = factory.create_tree("MainTree")?;
-    drop(factory);
+	let mut tree = factory.create_tree("MainTree")?;
+	drop(factory);
 
-    let result = tree.tick_while_running().await?;
-    Ok(result)
+	let result = tree.tick_while_running().await?;
+	Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t14_subtree_model() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	async fn t14_subtree_model() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }
 
 /// Implementation of `MoveRobot` tree
 mod move_robot {
-    #[allow(clippy::wildcard_imports)]
-    use super::*;
-    use behaviortree::{
-        behavior::{BehaviorData, BehaviorError},
-        factory::error::Error,
-    };
+	#[allow(clippy::wildcard_imports)]
+	use super::*;
+	use behaviortree::{
+		behavior::{BehaviorData, BehaviorError},
+		factory::error::Error,
+	};
 
-    use common::test_data::Pose2D;
+	use common::test_data::Pose2D;
 
-    /// Action `MoveBase`
-    #[derive(Action, Debug, Default)]
-    struct MoveBase {
-        counter: usize,
-    }
+	/// Action `MoveBase`
+	#[derive(Action, Debug, Default)]
+	struct MoveBase {
+		counter: usize,
+	}
 
-    #[async_trait::async_trait]
-    impl BehaviorInstance for MoveBase {
-        fn on_start(
-            &mut self,
-            behavior: &mut BehaviorData,
-            _children: &mut ConstBehaviorTreeElementList,
-            _runtime: &SharedRuntime,
-        ) -> Result<(), BehaviorError> {
-            let pos = behavior.get::<Pose2D>("goal")?;
+	#[async_trait::async_trait]
+	impl BehaviorInstance for MoveBase {
+		fn on_start(
+			&mut self,
+			behavior: &mut BehaviorData,
+			_children: &mut ConstBehaviorTreeElementList,
+			_runtime: &SharedRuntime,
+		) -> Result<(), BehaviorError> {
+			let pos = behavior.get::<Pose2D>("goal")?;
 
-            println!(
-                "[ MoveBase: SEND REQUEST ]. goal: x={:2.1} y={:2.1} theta={:2.1}",
-                pos.x, pos.y, pos.theta
-            );
+			println!(
+				"[ MoveBase: SEND REQUEST ]. goal: x={:2.1} y={:2.1} theta={:2.1}",
+				pos.x, pos.y, pos.theta
+			);
 
-            Ok(())
-        }
+			Ok(())
+		}
 
-        async fn tick(
-            &mut self,
-            _behavior: &mut BehaviorData,
-            _children: &mut ConstBehaviorTreeElementList,
-            _runtime: &SharedRuntime,
-        ) -> BehaviorResult {
-            if self.counter < 5 {
-                self.counter += 1;
-                println!("--- status: RUNNING");
-                Ok(BehaviorState::Running)
-            } else {
-                println!("[ MoveBase: FINISHED ]");
-                Ok(BehaviorState::Success)
-            }
-        }
-    }
+		async fn tick(
+			&mut self,
+			_behavior: &mut BehaviorData,
+			_children: &mut ConstBehaviorTreeElementList,
+			_runtime: &SharedRuntime,
+		) -> BehaviorResult {
+			if self.counter < 5 {
+				self.counter += 1;
+				println!("--- status: RUNNING");
+				Ok(BehaviorState::Running)
+			} else {
+				println!("[ MoveBase: FINISHED ]");
+				Ok(BehaviorState::Success)
+			}
+		}
+	}
 
-    impl BehaviorStatic for MoveBase {
-        fn provided_ports() -> PortList {
-            port_list!(input_port!(Pose2D, "goal"),)
-        }
-    }
+	impl BehaviorStatic for MoveBase {
+		fn provided_ports() -> PortList {
+			port_list!(input_port!(Pose2D, "goal"),)
+		}
+	}
 
-    pub fn register_behaviors(factory: &mut BehaviorTreeFactory) -> Result<(), Error> {
-        register_behavior!(factory, MoveBase, "MoveBase")
-    }
+	pub fn register_behaviors(factory: &mut BehaviorTreeFactory) -> Result<(), Error> {
+		register_behavior!(factory, MoveBase, "MoveBase")
+	}
 }

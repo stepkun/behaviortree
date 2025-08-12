@@ -27,33 +27,26 @@ const TREE_DEFINITION: &str = r#"
 #[case(Failure)]
 #[case(Success)]
 async fn run_once(#[case] input: BehaviorState) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input,
-        0
-    )?;
-    register_behavior!(factory, RunOnce, "RunOnce")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	register_behavior!(factory, RunOnce, "RunOnce")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, input);
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Skipped);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, input);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Skipped);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, input);
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Skipped);
+	result = tree.tick_once().await?;
+	assert_eq!(result, input);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Skipped);
 
-    Ok(())
+	Ok(())
 }
 
 const TREE_DEFINITION2: &str = r#"
@@ -73,54 +66,40 @@ const TREE_DEFINITION2: &str = r#"
 #[case(Failure)]
 #[case(Success)]
 async fn run_once_no_skip(#[case] input: BehaviorState) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input,
-        0
-    )?;
-    register_behavior!(factory, RunOnce, "RunOnce")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	register_behavior!(factory, RunOnce, "RunOnce")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION2)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION2)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, input);
-    result = tree.tick_once().await?;
-    assert_eq!(result, input);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, input);
+	result = tree.tick_once().await?;
+	assert_eq!(result, input);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, input);
-    result = tree.tick_once().await?;
-    assert_eq!(result, input);
+	result = tree.tick_once().await?;
+	assert_eq!(result, input);
+	result = tree.tick_once().await?;
+	assert_eq!(result, input);
 
-    Ok(())
+	Ok(())
 }
 
 #[tokio::test]
 #[rstest]
 #[case(Idle)]
 async fn run_once_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input,
-        0
-    )?;
-    register_behavior!(factory, RunOnce, "RunOnce")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	register_behavior!(factory, RunOnce, "RunOnce")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let result = tree.tick_once().await;
-    assert!(result.is_err());
-    Ok(())
+	let result = tree.tick_once().await;
+	assert!(result.is_err());
+	Ok(())
 }

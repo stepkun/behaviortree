@@ -42,53 +42,32 @@ const TREE_DEFINITION: &str = r#"
 #[case(Success, Skipped, Success, Success)]
 #[case(Success, Success, Success, Success)]
 async fn sequence_with_memory(
-    #[case] input1: BehaviorState,
-    #[case] input2: BehaviorState,
-    #[case] input3: BehaviorState,
-    #[case] expected: BehaviorState,
+	#[case] input1: BehaviorState,
+	#[case] input2: BehaviorState,
+	#[case] input3: BehaviorState,
+	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input1,
-        0
-    )?;
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior2",
-        BehaviorState::Running,
-        input2,
-        0
-    )?;
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior3",
-        BehaviorState::Running,
-        input3,
-        0
-    )?;
-    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
+	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected);
-    Ok(())
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected);
+	Ok(())
 }
 
 #[tokio::test]
@@ -101,43 +80,22 @@ async fn sequence_with_memory(
 #[case(Skipped, Skipped, Idle)]
 #[case(Success, Idle, Idle)]
 async fn sequence_with_memory_errors(
-    #[case] input1: BehaviorState,
-    #[case] input2: BehaviorState,
-    #[case] input3: BehaviorState,
+	#[case] input1: BehaviorState,
+	#[case] input2: BehaviorState,
+	#[case] input3: BehaviorState,
 ) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        input1,
-        0
-    )?;
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior2",
-        BehaviorState::Running,
-        input2,
-        0
-    )?;
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior3",
-        BehaviorState::Running,
-        input3,
-        0
-    )?;
-    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
+	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let result = tree.tick_once().await;
-    assert!(result.is_err());
-    Ok(())
+	let result = tree.tick_once().await;
+	assert!(result.is_err());
+	Ok(())
 }
 
 #[tokio::test]
@@ -145,43 +103,43 @@ async fn sequence_with_memory_errors(
 #[case(Success, Failure, Running, Running, Running, Success)]
 #[case(Failure, Success, Failure, Failure, Failure, Failure)]
 async fn sequence_with_memory_reactiveness1(
-    #[case] input1: BehaviorState,
-    #[case] input2: BehaviorState,
-    #[case] expected1: BehaviorState,
-    #[case] expected2: BehaviorState,
-    #[case] expected3: BehaviorState,
-    #[case] expected4: BehaviorState,
+	#[case] input1: BehaviorState,
+	#[case] input2: BehaviorState,
+	#[case] expected1: BehaviorState,
+	#[case] expected2: BehaviorState,
+	#[case] expected3: BehaviorState,
+	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
-    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
+	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, expected1);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected2);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected3);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected4);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, expected1);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected2);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected3);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected4);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected1);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected2);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected3);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected4);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected1);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected2);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected3);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected4);
 
-    Ok(())
+	Ok(())
 }
 
 #[tokio::test]
@@ -189,41 +147,41 @@ async fn sequence_with_memory_reactiveness1(
 #[case(Success, Failure, Running, Running, Running, Success)]
 #[case(Failure, Success, Running, Running, Failure, Running)]
 async fn sequence_with_memory_reactiveness2(
-    #[case] input1: BehaviorState,
-    #[case] input2: BehaviorState,
-    #[case] expected1: BehaviorState,
-    #[case] expected2: BehaviorState,
-    #[case] expected3: BehaviorState,
-    #[case] expected4: BehaviorState,
+	#[case] input1: BehaviorState,
+	#[case] input2: BehaviorState,
+	#[case] expected1: BehaviorState,
+	#[case] expected2: BehaviorState,
+	#[case] expected3: BehaviorState,
+	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
-    register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;
-    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
+	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;
+	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, expected1);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected2);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected3);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected4);
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, expected1);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected2);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected3);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected4);
 
-    tree.reset()?;
+	tree.reset()?;
 
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected1);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected2);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected3);
-    result = tree.tick_once().await?;
-    assert_eq!(result, expected4);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected1);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected2);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected3);
+	result = tree.tick_once().await?;
+	assert_eq!(result, expected4);
 
-    Ok(())
+	Ok(())
 }

@@ -24,159 +24,149 @@ const XML: &str = r#"
 /// Action `ActionA` has a different constructor than the default one.
 #[derive(Action, Debug, Default)]
 pub struct ActionA {
-    arg1: i32,
-    arg2: String,
+	arg1: i32,
+	arg2: String,
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for ActionA {
-    async fn tick(
-        &mut self,
-        behavior: &mut BehaviorData,
-        _children: &mut ConstBehaviorTreeElementList,
-        _runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        assert_eq!(self.arg1, 42);
+	async fn tick(
+		&mut self,
+		behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		assert_eq!(self.arg1, 42);
 
-        assert_eq!(self.arg2, String::from("hello world"));
-        println!(
-            "{}: {}, {}",
-            behavior.description().name(),
-            &self.arg1,
-            &self.arg2
-        );
-        Ok(BehaviorState::Success)
-    }
+		assert_eq!(self.arg2, String::from("hello world"));
+		println!("{}: {}, {}", behavior.description().name(), &self.arg1, &self.arg2);
+		Ok(BehaviorState::Success)
+	}
 }
 
 impl BehaviorStatic for ActionA {}
 
 impl ActionA {
-    /// Constructor with arguments.
-    #[must_use]
-    pub const fn new(arg1: i32, arg2: String) -> Self {
-        Self { arg1, arg2 }
-    }
+	/// Constructor with arguments.
+	#[must_use]
+	pub const fn new(arg1: i32, arg2: String) -> Self {
+		Self { arg1, arg2 }
+	}
 }
 
 /// Action `ActionB` implements an initialize(...) method that must be called once at the beginning.
 #[derive(Action, Debug, Default)]
 pub struct ActionB {
-    arg1: i32,
-    arg2: String,
+	arg1: i32,
+	arg2: String,
 }
 
 #[async_trait::async_trait]
 impl BehaviorInstance for ActionB {
-    async fn tick(
-        &mut self,
-        behavior: &mut BehaviorData,
-        _children: &mut ConstBehaviorTreeElementList,
-        _runtime: &SharedRuntime,
-    ) -> BehaviorResult {
-        assert_eq!(self.arg1, 69);
-        assert_eq!(self.arg2, String::from("interesting value"));
-        println!(
-            "{}: {}, {}",
-            behavior.description().name(),
-            &self.arg1,
-            &self.arg2
-        );
-        Ok(BehaviorState::Success)
-    }
+	async fn tick(
+		&mut self,
+		behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		assert_eq!(self.arg1, 69);
+		assert_eq!(self.arg2, String::from("interesting value"));
+		println!("{}: {}, {}", behavior.description().name(), &self.arg1, &self.arg2);
+		Ok(BehaviorState::Success)
+	}
 }
 
 impl BehaviorStatic for ActionB {}
 
 impl ActionB {
-    /// Initialization function.
-    pub fn initialize(&mut self, arg1: i32, arg2: String) {
-        self.arg1 = arg1;
-        self.arg2 = arg2;
-    }
+	/// Initialization function.
+	pub fn initialize(&mut self, arg1: i32, arg2: String) {
+		self.arg1 = arg1;
+		self.arg2 = arg2;
+	}
 }
 
 async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    register_behavior!(factory, ActionA, "Action_A", 42, "hello world".into())?;
-    register_behavior!(factory, ActionB, "Action_B")?;
+	register_behavior!(factory, ActionA, "Action_A", 42, "hello world".into())?;
+	register_behavior!(factory, ActionB, "Action_B")?;
 
-    let mut tree = factory.create_from_text(XML)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(XML)?;
+	drop(factory);
 
-    // initialize ActionB with the help of an iterator
-    for node in tree.iter_mut() {
-        if node.data().description().name().as_ref() == ("Action_B") {
-            let action = node
-                .behavior_mut()
-                .as_any_mut()
-                .downcast_mut::<ActionB>()
-                .expect(SHOULD_NOT_HAPPEN);
-            action.initialize(69, "interesting value".into());
-        }
-    }
+	// initialize ActionB with the help of an iterator
+	for node in tree.iter_mut() {
+		if node.data().description().name().as_ref() == ("Action_B") {
+			let action = node
+				.behavior_mut()
+				.as_any_mut()
+				.downcast_mut::<ActionB>()
+				.expect(SHOULD_NOT_HAPPEN);
+			action.initialize(69, "interesting value".into());
+		}
+	}
 
-    let result = tree.tick_while_running().await?;
+	let result = tree.tick_while_running().await?;
 
-    Ok((result, tree))
+	Ok((result, tree))
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t08_additional_node_args() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result.0, BehaviorState::Success);
+	#[tokio::test]
+	async fn t08_additional_node_args() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result.0, BehaviorState::Success);
 
-        // test the iterator
-        let mut iter = result.1.iter();
-        assert_eq!(
-            iter.next()
-                .expect(SHOULD_NOT_HAPPEN)
-                .data()
-                .description()
-                .name()
-                .as_ref(),
-            "MainTree"
-        );
-        assert_eq!(
-            iter.next()
-                .expect(SHOULD_NOT_HAPPEN)
-                .data()
-                .description()
-                .name()
-                .as_ref(),
-            "Sequence"
-        );
-        assert_eq!(
-            iter.next()
-                .expect(SHOULD_NOT_HAPPEN)
-                .data()
-                .description()
-                .name()
-                .as_ref(),
-            "Action_A"
-        );
-        assert_eq!(
-            iter.next()
-                .expect(SHOULD_NOT_HAPPEN)
-                .data()
-                .description()
-                .name()
-                .as_ref(),
-            "Action_B"
-        );
-        assert!(iter.next().is_none());
+		// test the iterator
+		let mut iter = result.1.iter();
+		assert_eq!(
+			iter.next()
+				.expect(SHOULD_NOT_HAPPEN)
+				.data()
+				.description()
+				.name()
+				.as_ref(),
+			"MainTree"
+		);
+		assert_eq!(
+			iter.next()
+				.expect(SHOULD_NOT_HAPPEN)
+				.data()
+				.description()
+				.name()
+				.as_ref(),
+			"Sequence"
+		);
+		assert_eq!(
+			iter.next()
+				.expect(SHOULD_NOT_HAPPEN)
+				.data()
+				.description()
+				.name()
+				.as_ref(),
+			"Action_A"
+		);
+		assert_eq!(
+			iter.next()
+				.expect(SHOULD_NOT_HAPPEN)
+				.data()
+				.description()
+				.name()
+				.as_ref(),
+			"Action_B"
+		);
+		assert!(iter.next().is_none());
 
-        Ok(())
-    }
+		Ok(())
+	}
 }

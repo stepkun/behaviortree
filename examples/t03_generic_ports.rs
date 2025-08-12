@@ -28,32 +28,32 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
-    register_behavior!(factory, CalculateGoal, "CalculateGoal")?;
-    register_behavior!(factory, PrintTarget, "PrintTarget")?;
+	register_behavior!(factory, CalculateGoal, "CalculateGoal")?;
+	register_behavior!(factory, PrintTarget, "PrintTarget")?;
 
-    let mut tree = factory.create_from_text(XML)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(XML)?;
+	drop(factory);
 
-    let result = tree.tick_while_running().await?;
-    Ok(result)
+	let result = tree.tick_while_running().await?;
+	Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t03_generic_ports() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	async fn t03_generic_ports() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }

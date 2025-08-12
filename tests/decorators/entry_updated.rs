@@ -29,55 +29,54 @@ const TREE_DEFINITION: &str = r#"
 #[case(Failure)]
 #[case(Success)]
 async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        BehaviorState::Success,
-        0
-    )?;
-    // @TODO: replace after creating the proper macro variant
-    //register_behavior!(factory, EntryUpdated, "EntryUpdated", input)?;
-    let bhvr_desc = BehaviorDescription::new(
-        "EntryUpdated",
-        "EntryUpdated",
-        EntryUpdated::kind(),
-        true,
-        EntryUpdated::provided_ports(),
-    );
-    let bhvr_creation_fn =
-        Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(EntryUpdated::new(input)) });
-    factory
-        .registry_mut()
-        .add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Behavior1",
+		BehaviorState::Running,
+		BehaviorState::Success,
+		0
+	)?;
+	// @TODO: replace after creating the proper macro variant
+	//register_behavior!(factory, EntryUpdated, "EntryUpdated", input)?;
+	let bhvr_desc = BehaviorDescription::new(
+		"EntryUpdated",
+		"EntryUpdated",
+		EntryUpdated::kind(),
+		true,
+		EntryUpdated::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(EntryUpdated::new(input)) });
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    tree.blackboard_mut().set("test", 1)?;
-    let mut result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
-    result = tree.tick_once().await?;
-    assert_eq!(result, input);
-    tree.blackboard_mut().set("test", 2)?;
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
+	tree.blackboard_mut().set("test", 1)?;
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, input);
+	tree.blackboard_mut().set("test", 2)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
 
-    tree.blackboard_mut().delete::<i32>("test")?;
-    tree.reset()?;
+	tree.blackboard_mut().delete::<i32>("test")?;
+	tree.reset()?;
 
-    tree.blackboard_mut().set("test", 1)?;
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
-    result = tree.tick_once().await?;
-    assert_eq!(result, input);
-    tree.blackboard_mut().set("test", 2)?;
-    result = tree.tick_once().await?;
-    assert_eq!(result, BehaviorState::Success);
+	tree.blackboard_mut().set("test", 1)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, input);
+	tree.blackboard_mut().set("test", 2)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
 
-    Ok(())
+	Ok(())
 }
 
 #[tokio::test]
@@ -88,34 +87,33 @@ async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
 #[case(Skipped)]
 #[case(Success)]
 async fn entry_updated_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "Behavior1",
-        BehaviorState::Running,
-        BehaviorState::Success,
-        0
-    )?;
-    // @TODO: replace after creating the proper macro variant
-    //register_behavior!(factory, EntryUpdated, "EntryUpdated", input)?;
-    let bhvr_desc = BehaviorDescription::new(
-        "EntryUpdated",
-        "EntryUpdated",
-        EntryUpdated::kind(),
-        true,
-        EntryUpdated::provided_ports(),
-    );
-    let bhvr_creation_fn =
-        Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(EntryUpdated::new(input)) });
-    factory
-        .registry_mut()
-        .add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Behavior1",
+		BehaviorState::Running,
+		BehaviorState::Success,
+		0
+	)?;
+	// @TODO: replace after creating the proper macro variant
+	//register_behavior!(factory, EntryUpdated, "EntryUpdated", input)?;
+	let bhvr_desc = BehaviorDescription::new(
+		"EntryUpdated",
+		"EntryUpdated",
+		EntryUpdated::kind(),
+		true,
+		EntryUpdated::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(EntryUpdated::new(input)) });
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
-    let mut tree = factory.create_from_text(TREE_DEFINITION)?;
-    drop(factory);
+	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
+	drop(factory);
 
-    let result = tree.tick_once().await;
-    assert!(result.is_err());
-    Ok(())
+	let result = tree.tick_once().await;
+	assert!(result.is_err());
+	Ok(())
 }

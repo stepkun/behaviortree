@@ -36,38 +36,38 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-    register_behavior!(factory, SaySomething, "SaySomething")?;
-    register_behavior!(factory, MoveBaseAction, "MoveBase")?;
+	register_behavior!(factory, SaySomething, "SaySomething")?;
+	register_behavior!(factory, MoveBaseAction, "MoveBase")?;
 
-    factory.register_behavior_tree_from_text(XML)?;
-    let mut tree = factory.create_tree("MainTree")?;
-    drop(factory);
+	factory.register_behavior_tree_from_text(XML)?;
+	let mut tree = factory.create_tree("MainTree")?;
+	drop(factory);
 
-    let result = tree.tick_while_running().await?;
-    assert_eq!(result, BehaviorState::Success);
-    println!("------ Root BB ------");
-    tree.subtree(0)?.blackboard().debug_message();
-    println!("----- Second BB -----");
-    tree.subtree(1)?.blackboard().debug_message();
-    Ok(result)
+	let result = tree.tick_while_running().await?;
+	assert_eq!(result, BehaviorState::Success);
+	println!("------ Root BB ------");
+	tree.subtree(0)?.blackboard().debug_message();
+	println!("----- Second BB -----");
+	tree.subtree(1)?.blackboard().debug_message();
+	Ok(result)
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    example().await?;
-    Ok(())
+	example().await?;
+	Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+	use super::*;
 
-    #[tokio::test]
-    async fn t06_subtree_port_remapping() -> Result<(), Error> {
-        let result = example().await?;
-        assert_eq!(result, BehaviorState::Success);
-        Ok(())
-    }
+	#[tokio::test]
+	async fn t06_subtree_port_remapping() -> Result<(), Error> {
+		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+		Ok(())
+	}
 }

@@ -9,16 +9,16 @@ extern crate alloc;
 use std::time::Duration;
 
 use behaviortree::{
-    SHOULD_NOT_HAPPEN,
-    behavior::{
-        Behavior,
-        BehaviorState::{Failure, Running, Success},
-        BehaviorStatic,
-        action::ChangeStateAfter,
-        control::{ReactiveSequence, SequenceWithMemory},
-    },
-    factory::BehaviorTreeFactory,
-    register_behavior,
+	SHOULD_NOT_HAPPEN,
+	behavior::{
+		Behavior,
+		BehaviorState::{Failure, Running, Success},
+		BehaviorStatic,
+		action::ChangeStateAfter,
+		control::{ReactiveSequence, SequenceWithMemory},
+	},
+	factory::BehaviorTreeFactory,
+	register_behavior,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 
@@ -84,75 +84,74 @@ const WITH_MEMORY: &str = r#"
 "#;
 
 fn sequence(c: &mut Criterion) {
-    let runtime = tokio::runtime::Builder::new_multi_thread()
-        .build()
-        .expect(SHOULD_NOT_HAPPEN);
+	let runtime = tokio::runtime::Builder::new_multi_thread()
+		.build()
+		.expect(SHOULD_NOT_HAPPEN);
 
-    let mut group = c.benchmark_group("sequence");
-    group.measurement_time(DURATION).sample_size(SAMPLES);
+	let mut group = c.benchmark_group("sequence");
+	group
+		.measurement_time(DURATION)
+		.sample_size(SAMPLES);
 
-    let mut factory = BehaviorTreeFactory::default();
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "AlwaysFailure",
-        Running,
-        Failure,
-        5
-    )
-    .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(
-        factory,
-        ChangeStateAfter,
-        "AlwaysSuccess",
-        Running,
-        Success,
-        5
-    )
-    .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5).expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
 
-    let mut tree = factory.create_from_text(STANDARD).expect(SHOULD_NOT_HAPPEN);
-    group.bench_function("standard", |b| {
-        b.iter(|| {
-            runtime.block_on(async {
-                for _ in 1..=ITERATIONS {
-                    tree.reset().expect(SHOULD_NOT_HAPPEN);
-                    let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
-                }
-                std::hint::black_box(());
-            });
-        });
-    });
+	let mut tree = factory
+		.create_from_text(STANDARD)
+		.expect(SHOULD_NOT_HAPPEN);
+	group.bench_function("standard", |b| {
+		b.iter(|| {
+			runtime.block_on(async {
+				for _ in 1..=ITERATIONS {
+					tree.reset().expect(SHOULD_NOT_HAPPEN);
+					let _result = tree
+						.tick_while_running()
+						.await
+						.expect(SHOULD_NOT_HAPPEN);
+				}
+				std::hint::black_box(());
+			});
+		});
+	});
 
-    let mut tree = factory.create_from_text(REACTIVE).expect(SHOULD_NOT_HAPPEN);
-    group.bench_function("reactive", |b| {
-        b.iter(|| {
-            runtime.block_on(async {
-                for _ in 1..=ITERATIONS {
-                    tree.reset().expect(SHOULD_NOT_HAPPEN);
-                    let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
-                }
-                std::hint::black_box(());
-            });
-        });
-    });
+	let mut tree = factory
+		.create_from_text(REACTIVE)
+		.expect(SHOULD_NOT_HAPPEN);
+	group.bench_function("reactive", |b| {
+		b.iter(|| {
+			runtime.block_on(async {
+				for _ in 1..=ITERATIONS {
+					tree.reset().expect(SHOULD_NOT_HAPPEN);
+					let _result = tree
+						.tick_while_running()
+						.await
+						.expect(SHOULD_NOT_HAPPEN);
+				}
+				std::hint::black_box(());
+			});
+		});
+	});
 
-    let mut tree = factory
-        .create_from_text(WITH_MEMORY)
-        .expect(SHOULD_NOT_HAPPEN);
-    group.bench_function("with memory", |b| {
-        b.iter(|| {
-            runtime.block_on(async {
-                for _ in 1..=ITERATIONS {
-                    tree.reset().expect(SHOULD_NOT_HAPPEN);
-                    let _result = tree.tick_while_running().await.expect(SHOULD_NOT_HAPPEN);
-                }
-                std::hint::black_box(());
-            });
-        });
-    });
+	let mut tree = factory
+		.create_from_text(WITH_MEMORY)
+		.expect(SHOULD_NOT_HAPPEN);
+	group.bench_function("with memory", |b| {
+		b.iter(|| {
+			runtime.block_on(async {
+				for _ in 1..=ITERATIONS {
+					tree.reset().expect(SHOULD_NOT_HAPPEN);
+					let _result = tree
+						.tick_while_running()
+						.await
+						.expect(SHOULD_NOT_HAPPEN);
+				}
+				std::hint::black_box(());
+			});
+		});
+	});
 }
 
 criterion_group!(benches, sequence);
