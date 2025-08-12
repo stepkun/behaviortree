@@ -37,7 +37,9 @@ impl BehaviorInstance for Timeout {
     #[inline]
     fn on_halt(&mut self) -> Result<(), BehaviorError> {
         #[cfg(feature = "std")]
-        { self.handle = None; }
+        {
+            self.handle = None;
+        }
         Ok(())
     }
 

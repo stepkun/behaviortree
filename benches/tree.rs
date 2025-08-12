@@ -15,10 +15,7 @@ use behaviortree::{
         BehaviorState::{Failure, Running, Success},
         BehaviorStatic,
         action::ChangeStateAfter,
-        control::{
-            Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
-            SequenceWithMemory,
-        },
+        control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
     },
     factory::{BehaviorTreeFactory, error::Error},
     register_behavior,
@@ -168,12 +165,9 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
         Success,
         5
     )?;
-    register_behavior!(factory, Fallback, "Fallback")?;
-    register_behavior!(factory, Parallel, "Parallel")?;
     register_behavior!(factory, ParallelAll, "ParallelAll")?;
     register_behavior!(factory, ReactiveFallback, "ReactiveFallback")?;
     register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
-    register_behavior!(factory, Sequence, "Sequence")?;
     register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
     factory
         .register_behavior_tree_from_text(SUBTREE)

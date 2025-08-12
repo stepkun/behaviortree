@@ -16,11 +16,14 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.2.0] - 2025-??-??
+## [0.2.0] - 2025-08-12
+
+Version 0.2.0 adds first support for embedded devices using embassy and ariel-os.
 
 ### Added
 - a prelude with common imports
 - t12 with JSON default values
+- embedded examples: t01_build_your_first_tree, t02_basic_ports, t03_generic_ports
 
 ### Changed
 - error types are now 'non_exhaustive'

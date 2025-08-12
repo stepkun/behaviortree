@@ -21,6 +21,7 @@ use crate::{
 // endregion:   --- modules
 
 // region:      --- Switch
+#[allow(rustdoc::invalid_html_tags)]
 /// The `Switch` behavior is equivalent to a C/C++ `switch` or a Rust `match` statement,
 /// where a certain branch (child) is executed according to the value of a variable.
 ///

@@ -11,6 +11,13 @@ pub extern crate alloc;
 pub extern crate tinyscript;
 
 // re-exports
+#[cfg(not(feature = "std"))]
+pub use alloc::{
+    boxed::Box,
+    str::FromStr,
+    string::{String, ToString},
+    vec::Vec,
+};
 pub use behaviortree_derive::{Action, Condition, Control, Decorator};
 pub use tinyscript::ScriptEnum;
 pub use tinyscript::SharedRuntime;

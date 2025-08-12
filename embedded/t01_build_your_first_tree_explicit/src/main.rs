@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 
-//! Embedded version of [t01_buid_your_first_tree](examples/t01_build_your_first_tree.rs)
+//! Embedded version of [t01_buid_your_first_tree_explicit](examples/t01_build_your_first_tree_explicit.rs)
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 
@@ -11,12 +11,12 @@ const XML: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">
 	<BehaviorTree ID="MainTree">
-		<Sequence name="root_sequence">
-			<CheckBattery	name="battery_ok"/>
-			<OpenGripper	name="open_gripper"/>
-			<ApproachObject	name="approach_object"/>
-			<CloseGripper	name="close_gripper"/>
-		</Sequence>
+		<Control ID="Sequence" name="root_sequence">
+			<Condition ID="CheckBattery"	name="battery_ok"/>
+			<Action ID="OpenGripper"		name="open_gripper"/>
+			<Action ID="ApproachObject"		name="approach_object"/>
+			<Action ID="CloseGripper"		name="close_gripper"/>
+		</Control>
 	</BehaviorTree>
 </root>
 "#;
@@ -119,7 +119,7 @@ async fn example() -> BehaviorResult {
 
 #[ariel_os::task(autostart)]
 async fn main() {
-    info!("running t01_build_your_first_tree...");
+    info!("running t01_build_your_first_tree_explicit...");
     match example().await {
         Ok(_) => {
             info!("...succeeded!");

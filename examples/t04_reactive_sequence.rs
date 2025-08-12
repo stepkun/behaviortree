@@ -45,7 +45,7 @@ const XML_REACTIVE: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
     register_behavior!(factory, check_battery, "BatteryOK", BehaviorKind::Condition)?;
     register_behavior!(factory, MoveBaseAction, "MoveBase")?;

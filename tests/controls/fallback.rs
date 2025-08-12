@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, control::Fallback};
+use behaviortree::behavior::action::ChangeStateAfter;
 use behaviortree::prelude::*;
 use rstest::rstest;
 
@@ -68,7 +68,6 @@ async fn simple_fallback(
         input3,
         0
     )?;
-    register_behavior!(factory, Fallback, "Fallback")?;
 
     let mut tree = factory.create_from_text(TREE_DEFINITION)?;
     drop(factory);
@@ -126,7 +125,6 @@ async fn simple_fallback_errors(
         input3,
         0
     )?;
-    register_behavior!(factory, Fallback, "Fallback")?;
 
     let mut tree = factory.create_from_text(TREE_DEFINITION)?;
     drop(factory);
@@ -152,7 +150,6 @@ async fn simple_fallback_reactiveness1(
     register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
-    register_behavior!(factory, Fallback, "Fallback")?;
 
     let mut tree = factory.create_from_text(TREE_DEFINITION)?;
     drop(factory);
@@ -196,7 +193,6 @@ async fn simple_fallback_reactiveness2(
     register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
     register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;
-    register_behavior!(factory, Fallback, "Fallback")?;
 
     let mut tree = factory.create_from_text(TREE_DEFINITION)?;
     drop(factory);

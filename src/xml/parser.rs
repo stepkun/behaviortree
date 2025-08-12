@@ -68,7 +68,7 @@ impl XmlParser {
         #[cfg(not(feature = "std"))]
         let doc = match Document::parse(xml) {
             Ok(doc) => doc,
-            Err(_err) => return Err(Error::XmlParser)
+            Err(_err) => return Err(Error::XmlParser),
         };
         let root = doc.root_element();
         if root.tag_name().name() != "root" {
@@ -307,7 +307,7 @@ impl XmlParser {
                 #[cfg(not(feature = "std"))]
                 let doc = match Document::parse(&definition) {
                     Ok(doc) => doc,
-                    Err(_err) => return Err(Error::XmlParser)
+                    Err(_err) => return Err(Error::XmlParser),
                 };
                 let node = doc.root_element();
                 // look for the "SubTree" behavior in the `BehaviorRegistry` and create it.
@@ -463,7 +463,7 @@ impl XmlParser {
                             #[cfg(not(feature = "std"))]
                             let doc = match Document::parse(&definition) {
                                 Ok(doc) => doc,
-                                Err(_err) => return Err(Error::XmlParser)
+                                Err(_err) => return Err(Error::XmlParser),
                             };
                             let node = doc.root_element();
                             // A SubTree gets a new Blackboard with parent and remappings.

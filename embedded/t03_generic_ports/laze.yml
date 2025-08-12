@@ -1,0 +1,4 @@
+apps:
+  - name: t03_generic_ports
+    selects:
+      - alloc

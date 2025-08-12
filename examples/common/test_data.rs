@@ -69,6 +69,7 @@ impl GripperInterface {
         Ok(BehaviorState::Success)
     }
 }
+
 /// Action `SaySomething`
 /// Example of custom `ActionNode` (synchronous action) with an input port.
 #[derive(Action, Debug, Default)]

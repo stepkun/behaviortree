@@ -5,10 +5,7 @@
 extern crate alloc;
 
 use behaviortree::prelude::*;
-use behaviortree::{
-    BehaviorTreeObserver, SHOULD_NOT_HAPPEN,
-    behavior::{action::ChangeStateAfter, control::Fallback},
-};
+use behaviortree::{BehaviorTreeObserver, SHOULD_NOT_HAPPEN, behavior::action::ChangeStateAfter};
 
 const TREE: &str = r#"
 <root BTCPP_format="4"
@@ -44,7 +41,6 @@ async fn tree_observer() -> Result<(), Error> {
         2
     )
     .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Fallback, "Fallback").expect(SHOULD_NOT_HAPPEN);
 
     let mut tree = factory.create_from_text(TREE)?;
     let observer = BehaviorTreeObserver::new(&mut tree);

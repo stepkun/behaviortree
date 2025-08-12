@@ -9,7 +9,10 @@ extern crate std;
 // region:      --- modules
 #[cfg(feature = "std")]
 use alloc::vec::Vec;
-use alloc::{string::{String, ToString}, sync::Arc};
+use alloc::{
+    string::{String, ToString},
+    sync::Arc,
+};
 #[cfg(feature = "std")]
 use libloading::Library;
 use spin::Mutex;
@@ -19,6 +22,10 @@ use tokio::sync::mpsc;
 #[cfg(feature = "std")]
 use uuid::Uuid;
 
+#[cfg(feature = "std")]
+use crate::tree::observer::groot2_connector::{
+    GROOT_STATE, Groot2ConnectorData, attach_groot_callback,
+};
 use crate::{
     behavior::{BehaviorError, BehaviorResult, BehaviorState},
     blackboard::SharedBlackboard,
@@ -28,8 +35,6 @@ use crate::{
         tree_iter::{TreeIter, TreeIterMut},
     },
 };
-#[cfg(feature = "std")]
-use crate::tree::observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback};
 
 use super::{error::Error, tree_element::BehaviorTreeElement};
 // endregion:   --- modules
@@ -247,17 +252,12 @@ impl BehaviorTree {
         {
             tokio::task::yield_now().await;
         }
-        #[cfg(not(feature = "std"))]
-        {
-            todo!();
-        }
 
         // handle eventually pending messages
         #[cfg(feature = "std")]
         while let Ok(message) = self.rx.try_recv() {
             self.handle_message(message);
         }
-        #[cfg(feature = "std")]
         Ok(state)
     }
 

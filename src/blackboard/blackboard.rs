@@ -18,7 +18,7 @@ use crate::port::ConstPortRemappings;
 
 // region:      --- Blackboard
 /// Implementation of a [`Blackboard`] with a possible parent, a [`SharedBlackboard`],
-/// internal & external remappings and/or value assignments, all as [`PortRemappings`].
+/// internal & external remappings and/or value assignments, all as [`ConstPortRemappings`].
 ///
 /// Access to the fields is public within this module.
 #[derive(Debug, Default)]

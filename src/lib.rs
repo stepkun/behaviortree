@@ -1,7 +1,9 @@
 // Copyright © 2024 Stephan Kunz
 #![no_std]
+#![doc = include_str!("../README.md")]
 
-//! Behavior tree library similar to [BehaviorTree.CPP](https://www.behaviortree.dev).
+#[cfg(doctest)]
+doc_comment::doctest!("../README.md");
 
 #[doc(hidden)]
 extern crate alloc;
@@ -170,7 +172,7 @@ macro_rules! register_behavior {
 }
 
 /// Macro to register enums for scripting.
-/// Enum must derive [`ScriptEnum`].
+/// Enum must derive [`ScriptEnum`](https://docs.rs/tinyscript/latest/tinyscript/trait.ScriptEnum.html).
 /// It is also possible to register discrete value(s).
 ///
 /// # Usage:

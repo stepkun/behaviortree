@@ -1,5 +1,5 @@
 [package]
-name = "t01_build_your_first_tree"
+name = "t03_generic_ports"
 edition = "2024"
 license = "MIT/Apache-2.0"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]

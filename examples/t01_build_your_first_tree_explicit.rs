@@ -13,7 +13,7 @@ use behaviortree::prelude::*;
 use common::test_data::{ApproachObject, GripperInterface, check_battery};
 
 /// This definition uses explicit node ID's
-const XML_EXPLICIT: &str = r#"
+const XML: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">
 	<BehaviorTree ID="MainTree">
@@ -28,7 +28,7 @@ const XML_EXPLICIT: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::default();
 
     // The recommended way to create a Behavior is through inheritance/composition.
     // Even if it requires more boilerplate, it allows you to use more functionalities
@@ -55,7 +55,7 @@ async fn example() -> BehaviorTreeResult {
         BehaviorKind::Action,
     )?;
 
-    let mut tree = factory.create_from_text(XML_EXPLICIT)?;
+    let mut tree = factory.create_from_text(XML)?;
     // dropping the factory to free memory
     drop(factory);
 

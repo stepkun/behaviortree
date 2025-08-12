@@ -13,11 +13,7 @@ extern crate std;
 use crate::{ConstString, behavior::SubTree};
 #[cfg(feature = "std")]
 use alloc::string::ToString;
-use alloc::{
-    boxed::Box,
-    string::String,
-    vec::Vec,
-};
+use alloc::{boxed::Box, string::String, vec::Vec};
 use roxmltree::Document;
 
 #[cfg(feature = "std")]
@@ -48,6 +44,16 @@ use super::{behavior_registry::BehaviorRegistry, error::Error};
 
 // region:      --- BehaviorTreeFactory
 /// Factory for creation and modification of [`BehaviorTree`]s
+/// The default factory contains the elementary behavior controls:
+/// - [`Fallback`]: the standard fallback control
+/// - [`Sequence`]: the standard sequence control
+/// - [`Parallel`]: the standard parallel contol with the ports
+///   - `success_count`: the minimum of child successes to return Success
+///   - `failure_count`: the maximum of child failures to return Success
+///     (equivalent to the minimum of child failures to return Failure)
+///
+/// Note: Internally necessary is also
+/// - `SubTree`: to enable sub trees
 pub struct BehaviorTreeFactory {
     registry: BehaviorRegistry,
 }
@@ -58,8 +64,17 @@ impl Default for BehaviorTreeFactory {
             registry: BehaviorRegistry::default(),
         };
         // minimum required behaviors for the factory to work
+        // controls
+        f.register_groot2_behavior_type::<Fallback>("Fallback")
+            .expect("creating factory failed due to registration of [Fallback]");
+        f.register_groot2_behavior_type::<Parallel>("Parallel")
+            .expect("creating factory failed due to registration of [Parallel]");
+        f.register_groot2_behavior_type::<Sequence>("Sequence")
+            .expect("creating factory failed due to registration of [Sequence]");
+        // subtree
         f.register_groot2_behavior_type::<SubTree>("SubTree")
             .expect("creating default factory failed due to registration of [SubTree]");
+
         f
     }
 }
@@ -122,9 +137,10 @@ impl BehaviorTreeFactory {
         self.register_groot2_behavior_type::<WasEntryUpdated>("WasEntryUpdated")?;
 
         // controls
-        self.register_groot2_behavior_type::<Fallback>("Fallback")?;
-        self.register_groot2_behavior_type::<Parallel>("Parallel")?;
-        self.register_groot2_behavior_type::<Sequence>("Sequence")?;
+        self.register_groot2_behavior_type::<ParallelAll>("ParallelAll")?;
+        self.register_groot2_behavior_type::<ReactiveFallback>("ReactiveFallback")?;
+        self.register_groot2_behavior_type::<ReactiveSequence>("ReactiveSequence")?;
+        self.register_groot2_behavior_type::<SequenceWithMemory>("SequenceWithMemory")?;
 
         // decorators
         self.register_groot2_behavior_type::<Inverter>("Inverter")?;
@@ -259,10 +275,6 @@ impl BehaviorTreeFactory {
 
         // controls
         self.register_groot2_behavior_type::<IfThenElse>("IfThenElse")?;
-        self.register_groot2_behavior_type::<ParallelAll>("ParallelAll")?;
-        self.register_groot2_behavior_type::<ReactiveFallback>("ReactiveFallback")?;
-        self.register_groot2_behavior_type::<ReactiveSequence>("ReactiveSequence")?;
-        self.register_groot2_behavior_type::<SequenceWithMemory>("SequenceWithMemory")?;
         self.register_groot2_behavior_type::<WhileDoElse>("WhileDoElse")?;
 
         // decorators
@@ -376,7 +388,7 @@ impl BehaviorTreeFactory {
         #[cfg(not(feature = "std"))]
         let doc = match Document::parse(xml) {
             Ok(doc) => doc,
-            Err(_err) => return Err(Error::XmlParser)
+            Err(_err) => return Err(Error::XmlParser),
         };
         let root = doc.root_element();
         if root.tag_name().name() != "root" {

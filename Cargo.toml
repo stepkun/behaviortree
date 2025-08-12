@@ -78,6 +78,7 @@ zeromq = { version = "0.4.1", default-features = false, features = ["tcp-transpo
 
 [dev-dependencies]
 criterion = "0.7.0"
+doc-comment = "0.3.3"
 rstest = "0.26.1"
 trybuild = { version = "1.0.110", features = ["diff"] }
 

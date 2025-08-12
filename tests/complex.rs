@@ -9,10 +9,7 @@ use behaviortree::{
     SHOULD_NOT_HAPPEN,
     behavior::{
         action::ChangeStateAfter,
-        control::{
-            Fallback, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence,
-            SequenceWithMemory,
-        },
+        control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
     },
 };
 
@@ -99,12 +96,9 @@ async fn complex() -> Result<(), Error> {
         5
     )
     .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Fallback, "Fallback").expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Parallel, "Parallel").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, ParallelAll, "ParallelAll").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Sequence, "Sequence").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
 
     let mut tree = factory.create_from_text(TREE)?;

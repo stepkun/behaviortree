@@ -5,5 +5,8 @@ defaults:
 
 subdirs:
   - t01_build_your_first_tree
+  - t01_build_your_first_tree_explicit
+  - t02_basic_ports
+  - t03_generic_ports
 #  - testing
 #  - benchmark

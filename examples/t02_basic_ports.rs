@@ -29,7 +29,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-    let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+    let mut factory = BehaviorTreeFactory::default();
 
     // The struct SaySomething has a method called ports() that defines the INPUTS.
     // In this case, it requires an input called "message"

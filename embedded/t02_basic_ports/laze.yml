@@ -1,0 +1,4 @@
+apps:
+  - name: t02_basic_ports
+    selects:
+      - alloc

@@ -15,7 +15,7 @@ use behaviortree::{
         BehaviorState::{Running, Success},
         BehaviorStatic,
         action::ChangeStateAfter,
-        control::{Parallel, ParallelAll, Sequence},
+        control::ParallelAll,
     },
     factory::BehaviorTreeFactory,
     register_behavior,
@@ -92,9 +92,7 @@ fn parallel(c: &mut Criterion) {
         5
     )
     .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Parallel, "Parallel").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, ParallelAll, "ParallelAll").expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Sequence, "Sequence").expect(SHOULD_NOT_HAPPEN);
     factory
         .register_behavior_tree_from_text(SUBTREE)
         .expect(SHOULD_NOT_HAPPEN);

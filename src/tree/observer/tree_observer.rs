@@ -113,7 +113,7 @@ impl BehaviorTreeObserver {
         Self { statistics }
     }
 
-    /// Get the [`Statistics`] for a [`BehaviorTreeElement`](crate::tree::BehaviorTreeElement) using its uid.
+    /// Get the [`Statistics`] for a [`BehaviorTreeElement`](crate::tree::tree_element::BehaviorTreeElement) using its uid.
     #[must_use]
     pub fn get_statistics(&self, uid: u16) -> Option<Statistics> {
         if self.statistics.lock().len() >= uid as usize {

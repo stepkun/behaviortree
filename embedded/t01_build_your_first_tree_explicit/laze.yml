@@ -1,0 +1,4 @@
+apps:
+  - name: t01_build_your_first_tree_explicit
+    selects:
+      - alloc

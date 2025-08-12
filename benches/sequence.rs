@@ -15,7 +15,7 @@ use behaviortree::{
         BehaviorState::{Failure, Running, Success},
         BehaviorStatic,
         action::ChangeStateAfter,
-        control::{ReactiveSequence, Sequence, SequenceWithMemory},
+        control::{ReactiveSequence, SequenceWithMemory},
     },
     factory::BehaviorTreeFactory,
     register_behavior,
@@ -110,7 +110,6 @@ fn sequence(c: &mut Criterion) {
         5
     )
     .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Sequence, "Sequence").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
 

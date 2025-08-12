@@ -15,7 +15,7 @@ use behaviortree::{
         BehaviorState::{Failure, Running, Success},
         BehaviorStatic,
         action::ChangeStateAfter,
-        control::{Fallback, ReactiveFallback},
+        control::ReactiveFallback,
     },
     factory::BehaviorTreeFactory,
     register_behavior,
@@ -91,7 +91,6 @@ fn fallback(c: &mut Criterion) {
         5
     )
     .expect(SHOULD_NOT_HAPPEN);
-    register_behavior!(factory, Fallback, "Fallback").expect(SHOULD_NOT_HAPPEN);
     register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect(SHOULD_NOT_HAPPEN);
 
     let mut tree = factory.create_from_text(STANDARD).expect(SHOULD_NOT_HAPPEN);
