@@ -80,6 +80,7 @@ const FAILURE: &str = "Failure";
 const SKIPPED: &str = "Skipped";
 
 /// Global constant for expect statements that should never happen
+#[doc(hidden)]
 pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
 
 // endregion:	--- literal constants
