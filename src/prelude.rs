@@ -11,7 +11,6 @@ pub extern crate alloc;
 pub extern crate tinyscript;
 
 // re-exports
-#[cfg(not(feature = "std"))]
 pub use alloc::{
 	boxed::Box,
 	str::FromStr,

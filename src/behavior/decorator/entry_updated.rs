@@ -4,9 +4,11 @@
 //!
 
 // region:      --- modules
-use alloc::boxed::Box;
-use alloc::string::String;
 use alloc::sync::Arc;
+use alloc::{
+	boxed::Box,
+	string::{String, ToString},
+};
 use tinyscript::SharedRuntime;
 
 use crate as behaviortree;

@@ -3,7 +3,7 @@
 //! Built in [`Delay`] decorator
 
 // region:      --- modules
-use alloc::boxed::Box;
+use alloc::{boxed::Box, string::ToString};
 #[cfg(feature = "std")]
 use core::time::Duration;
 use tinyscript::SharedRuntime;
