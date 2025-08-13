@@ -1,6 +1,6 @@
-// Copyright © 2024 Stephan Kunz
+// Copyright © 2025 Stephan Kunz
 
-//! Most commonly used interface of `behaviortree`.
+//! Most commonly used interfaces of `behaviortree`.
 //!
 //! Typically it is sufficient to include the prelude with
 //!

@@ -3,22 +3,16 @@
 
 //! Benchmarks of parallel behaviors [`Parallel`] and [`ParallelAll`]
 
-#[doc(hidden)]
-extern crate alloc;
-
 use std::time::Duration;
 
 use behaviortree::{
 	SHOULD_NOT_HAPPEN,
 	behavior::{
-		Behavior,
 		BehaviorState::{Running, Success},
-		BehaviorStatic,
 		action::ChangeStateAfter,
 		control::ParallelAll,
 	},
-	factory::BehaviorTreeFactory,
-	register_behavior,
+	prelude::*,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 

@@ -6,9 +6,6 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t10_observer.cpp)
 //!
 
-#[cfg(feature = "std")]
-extern crate std;
-
 use behaviortree::{BehaviorTreeObserver, prelude::*};
 
 const XML: &str = r#"

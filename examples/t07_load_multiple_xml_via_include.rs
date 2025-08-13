@@ -7,7 +7,6 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t07_load_multiple_xml.cpp)
 //!
 
-#[path = "./common/mod.rs"]
 mod common;
 
 use behaviortree::prelude::*;

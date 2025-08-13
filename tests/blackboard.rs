@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-#![allow(unused)]
 
 //! Tests for [`Blackboard`] and [`BlackboardNode`]
 
@@ -99,7 +98,9 @@ fn blackboard_node_with_parent() {
 	assert_eq!(old, None);
 
 	let mut remappings = PortRemappings::default();
-	remappings.add(&"test".into(), &"test1".into());
+	remappings
+		.add(&"test".into(), &"test1".into())
+		.expect(SHOULD_NOT_HAPPEN);
 	let mut node = SharedBlackboard::with_parent("level0", level0, remappings.into(), true);
 
 	let old = node
@@ -135,15 +136,21 @@ fn blackboard_node_hierarchy() {
 	let mut level0 = SharedBlackboard::new("level0");
 
 	let mut remappings1 = PortRemappings::default();
-	remappings1.add(&"levelB".into(), &"levelA".into());
+	remappings1
+		.add(&"levelB".into(), &"levelA".into())
+		.expect(SHOULD_NOT_HAPPEN);
 	let mut level1 = SharedBlackboard::with_parent("level1", level0.clone(), remappings1.into(), true);
 
 	let mut remappings2 = PortRemappings::default();
-	remappings2.add(&"levelC".into(), &"levelB".into());
+	remappings2
+		.add(&"levelC".into(), &"levelB".into())
+		.expect(SHOULD_NOT_HAPPEN);
 	let mut level2 = SharedBlackboard::with_parent("level2", level1.clone(), remappings2.into(), true);
 
 	let mut remappings3 = PortRemappings::default();
-	remappings3.add(&"levelD".into(), &"levelC".into());
+	remappings3
+		.add(&"levelD".into(), &"levelC".into())
+		.expect(SHOULD_NOT_HAPPEN);
 	let mut level3 = SharedBlackboard::with_parent("level3", level2.clone(), remappings3.into(), true);
 
 	let old = level0
@@ -195,7 +202,7 @@ fn blackboard_node_hierarchy() {
 	assert_eq!(value, String::from("changed0"));
 	let old = level3.set("level0", 42);
 	assert!(old.is_err());
-	let old = level3
+	let _ = level3
 		.delete::<String>("level0")
 		.expect(SHOULD_NOT_HAPPEN);
 	assert_eq!(value, String::from("changed0"));
@@ -225,7 +232,7 @@ fn blackboard_node_hierarchy() {
 	assert_eq!(value, String::from("changedD"));
 	let old = level3.set("levelD", 42);
 	assert!(old.is_err());
-	let old = level3
+	let _ = level3
 		.delete::<String>("levelD")
 		.expect(SHOULD_NOT_HAPPEN);
 	assert_eq!(value, String::from("changedD"));

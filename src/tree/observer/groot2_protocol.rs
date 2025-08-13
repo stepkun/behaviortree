@@ -5,19 +5,13 @@
 
 extern crate std;
 
-use alloc::borrow::ToOwned;
 // region:      --- modules
-use alloc::string::ToString;
 use bytes::{BufMut, Bytes, BytesMut};
-use core::default;
 use core::fmt::Display;
 use spin::Mutex;
 use uuid::Uuid;
 
-use crate::ConstString;
 use crate::behavior::BehaviorState;
-
-use crate::tree::tree::BehaviorTree;
 // endregion:   --- modules
 
 // region:      --- Groot2RequestType
@@ -288,7 +282,7 @@ mod tests {
 	fn de_serialization() {
 		let header = Groot2RequestHeader {
 			uid: [1, 2, 3, 4],
-			protocol_id: 2,
+			protocol_id: PROTOCOL_ID,
 			rq_type: Groot2RequestType::FullTree,
 		};
 		let bytes = Bytes::from(&header);

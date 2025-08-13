@@ -146,7 +146,7 @@ macro_rules! register_behavior {
 		})+;
 		res
 	}};
-	// the behavior structs need to be last!
+	// the behavior structs handling needs to be last!
 	// behavior struct
 	($factory:expr, $tp:ty, $name:literal $(,)?) => {{
 		$factory.register_behavior_type::<$tp>($name)

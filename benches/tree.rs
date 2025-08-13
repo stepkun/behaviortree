@@ -3,22 +3,16 @@
 
 //! Benchmarks of complex scenario
 
-#[doc(hidden)]
-extern crate alloc;
-
 use std::time::Duration;
 
 use behaviortree::{
 	BehaviorTreeObserver, Groot2Connector, SHOULD_NOT_HAPPEN,
 	behavior::{
-		Behavior,
 		BehaviorState::{Failure, Running, Success},
-		BehaviorStatic,
 		action::ChangeStateAfter,
 		control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
 	},
-	factory::{BehaviorTreeFactory, error::Error},
-	register_behavior,
+	prelude::*,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 use tokio::try_join;

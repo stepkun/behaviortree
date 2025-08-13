@@ -1,13 +1,10 @@
 // Copyright © 2025 Stephan Kunz
-#![allow(unused)]
 
 //! This test implements the sixteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
 //!
 //! [tutorial:](https://https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_16_global_blackboard)
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t16_global_blackboard.cpp)
 //!
-
-extern crate alloc;
 
 use behaviortree::{port::ConstPortRemappings, prelude::*};
 
@@ -88,7 +85,7 @@ async fn example() -> BehaviorTreeResult {
 
 	// direct interaction with the global blackboard
 	for value in 1..=3 {
-		global_blackboard.set("value", value);
+		global_blackboard.set("value", value)?;
 		let result = tree.tick_once().await?;
 		assert_eq!(result, BehaviorState::Success);
 

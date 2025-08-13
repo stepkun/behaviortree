@@ -7,7 +7,6 @@
 
 // //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_18_XXX)
 
-extern crate alloc;
 mod common;
 
 use behaviortree::{

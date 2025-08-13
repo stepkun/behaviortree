@@ -5,15 +5,9 @@
 //! Cross door behaviors
 //!
 
-extern crate alloc;
-
 use std::{sync::Arc, thread, time::Duration};
 
-use behaviortree::{
-	BehaviorTreeFactory, Error,
-	behavior::{BehaviorKind, BehaviorResult, BehaviorState},
-	register_behavior,
-};
+use behaviortree::prelude::*;
 #[cfg(feature = "std")]
 use rand::Rng;
 use spin::Mutex;

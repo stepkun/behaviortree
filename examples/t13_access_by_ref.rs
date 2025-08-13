@@ -6,12 +6,9 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t13_access_by_ref.cpp)
 //!
 
-extern crate alloc;
-
 use std::{
 	fmt::{Display, Formatter},
 	num::ParseIntError,
-	str::FromStr,
 };
 
 use behaviortree::prelude::*;

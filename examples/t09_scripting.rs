@@ -6,8 +6,6 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t09_scripting.cpp)
 //!
 
-#[doc(hidden)]
-extern crate alloc;
 mod common;
 
 use behaviortree::prelude::*;

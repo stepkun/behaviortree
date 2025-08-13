@@ -66,19 +66,20 @@ impl PortDefinition {
 
 	/// Get the default value.
 	#[must_use]
-	pub fn default_value(&self) -> Option<ConstString> {
+	pub fn default_value(&self) -> Option<&ConstString> {
 		if self.default_value.is_empty() {
 			None
 		} else {
-			Some(self.default_value.clone())
+			Some(&self.default_value)
 		}
 	}
 
+	#[must_use]
 	pub(crate) const fn type_name(&self) -> &ConstString {
 		&self.type_name
 	}
 
-	#[allow(unused)]
+	#[must_use]
 	pub(crate) const fn description(&self) -> &ConstString {
 		&self.description
 	}

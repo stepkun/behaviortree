@@ -6,12 +6,7 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t12_default_ports.cpp)
 //!
 
-extern crate alloc;
-
-use core::{
-	fmt::{Display, Formatter},
-	str::FromStr,
-};
+use core::fmt::{Display, Formatter};
 
 use behaviortree::prelude::*;
 use nanoserde::{DeJson, SerJson};

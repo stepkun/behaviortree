@@ -3,22 +3,16 @@
 
 //! Benchmarks of sequence behaviors [`Sequence`], [`ReactiveSequence`] and [`SequenceWithMemory`]
 
-#[doc(hidden)]
-extern crate alloc;
-
 use std::time::Duration;
 
 use behaviortree::{
 	SHOULD_NOT_HAPPEN,
 	behavior::{
-		Behavior,
 		BehaviorState::{Failure, Running, Success},
-		BehaviorStatic,
 		action::ChangeStateAfter,
 		control::{ReactiveSequence, SequenceWithMemory},
 	},
-	factory::BehaviorTreeFactory,
-	register_behavior,
+	prelude::*,
 };
 use criterion::{Criterion, criterion_group, criterion_main};
 

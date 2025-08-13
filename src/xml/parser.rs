@@ -168,20 +168,20 @@ impl XmlParser {
 		for port_definition in port_list.iter() {
 			if let Some(default_value) = port_definition.default_value() {
 				// check if it is a BB pointer
-				match strip_bb_pointer(&default_value) {
+				match strip_bb_pointer(default_value) {
 					// Bb pointer
 					Some(stripped) => {
 						if stripped.as_ref() == "=" {
 							// remapping to itself not necessary
 						} else if is_allowed_port_name(&stripped) {
-							remappings.add(port_definition.name(), &default_value)?;
+							remappings.add(port_definition.name(), default_value)?;
 						} else {
 							return Err(crate::factory::error::Error::NameNotAllowed(port_definition.name().clone()));
 						}
 					}
 					// No bb pointer
 					None => {
-						remappings.add(port_definition.name(), &default_value)?;
+						remappings.add(port_definition.name(), default_value)?;
 					}
 				}
 			}

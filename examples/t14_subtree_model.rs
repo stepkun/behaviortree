@@ -76,10 +76,6 @@ mod test {
 mod move_robot {
 	#[allow(clippy::wildcard_imports)]
 	use super::*;
-	use behaviortree::{
-		behavior::{BehaviorData, BehaviorError},
-		factory::error::Error,
-	};
 
 	use common::test_data::Pose2D;
 
@@ -131,6 +127,7 @@ mod move_robot {
 	}
 
 	pub fn register_behaviors(factory: &mut BehaviorTreeFactory) -> Result<(), Error> {
-		register_behavior!(factory, MoveBase, "MoveBase")
+		register_behavior!(factory, MoveBase, "MoveBase")?;
+		Ok(())
 	}
 }

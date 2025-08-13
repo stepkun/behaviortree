@@ -1,6 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-#![allow(unused)]
-#![allow(dead_code)]
 
 //! Blackboard for behaviortree
 
@@ -8,24 +6,18 @@
 use crate::{ConstString, SHOULD_NOT_HAPPEN};
 use alloc::{
 	borrow::ToOwned,
-	boxed::Box,
 	collections::btree_map::BTreeMap,
 	format,
-	rc::Rc,
 	string::{String, ToString},
 	sync::Arc,
 };
 use core::{
 	any::{Any, TypeId},
-	cell::RefCell,
 	fmt::Debug,
 	ops::{Deref, DerefMut},
 	str::FromStr,
 };
-use spin::RwLock;
 use tinyscript::{Environment, Error as ScriptingError, execution::ScriptingValue};
-
-use crate::behavior::BehaviorResult;
 
 use super::{BlackboardInterface, error::Error};
 // endregion:   --- modules
@@ -163,16 +155,16 @@ impl Environment for BlackboardData {
 			match value {
 				ScriptingValue::Nil() => unreachable!(),
 				ScriptingValue::Boolean(b) => {
-					self.set(key, b);
+					self.set(key, b).expect(SHOULD_NOT_HAPPEN);
 				}
 				ScriptingValue::Float64(f) => {
-					self.set(key, f);
+					self.set(key, f).expect(SHOULD_NOT_HAPPEN);
 				}
 				ScriptingValue::Int64(i) => {
-					self.set(key, i);
+					self.set(key, i).expect(SHOULD_NOT_HAPPEN);
 				}
 				ScriptingValue::String(s) => {
-					self.set(key, s);
+					self.set(key, s).expect(SHOULD_NOT_HAPPEN);
 				}
 			}
 			Ok(())
@@ -255,63 +247,63 @@ impl Environment for BlackboardData {
 			ScriptingValue::Nil() => unreachable!(),
 			ScriptingValue::Boolean(b) => {
 				if TypeId::of::<bool>() == entry_type_id {
-					self.set(name, b);
+					self.set(name, b).expect(SHOULD_NOT_HAPPEN);
 				} else {
 					return Err(ScriptingError::GlobalWrongType(name.into()));
 				}
 			}
 			ScriptingValue::Float64(f) => {
 				if TypeId::of::<f64>() == entry_type_id {
-					self.set(name, f);
+					self.set(name, f).expect(SHOULD_NOT_HAPPEN);
 				} else if TypeId::of::<f32>() == entry_type_id {
 					if f > f64::from(f32::MAX) || f < f64::from(f32::MIN) {
 						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
 					}
-					self.set(name, f as f32);
+					self.set(name, f as f32).expect(SHOULD_NOT_HAPPEN);
 				} else {
 					return Err(ScriptingError::GlobalWrongType(name.into()));
 				}
 			}
 			ScriptingValue::Int64(i) => {
 				if TypeId::of::<i64>() == entry_type_id {
-					self.set(name, i);
+					self.set(name, i).expect(SHOULD_NOT_HAPPEN);
 				} else if TypeId::of::<i32>() == entry_type_id {
 					if i > i64::from(i32::MAX) || i < i64::from(i32::MIN) {
 						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
 					}
-					self.set(name, i as i32);
+					self.set(name, i as i32).expect(SHOULD_NOT_HAPPEN);
 				} else if TypeId::of::<u32>() == entry_type_id {
 					if i > i64::from(u32::MAX) || i < i64::from(u32::MIN) {
 						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
 					}
-					self.set(name, i as u32);
+					self.set(name, i as u32).expect(SHOULD_NOT_HAPPEN);
 				} else if TypeId::of::<i16>() == entry_type_id {
 					if i > i64::from(i16::MAX) || i < i64::from(i16::MIN) {
 						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
 					}
-					self.set(name, i as i16);
+					self.set(name, i as i16).expect(SHOULD_NOT_HAPPEN);
 				} else if TypeId::of::<u16>() == entry_type_id {
 					if i > i64::from(u16::MAX) || i < i64::from(u16::MIN) {
 						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
 					}
-					self.set(name, i as u16);
+					self.set(name, i as u16).expect(SHOULD_NOT_HAPPEN);
 				} else if TypeId::of::<i8>() == entry_type_id {
 					if i > i64::from(i8::MAX) || i < i64::from(i8::MIN) {
 						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
 					}
-					self.set(name, i as i8);
+					self.set(name, i as i8).expect(SHOULD_NOT_HAPPEN);
 				} else if TypeId::of::<u8>() == entry_type_id {
 					if i > i64::from(u8::MAX) || i < i64::from(u8::MIN) {
 						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
 					}
-					self.set(name, i as u8);
+					self.set(name, i as u8).expect(SHOULD_NOT_HAPPEN);
 				} else {
 					return Err(ScriptingError::GlobalWrongType(name.into()));
 				}
 			}
 			ScriptingValue::String(s) => {
 				if TypeId::of::<String>() == entry_type_id {
-					self.set(name, s);
+					self.set(name, s).expect(SHOULD_NOT_HAPPEN);
 				} else {
 					return Err(ScriptingError::GlobalWrongType(name.into()));
 				}

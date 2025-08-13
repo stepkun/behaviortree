@@ -6,7 +6,6 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t11_groot_howto.cpp)
 //!
 
-extern crate alloc;
 mod common;
 
 use behaviortree::{Groot2Connector, XmlCreator, prelude::*};

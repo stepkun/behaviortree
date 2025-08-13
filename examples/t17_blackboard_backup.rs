@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-#![allow(unused)]
 
 //! This test implements the seventeenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
 //!
@@ -7,14 +6,6 @@
 //!
 
 // //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_17_XXX)
-
-extern crate alloc;
-
-use std::{
-	fmt::{Display, Formatter},
-	num::ParseIntError,
-	str::FromStr,
-};
 
 use behaviortree::prelude::*;
 

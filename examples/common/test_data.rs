@@ -4,17 +4,13 @@
 
 //! Test behaviors
 
-extern crate alloc;
-
 // region:		--- modules
-use alloc::str::FromStr;
+use behaviortree::prelude::*;
 use core::num::ParseFloatError;
 use std::{
 	fmt::Display,
 	time::{Duration, Instant},
 };
-
-use behaviortree::prelude::*;
 // endregion:	--- modules
 
 /// Action `ApproachObject`

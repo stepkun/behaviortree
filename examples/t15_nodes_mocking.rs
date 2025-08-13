@@ -1,19 +1,10 @@
 // Copyright © 2025 Stephan Kunz
-#![allow(unused)]
 
 //! This test implements the fifteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
 //!
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_15_replace_rules)
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t15_nodes_mocking.cpp)
 //!
-
-extern crate alloc;
-
-use std::{
-	fmt::{Display, Formatter},
-	num::ParseIntError,
-	str::FromStr,
-};
 
 use behaviortree::prelude::*;
 
