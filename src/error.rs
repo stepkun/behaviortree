@@ -30,6 +30,9 @@ pub enum Error {
 	/// Pass through from `crate::factory::Error`
 	#[error("{0}")]
 	Factory(#[from] crate::factory::error::Error),
+	/// Passthrough port error
+	#[error("{0}")]
+	Port(#[from] crate::port::error::Error),
 	#[cfg(feature = "std")]
 	/// Pass through from `std::io::Error`
 	#[error("{0}")]
@@ -40,5 +43,16 @@ pub enum Error {
 	/// Pass through from `woxml::Error`
 	#[error("{0}")]
 	Woxml(#[from] woxml::Error),
+	/// Pass through from `xml::Error`
+	#[error("{0}")]
+	Xml(#[from] crate::xml::error::Error),
+	#[cfg(feature = "std")]
+	/// roxmltree Errors
+	#[error("{0}")]
+	XmlParser(#[from] roxmltree::Error),
+	/// roxmltree Errors
+	#[cfg(not(feature = "std"))]
+	#[error("Error parsing XML")]
+	XmlParser,
 }
 // region:		--- Error

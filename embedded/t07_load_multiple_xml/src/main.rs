@@ -50,7 +50,7 @@ impl BehaviorInstance for SaySomething {
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let msg = behavior.get::<String>("message")?;
-		info!("Robot says: {msg}");
+		info!("Robot says: {}", msg.as_str());
 		Ok(BehaviorState::Success)
 	}
 }
@@ -75,7 +75,7 @@ async fn example() -> BehaviorTreeResult {
 	//Check that the BTs have been registered correctly
 	info!("Registered BehaviorTrees:");
 	for bt_name in factory.registered_behavior_trees() {
-		info!(" - {bt_name}");
+		info!(" - {}", *bt_name);
 	}
 
 	// You can create the MainTree and the subtrees will be added automatically.

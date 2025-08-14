@@ -113,12 +113,14 @@ impl BehaviorRegistry {
 	}
 
 	/// Prints out the list of registered behaviors
-	#[cfg(feature = "std")]
 	pub fn list_behaviors(&self) {
+		#[cfg(feature = "std")]
 		let iter = self.behaviors.iter();
+		#[cfg(feature = "std")]
 		for (key, _) in iter {
 			std::println!("{key}");
 		}
+		#[cfg(feature = "std")]
 		std::println!();
 	}
 

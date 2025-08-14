@@ -16,10 +16,13 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.2.1] - 2025-??-??
+## [0.3.0] - 2025-??-??
+
+Support of embedded
 
 ### Added
-- embedded examples: t04_reactive_sequence
+- embedded examples: t04_reactive_sequence,
+  t07_load_multiple_xml, t08_additional_node_args
 
 ### Changed
 
@@ -27,6 +30,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 - some differences between documentation and implementation
 
 ### Removed
+- visibility of constant 'SHOULD_NOT_HAPPEN'
 
 ## [0.2.0] - 2025-08-12
 

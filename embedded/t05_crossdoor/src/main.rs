@@ -7,7 +7,7 @@
 use alloc::sync::Arc;
 use ariel_os::{
 	debug::{ExitCode, exit, log::*},
-	time::{Duration, Timer},
+	// time::{Duration, Timer},
 };
 use behaviortree::prelude::*;
 use spin::Mutex;
@@ -38,7 +38,7 @@ const XML: &str = r#"
 </root>
 "#;
 
-fn sleep_ms(millisecs: u64) {
+fn sleep_ms(_millisecs: u64) {
 	//Timer::after_millis(100).await;
 	//thread::sleep(Duration::from_millis(millisecs));
 }
@@ -172,9 +172,7 @@ async fn example() -> BehaviorTreeResult {
 	// To determine which one is the "main one", we should first register
 	// the XML and then allocate a specific tree, using its ID
 	factory.register_behavior_tree_from_text(XML)?;
-	info!("-- registered  --");
 	let mut tree = factory.create_tree("CrossDoor")?;
-	info!("-- created  --");
 	drop(factory);
 
 	let result = tree.tick_while_running().await?;

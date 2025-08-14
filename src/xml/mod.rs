@@ -3,4 +3,5 @@
 //! XML library
 
 pub mod creator;
+pub mod error;
 pub mod parser;

@@ -4,7 +4,10 @@
 
 //! Embedded version of [t06_subtree_port_remappings](examples/t06_subtree_port_remappings.rs)
 
-use ariel_os::debug::{ExitCode, exit, log::*};
+use ariel_os::{
+	debug::{ExitCode, exit, log::*},
+	time::{Duration, Instant},
+};
 
 use behaviortree::prelude::*;
 
@@ -32,6 +35,42 @@ const XML: &str = r#"
 </root>
 "#;
 
+/// `Position2D`
+#[derive(Clone, Debug, Default)]
+pub struct Pose2D {
+	/// x
+	pub x: f64,
+	/// y
+	pub y: f64,
+	/// rotation
+	pub theta: f64,
+}
+
+impl FromStr for Pose2D {
+	type Err = core::num::ParseFloatError;
+
+	fn from_str(value: &str) -> Result<Self, Self::Err> {
+		// remove redundant ' and &apos; from string
+		let s = value
+			.replace('\'', "")
+			.trim()
+			.replace("&apos;", "")
+			.trim()
+			.to_string();
+		let v: Vec<&str> = s.split(';').collect();
+		let x = f64::from_str(v[0])?;
+		let y = f64::from_str(v[1])?;
+		let theta = f64::from_str(v[2])?;
+		Ok(Self { x, y, theta })
+	}
+}
+
+impl core::fmt::Display for Pose2D {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		write!(f, "{};{};{}", self.x, self.y, self.theta)
+	}
+}
+
 /// Action `SaySomething`
 /// Example of custom `ActionNode` (synchronous action) with an input port.
 #[derive(Action, Debug, Default)]
@@ -46,7 +85,7 @@ impl BehaviorInstance for SaySomething {
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let msg = behavior.get::<String>("message")?;
-		info!("Robot says: {msg}");
+		info!("Robot says: {}", msg.as_str());
 		Ok(BehaviorState::Success)
 	}
 }

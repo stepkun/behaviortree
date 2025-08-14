@@ -14,7 +14,6 @@ use crate::{ConstString, behavior::SubTree};
 #[cfg(feature = "std")]
 use alloc::string::ToString;
 use alloc::{boxed::Box, string::String, vec::Vec};
-use roxmltree::Document;
 
 #[cfg(feature = "std")]
 use crate::SHOULD_NOT_HAPPEN;
@@ -324,7 +323,11 @@ impl BehaviorTreeFactory {
 	/// - if behaviors or subtrees are missing
 	pub fn create_main_tree(&mut self) -> Result<BehaviorTree, Error> {
 		if let Some(name) = self.registry.main_tree_id() {
-			self.create_tree(&name)
+			if name.is_empty() {
+				self.create_tree("MainTree")
+			} else {
+				self.create_tree(&name)
+			}
 		} else {
 			self.create_tree("MainTree")
 		}
@@ -336,8 +339,15 @@ impl BehaviorTreeFactory {
 	/// - if behaviors or subtrees are missing
 	pub fn create_tree(&mut self, name: &str) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
-		let root = parser.create_tree_from_definition(name, &mut self.registry, None)?;
-		Ok(BehaviorTree::new(root, &self.registry))
+		if let Ok(root) = parser.create_tree_from_definition(name, &mut self.registry, None) {
+			Ok(BehaviorTree::new(root, &self.registry))
+		} else {
+			let id = self
+				.registry
+				.main_tree_id()
+				.map_or_else(|| "unknown".into(), |id| id);
+			Err(Error::Create(id))
+		}
 	}
 
 	/// Create the named [`BehaviorTree`] from registration using external created blackboard.
@@ -346,12 +356,20 @@ impl BehaviorTreeFactory {
 	/// - if behaviors or subtrees are missing
 	pub fn create_tree_with(&mut self, name: &str, blackboard: SharedBlackboard) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
-		let root = parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard))?;
-		Ok(BehaviorTree::new(root, &self.registry))
+		// let root = parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard))?;
+		// Ok(BehaviorTree::new(root, &self.registry))
+		if let Ok(root) = parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard)) {
+			Ok(BehaviorTree::new(root, &self.registry))
+		} else {
+			let id = self
+				.registry
+				.main_tree_id()
+				.map_or_else(|| "unknown".into(), |id| id);
+			Err(Error::Create(id))
+		}
 	}
 
 	/// Prints out the list of registered behaviors.
-	#[cfg(feature = "std")]
 	pub fn list_behaviors(&self) {
 		self.registry.list_behaviors();
 	}
@@ -361,31 +379,10 @@ impl BehaviorTreeFactory {
 	/// - on incorrect XML
 	/// - if tree description is not in BTCPP v4
 	pub fn register_behavior_tree_from_text(&mut self, xml: &str) -> Result<(), Error> {
-		// general checks
-		#[cfg(feature = "std")]
-		let doc = Document::parse(xml)?;
-		#[cfg(not(feature = "std"))]
-		let doc = match Document::parse(xml) {
-			Ok(doc) => doc,
-			Err(_err) => return Err(Error::XmlParser),
-		};
-		let root = doc.root_element();
-		if root.tag_name().name() != "root" {
-			return Err(Error::WrongRootName);
+		match XmlParser::register_document(&mut self.registry, xml) {
+			Ok(()) => Ok(()),
+			Err(_) => Err(Error::Register),
 		}
-		if let Some(format) = root.attribute("BTCPP_format") {
-			if format != "4" {
-				return Err(Error::BtCppFormat);
-			}
-		}
-
-		// handle the attribute 'main_tree_to_execute`
-		if let Some(name) = root.attribute("main_tree_to_execute") {
-			self.registry.set_main_tree_id(name);
-		}
-
-		XmlParser::register_document_root(&mut self.registry, root)?;
-		Ok(())
 	}
 
 	/// Get the name list of registered behavior trees.

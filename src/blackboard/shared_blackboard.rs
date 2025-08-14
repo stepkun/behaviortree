@@ -333,8 +333,9 @@ impl SharedBlackboard {
 	}
 
 	/// Print the content of the `SharedBlackboard` for debugging purpose.
-	#[cfg(feature = "std")]
 	pub fn debug_message(&self) {
+		// @TODO embedded: solution for embedded
+		#[cfg(feature = "std")]
 		std::println!("{self:?}");
 	}
 

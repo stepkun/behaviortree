@@ -24,9 +24,10 @@ pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
 unwrap_used = "deny"
 
-
 [dependencies]
-ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [] }
+ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [
+  "time",
+] }
 ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
 async-trait = { version = "0.1.88", default-features = false }
 behaviortree = { path = "../..", default-features = false }

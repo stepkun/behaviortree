@@ -4,6 +4,7 @@
 
 //! Embedded version of [t09_scripting](examples/t09_scripting.rs)
 
+use alloc::vec;
 use ariel_os::debug::{ExitCode, exit, log::*};
 
 use behaviortree::prelude::*;
@@ -50,7 +51,7 @@ impl BehaviorInstance for SaySomething {
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let msg = behavior.get::<String>("message")?;
-		info!("Robot says: {msg}");
+		info!("Robot says: {}", msg.as_str());
 		Ok(BehaviorState::Success)
 	}
 }
@@ -62,7 +63,7 @@ impl BehaviorStatic for SaySomething {
 }
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
 	register_scripting_enum!(factory, Color);
 	register_scripting_enum!(factory, "THE_ANSWER", 42, "OTHER", 43);

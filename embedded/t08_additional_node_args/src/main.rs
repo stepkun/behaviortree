@@ -6,7 +6,7 @@
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 
-use behaviortree::prelude::*;
+use behaviortree::{SHOULD_NOT_HAPPEN, prelude::*};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -37,7 +37,12 @@ impl BehaviorInstance for ActionA {
 		assert_eq!(self.arg1, 42);
 
 		assert_eq!(self.arg2, String::from("hello world"));
-		println!("{}: {}, {}", behavior.description().name(), &self.arg1, &self.arg2);
+		info!(
+			"{}: {}, {}",
+			behavior.description().name().as_ref(),
+			self.arg1,
+			self.arg2.as_str()
+		);
 		Ok(BehaviorState::Success)
 	}
 }
@@ -69,7 +74,12 @@ impl BehaviorInstance for ActionB {
 	) -> BehaviorResult {
 		assert_eq!(self.arg1, 69);
 		assert_eq!(self.arg2, String::from("interesting value"));
-		println!("{}: {}, {}", behavior.description().name(), &self.arg1, &self.arg2);
+		info!(
+			"{}: {}, {}",
+			behavior.description().name().as_ref(),
+			self.arg1,
+			self.arg2.as_str()
+		);
 		Ok(BehaviorState::Success)
 	}
 }
