@@ -62,9 +62,11 @@ pub trait Behavior: BehaviorExecution + BehaviorStatic {
 /// Supertrait for execution of a behavior.
 pub trait BehaviorExecution: Any + BehaviorInstance {
 	/// Needed for dynamic downcasting
+	#[must_use]
 	fn as_any(&self) -> &dyn Any;
 
 	/// Needed for mutable dynamic downcasting
+	#[must_use]
 	fn as_any_mut(&mut self) -> &mut dyn Any;
 
 	/// Get the `static` list of defined ports.

@@ -10,6 +10,7 @@ use ariel_os::{
 	time::{Duration, Timer},
 };
 use behaviortree::prelude::*;
+use spin::Mutex;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -39,7 +40,7 @@ const XML: &str = r#"
 
 fn sleep_ms(millisecs: u64) {
 	//Timer::after_millis(100).await;
-	thread::sleep(Duration::from_millis(millisecs));
+	//thread::sleep(Duration::from_millis(millisecs));
 }
 
 /// `CrossDoor` behavior interface
@@ -165,12 +166,15 @@ async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
 	CrossDoor::register_behaviors(&mut factory)?;
+	info!("-- crossdoor  --");
 
 	// In this example a single XML contains multiple <BehaviorTree>
 	// To determine which one is the "main one", we should first register
 	// the XML and then allocate a specific tree, using its ID
 	factory.register_behavior_tree_from_text(XML)?;
+	info!("-- registered  --");
 	let mut tree = factory.create_tree("CrossDoor")?;
+	info!("-- created  --");
 	drop(factory);
 
 	let result = tree.tick_while_running().await?;
