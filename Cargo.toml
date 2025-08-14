@@ -1,4 +1,4 @@
-# Copyright © Stephan Kunz
+# Copyright © 2025 Stephan Kunz
 [package]
 resolver = "3"
 name = "behaviortree"
@@ -12,13 +12,7 @@ repository = "https://github.com/stepkun/behaviortree.git"
 homepage = "http://github.com/stepkun/behaviortree.git"
 documentation = "https://docs.rs/behaviortree/"
 readme = "README.md"
-exclude = [
-    "laze*",
-    "benches/**",
-    "embedded/**",
-    "examples/**",
-    "tests/**",
-]
+exclude = ["laze*", "benches/**", "embedded/**", "examples/**", "tests/**"]
 
 [lib]
 name = "behaviortree"
@@ -58,21 +52,38 @@ name = "tree"
 harness = false
 
 [dependencies]
-behaviortree-derive = { path = "derive", version = "0.2.0"}
+behaviortree-derive = { path = "derive", version = "0.2.0" }
 async-trait = { version = "0.1.88", default-features = false }
 bytes = { version = "1.10.1", default-features = false }
 libloading = { version = "0.8.8", default-features = false, optional = true }
-nanoserde = { version = "0.2.1", default-features = false, features=["json"] }
+nanoserde = { version = "0.2.1", default-features = false, features = ["json"] }
 rand = { version = "0.9.2", optional = true }
-roxmltree = { version = "0.20.0", default-features = false, features=["positions"] }
-spin = { version = "0.10.0", default-features = false }
+roxmltree = { version = "0.20.0", default-features = false, features = [
+    "positions",
+] }
+spin = { version = "0.10.0", default-features = false, features = [
+    "mutex",
+    "rwlock",
+    "use_ticket_mutex",
+] } # spin_mutex??
 thiserror = { version = "2", default-features = false }
-tokio = { version = "1.47.1", features = ["rt-multi-thread", "macros", "sync", "time"], optional = true }
-tracing = { version = "0.1.41", default-features = false, features = ["attributes"] }
 tinyscript = { version = "^0.1.4", default-features = false }
-uuid = { version = "1.18.0", default-features = false , features = ["v4"], optional = true }
+tokio = { version = "1.47.1", features = [
+    "rt-multi-thread",
+    "macros",
+    "sync",
+    "time",
+], optional = true }
+tracing = { version = "0.1.41", default-features = false, features = [
+    "attributes",
+] }
+uuid = { version = "1.18.0", default-features = false, features = [
+    "v4",
+], optional = true }
 woxml = { version = "0.3.0", default-features = false }
-zeromq = { version = "0.4.1", default-features = false, features = ["tcp-transport"], optional = true }
+zeromq = { version = "0.4.1", default-features = false, features = [
+    "tcp-transport",
+], optional = true }
 
 [build-dependencies]
 
@@ -84,19 +95,27 @@ trybuild = { version = "1.0.110", features = ["diff"] }
 
 [features]
 default = ["std"]
-std = ["libloading", "roxmltree/std", "rand", "spin/std", "tokio", "uuid", "zeromq", "zeromq/tokio-runtime"]
+std = [
+    "libloading",
+    "roxmltree/std",
+    "rand",
+    "tokio",
+    "uuid",
+    "zeromq",
+    "zeromq/tokio-runtime",
+]
 
 [profile.release]
-opt-level = 's'			# Optimize for size.
-lto = true				# Enable Link Time Optimisation
-codegen-units = 1		# Reduced to increase optimisations
-overflow-checks = true	# useful
+opt-level = 's'        # Optimize for size.
+lto = true             # Enable Link Time Optimisation
+codegen-units = 1      # Reduced to increase optimisations
+overflow-checks = true # useful
 
 [profile.production]
-inherits="release"
-panic = 'abort'		    # Abort on panic
-strip = "symbols"	    # Strip symbols from binary
+inherits = "release"
+panic = 'abort'      # Abort on panic
+strip = "symbols"    # Strip symbols from binary
 
 [profile.samply]
 inherits = "release"
-debug = true		    # Create debug symbols for profiling
+debug = true         # Create debug symbols for profiling

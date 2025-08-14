@@ -6,7 +6,7 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t13_access_by_ref.cpp)
 //!
 
-use std::{
+use core::{
 	fmt::{Display, Formatter},
 	num::ParseIntError,
 };

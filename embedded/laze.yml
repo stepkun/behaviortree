@@ -1,3 +1,4 @@
+# Copyright © 2025 Stephan Kunz
 defaults:
   apps:
     context:
@@ -8,5 +9,10 @@ subdirs:
   - t01_build_your_first_tree_explicit
   - t02_basic_ports
   - t03_generic_ports
-#  - testing
-#  - benchmark
+  - t04_reactive_sequence
+  - t05_crossdoor
+  - t06_subtree_port_remappings
+  - t07_load_multiple_xml
+  - t08_additional_node_args
+  - t09_scripting
+  

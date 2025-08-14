@@ -1,6 +1,6 @@
 # Copyright © 2025 Stephan Kunz
 [package]
-name = "t03_generic_ports"
+name = "t07_load_multiple_xml"
 edition = "2024"
 license = "MIT/Apache-2.0"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]

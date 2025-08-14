@@ -42,7 +42,7 @@ async fn example() -> BehaviorTreeResult {
 	register_behavior!(factory, MoveBaseAction, "MoveBase")?;
 
 	factory.register_behavior_tree_from_text(XML)?;
-	let mut tree = factory.create_tree("MainTree")?;
+	let mut tree = factory.create_main_tree()?;
 	drop(factory);
 
 	let result = tree.tick_while_running().await?;

@@ -1,5 +1,5 @@
 # Copyright © 2025 Stephan Kunz
 apps:
-  - name: t03_generic_ports
+  - name: t05_crossdoor
     selects:
       - alloc

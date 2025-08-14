@@ -1,5 +1,5 @@
 # Copyright © 2025 Stephan Kunz
 apps:
-  - name: t03_generic_ports
+  - name: t06_subtree_port_remappings
     selects:
       - alloc

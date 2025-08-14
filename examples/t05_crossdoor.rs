@@ -13,7 +13,7 @@ use common::cross_door::CrossDoor;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
-	<BehaviorTree ID="MainTree">
+	<BehaviorTree ID="CrossDoor">
         <Sequence>
             <Fallback>
                 <Inverter>
@@ -46,7 +46,7 @@ async fn example() -> BehaviorTreeResult {
 	// To determine which one is the "main one", we should first register
 	// the XML and then allocate a specific tree, using its ID
 	factory.register_behavior_tree_from_text(XML)?;
-	let mut tree = factory.create_main_tree()?;
+	let mut tree = factory.create_tree("CrossDoor")?;
 	drop(factory);
 
 	// helper function to print the tree

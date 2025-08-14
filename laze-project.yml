@@ -1,3 +1,4 @@
+# Copyright © 2025 Stephan Kunz
 imports:
   - git:
       url: https://github.com/ariel-os/ariel-os

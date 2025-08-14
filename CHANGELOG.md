@@ -19,10 +19,12 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ## [0.2.1] - 2025-??-??
 
 ### Added
+- embedded examples: t04_reactive_sequence
 
 ### Changed
 
 ### Fixed
+- some differences between documentation and implementation
 
 ### Removed
 

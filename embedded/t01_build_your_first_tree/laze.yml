@@ -1,3 +1,4 @@
+# Copyright © 2025 Stephan Kunz
 apps:
   - name: t01_build_your_first_tree
     selects:

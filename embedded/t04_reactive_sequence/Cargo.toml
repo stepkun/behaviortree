@@ -1,6 +1,6 @@
 # Copyright © 2025 Stephan Kunz
 [package]
-name = "t03_generic_ports"
+name = "t04_reactive_sequence"
 edition = "2024"
 license = "MIT/Apache-2.0"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
@@ -26,7 +26,9 @@ unwrap_used = "deny"
 
 
 [dependencies]
-ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [] }
+ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [
+  "time",
+] }
 ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
 async-trait = { version = "0.1.88", default-features = false }
 behaviortree = { path = "../..", default-features = false }

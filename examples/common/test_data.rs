@@ -6,11 +6,7 @@
 
 // region:		--- modules
 use behaviortree::prelude::*;
-use core::num::ParseFloatError;
-use std::{
-	fmt::Display,
-	time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 // endregion:	--- modules
 
 /// Action `ApproachObject`
@@ -131,7 +127,7 @@ pub struct Position2D {
 }
 
 impl FromStr for Position2D {
-	type Err = ParseFloatError;
+	type Err = core::num::ParseFloatError;
 
 	fn from_str(value: &str) -> Result<Self, Self::Err> {
 		println!("Converting string: \"{value}\"");
@@ -149,8 +145,8 @@ impl FromStr for Position2D {
 	}
 }
 
-impl Display for Position2D {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Position2D {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "[{}, {}]", self.x, self.y)
 	}
 }
@@ -215,7 +211,7 @@ pub struct Pose2D {
 }
 
 impl FromStr for Pose2D {
-	type Err = ParseFloatError;
+	type Err = core::num::ParseFloatError;
 
 	fn from_str(value: &str) -> Result<Self, Self::Err> {
 		// remove redundant ' and &apos; from string
@@ -233,8 +229,8 @@ impl FromStr for Pose2D {
 	}
 }
 
-impl Display for Pose2D {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Pose2D {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		write!(f, "{};{};{}", self.x, self.y, self.theta)
 	}
 }
