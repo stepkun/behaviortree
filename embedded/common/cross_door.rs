@@ -4,14 +4,13 @@
 
 //! Cross door behaviors.
 
-use std::{sync::Arc, thread, time::Duration};
+use alloc::sync::Arc;
 
 use behaviortree::prelude::*;
-use rand::Rng;
 use spin::Mutex;
 
 fn sleep_ms(millisecs: u64) {
-	thread::sleep(Duration::from_millis(millisecs));
+	//	thread::sleep(Duration::from_millis(millisecs));
 }
 
 /// `CrossDoor` behavior interface
@@ -28,7 +27,7 @@ impl Default for CrossDoor {
 			door_open: false,
 			door_locked: true,
 			pick_attempts: 0,
-			needed_attempts: 6,
+			needed_attempts: 3,
 		}
 	}
 }
@@ -93,7 +92,7 @@ impl CrossDoor {
 		self.door_open = false;
 		self.door_locked = true;
 		self.pick_attempts = 0;
-		self.needed_attempts = rand::rng().random::<u8>() % 7;
+		self.needed_attempts = 3;
 	}
 
 	/// Will always open a door

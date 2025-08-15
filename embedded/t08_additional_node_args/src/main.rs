@@ -2,10 +2,9 @@
 #![no_main]
 #![no_std]
 
-//! Embedded version of [t08_additional_node_args](examples/t08_additional_node_args.rs)
+//! Embedded version of [t08_additional_node_args](examples/t08_additional_node_args.rs).
 
 use ariel_os::debug::{ExitCode, exit, log::*};
-
 use behaviortree::{SHOULD_NOT_HAPPEN, prelude::*};
 
 const XML: &str = r#"

@@ -4,9 +4,7 @@
 //!
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_14_subtree_model)
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t14_subtree_model.cpp)
-//!
 
-extern crate alloc;
 mod common;
 
 use behaviortree::prelude::*;

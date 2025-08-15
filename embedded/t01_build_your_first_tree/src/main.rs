@@ -2,10 +2,14 @@
 #![no_main]
 #![no_std]
 
-//! Embedded version of [t01_buid_your_first_tree](examples/t01_build_your_first_tree.rs)
+//! Embedded version of [t01_buid_your_first_tree](examples/t01_build_your_first_tree.rs).
+
+#[path = "../../common/mod.rs"]
+mod common;
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;
+use common::test_data::{ApproachObject, GripperInterface, check_battery};
 
 const XML: &str = r#"
 <root BTCPP_format="4"
@@ -20,59 +24,6 @@ const XML: &str = r#"
 	</BehaviorTree>
 </root>
 "#;
-
-/// Function for condition `CheckBattery`
-/// # Errors
-/// In this case never
-pub fn check_battery() -> BehaviorResult {
-	info!("[ Battery: OK ]");
-	Ok(BehaviorState::Success)
-}
-
-/// Action `ApproachObject`
-/// Example of custom `ActionNode` (synchronous action) without ports.
-#[derive(Action, Debug, Default)]
-pub struct ApproachObject {}
-
-#[async_trait::async_trait]
-impl BehaviorInstance for ApproachObject {
-	async fn tick(
-		&mut self,
-		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		info!("ApproachObject: approach_object");
-		Ok(BehaviorState::Success)
-	}
-}
-
-impl BehaviorStatic for ApproachObject {}
-
-/// Struct for behaviors `OpenGripper` and `CloseGripper`
-#[derive(Default)]
-pub struct GripperInterface {
-	open: bool,
-}
-
-impl GripperInterface {
-	/// Open the gripper.
-	/// # Errors
-	/// In this case never
-	pub fn open(&mut self) -> BehaviorResult {
-		info!("GripperInterface::open");
-		self.open = true;
-		Ok(BehaviorState::Success)
-	}
-	/// Close the gripper.
-	/// # Errors
-	/// In this case never
-	pub fn close(&mut self) -> BehaviorResult {
-		info!("GripperInterface::close");
-		self.open = false;
-		Ok(BehaviorState::Success)
-	}
-}
 
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::default();

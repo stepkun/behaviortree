@@ -4,7 +4,6 @@
 //!
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_08_additional_args)
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t08_additional_node_args.cpp)
-//!
 
 use behaviortree::{SHOULD_NOT_HAPPEN, prelude::*};
 

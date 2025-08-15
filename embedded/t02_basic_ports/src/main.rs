@@ -2,10 +2,14 @@
 #![no_main]
 #![no_std]
 
-//! Embedded version of [t02_basic_ports](examples/t02_basic_ports.rs)
+//! Embedded version of [t02_basic_ports](examples/t02_basic_ports.rs).
+
+#[path = "../../common/mod.rs"]
+mod common;
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;
+use common::test_data::{SaySomething, ThinkWhatToSay, say_something_simple};
 
 const XML: &str = r#"
 <root BTCPP_format="4"
@@ -21,63 +25,6 @@ const XML: &str = r#"
 	</BehaviorTree>
 </root>
 "#;
-
-/// Action `SaySomething`
-/// Example of custom `ActionNode` (synchronous action) with an input port.
-#[derive(Action, Debug, Default)]
-pub struct SaySomething {}
-
-#[async_trait::async_trait]
-impl BehaviorInstance for SaySomething {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let msg = behavior.get::<String>("message")?;
-		info!("Robot says: {}", msg.as_str());
-		Ok(BehaviorState::Success)
-	}
-}
-
-impl BehaviorStatic for SaySomething {
-	fn provided_ports() -> PortList {
-		port_list! {input_port!(String, "message")}
-	}
-}
-
-/// Same as struct `SaySomething`, but to be registered with `SimpleBehavior`
-/// # Errors
-#[allow(clippy::needless_pass_by_ref_mut)]
-pub fn say_something_simple(behavior: &mut BehaviorData) -> BehaviorResult {
-	let msg = behavior.get::<String>("message")?;
-	info!("Robot2 says: {}", msg.as_str());
-	Ok(BehaviorState::Success)
-}
-
-/// Action `ThinkWhatToSay`
-#[derive(Action, Debug, Default)]
-pub struct ThinkWhatToSay {}
-
-#[async_trait::async_trait]
-impl BehaviorInstance for ThinkWhatToSay {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		behavior.set("text", String::from("The answer is 42"))?;
-		Ok(BehaviorState::Success)
-	}
-}
-
-impl BehaviorStatic for ThinkWhatToSay {
-	fn provided_ports() -> PortList {
-		port_list![output_port!(String, "text")]
-	}
-}
 
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::default();

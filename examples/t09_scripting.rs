@@ -4,7 +4,6 @@
 //!
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_09_scripting)
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t09_scripting.cpp)
-//!
 
 mod common;
 

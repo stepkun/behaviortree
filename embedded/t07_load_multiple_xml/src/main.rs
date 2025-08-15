@@ -2,11 +2,14 @@
 #![no_main]
 #![no_std]
 
-//! Embedded version of [t07_load_multiple_xml](examples/t07_load_multiple_xml.rs)
+//! Embedded version of [t07_load_multiple_xml](examples/t07_load_multiple_xml.rs).
+
+#[path = "../../common/mod.rs"]
+mod common;
 
 use ariel_os::debug::{ExitCode, exit, log::*};
-
 use behaviortree::prelude::*;
+use common::test_data::SaySomething;
 
 const XML_MAIN: &str = r#"
 <root BTCPP_format="4">
@@ -35,31 +38,6 @@ const XML_SUB_B: &str = r#"
     </BehaviorTree>
 </root>
 "#;
-
-/// Action `SaySomething`
-/// Example of custom `ActionNode` (synchronous action) with an input port.
-#[derive(Action, Debug, Default)]
-pub struct SaySomething {}
-
-#[async_trait::async_trait]
-impl BehaviorInstance for SaySomething {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let msg = behavior.get::<String>("message")?;
-		info!("Robot says: {}", msg.as_str());
-		Ok(BehaviorState::Success)
-	}
-}
-
-impl BehaviorStatic for SaySomething {
-	fn provided_ports() -> PortList {
-		port_list! {input_port!(String, "message")}
-	}
-}
 
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;

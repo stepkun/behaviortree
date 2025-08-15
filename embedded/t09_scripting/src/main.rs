@@ -2,12 +2,15 @@
 #![no_main]
 #![no_std]
 
-//! Embedded version of [t09_scripting](examples/t09_scripting.rs)
+//! Embedded version of [t09_scripting](examples/t09_scripting.rs).
+
+#[path = "../../common/mod.rs"]
+mod common;
 
 use alloc::vec;
 use ariel_os::debug::{ExitCode, exit, log::*};
-
 use behaviortree::prelude::*;
+use common::test_data::SaySomething;
 
 const XML: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
@@ -35,31 +38,6 @@ enum Color {
 	RED = 1,
 	BLUE,
 	GREEN = 4,
-}
-
-/// Action `SaySomething`
-/// Example of custom `ActionNode` (synchronous action) with an input port.
-#[derive(Action, Debug, Default)]
-pub struct SaySomething {}
-
-#[async_trait::async_trait]
-impl BehaviorInstance for SaySomething {
-	async fn tick(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> BehaviorResult {
-		let msg = behavior.get::<String>("message")?;
-		info!("Robot says: {}", msg.as_str());
-		Ok(BehaviorState::Success)
-	}
-}
-
-impl BehaviorStatic for SaySomething {
-	fn provided_ports() -> PortList {
-		port_list! {input_port!(String, "message")}
-	}
 }
 
 async fn example() -> BehaviorTreeResult {

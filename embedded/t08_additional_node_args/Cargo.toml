@@ -28,6 +28,6 @@ unwrap_used = "deny"
 [dependencies]
 ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [] }
 ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
-async-trait = { version = "0.1.88", default-features = false }
+async-trait = { version = "0.1.89", default-features = false }
 behaviortree = { path = "../..", default-features = false }
 spin = { version = "0.10.0", default-features = false }
