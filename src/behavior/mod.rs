@@ -51,26 +51,21 @@ pub type BehaviorTickCallback = dyn Fn(&BehaviorData, &mut BehaviorState) + Send
 /// Supertrait for a behavior.
 pub trait Behavior: BehaviorExecution + BehaviorStatic {
 	/// Provide the boxed creation function.
-	#[must_use]
 	fn creation_fn() -> Box<BehaviorCreationFn>;
 
 	/// Get the [`BehaviorKind`] of the behavior that shall become a node in a behavior (sub)tree.
-	#[must_use]
 	fn kind() -> BehaviorKind;
 }
 
 /// Supertrait for execution of a behavior.
 pub trait BehaviorExecution: Any + BehaviorInstance {
 	/// Needed for dynamic downcasting
-	#[must_use]
 	fn as_any(&self) -> &dyn Any;
 
 	/// Needed for mutable dynamic downcasting
-	#[must_use]
 	fn as_any_mut(&mut self) -> &mut dyn Any;
 
 	/// Get the `static` list of defined ports.
-	#[must_use]
 	fn static_provided_ports(&self) -> PortList;
 }
 // endregion:   --- supertraits
@@ -94,7 +89,7 @@ pub trait BehaviorInstance: Send + Sync {
 		Ok(())
 	}
 
-	/// Method called before starting to tick a behavior,
+	/// Method is called before starting to tick a behavior,
 	/// intended to do preliminary stuff for your behavior.
 	///
 	/// In general it is not necessary to care about children
@@ -114,7 +109,7 @@ pub trait BehaviorInstance: Send + Sync {
 		Ok(())
 	}
 
-	/// Method called on first tick of a behavior.
+	/// Method is called on first tick of a behavior instead of `tick()`.
 	/// If this method returns [`BehaviorState::Running`], the
 	/// behavior becomes asynchronous.
 	/// # Errors
@@ -130,7 +125,7 @@ pub trait BehaviorInstance: Send + Sync {
 		self.tick(behavior, children, runtime).await
 	}
 
-	/// Method called to tick a behavior.
+	/// Method to tick a behavior.
 	/// # Errors
 	async fn tick(
 		&mut self,
@@ -139,7 +134,7 @@ pub trait BehaviorInstance: Send + Sync {
 		runtime: &SharedRuntime,
 	) -> BehaviorResult;
 
-	/// Method called to halt a behavior.
+	/// Method to halt a behavior.
 	/// # Errors
 	#[inline]
 	fn halt(
@@ -161,6 +156,7 @@ pub trait BehaviorStatic {
 	/// Provide the list of defined ports.
 	/// Default implementation returns an empty list.
 	#[must_use]
+	#[inline]
 	fn provided_ports() -> PortList {
 		PortList::default()
 	}

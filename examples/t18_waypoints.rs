@@ -60,7 +60,7 @@ impl BehaviorInstance for PrintNumber {
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let value: f64 = behavior.get("value")?;
-		println!("PrintNumber: {}", value);
+		println!("PrintNumber: {value}");
 
 		Ok(BehaviorState::Success)
 	}

@@ -62,7 +62,7 @@ impl XmlParser {
 	#[instrument(level = Level::DEBUG, skip_all)]
 	pub(crate) fn register_document(registry: &mut BehaviorRegistry, xml: &str) -> Result<(), Error> {
 		// general checks
-		// @TODO embedded: use same mechanism for bot -> manual conversion of error!!
+		// @TODO embedded: use same mechanism for both -> manual conversion of error!!
 		#[cfg(feature = "std")]
 		let doc = Document::parse(xml)?;
 		#[cfg(not(feature = "std"))]
@@ -295,7 +295,7 @@ impl XmlParser {
 		registry.find_tree_definition(name).map_or_else(
 			|| Err(Error::SubtreeNotFound(name.into())),
 			|definition| {
-				// @TODO embedded: use same mechanism for bot -> manual conversion of error!!
+				// @TODO embedded: use same mechanism for both -> manual conversion of error!!
 				#[cfg(feature = "std")]
 				let doc = Document::parse(&definition)?;
 				#[cfg(not(feature = "std"))]
@@ -441,6 +441,7 @@ impl XmlParser {
 					let definition = registry.find_tree_definition(id);
 					match definition {
 						Some(definition) => {
+							// @TODO embedded: use same mechanism for both -> manual conversion of error!!
 							#[cfg(feature = "std")]
 							let doc = Document::parse(&definition)?;
 							#[cfg(not(feature = "std"))]
