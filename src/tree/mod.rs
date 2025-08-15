@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! A [`BehaviorTree`] library
-//!
+//! [`behaviortree`](crate) tree module.
 
 pub mod error;
 pub mod observer;

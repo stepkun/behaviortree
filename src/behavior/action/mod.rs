@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Action behavior library
-//!
+//! Built-in `Action` behaviors of [`behaviortree`](crate).
 
 mod change_state_after;
 mod script;

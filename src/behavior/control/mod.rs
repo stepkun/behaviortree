@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Control behavior library
-//!
+//! Built-in `Control` behaviors of [`behaviortree`](crate).
 
 mod fallback;
 mod if_then_else;

@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! The Behavior part of the library
-//!
+//! Built-In behaviors of [`behaviortree`](crate).
 
 pub mod action;
 #[allow(clippy::module_inception)]

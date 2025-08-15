@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `behaviortree` tree errors
+//! [`BehaviorTree`](crate::tree) tree errors.
 
 #[doc(hidden)]
 extern crate alloc;

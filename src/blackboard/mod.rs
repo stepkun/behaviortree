@@ -1,10 +1,10 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Blackboard module for `behaviortree`.
+//! [`behaviortree`](crate) blackboard module.
 //!
-//! In `behaviortree` the `Blackboard`s are used in a hierarchical structure, remapping the key names
-//! and partly "inheriting" values from parent `Blackboard`s.
-//!
+//! In [`behaviortree`](crate) the [`Blackboard`]s are used in a hierarchical structure, remapping the key names
+//! and partly "inheriting" values from parent [`Blackboard`]s.
+//! This is provided by the [`SharedBlackboard`] structure.
 
 #[allow(clippy::module_inception)]
 mod blackboard;

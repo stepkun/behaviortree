@@ -1,6 +1,6 @@
 // Copyright © 2024 Stephan Kunz
 
-//! `behaviortree` errors
+//! [`behaviortree`](crate) errors.
 
 #[doc(hidden)]
 extern crate alloc;

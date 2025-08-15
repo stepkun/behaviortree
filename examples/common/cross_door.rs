@@ -2,8 +2,7 @@
 #![allow(clippy::unnecessary_wraps)]
 #![allow(unused)]
 
-//! Cross door behaviors
-//!
+//! Cross door behaviors.
 
 use std::{sync::Arc, thread, time::Duration};
 

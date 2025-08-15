@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! A [`BehaviorTreeElement`]
-//!
+//! A [`BehaviorTree`](crate::tree::tree::BehaviorTree) element.
 
 // region:      --- modules
 use alloc::string::ToString;

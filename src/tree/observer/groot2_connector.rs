@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
 //! [`Groot2Connector`] implementation.
-//!
 
 extern crate std;
 

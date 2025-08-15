@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! [`BehaviorTreeElementList`] implementation.
-//!
+//! [`BehaviorTree`](crate::tree::tree::BehaviorTree) element list implementation.
 
 // region:      --- modules
 use alloc::{boxed::Box, format, vec::Vec};

@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `behaviortree` port module
+//! [`behaviortree`](crate) port module.
 
 #[doc(hidden)]
 extern crate alloc;

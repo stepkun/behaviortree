@@ -2,7 +2,7 @@
 #![allow(clippy::unnecessary_wraps)]
 #![allow(unused)]
 
-//! Test behaviors
+//! Test behaviors.
 
 // region:		--- modules
 use behaviortree::prelude::*;

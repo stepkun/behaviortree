@@ -1,11 +1,7 @@
 // Copyright © 2025 Stephan Kunz
 #![allow(clippy::unused_async)]
 
-//! [`BehaviorTree`] implementation.
-//!
-//! Implemenation is a [`composite pattern`](https://en.wikipedia.org/wiki/Composite_pattern)
-//! together with a [`proxy pattern`](https://en.wikipedia.org/wiki/Proxy_pattern)
-//!
+//! [`BehaviorTree`](crate::tree::tree::BehaviorTree) iterator implementation.
 
 #[doc(hidden)]
 #[cfg(feature = "std")]
@@ -19,7 +15,7 @@ use super::tree_element::BehaviorTreeElement;
 // endregion:   --- modules
 
 // region:		--- TreeIter
-/// Iterator over the [`BehaviorTree`]
+/// Iterator over the [`BehaviorTree`](crate::tree::tree::BehaviorTree).
 pub struct TreeIter<'a> {
 	/// stack to do a depth first search
 	stack: Vec<&'a BehaviorTreeElement>,
@@ -58,7 +54,7 @@ impl<'a> Iterator for TreeIter<'a> {
 // endregion:	--- TreeIter
 
 // region:		--- TreeIterMut
-/// Mutable Iterator over the [`BehaviorTree`]
+/// Mutable iterator over the [`BehaviorTree`](crate::tree::tree::BehaviorTree).
 pub struct TreeIterMut<'a> {
 	/// stack to do a depth first search
 	stack: Vec<*mut BehaviorTreeElement>,

@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
 //! [`BehaviorTreeObserver`] implementation.
-//!
 
 extern crate std;
 

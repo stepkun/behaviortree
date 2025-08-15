@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Decorator behavior library
-//!
+//! Built-in `Decorator` behaviors of [`behaviortree`](crate).
 
 mod delay;
 mod entry_updated;

@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Factory library
-//!
+//! [`behaviortree`](crate) factory module.
 
 pub mod behavior_registry;
 pub mod error;

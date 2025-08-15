@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! A [`BehaviorTreeObserver`] library
-//!
+//! [`behaviortree`](crate) tree observer module.
 
 #[cfg(feature = "std")]
 pub mod groot2_connector;

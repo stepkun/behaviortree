@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `behaviortree` Port errors
+//! [`Port`](crate::port) errors.
 
 #[doc(hidden)]
 extern crate alloc;
