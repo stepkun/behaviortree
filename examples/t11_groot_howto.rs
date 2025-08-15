@@ -46,7 +46,7 @@ pub struct UpdatePosition {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for UpdatePosition {
+impl Behavior for UpdatePosition {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -58,9 +58,7 @@ impl BehaviorInstance for UpdatePosition {
 		behavior.set("pos", self.pos.clone())?;
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for UpdatePosition {
 	fn provided_ports() -> PortList {
 		port_list![output_port!(Position2D, "pos")]
 	}

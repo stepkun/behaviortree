@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator, IDLE, NUM_ATTEMPTS,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::PortList,
 	port_list,
@@ -57,7 +57,7 @@ impl Default for RetryUntilSuccessful {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for RetryUntilSuccessful {
+impl Behavior for RetryUntilSuccessful {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.try_count = 0;
@@ -117,9 +117,7 @@ impl BehaviorInstance for RetryUntilSuccessful {
 			Ok(BehaviorState::Failure)
 		}
 	}
-}
 
-impl BehaviorStatic for RetryUntilSuccessful {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(i32, NUM_ATTEMPTS)]
 	}

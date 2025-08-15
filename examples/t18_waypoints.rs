@@ -19,7 +19,7 @@ use std::time::Duration;
 struct GenerateWaypoints;
 
 #[async_trait::async_trait]
-impl BehaviorInstance for GenerateWaypoints {
+impl Behavior for GenerateWaypoints {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -39,9 +39,7 @@ impl BehaviorInstance for GenerateWaypoints {
 
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for GenerateWaypoints {
 	fn provided_ports() -> PortList {
 		port_list![output_port!(SharedQueue<Pose2D>, "waypoints"),]
 	}
@@ -51,7 +49,7 @@ impl BehaviorStatic for GenerateWaypoints {
 struct PrintNumber;
 
 #[async_trait::async_trait]
-impl BehaviorInstance for PrintNumber {
+impl Behavior for PrintNumber {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -63,9 +61,7 @@ impl BehaviorInstance for PrintNumber {
 
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for PrintNumber {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(f64, "value"),]
 	}
@@ -75,7 +71,7 @@ impl BehaviorStatic for PrintNumber {
 struct UseWaypoint;
 
 #[async_trait::async_trait]
-impl BehaviorInstance for UseWaypoint {
+impl Behavior for UseWaypoint {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -90,9 +86,7 @@ impl BehaviorInstance for UseWaypoint {
 			Ok(BehaviorState::Failure)
 		}
 	}
-}
 
-impl BehaviorStatic for UseWaypoint {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(Pose2D, "waypoint",),]
 	}

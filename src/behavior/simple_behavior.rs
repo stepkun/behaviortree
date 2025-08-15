@@ -7,9 +7,9 @@ use alloc::{boxed::Box, sync::Arc};
 use core::any::Any;
 use tinyscript::SharedRuntime;
 
-use crate::{behavior::BehaviorData, port::PortList, tree::tree_element_list::ConstBehaviorTreeElementList};
+use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::tree_element_list::ConstBehaviorTreeElementList};
 
-use super::{BehaviorCreationFn, BehaviorExecution, BehaviorInstance, BehaviorResult};
+use super::{BehaviorCreationFn, BehaviorExecution, Behavior, BehaviorResult};
 // endregion:   --- modules
 
 // region:      --- types
@@ -40,13 +40,20 @@ impl BehaviorExecution for SimpleBehavior {
 		self
 	}
 
+	fn creation_fn() -> Box<BehaviorCreationFn> {
+		todo!(); //alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self))
+	}
+
+	fn kind() -> BehaviorKind {
+		BehaviorKind::Action
+	}
 	fn static_provided_ports(&self) -> PortList {
 		self.provided_ports.clone()
 	}
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for SimpleBehavior {
+impl Behavior for SimpleBehavior {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,

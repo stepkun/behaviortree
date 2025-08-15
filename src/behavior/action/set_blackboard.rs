@@ -13,7 +13,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Action, OUTPUT_KEY, VALUE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -33,7 +33,7 @@ where
 }
 
 #[async_trait::async_trait]
-impl<T> BehaviorInstance for SetBlackboard<T>
+impl<T> Behavior for SetBlackboard<T>
 where
 	T: Clone + Default + FromStr + ToString + Send + Sync,
 {
@@ -56,12 +56,7 @@ where
 
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl<T> BehaviorStatic for SetBlackboard<T>
-where
-	T: Clone + Default + FromStr + ToString + Send + Sync,
-{
 	fn provided_ports() -> PortList {
 		port_list![
 			input_port!(T, VALUE, "", "Value to be written into the output_key"),

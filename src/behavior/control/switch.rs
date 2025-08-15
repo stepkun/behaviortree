@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	CASE, ConstString, Control, IDLE, VARIABLE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::{PortList, is_bb_pointer, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
@@ -58,7 +58,7 @@ impl<const T: u8> Default for Switch<T> {
 }
 
 #[async_trait::async_trait]
-impl<const T: u8> BehaviorInstance for Switch<T> {
+impl<const T: u8> Behavior for Switch<T> {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.cases = T;
 		self.running_child_index = -1;
@@ -185,9 +185,7 @@ impl<const T: u8> BehaviorInstance for Switch<T> {
 		}
 		Ok(state)
 	}
-}
 
-impl<const T: u8> BehaviorStatic for Switch<T> {
 	fn provided_ports() -> PortList {
 		let mut ports = PortList::default();
 		let port = input_port!(String, VARIABLE);

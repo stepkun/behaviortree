@@ -13,7 +13,7 @@ use tokio::task::JoinHandle;
 use crate as behaviortree;
 use crate::{
 	Action, MSEC,
-	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -31,7 +31,7 @@ pub struct Sleep {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Sleep {
+impl Behavior for Sleep {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -79,9 +79,7 @@ impl BehaviorInstance for Sleep {
 		#[cfg(not(feature = "std"))]
 		Ok(BehaviorState::Failure)
 	}
-}
 
-impl BehaviorStatic for Sleep {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(
 			u64,

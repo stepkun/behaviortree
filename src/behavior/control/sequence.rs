@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Control, IDLE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -41,7 +41,7 @@ impl Default for Sequence {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Sequence {
+impl Behavior for Sequence {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.child_idx = 0;
@@ -102,6 +102,4 @@ impl BehaviorInstance for Sequence {
 		}
 	}
 }
-
-impl BehaviorStatic for Sequence {}
 // endregion:   --- Sequence

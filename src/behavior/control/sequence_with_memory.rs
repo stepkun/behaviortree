@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Control, IDLE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -42,7 +42,7 @@ impl Default for SequenceWithMemory {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for SequenceWithMemory {
+impl Behavior for SequenceWithMemory {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.child_idx = 0;
@@ -104,6 +104,4 @@ impl BehaviorInstance for SequenceWithMemory {
 		}
 	}
 }
-
-impl BehaviorStatic for SequenceWithMemory {}
 // endregion:   --- SequenceWithMemory

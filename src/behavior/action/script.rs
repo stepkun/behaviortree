@@ -12,7 +12,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Action, CODE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -25,7 +25,7 @@ use crate::{
 pub struct Script;
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Script {
+impl Behavior for Script {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -46,9 +46,7 @@ impl BehaviorInstance for Script {
 
 		Ok(state)
 	}
-}
 
-impl BehaviorStatic for Script {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(
 			String,

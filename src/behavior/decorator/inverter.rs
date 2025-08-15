@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator, IDLE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -24,7 +24,7 @@ use crate::{
 pub struct Inverter;
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Inverter {
+impl Behavior for Inverter {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
@@ -48,6 +48,4 @@ impl BehaviorInstance for Inverter {
 		}
 	}
 }
-
-impl BehaviorStatic for Inverter {}
 // endregion:   --- Inverter

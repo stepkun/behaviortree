@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator, IDLE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -25,7 +25,7 @@ pub struct ForceState {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for ForceState {
+impl Behavior for ForceState {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
@@ -45,8 +45,6 @@ impl BehaviorInstance for ForceState {
 		}
 	}
 }
-
-impl BehaviorStatic for ForceState {}
 
 impl ForceState {
 	/// Constructor with arguments.

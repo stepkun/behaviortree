@@ -18,7 +18,7 @@ use behaviortree::prelude::*;
 pub struct ApproachObject {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for ApproachObject {
+impl Behavior for ApproachObject {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
@@ -29,8 +29,6 @@ impl BehaviorInstance for ApproachObject {
 		Ok(BehaviorState::Success)
 	}
 }
-
-impl BehaviorStatic for ApproachObject {}
 
 /// Function for condition `CheckBattery`
 /// # Errors
@@ -71,7 +69,7 @@ impl GripperInterface {
 pub struct SaySomething {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for SaySomething {
+impl Behavior for SaySomething {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -82,9 +80,7 @@ impl BehaviorInstance for SaySomething {
 		info!("Robot says: {}", msg.as_str());
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for SaySomething {
 	fn provided_ports() -> PortList {
 		port_list! {input_port!(String, "message")}
 	}
@@ -95,7 +91,7 @@ impl BehaviorStatic for SaySomething {
 pub struct ThinkWhatToSay {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for ThinkWhatToSay {
+impl Behavior for ThinkWhatToSay {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -105,9 +101,7 @@ impl BehaviorInstance for ThinkWhatToSay {
 		behavior.set("text", String::from("The answer is 42"))?;
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for ThinkWhatToSay {
 	fn provided_ports() -> PortList {
 		port_list![output_port!(String, "text")]
 	}
@@ -159,7 +153,7 @@ impl core::fmt::Display for Position2D {
 pub struct CalculateGoal {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for CalculateGoal {
+impl Behavior for CalculateGoal {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -170,9 +164,7 @@ impl BehaviorInstance for CalculateGoal {
 		behavior.set("goal", mygoal)?;
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for CalculateGoal {
 	fn provided_ports() -> PortList {
 		port_list![output_port!(Position2D, "goal")]
 	}
@@ -183,7 +175,7 @@ impl BehaviorStatic for CalculateGoal {
 pub struct PrintTarget {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for PrintTarget {
+impl Behavior for PrintTarget {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -194,9 +186,7 @@ impl BehaviorInstance for PrintTarget {
 		info!("Target positions: [ {}, {} ]", pos.x, pos.y);
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for PrintTarget {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(Position2D, "target")]
 	}
@@ -255,7 +245,7 @@ impl Default for MoveBaseAction {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for MoveBaseAction {
+impl Behavior for MoveBaseAction {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -285,9 +275,7 @@ impl BehaviorInstance for MoveBaseAction {
 
 		Ok(BehaviorState::Running)
 	}
-}
 
-impl BehaviorStatic for MoveBaseAction {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(Pose2D, "goal")]
 	}

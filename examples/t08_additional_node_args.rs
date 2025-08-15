@@ -26,7 +26,7 @@ pub struct ActionA {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for ActionA {
+impl Behavior for ActionA {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -40,8 +40,6 @@ impl BehaviorInstance for ActionA {
 		Ok(BehaviorState::Success)
 	}
 }
-
-impl BehaviorStatic for ActionA {}
 
 impl ActionA {
 	/// Constructor with arguments.
@@ -59,7 +57,7 @@ pub struct ActionB {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for ActionB {
+impl Behavior for ActionB {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -72,8 +70,6 @@ impl BehaviorInstance for ActionB {
 		Ok(BehaviorState::Success)
 	}
 }
-
-impl BehaviorStatic for ActionB {}
 
 impl ActionB {
 	/// Initialization function.

@@ -81,7 +81,7 @@ impl FromStr for PointCloud {
 struct AcquirePointCloud {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for AcquirePointCloud {
+impl Behavior for AcquirePointCloud {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -103,9 +103,7 @@ impl BehaviorInstance for AcquirePointCloud {
 
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for AcquirePointCloud {
 	fn provided_ports() -> PortList {
 		port_list!(output_port!(PointCloud, "cloud"))
 	}
@@ -116,7 +114,7 @@ impl BehaviorStatic for AcquirePointCloud {
 struct SegmentObject();
 
 #[async_trait::async_trait]
-impl BehaviorInstance for SegmentObject {
+impl Behavior for SegmentObject {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
@@ -132,9 +130,7 @@ impl BehaviorInstance for SegmentObject {
 		// for now it is a failure
 		Ok(BehaviorState::Failure)
 	}
-}
 
-impl BehaviorStatic for SegmentObject {
 	fn provided_ports() -> PortList {
 		port_list!(
 			input_port!(PointCloud, "cloud"),

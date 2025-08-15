@@ -35,21 +35,16 @@ pub fn derive_behavior_struct(input: &DeriveInput, kind: super::Kind) -> TokenSt
 	quote! {
 		#derived
 		#diagnostic
-		impl #impl_generics behaviortree::behavior::Behavior for #ident #type_generics #where_clause {
-			fn creation_fn() -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn> {
-				alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
-			}
-			#[inline]
-			fn kind() -> behaviortree::behavior::BehaviorKind { #kind_ }
-		}
-
-		#derived
-		#diagnostic
 		impl #impl_generics behaviortree::behavior::BehaviorExecution for #ident #type_generics #where_clause {
 			#[inline]
 			fn as_any(&self) -> &dyn core::any::Any { self }
 			#[inline]
 			fn as_any_mut(&mut self) -> &mut dyn core::any::Any { self }
+			fn creation_fn() -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn> {
+				alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
+			}
+			#[inline]
+			fn kind() -> behaviortree::behavior::BehaviorKind { #kind_ }
 			#[inline]
 			fn static_provided_ports(&self) -> behaviortree::port::PortList { Self::provided_ports() }
 		}

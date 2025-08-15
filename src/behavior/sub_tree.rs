@@ -9,8 +9,7 @@ use tinyscript::SharedRuntime;
 
 use crate::{
 	behavior::{
-		Behavior, BehaviorData, BehaviorError, BehaviorExecution, BehaviorInstance, BehaviorKind, BehaviorResult,
-		BehaviorState, BehaviorStatic,
+		BehaviorData, BehaviorError, BehaviorExecution, Behavior, BehaviorKind, BehaviorResult, BehaviorState,
 	},
 	port::PortList,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
@@ -22,16 +21,6 @@ use crate::{
 #[derive(Default)]
 pub struct SubTree;
 
-impl Behavior for SubTree {
-	fn creation_fn() -> Box<crate::behavior::BehaviorCreationFn> {
-		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self))
-	}
-
-	fn kind() -> crate::prelude::BehaviorKind {
-		BehaviorKind::SubTree
-	}
-}
-
 impl BehaviorExecution for SubTree {
 	fn as_any(&self) -> &dyn core::any::Any {
 		self
@@ -41,13 +30,21 @@ impl BehaviorExecution for SubTree {
 		self
 	}
 
+	fn creation_fn() -> Box<crate::behavior::BehaviorCreationFn> {
+		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self))
+	}
+
+	fn kind() -> crate::prelude::BehaviorKind {
+		BehaviorKind::SubTree
+	}
+
 	fn static_provided_ports(&self) -> PortList {
 		PortList::default()
 	}
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for SubTree {
+impl Behavior for SubTree {
 	#[inline]
 	fn on_start(
 		&mut self,
@@ -71,6 +68,4 @@ impl BehaviorInstance for SubTree {
 		children[0].tick(runtime).await
 	}
 }
-
-impl BehaviorStatic for SubTree {}
 // endregion:   --- SubTree

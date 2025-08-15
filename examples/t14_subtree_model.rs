@@ -84,7 +84,7 @@ mod move_robot {
 	}
 
 	#[async_trait::async_trait]
-	impl BehaviorInstance for MoveBase {
+	impl Behavior for MoveBase {
 		fn on_start(
 			&mut self,
 			behavior: &mut BehaviorData,
@@ -116,9 +116,7 @@ mod move_robot {
 				Ok(BehaviorState::Success)
 			}
 		}
-	}
 
-	impl BehaviorStatic for MoveBase {
 		fn provided_ports() -> PortList {
 			port_list!(input_port!(Pose2D, "goal"),)
 		}

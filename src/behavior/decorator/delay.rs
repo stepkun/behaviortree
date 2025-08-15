@@ -13,7 +13,7 @@ use tokio::task::JoinHandle;
 use crate as behaviortree;
 use crate::{
 	DELAY_MSEC, Decorator,
-	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -31,7 +31,7 @@ pub struct Delay {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Delay {
+impl Behavior for Delay {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		#[cfg(feature = "std")]
@@ -97,9 +97,7 @@ impl BehaviorInstance for Delay {
 		#[cfg(not(feature = "std"))]
 		Ok(BehaviorState::Failure)
 	}
-}
 
-impl BehaviorStatic for Delay {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(
 			u64,

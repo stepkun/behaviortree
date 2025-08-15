@@ -10,7 +10,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{ConstString, behavior::SubTree};
+use crate::{ConstString, behavior::Behavior, behavior::SubTree};
 #[cfg(feature = "std")]
 use alloc::string::ToString;
 use alloc::{boxed::Box, string::String, vec::Vec};
@@ -19,8 +19,8 @@ use alloc::{boxed::Box, string::String, vec::Vec};
 use crate::SHOULD_NOT_HAPPEN;
 use crate::{
 	behavior::{
-		Behavior, BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState, BehaviorStatic, ComplexBhvrTickFn,
-		SimpleBehavior, SimpleBhvrTickFn,
+		BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState, ComplexBhvrTickFn, SimpleBehavior,
+		SimpleBhvrTickFn,
 		action::{ChangeStateAfter, Script, SetBlackboard, Sleep, UnsetBlackboard},
 		condition::{ScriptCondition, WasEntryUpdated},
 		control::{
@@ -443,7 +443,7 @@ impl BehaviorTreeFactory {
 	/// - if a behavior with that `name` is already registered
 	pub fn register_behavior_type<T>(&mut self, name: &str) -> Result<(), Error>
 	where
-		T: Behavior,
+		T: BehaviorExecution,
 	{
 		let bhvr_desc = BehaviorDescription::new(name, name, T::kind(), false, T::provided_ports());
 		let bhvr_creation_fn = T::creation_fn();
@@ -456,7 +456,7 @@ impl BehaviorTreeFactory {
 	/// - if a behavior with that `name` is already registered
 	fn register_groot2_behavior_type<T>(&mut self, name: &str) -> Result<(), Error>
 	where
-		T: Behavior,
+		T: BehaviorExecution,
 	{
 		let bhvr_desc = BehaviorDescription::new(name, name, T::kind(), true, T::provided_ports());
 		let bhvr_creation_fn = T::creation_fn();

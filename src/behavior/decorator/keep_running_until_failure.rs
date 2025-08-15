@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -30,7 +30,7 @@ use crate::{
 pub struct KeepRunningUntilFailure;
 
 #[async_trait::async_trait]
-impl BehaviorInstance for KeepRunningUntilFailure {
+impl Behavior for KeepRunningUntilFailure {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
@@ -56,6 +56,4 @@ impl BehaviorInstance for KeepRunningUntilFailure {
 		}
 	}
 }
-
-impl BehaviorStatic for KeepRunningUntilFailure {}
 // endregion:   --- KeepRunningUntilFailure

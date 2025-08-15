@@ -11,7 +11,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Control, IDLE,
-	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
 	port::PortList,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -54,7 +54,7 @@ impl Default for Parallel {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Parallel {
+impl Behavior for Parallel {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.success_threshold = -1;
 		self.failure_threshold = -1;
@@ -158,9 +158,7 @@ impl BehaviorInstance for Parallel {
 
 		Ok(BehaviorState::Running)
 	}
-}
 
-impl BehaviorStatic for Parallel {
 	fn provided_ports() -> PortList {
 		port_list![
 			input_port!(i32, SUCCESS_COUNT),

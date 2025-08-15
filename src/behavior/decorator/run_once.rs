@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator, IDLE, THEN_SKIP,
-	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -29,7 +29,7 @@ pub struct RunOnce {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for RunOnce {
+impl Behavior for RunOnce {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.already_ticked = false;
@@ -71,9 +71,7 @@ impl BehaviorInstance for RunOnce {
 			Ok(state)
 		}
 	}
-}
 
-impl BehaviorStatic for RunOnce {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(
 			bool,

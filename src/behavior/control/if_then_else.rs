@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Control, IDLE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -31,7 +31,7 @@ pub struct IfThenElse {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for IfThenElse {
+impl Behavior for IfThenElse {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.child_index = 0;
@@ -108,6 +108,4 @@ impl BehaviorInstance for IfThenElse {
 		}
 	}
 }
-
-impl BehaviorStatic for IfThenElse {}
 // endregion:   --- IfThenElse

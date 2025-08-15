@@ -21,8 +21,8 @@ mod tree;
 mod xml;
 
 // flatten:
-pub use behavior::{Behavior, BehaviorExecution, BehaviorInstance, BehaviorStatic};
 pub use behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState};
+pub use behavior::{BehaviorExecution, Behavior};
 pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, SharedBlackboard};
 pub use error::{BehaviorTreeResult, Error};
 pub use factory::BehaviorTreeFactory;

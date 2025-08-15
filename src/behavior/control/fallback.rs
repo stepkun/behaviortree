@@ -10,7 +10,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Control, IDLE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -38,7 +38,7 @@ impl Default for Fallback {
 	}
 }
 #[async_trait::async_trait]
-impl BehaviorInstance for Fallback {
+impl Behavior for Fallback {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.child_idx = 0;
@@ -97,6 +97,4 @@ impl BehaviorInstance for Fallback {
 		}
 	}
 }
-
-impl BehaviorStatic for Fallback {}
 // endregion:   --- Fallback

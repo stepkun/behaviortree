@@ -13,7 +13,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator, ELSE, FAILURE, IDLE, IF, RUNNING, SKIPPED, SUCCESS,
-	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -28,7 +28,7 @@ use crate::{
 pub struct Precondition;
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Precondition {
+impl Behavior for Precondition {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -75,9 +75,7 @@ impl BehaviorInstance for Precondition {
 
 		Ok(new_state)
 	}
-}
 
-impl BehaviorStatic for Precondition {
 	fn provided_ports() -> PortList {
 		port_list![
 			input_port!(String, IF, "", "Condition to check."),

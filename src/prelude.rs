@@ -31,7 +31,7 @@ pub use crate::{inout_port, input_port, output_port, port_list};
 // behavior
 pub use crate::behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState};
 // behavior traits
-pub use crate::behavior::{Behavior, BehaviorExecution, BehaviorInstance, BehaviorStatic};
+pub use crate::behavior::{BehaviorExecution, Behavior};
 // blackboard
 pub use crate::blackboard::SharedBlackboard;
 // blackboard traits

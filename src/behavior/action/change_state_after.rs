@@ -11,7 +11,7 @@ use crate as behaviortree;
 use crate::behavior::{BehaviorData, BehaviorError};
 use crate::{
 	Action,
-	behavior::{BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{Behavior, BehaviorResult, BehaviorState},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
@@ -34,7 +34,7 @@ pub struct ChangeStateAfter {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for ChangeStateAfter {
+impl Behavior for ChangeStateAfter {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.remaining = self.count;
 		Ok(())
@@ -67,8 +67,6 @@ impl BehaviorInstance for ChangeStateAfter {
 		})
 	}
 }
-
-impl BehaviorStatic for ChangeStateAfter {}
 
 impl ChangeStateAfter {
 	/// Constructor with arguments.

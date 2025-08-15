@@ -13,7 +13,7 @@ use tokio::task::JoinHandle;
 use crate as behaviortree;
 use crate::{
 	Decorator, MSEC,
-	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -30,7 +30,7 @@ pub struct Timeout {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for Timeout {
+impl Behavior for Timeout {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		#[cfg(feature = "std")]
@@ -96,9 +96,7 @@ impl BehaviorInstance for Timeout {
 		#[cfg(not(feature = "std"))]
 		Ok(BehaviorState::Failure)
 	}
-}
 
-impl BehaviorStatic for Timeout {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(
 			u64,

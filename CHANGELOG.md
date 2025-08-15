@@ -25,12 +25,15 @@ Support of embedded
   t07_load_multiple_xml, t08_additional_node_args
 
 ### Changed
+- renamed trait 'BehaviorInstance' to 'Behavior'
+- more straightforward error handling
 
 ### Fixed
 - some differences between documentation and implementation
 
 ### Removed
 - visibility of constant 'SHOULD_NOT_HAPPEN'
+- trait 'BehaviorStatic', content now in 'Behavior', former 'BehaviorInstance'
 
 ## [0.2.0] - 2025-08-12
 

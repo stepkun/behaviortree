@@ -13,7 +13,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Condition, ConstString, ENTRY,
-	behavior::{BehaviorData, BehaviorError, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic},
+	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -33,7 +33,7 @@ pub struct WasEntryUpdated {
 }
 
 #[async_trait::async_trait]
-impl BehaviorInstance for WasEntryUpdated {
+impl Behavior for WasEntryUpdated {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -69,9 +69,7 @@ impl BehaviorInstance for WasEntryUpdated {
 			Ok(BehaviorState::Success)
 		}
 	}
-}
 
-impl BehaviorStatic for WasEntryUpdated {
 	fn provided_ports() -> PortList {
 		port_list![input_port!(
 			String,

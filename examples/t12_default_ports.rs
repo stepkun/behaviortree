@@ -69,7 +69,7 @@ impl FromStr for Point2D {
 struct BehaviorWithDefaultPoints {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for BehaviorWithDefaultPoints {
+impl Behavior for BehaviorWithDefaultPoints {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -108,9 +108,7 @@ impl BehaviorInstance for BehaviorWithDefaultPoints {
 
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for BehaviorWithDefaultPoints {
 	fn provided_ports() -> PortList {
 		port_list!(
 			input_port!(String, "input"),                             // default value from XML is [-1,-2]

@@ -47,7 +47,7 @@ const XML: &str = r#"
 struct PrintNumber {}
 
 #[async_trait::async_trait]
-impl BehaviorInstance for PrintNumber {
+impl Behavior for PrintNumber {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
@@ -59,9 +59,7 @@ impl BehaviorInstance for PrintNumber {
 
 		Ok(BehaviorState::Success)
 	}
-}
 
-impl BehaviorStatic for PrintNumber {
 	fn provided_ports() -> PortList {
 		port_list!(input_port!(i64, "val"),)
 	}

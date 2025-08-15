@@ -15,7 +15,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator, IF_EMPTY, QUEUE,
-	behavior::{BehaviorData, BehaviorInstance, BehaviorResult, BehaviorState, BehaviorStatic, error::BehaviorError},
+	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
 	inout_port, input_port, output_port,
 	port::PortList,
 	port_list,
@@ -117,7 +117,7 @@ where
 }
 
 #[async_trait::async_trait]
-impl<T> BehaviorInstance for Loop<T>
+impl<T> Behavior for Loop<T>
 where
 	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
@@ -167,12 +167,7 @@ where
 			Err(BehaviorError::Composition("Queue was not initiialized properly!".into()))
 		}
 	}
-}
 
-impl<T> BehaviorStatic for Loop<T>
-where
-	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
-{
 	fn provided_ports() -> PortList {
 		port_list![
 			inout_port!(SharedQueue<T>, QUEUE),
