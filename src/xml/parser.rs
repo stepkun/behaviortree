@@ -33,7 +33,6 @@ use crate::{
 // region:		--- helper
 fn attrs_to_map(attrs: Attributes) -> BTreeMap<ConstString, ConstString> {
 	let mut map = BTreeMap::default();
-	//dbg!(self);
 	for attr in attrs {
 		let name = attr.name().into();
 		let value = attr.value().into();
@@ -170,7 +169,6 @@ impl XmlParser {
 		// port list is needed twice:
 		// - for checking port names in given attributes
 		// - to add default values
-		// @TODO embedded: This has problems in embedded!!!
 		let port_list = bhvr.static_provided_ports();
 		// first check for default values given in port definition.
 		// this value can later be overwritten by default values given by xml attribute

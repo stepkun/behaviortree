@@ -68,7 +68,7 @@ impl Behavior for UpdatePosition {
 async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
 	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
-	// special creation/registration uf multiple methods of a struct
+	// special creation/registration of multiple methods of a struct
 	#[cfg(test)]
 	let _crossdoor = CrossDoor::register_behaviors(&mut factory)?;
 
@@ -177,7 +177,7 @@ const RESULT: &str = r#"<root BTCPP_format="4">
     <Action ID="OpenDoor"/>
     <Action ID="PassThroughDoor"/>
     <Action ID="PickLock"/>
-    <Condition ID="SmashDoor"/>
+    <Action ID="SmashDoor"/>
     <Action ID="UpdatePosition">
       <output_port name="pos" type="Position2D"/>
     </Action>
@@ -213,7 +213,7 @@ const METADATA_RESULT: &str = r#"<root BTCPP_format="4">
     <Action ID="OpenDoor"/>
     <Action ID="PassThroughDoor"/>
     <Action ID="PickLock"/>
-    <Condition ID="SmashDoor"/>
+    <Action ID="SmashDoor"/>
     <Action ID="UpdatePosition">
       <output_port name="pos" type="Position2D"/>
     </Action>
@@ -322,7 +322,7 @@ const FULL_RESULT: &str = r#"<root BTCPP_format="4">
     <Action ID="Sleep">
       <input_port name="msec" type="unsigned int"/>
     </Action>
-    <Condition ID="SmashDoor"/>
+    <Action ID="SmashDoor"/>
     <SubTree ID="SubTree">
       <input_port name="_autoremap" type="bool" default="false">If true, all the ports with the same name will be remapped</input_port>
     </SubTree>

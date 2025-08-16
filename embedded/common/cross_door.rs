@@ -125,7 +125,7 @@ impl CrossDoor {
 			BehaviorKind::Action,
 			smash_door,
 			"SmashDoor",
-			BehaviorKind::Condition,
+			BehaviorKind::Action,
 		)?;
 
 		Ok(res)
