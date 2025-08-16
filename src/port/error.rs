@@ -1,13 +1,8 @@
 // Copyright © 2025 Stephan Kunz
 
-//! [`Port`](crate::port) errors.
-
-#[doc(hidden)]
-extern crate alloc;
+//! [`behaviortree`](crate) [`Port`](crate::port) errors.
 
 // region		--- modules
-#[cfg(doc)]
-use super::{PortList, PortRemappings};
 use crate::ConstString;
 use thiserror::Error;
 // endregion:	--- modules
@@ -17,16 +12,16 @@ use thiserror::Error;
 #[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum Error {
-	/// Passthrough for Blackboard `Errors`
+	/// Passthrough for [`Blackboard`](crate::blackboard) errors
 	#[error("{0}")]
 	Blackboard(#[from] crate::blackboard::error::Error),
 	/// Could not convert the str into required T
 	#[error("could not convert [{0}] into wanted type")]
 	CouldNotConvert(ConstString),
-	/// Port already in [`PortList`]
+	/// Port already in [`PortList`](crate::port::port_list::PortList)
 	#[error("name [{0}] already in port list")]
 	AlreadyInPortList(ConstString),
-	/// Port already in [`PortRemappings`]
+	/// Port already in [`PortRemappings`](crate::port::port_remappings::PortRemappings)
 	#[error("name [{0}] already in remapping list")]
 	AlreadyInRemappings(ConstString),
 	/// Name for a port is not allowed

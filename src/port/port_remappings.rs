@@ -1,15 +1,12 @@
 // Copyright © 2025 Stephan Kunz
 
-//! [`PortRemappings`] and [`ConstPortRemappings`] implementation
-
-#[doc(hidden)]
-extern crate alloc;
-
-use core::ops::{Deref, DerefMut};
+//! [`behaviortree`](crate) [`PortRemappings`] and [`ConstPortRemappings`] implementation.
 
 // region:      --- modules
-use crate::ConstString;
 use alloc::{boxed::Box, string::String, vec::Vec};
+use core::ops::{Deref, DerefMut};
+
+use crate::ConstString;
 
 use super::error::Error;
 // endregion:   --- modules

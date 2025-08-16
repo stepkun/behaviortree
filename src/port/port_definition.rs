@@ -1,19 +1,15 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `behaviortree` `PortDefintion` implementation
-
-#[doc(hidden)]
-extern crate alloc;
+//! [`behaviortree`](crate) [`PortDefinition`] implementation.
 
 // region:      --- modules
 use crate::ConstString;
 
-use super::{PortDirection, error::Error, is_allowed_port_name};
+use super::{error::Error, is_allowed_port_name, port_direction::PortDirection};
 // endregion:   --- modules
 
 // region:      --- PortDefinition
-/// A static [`PortDefinition`], which is used for configuration.
-/// Access to members is public within crate to maximize performance
+/// A [`PortDefinition`], which is used for configuration.
 #[derive(Clone, Debug)]
 pub struct PortDefinition {
 	/// Direction of the port.

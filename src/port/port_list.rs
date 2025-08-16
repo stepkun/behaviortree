@@ -1,15 +1,12 @@
 // Copyright © 2025 Stephan Kunz
 
-//! `behaviortree` Port implementation
-
-#[doc(hidden)]
-extern crate alloc;
-
-use core::ops::{Deref, DerefMut};
+//! [`behaviortree`](crate) [`PortList`] implementation.
 
 // region:      --- modules
-use crate::ConstString;
 use alloc::{string::String, vec::Vec};
+use core::ops::{Deref, DerefMut};
+
+use crate::ConstString;
 
 use super::{PortDefinition, error::Error};
 // endregion:   --- modules
@@ -19,6 +16,7 @@ use super::{PortDefinition, error::Error};
 /// The `PortList` is not using a `BTreeMap` but a `Vec` due to
 /// a `BTreeMap` needs more space than a `Vec` and search performance is not an issue
 #[derive(Clone, Debug, Default)]
+#[repr(transparent)]
 pub struct PortList(pub Vec<PortDefinition>);
 
 impl Deref for PortList {

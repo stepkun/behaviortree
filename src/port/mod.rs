@@ -2,17 +2,16 @@
 
 //! [`behaviortree`](crate) port module.
 
-#[doc(hidden)]
-extern crate alloc;
-
 pub mod error;
 mod port_definition;
+mod port_direction;
 mod port_list;
 #[allow(clippy::module_inception)]
 mod port_remappings;
 
 // flatten
 pub use port_definition::PortDefinition;
+pub use port_direction::PortDirection;
 pub use port_list::PortList;
 pub use port_remappings::ConstPortRemappings;
 pub use port_remappings::PortRemappings;
@@ -103,56 +102,6 @@ pub fn is_allowed_port_name(name: &str) -> bool {
 	true
 }
 // endregion:   --- helper
-
-// region:      --- PortDirection
-const INPUT: &str = "Input";
-const OUTPUT: &str = "Output";
-const INOUT: &str = "InOut";
-
-const INPUT_TYPE: &str = "input_port";
-const OUTPUT_TYPE: &str = "output_port";
-const INOUT_TYPE: &str = "inout_port";
-
-/// Direction of a `Port`.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[repr(u8)]
-pub enum PortDirection {
-	/// Input port
-	In,
-	/// Output port
-	Out,
-	/// Bidirecional port
-	InOut,
-}
-
-impl core::fmt::Display for PortDirection {
-	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-		write!(f, "{}", self.as_str())
-	}
-}
-
-impl PortDirection {
-	/// Get the [`PortDirection`] as str
-	#[must_use]
-	pub const fn as_str(&self) -> &str {
-		match self {
-			Self::In => INPUT,
-			Self::Out => OUTPUT,
-			Self::InOut => INOUT,
-		}
-	}
-
-	/// Get the [`PortDirection`] as `type_port` str
-	#[must_use]
-	pub const fn type_str(self) -> &'static str {
-		match self {
-			Self::In => INPUT_TYPE,
-			Self::Out => OUTPUT_TYPE,
-			Self::InOut => INOUT_TYPE,
-		}
-	}
-}
-// endregion:   --- PortDirection
 
 // region:		---macros
 /// macro for creation of an input port definition
