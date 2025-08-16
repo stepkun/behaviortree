@@ -47,41 +47,57 @@ use alloc::sync::Arc;
 pub type ConstString = Arc<str>;
 // endregion:   --- types
 
-// region:		--- literal constants
+// region:		--- globals
 /// Often needed empty str
 pub const EMPTY_STR: &str = "";
 /// Global constant for expect statements that should never happen
 #[doc(hidden)]
-pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
+pub static SHOULD_NOT_HAPPEN: &str = "should not happen";
 
+// forbidden port names
+static FORBIDDEN_PORT_NAMES: &[&str] = &[
+	"name",
+	"ID",
+	"_autoremap",
+	"_failureIf",
+	"_successIf",
+	"_skipIf",
+	"_while",
+	"_onHalted",
+	"_onFailure",
+	"_onSuccess",
+	"_post",
+];
+
+// @TODO: statics???
 /// Behavior state literals
-const IDLE: &str = "Idle";
-const RUNNING: &str = "Running";
-const SUCCESS: &str = "Success";
-const FAILURE: &str = "Failure";
-const SKIPPED: &str = "Skipped";
+static IDLE: &str = "Idle";
+static RUNNING: &str = "Running";
+static SUCCESS: &str = "Success";
+static FAILURE: &str = "Failure";
+static SKIPPED: &str = "Skipped";
 
 /// Port name literals
-const CASES: [&str; 6] = [
+static CASES: [&str; 6] = [
 	"case_1", "case_2", "case_3", "case_4", "case_5", "case_6",
 ];
-const CODE: &str = "code";
-const DELAY_MSEC: &str = "delay_msec";
-const ENTRY: &str = "entry";
-const ELSE: &str = "else";
-const IF: &str = "if";
-const IF_EMPTY: &str = "if_empty";
-const KEY: &str = "key";
-const MAX_FAILURES: &str = "max_failures";
-const MSEC: &str = "msec";
-const NUM_ATTEMPTS: &str = "num_attempts";
-const NUM_CYCLES: &str = "num_cycles";
-const OUTPUT_KEY: &str = "output_key";
-const QUEUE: &str = "queue";
-const THEN_SKIP: &str = "then_skip";
-const VALUE: &str = "value";
-const VARIABLE: &str = "variable";
-// endregion:	--- literal constants
+static CODE: &str = "code";
+static DELAY_MSEC: &str = "delay_msec";
+static ENTRY: &str = "entry";
+static ELSE: &str = "else";
+static IF: &str = "if";
+static IF_EMPTY: &str = "if_empty";
+static KEY: &str = "key";
+static MAX_FAILURES: &str = "max_failures";
+static MSEC: &str = "msec";
+static NUM_ATTEMPTS: &str = "num_attempts";
+static NUM_CYCLES: &str = "num_cycles";
+static OUTPUT_KEY: &str = "output_key";
+static QUEUE: &str = "queue";
+static THEN_SKIP: &str = "then_skip";
+static VALUE: &str = "value";
+static VARIABLE: &str = "variable";
+// endregion:	--- globals
 
 // region:		---macros
 /// Macro to register a behavior with additional arguments.

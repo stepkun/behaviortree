@@ -5,6 +5,7 @@
 // region:      --- modules
 use alloc::boxed::Box;
 use alloc::string::String;
+use alloc::vec::Vec;
 use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
@@ -106,57 +107,67 @@ impl<const T: u8> Behavior for Switch<T> {
 		children: &mut ConstBehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		fn inner_tick(
+			behavior: &BehaviorData,
+			runtime: &SharedRuntime,
+			default_index: u8,
+			var: &ConstString,
+		) -> Result<i32, BehaviorError> {
+			let mut match_index = i32::from(default_index);
+			let var = behavior.get::<String>(var)?;
+			for i in 0..default_index {
+				let case = behavior.get::<String>(CASES[i as usize])?;
+
+				// string comparison
+				if var == case {
+					match_index = i32::from(i);
+					break;
+				}
+
+				// compare as enums
+				let guard = runtime.lock();
+				if let Some(c_val) = guard.enum_discriminant(&case) {
+					if let Ok(v_val) = var.parse::<i8>() {
+						if c_val == v_val {
+							match_index = i32::from(i);
+							break;
+						}
+					} else if let Some(v_val) = guard.enum_discriminant(&var) {
+						if c_val == v_val {
+							match_index = i32::from(i);
+							break;
+						}
+					}
+				}
+				drop(guard);
+
+				// compare as integers
+				if let Ok(v_val) = var.parse::<i64>() {
+					if let Ok(c_val) = case.parse::<i64>() {
+						if c_val == v_val {
+							match_index = i32::from(i);
+							break;
+						}
+					}
+				}
+
+				// compare as floats
+				if let Ok(c_val) = case.parse::<f64>() {
+					if let Ok(v_val) = var.parse::<f64>() {
+						let delta = f64::abs(v_val - c_val);
+						if delta <= 0.000_000_000_000_002 {
+							match_index = i32::from(i);
+							break;
+						}
+					}
+				}
+			}
+			Ok(match_index)
+		}
+
 		// default match index
 		let default_index = i32::from(T);
-		let mut match_index = i32::from(T);
-		let var = behavior.get::<String>(&self.var)?;
-		for i in 0..T {
-			let case = behavior.get::<String>(CASES[i as usize])?;
-
-			// string comparison
-			if var == case {
-				match_index = i32::from(i);
-				break;
-			}
-
-			// compare as enums
-			let guard = runtime.lock();
-			if let Some(c_val) = guard.enum_discriminant(&case) {
-				if let Ok(v_val) = var.parse::<i8>() {
-					if c_val == v_val {
-						match_index = i32::from(i);
-						break;
-					}
-				} else if let Some(v_val) = guard.enum_discriminant(&var) {
-					if c_val == v_val {
-						match_index = i32::from(i);
-						break;
-					}
-				}
-			}
-			drop(guard);
-
-			// compare as integers
-			if let Ok(v_val) = var.parse::<i64>() {
-				if let Ok(c_val) = case.parse::<i64>() {
-					if c_val == v_val {
-						match_index = i32::from(i);
-						break;
-					}
-				}
-			}
-
-			// compare as floats
-			if let Ok(c_val) = case.parse::<f64>() {
-				if let Ok(v_val) = var.parse::<f64>() {
-					let delta = f64::abs(v_val - c_val);
-					if delta <= 0.000_000_000_000_002 {
-						match_index = i32::from(i);
-						break;
-					}
-				}
-			}
-		}
+		let match_index = inner_tick(behavior, runtime, T, &self.var)?;
 
 		// stop child, if it is not the one that should run
 		if self.running_child_index > 0 && match_index != self.running_child_index && match_index <= default_index {
@@ -185,19 +196,23 @@ impl<const T: u8> Behavior for Switch<T> {
 	}
 
 	fn provided_ports() -> PortList {
-		let mut ports = PortList::default();
-		let port = input_port!(String, VARIABLE);
+		create_port_list(T)
+	}
+}
+
+fn create_port_list(size: u8) -> PortList {
+	let mut ports = PortList(Vec::with_capacity(size as usize));
+	let port = input_port!(String, VARIABLE);
+	ports
+		.add(port)
+		.expect("providing port [variable] failed in behavior [Switch<T>]");
+
+	for i in 0..size {
+		let port = input_port!(String, CASES[i as usize]);
 		ports
 			.add(port)
-			.expect("providing port [variable] failed in behavior [Switch<T>]");
-
-		for i in 0..T {
-			let port = input_port!(String, CASES[i as usize]);
-			ports
-				.add(port)
-				.expect("providing port [case_T] failed in behavior [Switch<T>]");
-		}
-		ports
+			.expect("providing port [case_T] failed in behavior [Switch<T>]");
 	}
+	ports
 }
 // endregion:   --- Switch

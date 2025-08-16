@@ -18,24 +18,9 @@ pub use port_remappings::PortRemappings;
 
 // region:      --- modules
 use crate::ConstString;
+use crate::FORBIDDEN_PORT_NAMES;
 use error::Error;
 // endregion:   --- modules
-
-// region:      --- types
-const FORBIDDEN_NAMES: &[&str] = &[
-	"name",
-	"ID",
-	"_autoremap",
-	"_failureIf",
-	"_successIf",
-	"_skipIf",
-	"_while",
-	"_onHalted",
-	"_onFailure",
-	"_onSuccess",
-	"_post",
-];
-// endregion:   --- types
 
 // region:      --- helper
 /// Check on blackboard pointer.
@@ -92,7 +77,7 @@ pub fn is_allowed_port_name(name: &str) -> bool {
 			return false;
 		}
 
-		if FORBIDDEN_NAMES.contains(&name) {
+		if FORBIDDEN_PORT_NAMES.contains(&name) {
 			return false;
 		}
 	} else {

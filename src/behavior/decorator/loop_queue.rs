@@ -15,7 +15,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Decorator, IF_EMPTY, QUEUE,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	inout_port, input_port, output_port,
 	port::PortList,
 	port_list,
@@ -106,7 +106,6 @@ where
 /// The [`Loop`] behavior is used to `pop_front` elements from a [`VecDeque`].
 /// This element is copied into the port "value" and the child will be executed
 /// as long as there are elements in the queue.
-///
 #[derive(Decorator, Debug, Default)]
 pub struct Loop<T>
 where
@@ -148,18 +147,22 @@ where
 		children: &mut ConstBehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		async fn inner_tick(children: &mut ConstBehaviorTreeElementList, runtime: &SharedRuntime) -> BehaviorResult {
+			let child_state = children[0].tick(runtime).await?;
+			if child_state.is_completed() {
+				children[0].halt_children(runtime)?;
+			}
+			if child_state == BehaviorState::Failure {
+				Ok(BehaviorState::Failure)
+			} else {
+				Ok(BehaviorState::Running)
+			}
+		}
+
 		if let Some(queue) = &self.queue {
 			if let Some(value) = queue.pop_front() {
 				behavior.set::<T>("value", value)?;
-				let child_state = children[0].tick(runtime).await?;
-				if child_state.is_completed() {
-					children[0].halt_children(runtime)?;
-				}
-				if child_state == BehaviorState::Failure {
-					Ok(BehaviorState::Failure)
-				} else {
-					Ok(BehaviorState::Running)
-				}
+				inner_tick(children, runtime).await
 			} else {
 				Ok(self.state)
 			}

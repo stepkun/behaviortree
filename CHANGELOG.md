@@ -28,6 +28,7 @@ Support of embedded
 - renamed trait `BehaviorInstance` to `Behavior`
 - more straightforward error handling
 - implementation of PortDefinition to use `&'static str`
+- move non generic code into inner functions in generic behaviors
 
 ### Fixed
 - some differences between documentation and implementation
