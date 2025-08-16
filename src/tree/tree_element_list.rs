@@ -15,6 +15,7 @@ use super::tree_element::BehaviorTreeElement;
 // region:		--- ConstBehaviorTreeElementList
 /// An immutable list of tree components.
 #[derive(Default)]
+#[repr(transparent)]
 pub struct ConstBehaviorTreeElementList(Box<[BehaviorTreeElement]>);
 
 impl Deref for ConstBehaviorTreeElementList {
@@ -78,6 +79,7 @@ impl ConstBehaviorTreeElementList {
 // region:		--- BehaviorTreeElementList
 /// A mutable list of tree components.
 #[derive(Default)]
+#[repr(transparent)]
 pub struct BehaviorTreeElementList(Vec<BehaviorTreeElement>);
 
 impl Deref for BehaviorTreeElementList {

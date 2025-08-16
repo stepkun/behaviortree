@@ -22,6 +22,7 @@ type RemappingEntry = (ConstString, ConstString);
 /// Use [`PortRemappings`] to build a remapping list and convert it into
 /// an immutable list if it will never change after creation.
 #[derive(Clone, Debug, Default)]
+#[repr(transparent)]
 pub struct ConstPortRemappings(Box<[RemappingEntry]>);
 
 impl Deref for ConstPortRemappings {
@@ -66,6 +67,7 @@ impl ConstPortRemappings {
 // region:		--- PortRemappings
 /// Mutable remapping list.
 #[derive(Clone, Debug, Default)]
+#[repr(transparent)]
 pub struct PortRemappings(Vec<RemappingEntry>);
 
 impl Deref for PortRemappings {
@@ -90,30 +92,32 @@ impl From<ConstPortRemappings> for PortRemappings {
 
 impl PortRemappings {
 	/// Add an entry to the [`PortRemappings`].
+	/// The original name is a `&'static str` as provided by
+	/// [`PortDefinition`](crate::port::port_definition::PortDefinition)
 	/// # Errors
 	/// - if entry already exists
-	pub fn add(&mut self, name: &ConstString, remapped_name: &ConstString) -> Result<(), Error> {
+	pub fn add(&mut self, name: &'static str, remapped_name: &ConstString) -> Result<(), Error> {
 		for (original, _) in &self.0 {
-			if original == name {
-				return Err(Error::AlreadyInRemappings(name.clone()));
+			if original.as_ref() == name {
+				return Err(Error::AlreadyInRemappings(name.into()));
 			}
 		}
-		self.0.push((name.clone(), remapped_name.clone()));
+		self.0.push((name.into(), remapped_name.clone()));
 		Ok(())
 	}
 
 	/// Add an entry to the [`PortRemappings`].
 	/// Already existing values will be overwritten
-	pub fn overwrite(&mut self, key: &ConstString, value: &ConstString) {
+	pub fn overwrite(&mut self, name: &str, remapped_name: &ConstString) {
 		for (original, old_value) in &mut self.0 {
-			if original == key {
+			if original.as_ref() == name {
 				// replace value
-				*old_value = value.clone();
+				*old_value = remapped_name.clone();
 				return;
 			}
 		}
 		// create if not existent
-		self.0.push((key.clone(), value.clone()));
+		self.0.push((name.into(), remapped_name.clone()));
 	}
 
 	// /// Lookup the remapped name.

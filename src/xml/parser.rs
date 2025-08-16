@@ -183,7 +183,7 @@ impl XmlParser {
 						if stripped.as_ref() == "=" {
 							// remapping to itself not necessary
 						} else if is_allowed_port_name(&stripped) {
-							match remappings.add(&port_definition.name().to_string().into(), default_value) {
+							match remappings.add(port_definition.name(), default_value) {
 								Ok(()) => {}
 								Err(err) => return Err(Error::Remapping(err)),
 							}
@@ -192,7 +192,7 @@ impl XmlParser {
 						}
 					}
 					// No bb pointer
-					None => match remappings.add(&port_definition.name().to_string().into(), default_value) {
+					None => match remappings.add(port_definition.name(), default_value) {
 						Ok(()) => {}
 						Err(err) => return Err(Error::Remapping(err)),
 					},
