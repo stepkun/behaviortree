@@ -7,7 +7,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{ConstString, port::strip_bb_pointer};
+use crate::{ConstString, EMPTY_STR, port::strip_bb_pointer};
 use alloc::{
 	collections::btree_map::BTreeMap,
 	string::{String, ToString},
@@ -183,16 +183,16 @@ impl XmlParser {
 						if stripped.as_ref() == "=" {
 							// remapping to itself not necessary
 						} else if is_allowed_port_name(&stripped) {
-							match remappings.add(port_definition.name(), default_value) {
+							match remappings.add(&port_definition.name().to_string().into(), default_value) {
 								Ok(()) => {}
 								Err(err) => return Err(Error::Remapping(err)),
 							}
 						} else {
-							return Err(Error::NameNotAllowed(port_definition.name().clone()));
+							return Err(Error::NameNotAllowed(port_definition.name().to_string().into()));
 						}
 					}
 					// No bb pointer
-					None => match remappings.add(port_definition.name(), default_value) {
+					None => match remappings.add(&port_definition.name().to_string().into(), default_value) {
 						Ok(()) => {}
 						Err(err) => return Err(Error::Remapping(err)),
 					},
@@ -326,7 +326,7 @@ impl XmlParser {
 				if children.len() > 1 {
 					return Err(Error::SubtreeOneChild(node.tag_name().name().into()));
 				}
-				let bhvr_data = BehaviorData::new(uid, name, "", remappings, blackboard, bhvr_desc);
+				let bhvr_data = BehaviorData::new(uid, name, EMPTY_STR, remappings, blackboard, bhvr_desc);
 				let behaviortree = BehaviorTreeElement::create_subtree(bhvr_data, children.into(), bhvr, conditions);
 				Ok(behaviortree)
 			},

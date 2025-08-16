@@ -11,7 +11,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Control, IDLE, MAX_FAILURES,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	port::PortList,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };

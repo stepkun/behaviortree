@@ -10,10 +10,10 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use tokio::task::JoinHandle;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	DELAY_MSEC, Decorator,
-	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -102,7 +102,7 @@ impl Behavior for Delay {
 		port_list![input_port!(
 			u64,
 			DELAY_MSEC,
-			"",
+			EMPTY_STR,
 			"Tick the child after a few milliseconds."
 		)]
 	}

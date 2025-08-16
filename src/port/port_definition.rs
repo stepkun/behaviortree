@@ -15,13 +15,16 @@ pub struct PortDefinition {
 	/// Direction of the port.
 	direction: PortDirection,
 	/// Data type of the port.
-	type_name: ConstString,
+	/// This is a `&'static str`, created by the port creation macro.
+	type_name: &'static str,
 	/// Name of the port.
-	name: ConstString,
+	/// This has to be a `&'static str`.
+	name: &'static str,
 	/// Default value for the port.
 	default_value: ConstString,
 	/// Description of the port.
-	description: ConstString,
+	/// This has to be a `&'static str`.
+	description: &'static str,
 }
 
 impl PortDefinition {
@@ -30,18 +33,18 @@ impl PortDefinition {
 	/// - if the name violates the conventions.
 	pub fn new(
 		direction: PortDirection,
-		type_name: &str,
-		name: &str,
+		type_name: &'static str,
+		name: &'static str,
 		default_value: &str,
-		description: &str,
+		description: &'static str,
 	) -> Result<Self, Error> {
 		if is_allowed_port_name(name) {
 			Ok(Self {
 				direction,
-				type_name: type_name.into(),
-				name: name.into(),
+				type_name,
+				name,
 				default_value: default_value.into(),
-				description: description.into(),
+				description,
 			})
 		} else {
 			Err(Error::NameNotAllowed(name.into()))
@@ -50,8 +53,8 @@ impl PortDefinition {
 
 	/// Get the [`PortDefinition`]s name.
 	#[must_use]
-	pub const fn name(&self) -> &ConstString {
-		&self.name
+	pub const fn name(&self) -> &'static str {
+		self.name
 	}
 
 	/// Get the [`PortDefinition`]s direction.
@@ -71,13 +74,13 @@ impl PortDefinition {
 	}
 
 	#[must_use]
-	pub(crate) const fn type_name(&self) -> &ConstString {
-		&self.type_name
+	pub(crate) const fn type_name(&self) -> &'static str {
+		self.type_name
 	}
 
 	#[must_use]
-	pub(crate) const fn description(&self) -> &ConstString {
-		&self.description
+	pub(crate) const fn description(&self) -> &'static str {
+		self.description
 	}
 }
 // endregion:   --- PortDefinition

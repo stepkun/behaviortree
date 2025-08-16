@@ -8,7 +8,7 @@
 
 use core::fmt::{Display, Formatter};
 
-use behaviortree::prelude::*;
+use behaviortree::{EMPTY_STR, prelude::*};
 use nanoserde::{DeJson, SerJson};
 
 const XML: &str = r#"
@@ -41,9 +41,9 @@ impl FromStr for Point2D {
 	fn from_str(value: &str) -> Result<Self, Self::Err> {
 		// remove redundant ' and &apos; from string
 		let s = value
-			.replace('\'', "")
+			.replace('\'', EMPTY_STR)
 			.trim()
-			.replace("&apos;", "")
+			.replace("&apos;", EMPTY_STR)
 			.trim()
 			.to_string();
 		// check for json marker

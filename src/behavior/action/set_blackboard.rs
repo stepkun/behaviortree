@@ -10,10 +10,10 @@ use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	Action, OUTPUT_KEY, VALUE,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -59,11 +59,11 @@ where
 
 	fn provided_ports() -> PortList {
 		port_list![
-			input_port!(T, VALUE, "", "Value to be written into the output_key"),
+			input_port!(T, VALUE, EMPTY_STR, "Value to be written into the output_key"),
 			inout_port!(
 				String,
 				OUTPUT_KEY,
-				"",
+				EMPTY_STR,
 				"Name of the blackboard entry where the value should be written"
 			),
 		]

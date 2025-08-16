@@ -12,7 +12,7 @@ pub mod pre_post_conditions;
 mod simple_behavior;
 mod sub_tree;
 
-use crate::{ConstString, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
+use crate::{ConstString, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
 // flatten
 pub use error::BehaviorError;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
@@ -374,10 +374,10 @@ impl BehaviorDescription {
 		Self {
 			name: name.into(),
 			id: id.into(),
-			path: "".into(),
+			path: EMPTY_STR.into(),
 			kind,
 			ports,
-			groot2_path: "".into(),
+			groot2_path: EMPTY_STR.into(),
 			groot2,
 		}
 	}

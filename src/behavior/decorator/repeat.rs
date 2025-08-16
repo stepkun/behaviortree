@@ -7,10 +7,10 @@
 use alloc::{boxed::Box, string::ToString};
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	Decorator, IDLE, NUM_CYCLES,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::PortList,
 	port_list,
@@ -102,7 +102,7 @@ impl Behavior for Repeat {
 		port_list![input_port!(
 			i32,
 			NUM_CYCLES,
-			"",
+			EMPTY_STR,
 			"Repeat a successful child up to N times. Use -1 to create an infinite loop."
 		)]
 	}

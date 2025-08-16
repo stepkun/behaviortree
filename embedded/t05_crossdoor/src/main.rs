@@ -7,7 +7,6 @@
 #[path = "../../common/mod.rs"]
 mod common;
 
-use alloc::sync::Arc;
 use ariel_os::{
 	debug::{ExitCode, exit, log::*},
 	// time::{Duration, Timer},

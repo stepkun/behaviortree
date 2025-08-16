@@ -22,18 +22,19 @@ Support of embedded
 
 ### Added
 - embedded examples: t04_reactive_sequence,
-  t07_load_multiple_xml, t08_additional_node_args
+  t07_load_multiple_xml, t08_additional_node_args, t09_scripting
 
 ### Changed
-- renamed trait 'BehaviorInstance' to 'Behavior'
+- renamed trait `BehaviorInstance` to `Behavior`
 - more straightforward error handling
+- implementation of PortDefinition to use `&'static str`
 
 ### Fixed
 - some differences between documentation and implementation
 
 ### Removed
-- visibility of constant 'SHOULD_NOT_HAPPEN'
-- trait 'BehaviorStatic', content now in 'Behavior', former 'BehaviorInstance'
+- visibility of constant `SHOULD_NOT_HAPPEN`
+- trait `BehaviorStatic`, content now in `Behavior`, former `BehaviorInstance`
 
 ## [0.2.0] - 2025-08-12
 
@@ -46,10 +47,10 @@ Version 0.2.0 adds first support for embedded devices using embassy and ariel-os
 
 ### Changed
 - error types are now 'non_exhaustive'
-- derive of 'Behavior' separated into 'Action', 'Condition', 'Control' & 'Decorator'
+- derive of `Behavior` separated into `Action`, `Condition`, `Control` & `Decorator`
 
 ### Fixed
-- 'Switch' behavior now works
+- `Switch` behavior now works
 
 ### Removed
 - dependency to anyhow
@@ -58,8 +59,8 @@ Version 0.2.0 adds first support for embedded devices using embassy and ariel-os
 ## [0.1.1] - 2025-08-05
 
 ### Added
-- possibility to override the first tick: async fn start(...) -> BehaviorResult
-- possibility to override the halt method: fn halt(...) -> Result<(), BehaviorError>
+- possibility to override the first tick: `async fn start(...) -> BehaviorResult`
+- possibility to override the halt method: `fn halt(...) -> Result<(), BehaviorError>`
 
 ### Changed
 - replaced 'parking_lot' with 'spin'

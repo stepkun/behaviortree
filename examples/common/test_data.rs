@@ -5,7 +5,7 @@
 //! Test behaviors.
 
 // region:		--- modules
-use behaviortree::prelude::*;
+use behaviortree::{EMPTY_STR, prelude::*};
 use std::time::{Duration, Instant};
 // endregion:	--- modules
 
@@ -127,9 +127,9 @@ impl FromStr for Position2D {
 		println!("Converting string: \"{value}\"");
 		// remove redundant ' and &apos; from string
 		let s = value
-			.replace('\'', "")
+			.replace('\'', EMPTY_STR)
 			.trim()
-			.replace("&apos;", "")
+			.replace("&apos;", EMPTY_STR)
 			.trim()
 			.to_string();
 		let v: Vec<&str> = s.split(';').collect();
@@ -206,9 +206,9 @@ impl FromStr for Pose2D {
 	fn from_str(value: &str) -> Result<Self, Self::Err> {
 		// remove redundant ' and &apos; from string
 		let s = value
-			.replace('\'', "")
+			.replace('\'', EMPTY_STR)
 			.trim()
-			.replace("&apos;", "")
+			.replace("&apos;", EMPTY_STR)
 			.trim()
 			.to_string();
 		let v: Vec<&str> = s.split(';').collect();

@@ -11,7 +11,7 @@ use core::{
 	num::ParseIntError,
 };
 
-use behaviortree::prelude::*;
+use behaviortree::{EMPTY_STR, prelude::*};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -43,9 +43,9 @@ impl FromStr for Point {
 	fn from_str(value: &str) -> Result<Self, Self::Err> {
 		// remove redundant ' and &apos; from string
 		let s = value
-			.replace('\'', "")
+			.replace('\'', EMPTY_STR)
 			.trim()
-			.replace("&apos;", "")
+			.replace("&apos;", EMPTY_STR)
 			.trim()
 			.to_string();
 		let v: Vec<&str> = s.split(',').collect();

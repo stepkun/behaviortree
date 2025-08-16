@@ -9,10 +9,10 @@ use alloc::{
 };
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	CODE, Condition,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -51,7 +51,7 @@ impl Behavior for ScriptCondition {
 		port_list![input_port!(
 			String,
 			CODE,
-			"",
+			EMPTY_STR,
 			"Piece of code that can be parsed. Must return false or true."
 		)]
 	}

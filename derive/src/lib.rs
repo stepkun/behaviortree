@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Derive macro for [`Behavior`]s.
+//! Derive macro for [`Behavior`](crate)s.
 //! There are 4 derive macros avialable:
 //! - Action
 //! - Condition
@@ -41,7 +41,7 @@
 //!     fn creation_fn() -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn> {
 //!         alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
 //!     }
-//! 
+//!
 //!     fn kind() -> behaviortree::behavior::BehaviorKind {
 //!         behaviortree::behavior::BehaviorKind::Action
 //!     }
@@ -73,66 +73,66 @@ use behavior::derive_behavior_struct;
 use proc_macro::TokenStream;
 use syn::DeriveInput;
 
-/// internal differantiation of the different kinds of [`Behavior`]s.
+/// internal differantiation of the different kinds of [`Behavior`](crate)s.
 enum Kind {
-    Action,
-    Condition,
-    Control,
-    Decorator,
+	Action,
+	Condition,
+	Control,
+	Decorator,
 }
 
-/// Derive macro for an [`Action`] type [`Behavior`].
+/// Derive macro for an [`Action`] type [`Behavior`](crate).
 #[proc_macro_derive(Action)]
 pub fn derive_action(input: TokenStream) -> TokenStream {
-    // Construct a representation of the Rust code
-    let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
+	// Construct a representation of the Rust code
+	let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
 
-    // Check type of input
-    match &input.data {
-        syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Action).into(),
-        syn::Data::Enum(_enum) => panic!("enums not supported"),
-        syn::Data::Union(_union) => panic!("unions not supported"),
-    }
+	// Check type of input
+	match &input.data {
+		syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Action).into(),
+		syn::Data::Enum(_enum) => panic!("enums not supported"),
+		syn::Data::Union(_union) => panic!("unions not supported"),
+	}
 }
 
-/// Derive macro for an [`Condition`] type [`Behavior`].
+/// Derive macro for an [`Condition`] type [`Behavior`](crate).
 #[proc_macro_derive(Condition)]
 pub fn derive_condition(input: TokenStream) -> TokenStream {
-    // Construct a representation of the Rust code
-    let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
+	// Construct a representation of the Rust code
+	let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
 
-    // Check type of input
-    match &input.data {
-        syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Condition).into(),
-        syn::Data::Enum(_enum) => panic!("enums not supported"),
-        syn::Data::Union(_union) => panic!("unions not supported"),
-    }
+	// Check type of input
+	match &input.data {
+		syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Condition).into(),
+		syn::Data::Enum(_enum) => panic!("enums not supported"),
+		syn::Data::Union(_union) => panic!("unions not supported"),
+	}
 }
 
-/// Derive macro for an [`Control`] type [`Behavior`].
+/// Derive macro for an [`Control`] type [`Behavior`](crate).
 #[proc_macro_derive(Control)]
 pub fn derive_control(input: TokenStream) -> TokenStream {
-    // Construct a representation of the Rust code
-    let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
+	// Construct a representation of the Rust code
+	let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
 
-    // Check type of input
-    match &input.data {
-        syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Control).into(),
-        syn::Data::Enum(_enum) => panic!("enums not supported"),
-        syn::Data::Union(_union) => panic!("unions not supported"),
-    }
+	// Check type of input
+	match &input.data {
+		syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Control).into(),
+		syn::Data::Enum(_enum) => panic!("enums not supported"),
+		syn::Data::Union(_union) => panic!("unions not supported"),
+	}
 }
 
-/// Derive macro for an [`Decorator`] type [`Behavior`].
+/// Derive macro for an [`Decorator`] type [`Behavior`](crate).
 #[proc_macro_derive(Decorator)]
 pub fn derive_decorator(input: TokenStream) -> TokenStream {
-    // Construct a representation of the Rust code
-    let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
+	// Construct a representation of the Rust code
+	let input: DeriveInput = syn::parse2(input.into()).expect("could not parse input");
 
-    // Check type of input
-    match &input.data {
-        syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Decorator).into(),
-        syn::Data::Enum(_enum) => panic!("enums not supported"),
-        syn::Data::Union(_union) => panic!("unions not supported"),
-    }
+	// Check type of input
+	match &input.data {
+		syn::Data::Struct(_struct) => derive_behavior_struct(&input, Kind::Decorator).into(),
+		syn::Data::Enum(_enum) => panic!("enums not supported"),
+		syn::Data::Union(_union) => panic!("unions not supported"),
+	}
 }

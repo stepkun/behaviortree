@@ -10,10 +10,10 @@ use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	Action, KEY,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -60,7 +60,7 @@ where
 		port_list![input_port!(
 			String,
 			KEY,
-			"",
+			EMPTY_STR,
 			"Key of the entry to remove"
 		),]
 	}

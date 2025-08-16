@@ -22,6 +22,8 @@ pub use tinyscript::ScriptEnum;
 pub use tinyscript::SharedRuntime;
 
 // public exports
+// literals
+pub use crate::EMPTY_STR;
 // error handling
 pub use crate::error::{BehaviorTreeResult, Error};
 // behavior macros
@@ -31,7 +33,7 @@ pub use crate::{inout_port, input_port, output_port, port_list};
 // behavior
 pub use crate::behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState};
 // behavior traits
-pub use crate::behavior::{BehaviorExecution, Behavior};
+pub use crate::behavior::{Behavior, BehaviorExecution};
 // blackboard
 pub use crate::blackboard::SharedBlackboard;
 // blackboard traits

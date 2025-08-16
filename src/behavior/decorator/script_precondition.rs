@@ -10,10 +10,10 @@ use alloc::{
 };
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	Decorator, ELSE, FAILURE, IDLE, IF, RUNNING, SKIPPED, SUCCESS,
-	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -78,8 +78,8 @@ impl Behavior for Precondition {
 
 	fn provided_ports() -> PortList {
 		port_list![
-			input_port!(String, IF, "", "Condition to check."),
-			input_port!(String, ELSE, "", "Return state if condition is false."),
+			input_port!(String, IF, EMPTY_STR, "Condition to check."),
+			input_port!(String, ELSE, EMPTY_STR, "Return state if condition is false."),
 		]
 	}
 }

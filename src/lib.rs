@@ -21,8 +21,8 @@ mod tree;
 mod xml;
 
 // flatten:
+pub use behavior::{Behavior, BehaviorExecution};
 pub use behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState};
-pub use behavior::{BehaviorExecution, Behavior};
 pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, SharedBlackboard};
 pub use error::{BehaviorTreeResult, Error};
 pub use factory::BehaviorTreeFactory;
@@ -48,8 +48,23 @@ pub type ConstString = Arc<str>;
 // endregion:   --- types
 
 // region:		--- literal constants
-/// Port names
-const CASE: &str = "case_";
+/// Often needed empty str
+pub const EMPTY_STR: &str = "";
+/// Global constant for expect statements that should never happen
+#[doc(hidden)]
+pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
+
+/// Behavior state literals
+const IDLE: &str = "Idle";
+const RUNNING: &str = "Running";
+const SUCCESS: &str = "Success";
+const FAILURE: &str = "Failure";
+const SKIPPED: &str = "Skipped";
+
+/// Port name literals
+const CASES: [&str; 6] = [
+	"case_1", "case_2", "case_3", "case_4", "case_5", "case_6",
+];
 const CODE: &str = "code";
 const DELAY_MSEC: &str = "delay_msec";
 const ENTRY: &str = "entry";
@@ -66,18 +81,6 @@ const QUEUE: &str = "queue";
 const THEN_SKIP: &str = "then_skip";
 const VALUE: &str = "value";
 const VARIABLE: &str = "variable";
-
-/// Behavior states
-const IDLE: &str = "Idle";
-const RUNNING: &str = "Running";
-const SUCCESS: &str = "Success";
-const FAILURE: &str = "Failure";
-const SKIPPED: &str = "Skipped";
-
-/// Global constant for expect statements that should never happen
-#[doc(hidden)]
-pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
-
 // endregion:	--- literal constants
 
 // region:		---macros

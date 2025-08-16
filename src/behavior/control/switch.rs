@@ -4,13 +4,13 @@
 
 // region:      --- modules
 use alloc::boxed::Box;
-use alloc::string::{String, ToString};
+use alloc::string::String;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	CASE, ConstString, Control, IDLE, VARIABLE,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
+	CASES, ConstString, Control, IDLE, VARIABLE,
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::{PortList, is_bb_pointer, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
@@ -52,7 +52,7 @@ impl<const T: u8> Default for Switch<T> {
 		Self {
 			cases: T,
 			running_child_index: -1,
-			var: "".into(),
+			var: EMPTY_STR.into(),
 		}
 	}
 }
@@ -111,9 +111,7 @@ impl<const T: u8> Behavior for Switch<T> {
 		let mut match_index = i32::from(T);
 		let var = behavior.get::<String>(&self.var)?;
 		for i in 0..T {
-			// the names start with "case_1", index with 0
-			let key = String::from(CASE) + &(i + 1).to_string();
-			let case = behavior.get::<String>(&key)?;
+			let case = behavior.get::<String>(CASES[i as usize])?;
 
 			// string comparison
 			if var == case {
@@ -193,10 +191,8 @@ impl<const T: u8> Behavior for Switch<T> {
 			.add(port)
 			.expect("providing port [variable] failed in behavior [Switch<T>]");
 
-		// the names start with "case_1"
-		for i in 1..=T {
-			let name = String::from(CASE) + &i.to_string();
-			let port = input_port!(String, name.as_str());
+		for i in 0..T {
+			let port = input_port!(String, CASES[i as usize]);
 			ports
 				.add(port)
 				.expect("providing port [case_T] failed in behavior [Switch<T>]");

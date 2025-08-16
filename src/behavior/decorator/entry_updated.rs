@@ -11,10 +11,10 @@ use alloc::{
 };
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	ConstString, Decorator, ENTRY,
-	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -112,7 +112,7 @@ impl Behavior for EntryUpdated {
 		port_list![input_port!(
 			String,
 			ENTRY,
-			"",
+			EMPTY_STR,
 			"The blackboard entry to monitor."
 		)]
 	}

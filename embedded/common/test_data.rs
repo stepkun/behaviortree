@@ -130,9 +130,9 @@ impl FromStr for Position2D {
 		info!("Converting string: \"{}\"", value);
 		// remove redundant ' and &apos; from string
 		let s = value
-			.replace('\'', "")
+			.replace('\'', EMPTY_STR)
 			.trim()
-			.replace("&apos;", "")
+			.replace("&apos;", EMPTY_STR)
 			.trim()
 			.to_string();
 		let v: Vec<&str> = s.split(';').collect();
@@ -209,9 +209,9 @@ impl FromStr for Pose2D {
 	fn from_str(value: &str) -> Result<Self, Self::Err> {
 		// remove redundant ' and &apos; from string
 		let s = value
-			.replace('\'', "")
+			.replace('\'', EMPTY_STR)
 			.trim()
-			.replace("&apos;", "")
+			.replace("&apos;", EMPTY_STR)
 			.trim()
 			.to_string();
 		let v: Vec<&str> = s.split(';').collect();

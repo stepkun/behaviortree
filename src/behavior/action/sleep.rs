@@ -10,10 +10,10 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use tokio::task::JoinHandle;
 
-use crate as behaviortree;
+use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
 	Action, MSEC,
-	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -84,7 +84,7 @@ impl Behavior for Sleep {
 		port_list![input_port!(
 			u64,
 			MSEC,
-			"",
+			EMPTY_STR,
 			"Time to sleep in [msec]."
 		)]
 	}

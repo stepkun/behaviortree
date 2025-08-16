@@ -59,10 +59,10 @@ pub fn strip_bb_pointer(port: &str) -> Option<ConstString> {
 #[allow(clippy::extra_unused_type_parameters)]
 pub fn create_port<T>(
 	direction: PortDirection,
-	type_name: &str,
-	name: &str,
+	type_name: &'static str,
+	name: &'static str,
 	default: &str,
-	description: &str,
+	description: &'static str,
 ) -> Result<PortDefinition, Error> {
 	if is_allowed_port_name(name) {
 		Ok(PortDefinition::new(direction, type_name, name, default, description)?)
@@ -109,22 +109,28 @@ pub fn is_allowed_port_name(name: &str) -> bool {
 macro_rules! input_port {
 	// 2 elements
 	($tp:ty, $name:expr $(,)?) => {{
-		$crate::port::create_port::<$tp>($crate::port::PortDirection::In, stringify!($tp), $name, "", "")
-			.expect($crate::SHOULD_NOT_HAPPEN)
+		$crate::port::create_port::<$tp>(
+			$crate::port::PortDirection::In,
+			stringify!($tp),
+			$name,
+			$crate::EMPTY_STR,
+			$crate::EMPTY_STR,
+		)
+		.expect($crate::SHOULD_NOT_HAPPEN)
 	}};
 	// 3 elements
-	($tp:ty, $name:literal, $default:expr $(,)?) => {
+	($tp:ty, $name:expr, $default:expr $(,)?) => {
 		$crate::port::create_port::<$tp>(
 			$crate::port::PortDirection::In,
 			stringify!($tp),
 			$name,
 			&$default.to_string(),
-			"",
+			$crate::EMPTY_STR,
 		)
 		.expect($crate::SHOULD_NOT_HAPPEN)
 	};
 	// 4 elements
-	($tp:ty, $name:ident, $default:expr, $desc:literal $(,)?) => {
+	($tp:ty, $name:expr, $default:expr, $desc:literal $(,)?) => {
 		$crate::port::create_port::<$tp>(
 			$crate::port::PortDirection::In,
 			stringify!($tp),
@@ -141,22 +147,28 @@ macro_rules! input_port {
 macro_rules! inout_port {
 	// 2 elements
 	($tp:ty, $name:expr $(,)?) => {{
-		$crate::port::create_port::<$tp>($crate::port::PortDirection::InOut, stringify!($tp), $name, "", "")
-			.expect($crate::SHOULD_NOT_HAPPEN)
+		$crate::port::create_port::<$tp>(
+			$crate::port::PortDirection::InOut,
+			stringify!($tp),
+			$name,
+			$crate::EMPTY_STR,
+			$crate::EMPTY_STR,
+		)
+		.expect($crate::SHOULD_NOT_HAPPEN)
 	}};
 	// 3 elements
-	($tp:ty, $name:literal, $default:expr $(,)?) => {
+	($tp:ty, $name:expr, $default:expr $(,)?) => {
 		$crate::port::create_port::<$tp>(
 			$crate::port::PortDirection::InOut,
 			stringify!($tp),
 			$name,
 			&$default.to_string(),
-			"",
+			$crate::EMPTY_STR,
 		)
 		.expect($crate::SHOULD_NOT_HAPPEN)
 	};
 	// 4 elements
-	($tp:ty, $name:ident, $default:expr, $desc:literal $(,)?) => {
+	($tp:ty, $name:expr, $default:expr, $desc:literal $(,)?) => {
 		$crate::port::create_port::<$tp>(
 			$crate::port::PortDirection::InOut,
 			stringify!($tp),
@@ -173,22 +185,28 @@ macro_rules! inout_port {
 macro_rules! output_port {
 	// 2 elements
 	($tp:ty, $name:expr $(,)?) => {{
-		$crate::port::create_port::<$tp>($crate::port::PortDirection::Out, stringify!($tp), $name, "", "")
-			.expect($crate::SHOULD_NOT_HAPPEN)
+		$crate::port::create_port::<$tp>(
+			$crate::port::PortDirection::Out,
+			stringify!($tp),
+			$name,
+			$crate::EMPTY_STR,
+			$crate::EMPTY_STR,
+		)
+		.expect($crate::SHOULD_NOT_HAPPEN)
 	}};
 	// 3 elements
-	($tp:ty, $name:literal, $default:expr $(,)?) => {
+	($tp:ty, $name:expr, $default:expr $(,)?) => {
 		$crate::port::create_port::<$tp>(
 			$crate::port::PortDirection::Out,
 			stringify!($tp),
 			$name,
 			&$default.to_string(),
-			"",
+			$crate::EMPTY_STR,
 		)
 		.expect($crate::SHOULD_NOT_HAPPEN)
 	};
 	// 4 elements
-	($tp:ty, $name:ident, $default:expr, $desc:literal $(,)?) => {
+	($tp:ty, $name:expr, $default:expr, $desc:literal $(,)?) => {
 		$crate::port::create_port::<$tp>(
 			$crate::port::PortDirection::Out,
 			stringify!($tp),
