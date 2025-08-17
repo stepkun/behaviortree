@@ -1,9 +1,9 @@
 // Copyright © 2025 Stephan Kunz
 
-//! [`behaviortree`](crate) [`PortRemappings`] and [`ConstPortRemappings`] implementation.
+//! [`behaviortree`](crate) [`PortRemappings`] implementation.
 
 // region:      --- modules
-use alloc::{boxed::Box, string::String, vec::Vec};
+use alloc::{string::String, vec::Vec};
 use core::ops::{Deref, DerefMut};
 
 use crate::ConstString;
@@ -15,54 +15,6 @@ use super::error::Error;
 /// An immutable remapping entry.
 type RemappingEntry = (ConstString, ConstString);
 // endregion:   --- types
-
-// region:		--- ConstPortRemappings
-/// An immutable remapping list.
-///
-/// Use [`PortRemappings`] to build a remapping list and convert it into
-/// an immutable list if it will never change after creation.
-#[derive(Clone, Debug, Default)]
-#[repr(transparent)]
-pub struct ConstPortRemappings(Box<[RemappingEntry]>);
-
-impl Deref for ConstPortRemappings {
-	type Target = [RemappingEntry];
-
-	fn deref(&self) -> &Self::Target {
-		&self.0
-	}
-}
-
-impl DerefMut for ConstPortRemappings {
-	fn deref_mut(&mut self) -> &mut Self::Target {
-		&mut self.0
-	}
-}
-
-impl From<PortRemappings> for ConstPortRemappings {
-	fn from(remappings: PortRemappings) -> Self {
-		Self(remappings.0.into_boxed_slice())
-	}
-}
-
-impl ConstPortRemappings {
-	/// Lookup the remapped name.
-	#[must_use]
-	pub fn find(&self, name: &ConstString) -> Option<ConstString> {
-		for (original, remapped) in &self.0 {
-			if original == name {
-				// is the shortcut '{=}' used?
-				return if remapped.as_ref() == "{=}" {
-					Some((String::from("{") + name + "}").into())
-				} else {
-					Some(remapped.clone())
-				};
-			}
-		}
-		None
-	}
-}
-// endregion:   --- ConstPortRemappings
 
 // region:		--- PortRemappings
 /// Mutable remapping list.
@@ -81,12 +33,6 @@ impl Deref for PortRemappings {
 impl DerefMut for PortRemappings {
 	fn deref_mut(&mut self) -> &mut Self::Target {
 		&mut self.0
-	}
-}
-
-impl From<ConstPortRemappings> for PortRemappings {
-	fn from(remappings: ConstPortRemappings) -> Self {
-		Self(remappings.0.into_vec())
 	}
 }
 
@@ -120,25 +66,25 @@ impl PortRemappings {
 		self.0.push((name.into(), remapped_name.clone()));
 	}
 
-	// /// Lookup the remapped name.
-	// #[must_use]
-	// pub fn find(&self, name: &ConstString) -> Option<ConstString> {
-	// 	for (original, remapped) in &self.0 {
-	// 		if original == name {
-	// 			// is the shortcut '{=}' used?
-	// 			return if remapped.as_ref() == "{=}" {
-	// 				Some((String::from("{") + name + "}").into())
-	// 			} else {
-	// 				Some(remapped.clone())
-	// 			};
-	// 		}
-	// 	}
-	// 	None
-	// }
+	/// Lookup the remapped name.
+	#[must_use]
+	pub fn find(&self, name: &str) -> Option<ConstString> {
+		for (original, remapped) in &self.0 {
+			if original.as_ref() == name {
+				// is the shortcut '{=}' used?
+				return if remapped.as_ref() == "{=}" {
+					Some((String::from("{") + name + "}").into())
+				} else {
+					Some(remapped.clone())
+				};
+			}
+		}
+		None
+	}
 
-	// /// Optimize for size
-	// pub fn shrink(&mut self) {
-	// 	self.0.shrink_to_fit();
-	// }
+	/// Optimize for size
+	pub fn shrink(&mut self) {
+		self.0.shrink_to_fit();
+	}
 }
 // endregion:   --- PortRemappings

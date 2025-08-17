@@ -13,7 +13,6 @@ mod port_remappings;
 pub use port_definition::PortDefinition;
 pub use port_direction::PortDirection;
 pub use port_list::PortList;
-pub use port_remappings::ConstPortRemappings;
 pub use port_remappings::PortRemappings;
 
 // region:      --- modules

@@ -24,7 +24,7 @@ use crate::{
 	},
 	blackboard::SharedBlackboard,
 	factory::behavior_registry::BehaviorRegistry,
-	port::{ConstPortRemappings, PortRemappings, is_allowed_port_name},
+	port::{PortRemappings, is_allowed_port_name},
 	tree::{tree_element::BehaviorTreeElement, tree_element_list::BehaviorTreeElementList},
 	xml::error::Error,
 };
@@ -156,7 +156,7 @@ impl XmlParser {
 	) -> Result<
 		(
 			/*autoremap:*/ bool,
-			/*remappings:*/ ConstPortRemappings,
+			/*remappings:*/ PortRemappings,
 			/*pre&post conditions:*/ Conditions,
 		),
 		Error,
@@ -274,11 +274,12 @@ impl XmlParser {
 				}
 			}
 		}
+		remappings.shrink();
 		let conditions = Conditions {
 			pre: preconditions,
 			post: postconditions,
 		};
-		Ok((autoremap, remappings.into(), conditions))
+		Ok((autoremap, remappings, conditions))
 	}
 
 	#[allow(clippy::option_if_let_else)]
@@ -314,7 +315,7 @@ impl XmlParser {
 				let blackboard = if let Some(external_bb) = external_blackboard {
 					// in this case, the remappings are against parent BlackBoard
 					let bb = SharedBlackboard::with_parent(name, external_bb, remappings, autoremap);
-					remappings = ConstPortRemappings::default();
+					remappings = PortRemappings::default();
 					bb
 				} else {
 					SharedBlackboard::new(name)
@@ -455,14 +456,8 @@ impl XmlParser {
 								return Err(Error::SubtreeOneChild(node.tag_name().name().into()))?;
 							}
 							// the PortRemappings have been used against parent BlackBoard
-							let bhvr_data = BehaviorData::new(
-								uid,
-								&node_name,
-								&path,
-								ConstPortRemappings::default(),
-								blackboard1,
-								bhvr_desc,
-							);
+							let bhvr_data =
+								BehaviorData::new(uid, &node_name, &path, PortRemappings::default(), blackboard1, bhvr_desc);
 							BehaviorTreeElement::create_subtree(bhvr_data, children.into(), bhvr, conditions)
 						}
 						None => {

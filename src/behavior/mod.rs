@@ -25,7 +25,7 @@ use tinyscript::SharedRuntime;
 
 use crate::{
 	blackboard::{BlackboardInterface, SharedBlackboard},
-	port::{ConstPortRemappings, PortList, error::Error, strip_bb_pointer},
+	port::{PortList, PortRemappings, error::Error, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -175,7 +175,7 @@ pub struct BehaviorData {
 	state: BehaviorState,
 	/// List of internal [`PortRemappings`] including
 	/// direct assigned values to a `Port`, e.g. default values.
-	remappings: ConstPortRemappings,
+	remappings: PortRemappings,
 	/// Reference to the [`Blackboard`] for the element.
 	blackboard: SharedBlackboard,
 	/// List of pre state change callbacks with an identifier.
@@ -193,7 +193,7 @@ impl BehaviorData {
 		uid: u16,
 		name: &str,
 		path: &str,
-		remappings: ConstPortRemappings,
+		remappings: PortRemappings,
 		blackboard: SharedBlackboard,
 		mut description: BehaviorDescription,
 	) -> Self {
@@ -226,7 +226,7 @@ impl BehaviorData {
 	where
 		T: Any + Clone + FromStr + ToString + Send + Sync,
 	{
-		if let Some(remapped) = self.remappings.find(&key.into()) {
+		if let Some(remapped) = self.remappings.find(key) {
 			match strip_bb_pointer(&remapped) {
 				Some(key) => Ok(self.blackboard.get::<T>(&key)?),
 				None => match T::from_str(&remapped) {
@@ -255,7 +255,7 @@ impl BehaviorData {
 	where
 		T: Any + Clone + FromStr + ToString + Send + Sync,
 	{
-		if let Some(remapped) = self.remappings.find(&key.into()) {
+		if let Some(remapped) = self.remappings.find(key) {
 			if let Some(stripped) = strip_bb_pointer(&remapped) {
 				Ok(self.blackboard.set::<T>(&stripped, value)?)
 			} else {
@@ -339,7 +339,7 @@ impl BehaviorData {
 		}
 	}
 
-	pub(crate) const fn remappings(&self) -> &ConstPortRemappings {
+	pub(crate) const fn remappings(&self) -> &PortRemappings {
 		&self.remappings
 	}
 }

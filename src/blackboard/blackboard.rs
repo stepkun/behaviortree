@@ -13,12 +13,12 @@ use spin::RwLock;
 
 use super::{BlackboardData, SharedBlackboard};
 
-use crate::port::ConstPortRemappings;
+use crate::port::PortRemappings;
 // endregion:   --- modules
 
 // region:      --- Blackboard
 /// Implementation of a [`Blackboard`] with a possible parent, a [`SharedBlackboard`],
-/// internal & external remappings and/or value assignments, all as [`ConstPortRemappings`].
+/// internal & external remappings and/or value assignments, all as [`PortRemappings`].
 ///
 /// Access to the fields is public within this module.
 #[derive(Debug, Default)]
@@ -28,7 +28,7 @@ pub struct Blackboard {
 	/// Optional parent [`SharedBlackboard`].
 	pub(super) parent: Option<SharedBlackboard>,
 	/// Optional lsit of [`PortRemappings`] to the parent.
-	pub(super) remappings_to_parent: Option<ConstPortRemappings>,
+	pub(super) remappings_to_parent: Option<PortRemappings>,
 	/// Optional autoremapping to the parent.
 	pub(super) autoremap_to_parent: bool,
 }
@@ -47,7 +47,7 @@ impl Blackboard {
 
 	/// Create a new [`Blackboard`] with remappings.
 	#[must_use]
-	pub fn with(remappings: ConstPortRemappings) -> Self {
+	pub fn with(remappings: PortRemappings) -> Self {
 		Self {
 			content: Arc::new(RwLock::new(BlackboardData::default())),
 			parent: None,
@@ -59,7 +59,7 @@ impl Blackboard {
 	/// Create a new [`Blackboard`] with parent [`SharedBlackboard`].
 	/// In that case the remappings are against parent.
 	#[must_use]
-	pub fn with_parent(parent: SharedBlackboard, remappings: ConstPortRemappings, autoremap: bool) -> Self {
+	pub fn with_parent(parent: SharedBlackboard, remappings: PortRemappings, autoremap: bool) -> Self {
 		Self {
 			content: Arc::new(RwLock::new(BlackboardData::default())),
 			parent: Some(parent),

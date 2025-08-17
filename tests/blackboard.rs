@@ -101,7 +101,7 @@ fn blackboard_node_with_parent() {
 	remappings
 		.add("test", &"test1".into())
 		.expect(SHOULD_NOT_HAPPEN);
-	let mut node = SharedBlackboard::with_parent("level0", level0, remappings.into(), true);
+	let mut node = SharedBlackboard::with_parent("level0", level0, remappings, true);
 
 	let old = node
 		.set("@other", String::from("other"))
@@ -139,19 +139,19 @@ fn blackboard_node_hierarchy() {
 	remappings1
 		.add("levelB", &"levelA".into())
 		.expect(SHOULD_NOT_HAPPEN);
-	let mut level1 = SharedBlackboard::with_parent("level1", level0.clone(), remappings1.into(), true);
+	let mut level1 = SharedBlackboard::with_parent("level1", level0.clone(), remappings1, true);
 
 	let mut remappings2 = PortRemappings::default();
 	remappings2
 		.add("levelC", &"levelB".into())
 		.expect(SHOULD_NOT_HAPPEN);
-	let mut level2 = SharedBlackboard::with_parent("level2", level1.clone(), remappings2.into(), true);
+	let mut level2 = SharedBlackboard::with_parent("level2", level1.clone(), remappings2, true);
 
 	let mut remappings3 = PortRemappings::default();
 	remappings3
 		.add("levelD", &"levelC".into())
 		.expect(SHOULD_NOT_HAPPEN);
-	let mut level3 = SharedBlackboard::with_parent("level3", level2.clone(), remappings3.into(), true);
+	let mut level3 = SharedBlackboard::with_parent("level3", level2.clone(), remappings3, true);
 
 	let old = level0
 		.set("levelA", String::from("testA"))

@@ -80,7 +80,7 @@ impl<const T: u8> Behavior for Switch<T> {
 				"Wrong number of children in Switch behavior: must be (num_cases + 1)!".into(),
 			));
 		}
-		if let Some(var) = behavior.remappings.find(&VARIABLE.into()) {
+		if let Some(var) = behavior.remappings.find(VARIABLE) {
 			if is_bb_pointer(&var) {
 				if let Some(var) = strip_bb_pointer(&var) {
 					self.var = var;

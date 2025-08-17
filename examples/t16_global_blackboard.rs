@@ -6,7 +6,7 @@
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t16_global_blackboard.cpp)
 //!
 
-use behaviortree::{port::ConstPortRemappings, prelude::*};
+use behaviortree::{port::PortRemappings, prelude::*};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -70,7 +70,7 @@ async fn example() -> BehaviorTreeResult {
 	let mut global_blackboard = SharedBlackboard::default();
 	// BT-Trees blackboard has global blackboard as parent
 	let root_blackboard =
-		SharedBlackboard::with_parent("global", global_blackboard.clone(), ConstPortRemappings::default(), false);
+		SharedBlackboard::with_parent("global", global_blackboard.clone(), PortRemappings::default(), false);
 
 	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 

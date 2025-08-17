@@ -23,7 +23,7 @@ use tinyscript::{Environment, Error as ScriptingError, execution::ScriptingValue
 
 use super::{BlackboardInterface, blackboard::Blackboard, blackboard_data::Entry, error::Error};
 
-use crate::port::ConstPortRemappings;
+use crate::port::PortRemappings;
 // endregion:   --- modules
 
 fn strip_key(key: &str) -> &str {
@@ -307,7 +307,7 @@ impl SharedBlackboard {
 
 	/// Create a `SharedBlackboard` remappings.
 	#[must_use]
-	pub fn with(creator: &str, remappings: ConstPortRemappings) -> Self {
+	pub fn with(creator: &str, remappings: PortRemappings) -> Self {
 		Self {
 			creator: creator.into(),
 			path: creator.into(),
@@ -317,7 +317,7 @@ impl SharedBlackboard {
 
 	/// Create a `SharedBlackboard` with parent.
 	#[must_use]
-	pub fn with_parent(creator: &str, parent: Self, remappings: ConstPortRemappings, autoremap: bool) -> Self {
+	pub fn with_parent(creator: &str, parent: Self, remappings: PortRemappings, autoremap: bool) -> Self {
 		let path = String::from(&*parent.path) + "/" + creator;
 		Self {
 			creator: creator.into(),
@@ -346,7 +346,7 @@ impl SharedBlackboard {
 			|| (key.into(), false),
 			|remappings| {
 				let (remapped_key, has_remapping) = remappings
-					.find(&key.into())
+					.find(key)
 					.map_or_else(|| (key.into(), false), |remapped| (remapped, true));
 				(strip_key(&remapped_key).into(), has_remapping)
 			},
@@ -372,7 +372,7 @@ impl SharedBlackboard {
 	}
 
 	#[must_use]
-	pub(crate) fn remappings(&self) -> Option<ConstPortRemappings> {
+	pub(crate) fn remappings(&self) -> Option<PortRemappings> {
 		self.blackboard
 			.read()
 			.remappings_to_parent
