@@ -39,7 +39,7 @@ enum Color {
 }
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
 	register_scripting_enum!(factory, Color);
 	register_scripting_enum!(factory, "THE_ANSWER", 42, "OTHER", 43);

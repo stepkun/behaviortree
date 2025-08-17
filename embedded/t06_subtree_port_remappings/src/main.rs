@@ -36,7 +36,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	register_behavior!(factory, MoveBaseAction, "MoveBase")?;

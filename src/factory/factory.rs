@@ -97,9 +97,6 @@ impl BehaviorTreeFactory {
 	pub fn with_core_behaviors() -> Result<Self, Error> {
 		let mut factory = Self::default();
 		factory.core_behaviors()?;
-		if cfg!(test) {
-			factory.test_behaviors()?;
-		}
 		Ok(factory)
 	}
 
@@ -117,9 +114,6 @@ impl BehaviorTreeFactory {
 	/// - if behaviors cannot be registered
 	pub fn with_groot2_behaviors() -> Result<Self, Error> {
 		let mut factory = Self::with_extended_behaviors()?;
-		if !cfg!(test) {
-			factory.test_behaviors()?;
-		}
 		factory.groot2_behaviors()?;
 		Ok(factory)
 	}
@@ -143,6 +137,20 @@ impl BehaviorTreeFactory {
 
 		// decorators
 		self.register_groot2_behavior_type::<Inverter>("Inverter")?;
+		self.register_groot2_behavior_type::<Precondition>("Precondition")?;
+		self.register_groot2_behavior_type::<RetryUntilSuccessful>("RetryUntilSuccessful")?;
+
+		let bhvr_desc = BehaviorDescription::new(
+			"ForceFailure",
+			"ForceFailure",
+			ForceState::kind(),
+			true,
+			ForceState::provided_ports(),
+		);
+		let bhvr_creation_fn =
+			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Failure)) });
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
 		let bhvr_desc = BehaviorDescription::new(
 			"SkipUnlessUpdated",
@@ -177,19 +185,6 @@ impl BehaviorTreeFactory {
 	pub fn test_behaviors(&mut self) -> Result<(), Error> {
 		// actions
 		let bhvr_desc = BehaviorDescription::new(
-			"AlwaysFailure",
-			"AlwaysFailure",
-			ChangeStateAfter::kind(),
-			true,
-			ChangeStateAfter::provided_ports(),
-		);
-		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Failure, 0))
-		});
-		self.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
-		let bhvr_desc = BehaviorDescription::new(
 			"AlwaysRunning",
 			"AlwaysRunning",
 			ChangeStateAfter::kind(),
@@ -202,36 +197,11 @@ impl BehaviorTreeFactory {
 		self.registry_mut()
 			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
-		let bhvr_desc = BehaviorDescription::new(
-			"AlwaysSuccess",
-			"AlwaysSuccess",
-			ChangeStateAfter::kind(),
-			true,
-			ChangeStateAfter::provided_ports(),
-		);
-		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Success, 0))
-		});
-		self.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
 		// conditions
 
 		// controls
 
 		// decorators
-		let bhvr_desc = BehaviorDescription::new(
-			"ForceFailure",
-			"ForceFailure",
-			ForceState::kind(),
-			true,
-			ForceState::provided_ports(),
-		);
-		let bhvr_creation_fn =
-			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Failure)) });
-		self.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
 		let bhvr_desc = BehaviorDescription::new(
 			"ForceSuccess",
 			"ForceSuccess",
@@ -264,7 +234,6 @@ impl BehaviorTreeFactory {
 		self.register_groot2_behavior_type::<Delay>("Delay")?;
 		self.register_groot2_behavior_type::<KeepRunningUntilFailure>("KeepRunningUntilFailure")?;
 		self.register_groot2_behavior_type::<Repeat>("Repeat")?;
-		self.register_groot2_behavior_type::<RetryUntilSuccessful>("RetryUntilSuccessful")?;
 		self.register_groot2_behavior_type::<RunOnce>("RunOnce")?;
 		self.register_groot2_behavior_type::<Timeout>("Timeout")?;
 
@@ -278,6 +247,32 @@ impl BehaviorTreeFactory {
 		// actions
 		self.register_groot2_behavior_type::<SetBlackboard<String>>("SetBlackboard")?;
 		self.register_groot2_behavior_type::<UnsetBlackboard<String>>("UnsetBlackboard")?;
+
+		let bhvr_desc = BehaviorDescription::new(
+			"AlwaysFailure",
+			"AlwaysFailure",
+			ChangeStateAfter::kind(),
+			true,
+			ChangeStateAfter::provided_ports(),
+		);
+		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Failure, 0))
+		});
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
+		let bhvr_desc = BehaviorDescription::new(
+			"AlwaysSuccess",
+			"AlwaysSuccess",
+			ChangeStateAfter::kind(),
+			true,
+			ChangeStateAfter::provided_ports(),
+		);
+		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Success, 0))
+		});
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
 		// conditions
 
@@ -295,7 +290,6 @@ impl BehaviorTreeFactory {
 		self.register_groot2_behavior_type::<Loop<bool>>("LoopBool")?;
 		self.register_groot2_behavior_type::<Loop<f64>>("LoopDouble")?;
 		self.register_groot2_behavior_type::<Loop<String>>("LoopString")?;
-		self.register_groot2_behavior_type::<Precondition>("Precondition")?;
 
 		Ok(())
 	}

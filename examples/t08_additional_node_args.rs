@@ -80,7 +80,7 @@ impl ActionB {
 }
 
 async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
 	register_behavior!(factory, ActionA, "Action_A", 42, "hello world".into())?;
 	register_behavior!(factory, ActionB, "Action_B")?;
