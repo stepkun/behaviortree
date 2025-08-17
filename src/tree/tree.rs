@@ -96,11 +96,12 @@ impl BehaviorTree {
 	/// create a Tree with reference to its libraries
 	#[must_use]
 	pub fn new(root: BehaviorTreeElement, registry: &BehaviorRegistry) -> Self {
-		// create a clone of the scripting runtime
+		// create a [`SharedRuntime`](https://docs.rs/tinyscript/latest/tinyscript/runtime/type.SharedRuntime.html)
+		// based on the current state of registriesscripting runtime
 		let runtime = Arc::new(Mutex::new(registry.runtime().clone()));
-		// clone the current state of registered libraries
+		// clone the current state of registered libraries so that they are not deallocated while tree is running
 		#[cfg(feature = "std")]
-		let mut libraries = Vec::new();
+		let mut libraries = Vec::with_capacity(registry.libraries().capacity() + 1);
 		#[cfg(feature = "std")]
 		for lib in registry.libraries() {
 			libraries.push(lib.clone());

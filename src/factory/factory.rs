@@ -38,7 +38,7 @@ use crate::{
 	xml::parser::XmlParser,
 };
 
-use super::{behavior_registry::BehaviorRegistry, error::Error};
+use super::{error::Error, registry::BehaviorRegistry};
 // endregion:   --- modules
 
 // region:      --- BehaviorTreeFactory

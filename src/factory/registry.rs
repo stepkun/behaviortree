@@ -27,6 +27,7 @@ use super::BehaviorTreeFactory;
 #[derive(Default)]
 pub struct BehaviorRegistry {
 	/// [`BTreeMap`] of available behavior creation functions.
+	/// The key is the name stored in the [`BehaviorDescription`].
 	behaviors: BTreeMap<ConstString, (BehaviorDescription, Arc<BehaviorCreationFn>)>,
 	/// [`BTreeMap`] of registered behavior tree definitions.
 	tree_definitions: BTreeMap<ConstString, ConstString>,

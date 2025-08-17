@@ -23,7 +23,7 @@ use crate::{
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
 	blackboard::SharedBlackboard,
-	factory::behavior_registry::BehaviorRegistry,
+	factory::registry::BehaviorRegistry,
 	port::{PortRemappings, is_allowed_port_name},
 	tree::{tree_element::BehaviorTreeElement, tree_element_list::BehaviorTreeElementList},
 	xml::error::Error,

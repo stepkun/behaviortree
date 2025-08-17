@@ -2,11 +2,11 @@
 
 //! [`behaviortree`](crate) factory module.
 
-pub mod behavior_registry;
 pub mod error;
 #[allow(clippy::module_inception)]
 mod factory;
+pub mod registry;
 
 // flatten
-pub use behavior_registry::BehaviorRegistry;
 pub use factory::BehaviorTreeFactory;
+pub use registry::BehaviorRegistry;
