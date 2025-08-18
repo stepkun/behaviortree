@@ -9,14 +9,19 @@ use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
 use crate::{
-	Decorator, IDLE, NUM_ATTEMPTS,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
+	Decorator, IDLE,
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::PortList,
 	port_list,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const NUM_ATTEMPTS: &str = "num_attempts";
+// endregion:	--- globals
 
 // region:      --- RetryUntilSuccessful
 /// The `RetryUntilSuccessful` decorator is used to execute a child several times if it fails.

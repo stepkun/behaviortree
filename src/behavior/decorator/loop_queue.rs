@@ -14,7 +14,7 @@ use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
 use crate::{
-	Decorator, IF_EMPTY, QUEUE,
+	Decorator,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	inout_port, input_port, output_port,
 	port::PortList,
@@ -22,6 +22,12 @@ use crate::{
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const IF_EMPTY: &str = "if_empty";
+const QUEUE: &str = "queue";
+// endregion:	--- globals
 
 // region:		--- SharedQueue
 /// Shared queue implementation for the [`Loop`] behavior

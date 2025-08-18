@@ -12,7 +12,9 @@ pub mod pre_post_conditions;
 mod simple_behavior;
 mod sub_tree;
 
-use crate::{ConstString, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS};
+use crate::{
+	ACTION, CONDITION, CONTROL, ConstString, DECORATOR, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
+};
 // flatten
 pub use error::BehaviorError;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
@@ -448,12 +450,6 @@ impl BehaviorDescription {
 // endregion:	--- BehaviorDescription
 
 // region:		--- BehaviorKind
-// Internal static strings to allow returning a &str
-const ACTION: &str = "Action";
-const CONDITION: &str = "Condition";
-const CONTROL: &str = "Control";
-const DECORATOR: &str = "Decorator";
-const SUBTREE: &str = "SubTree";
 
 /// All types of behaviors usable in a behavior tree.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

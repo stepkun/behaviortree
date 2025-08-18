@@ -12,7 +12,7 @@ use tokio::task::JoinHandle;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Action, MSEC,
+	Action,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
@@ -20,6 +20,11 @@ use crate::{
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
+
+// region:		--- globals
+/// Port name literals
+const MSEC: &str = "msec";
+// endregion:	--- globals
 
 // region:		--- Sleep
 /// The [`Sleep`] behavior sleeps for the amount of time given via port msec.

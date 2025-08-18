@@ -6,9 +6,9 @@
 use alloc::string::ToString;
 use tinyscript::{Error, SharedRuntime};
 
-use crate::ConstString;
 use crate::blackboard::SharedBlackboard;
 use crate::tree::tree_iter::TreeIterMut;
+use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE};
 use crate::{
 	behavior::{
 		BehaviorData, BehaviorPtr, BehaviorResult, BehaviorState,
@@ -307,7 +307,7 @@ impl BehaviorTreeElement {
 		if self.pre_conditions.is_some() {
 			// Preconditions only applied when the node state is `Idle` or `Skipped`
 			if self.data.state() == BehaviorState::Idle || self.data.state() == BehaviorState::Skipped {
-				if let Some(script) = self.pre_conditions.get("_failureif") {
+				if let Some(script) = self.pre_conditions.get(FAILURE_IF) {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
@@ -315,7 +315,7 @@ impl BehaviorTreeElement {
 						return Ok(Some(BehaviorState::Failure));
 					}
 				}
-				if let Some(script) = self.pre_conditions.get("_successif") {
+				if let Some(script) = self.pre_conditions.get(SUCCESS_IF) {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
@@ -323,7 +323,7 @@ impl BehaviorTreeElement {
 						return Ok(Some(BehaviorState::Success));
 					}
 				}
-				if let Some(script) = self.pre_conditions.get("_skipif") {
+				if let Some(script) = self.pre_conditions.get(SKIP_IF) {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
@@ -331,7 +331,7 @@ impl BehaviorTreeElement {
 						return Ok(Some(BehaviorState::Skipped));
 					}
 				}
-				if let Some(script) = self.pre_conditions.get("_while") {
+				if let Some(script) = self.pre_conditions.get(WHILE) {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
@@ -342,7 +342,7 @@ impl BehaviorTreeElement {
 			} else
 			// Preconditions only applied when the node state is `Running`
 			if self.data.state() == BehaviorState::Running {
-				if let Some(script) = self.pre_conditions.get("_while") {
+				if let Some(script) = self.pre_conditions.get(WHILE) {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
@@ -361,14 +361,14 @@ impl BehaviorTreeElement {
 		if self.post_conditions.is_some() {
 			match state {
 				BehaviorState::Failure => {
-					if let Some(script) = self.post_conditions.get("_onFailure") {
+					if let Some(script) = self.post_conditions.get(ON_FAILURE) {
 						let _: Result<tinyscript::execution::ScriptingValue, tinyscript::Error> = runtime
 							.lock()
 							.run(script, self.data.blackboard_mut());
 					}
 				}
 				BehaviorState::Success => {
-					if let Some(script) = self.post_conditions.get("_onSuccess") {
+					if let Some(script) = self.post_conditions.get(ON_SUCCESS) {
 						let _ = runtime
 							.lock()
 							.run(script, self.data.blackboard_mut());
@@ -377,7 +377,7 @@ impl BehaviorTreeElement {
 				// rest is ignored
 				_ => {}
 			}
-			if let Some(script) = self.post_conditions.get("_post") {
+			if let Some(script) = self.post_conditions.get(POST) {
 				let _ = runtime
 					.lock()
 					.run(script, self.data.blackboard_mut());

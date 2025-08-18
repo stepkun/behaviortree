@@ -12,7 +12,7 @@ use tokio::task::JoinHandle;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	DELAY_MSEC, Decorator,
+	Decorator,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
@@ -20,6 +20,11 @@ use crate::{
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
+
+// region:		--- globals
+/// Port name literals
+const DELAY_MSEC: &str = "delay_msec";
+// endregion:	--- globals
 
 // region:		--- Delay
 /// The [`Delay`] decorator will introduce a delay given by the port `delay_msec` and then tick its child.

@@ -10,13 +10,21 @@ use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	CASES, ConstString, Control, IDLE, VARIABLE,
+	ConstString, Control, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::{PortList, is_bb_pointer, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const CASES: [&str; 6] = [
+	"case_1", "case_2", "case_3", "case_4", "case_5", "case_6",
+];
+const VARIABLE: &str = "variable";
+// endregion:	--- globals
 
 // region:      --- Switch
 #[allow(rustdoc::invalid_html_tags)]

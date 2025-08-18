@@ -10,13 +10,18 @@ use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
 use crate::{
-	Control, IDLE, MAX_FAILURES,
+	Control, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	port::PortList,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const MAX_FAILURES: &str = "max_failures";
+// endregion:	--- globals
 
 // region:      --- ParallelAll
 /// A `ParallelAll` executes its children

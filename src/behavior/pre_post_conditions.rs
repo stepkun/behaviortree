@@ -4,7 +4,7 @@
 //!
 
 // region		--- modules
-use crate::ConstString;
+use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_HALTED, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE};
 use core::ops::{Deref, DerefMut};
 
 use super::error::BehaviorError;
@@ -20,7 +20,7 @@ pub struct Conditions {
 
 // region:      --- PreConditions
 /// Names and order of the `PreConditions`.
-pub const PRE_CONDITIONS: [&str; 4] = ["_failureif", "_successif", "_skipif", "_while"];
+pub const PRE_CONDITIONS: [&str; 4] = [FAILURE_IF, SUCCESS_IF, SKIP_IF, WHILE];
 
 /// Array holding the pre conditions.
 #[derive(Default)]
@@ -83,7 +83,7 @@ impl PreConditions {
 
 // region:      --- PostConditions
 /// Names and order of the `PostConditions`.
-pub const POST_CONDITIONS: [&str; 4] = ["_onHalted", "_onFailure", "_onSuccess", "_post"];
+pub const POST_CONDITIONS: [&str; 4] = [ON_HALTED, ON_FAILURE, ON_SUCCESS, POST];
 
 /// Array holding the post conditions.
 #[derive(Default)]

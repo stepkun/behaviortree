@@ -52,51 +52,44 @@ pub type ConstString = Arc<str>;
 pub const EMPTY_STR: &str = "";
 /// Global constant for expect statements that should never happen
 #[doc(hidden)]
-pub static SHOULD_NOT_HAPPEN: &str = "should not happen";
+pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
 
-// forbidden port names
-static FORBIDDEN_PORT_NAMES: &[&str] = &[
-	"name",
-	"ID",
-	"_autoremap",
-	"_failureIf",
-	"_successIf",
-	"_skipIf",
-	"_while",
-	"_onHalted",
-	"_onFailure",
-	"_onSuccess",
-	"_post",
-];
+/// [`BehaviorState`] literal "Failure"
+pub const FAILURE: &str = "Failure";
+/// [`BehaviorState`] literal "Idle"
+pub const IDLE: &str = "Idle";
+/// [`BehaviorState`] literal "Running"
+pub const RUNNING: &str = "Running";
+/// [`BehaviorState`] literal "Skipped"
+pub const SKIPPED: &str = "Skipped";
+/// [`BehaviorState`] literal "Success"
+pub const SUCCESS: &str = "Success";
 
-// @TODO: statics???
-/// Behavior state literals
-static IDLE: &str = "Idle";
-static RUNNING: &str = "Running";
-static SUCCESS: &str = "Success";
-static FAILURE: &str = "Failure";
-static SKIPPED: &str = "Skipped";
+/// [`BehaviorKind`] literal "Action"
+pub const ACTION: &str = "Action";
+/// [`BehaviorKind`] literal "Condition"
+pub const CONDITION: &str = "Condition";
+/// [`BehaviorKind`] literal "Control"
+pub const CONTROL: &str = "Control";
+/// [`BehaviorKind`] literal "Decorator"
+pub const DECORATOR: &str = "Decorator";
+/// [`BehaviorKind`] literal "Subtree"
+pub const SUBTREE: &str = "SubTree";
 
-/// Port name literals
-static CASES: [&str; 6] = [
-	"case_1", "case_2", "case_3", "case_4", "case_5", "case_6",
-];
-static CODE: &str = "code";
-static DELAY_MSEC: &str = "delay_msec";
-static ENTRY: &str = "entry";
-static ELSE: &str = "else";
-static IF: &str = "if";
-static IF_EMPTY: &str = "if_empty";
-static KEY: &str = "key";
-static MAX_FAILURES: &str = "max_failures";
-static MSEC: &str = "msec";
-static NUM_ATTEMPTS: &str = "num_attempts";
-static NUM_CYCLES: &str = "num_cycles";
-static OUTPUT_KEY: &str = "output_key";
-static QUEUE: &str = "queue";
-static THEN_SKIP: &str = "then_skip";
-static VALUE: &str = "value";
-static VARIABLE: &str = "variable";
+/// Literal "name" for ports etc.
+const NAME: &str = "name";
+/// Literal "ID" for ports etc.
+const ID: &str = "ID";
+const AUTOREMAP: &str = "_autoremap";
+const FAILURE_IF: &str = "_failureIf";
+const SUCCESS_IF: &str = "_successIf";
+const SKIP_IF: &str = "_skipIf";
+const WHILE: &str = "_while";
+const ON_HALTED: &str = "_onHalted";
+const ON_FAILURE: &str = "_onFailure";
+const ON_SUCCESS: &str = "_onSuccess";
+const POST: &str = "_post";
+
 // endregion:	--- globals
 
 // region:		---macros

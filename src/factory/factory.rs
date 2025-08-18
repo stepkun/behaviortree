@@ -43,7 +43,7 @@ use super::{error::Error, registry::BehaviorRegistry};
 
 // region:      --- BehaviorTreeFactory
 /// Factory for creation and modification of [`BehaviorTree`]s
-/// The default factory contains the elementary behavior controls:
+/// The default factory contains the elementary control behaviors:
 /// - [`Fallback`]: the standard fallback control
 /// - [`Sequence`]: the standard sequence control
 /// - [`Parallel`]: the standard parallel contol with the ports
@@ -51,16 +51,16 @@ use super::{error::Error, registry::BehaviorRegistry};
 ///   - `failure_count`: the maximum of child failures to return Success
 ///     (equivalent to the minimum of child failures to return Failure)
 ///
-/// Note: Internally necessary is also
-/// - `SubTree`: to enable sub trees
+/// Note: Internally necessary are also
+/// - [`SubTree`]: to enable sub trees including the root tree
 pub struct BehaviorTreeFactory {
-	registry: BehaviorRegistry,
+	registry: Box<BehaviorRegistry>,
 }
 
 impl Default for BehaviorTreeFactory {
 	fn default() -> Self {
 		let mut f = Self {
-			registry: BehaviorRegistry::default(),
+			registry: Box::new(BehaviorRegistry::default()),
 		};
 		// minimum required behaviors for the factory to work
 		// controls
@@ -372,8 +372,8 @@ impl BehaviorTreeFactory {
 	/// # Errors
 	/// - on incorrect XML
 	/// - if tree description is not in BTCPP v4
-	pub fn register_behavior_tree_from_text(&mut self, xml: &str) -> Result<(), Error> {
-		match XmlParser::register_document(&mut self.registry, xml) {
+	pub fn register_behavior_tree_from_text(&mut self, xml: impl Into<ConstString>) -> Result<(), Error> {
+		match XmlParser::register_document(&mut self.registry, &xml.into()) {
 			Ok(()) => Ok(()),
 			Err(_) => Err(Error::Register),
 		}

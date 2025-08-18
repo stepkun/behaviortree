@@ -12,7 +12,7 @@ use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Decorator, ELSE, IF,
+	Decorator, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
@@ -20,6 +20,12 @@ use crate::{
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const ELSE: &str = "else";
+const IF: &str = "if";
+// endregion:	--- globals
 
 // region:      --- Precondition
 /// The `Precondition` behavior is used to check a scripted condition before
@@ -51,11 +57,11 @@ impl Behavior for Precondition {
 				child.halt_children(runtime)?;
 				let else_branch = behavior.get::<String>(ELSE)?;
 				match else_branch.as_ref() {
-					"Failure" => BehaviorState::Failure,
-					"Idle" => BehaviorState::Idle,
-					"Running" => BehaviorState::Running,
-					"Skipped" => BehaviorState::Skipped,
-					"Success" => BehaviorState::Success,
+					FAILURE => BehaviorState::Failure,
+					IDLE => BehaviorState::Idle,
+					RUNNING => BehaviorState::Running,
+					SKIPPED => BehaviorState::Skipped,
+					SUCCESS => BehaviorState::Success,
 					_ => {
 						let value = runtime
 							.lock()

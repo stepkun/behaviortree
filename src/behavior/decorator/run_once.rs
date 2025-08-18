@@ -9,14 +9,19 @@ use tinyscript::SharedRuntime;
 
 use crate as behaviortree;
 use crate::{
-	Decorator, IDLE, THEN_SKIP,
-	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
+	Decorator, IDLE,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const THEN_SKIP: &str = "then_skip";
+// endregion:	--- globals
 
 // region:      --- RunOnce
 /// The [`RunOnce`] decorator ticks its child exactly once and returns the state.

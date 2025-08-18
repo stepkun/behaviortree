@@ -12,13 +12,18 @@ use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Action, KEY,
+	Action,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const KEY: &str = "key";
+// endregion:	--- globals
 
 // region:      --- UnsetBlackboard
 /// The [`UnsetBlackboard`] behavior is used to delete a value of type T

@@ -11,7 +11,7 @@ use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Action, CODE,
+	Action,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
@@ -19,6 +19,11 @@ use crate::{
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
+
+// region:		--- globals
+/// Port name literals
+const CODE: &str = "code";
+// endregion:	--- globals
 
 /// The `Script` behavior returns Success or Failure depending on the result of the scripted code.
 #[derive(Action, Default)]

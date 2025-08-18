@@ -12,13 +12,18 @@ use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Condition, ConstString, ENTRY,
+	Condition, ConstString,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{input_port, port_list};
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const ENTRY: &str = "entry";
+// endregion:	--- globals
 
 // region:      --- WasEntryUpdated
 /// The `WasEntryUpdated` condition returns Success if a blackboard entry was updated otherwise Failure.

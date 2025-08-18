@@ -99,7 +99,7 @@ fn blackboard_node_with_parent() {
 
 	let mut remappings = PortRemappings::default();
 	remappings
-		.add("test", &"test1".into())
+		.add("test", "test1")
 		.expect(SHOULD_NOT_HAPPEN);
 	let mut node = SharedBlackboard::with_parent("level0", level0, remappings, true);
 
@@ -137,19 +137,19 @@ fn blackboard_node_hierarchy() {
 
 	let mut remappings1 = PortRemappings::default();
 	remappings1
-		.add("levelB", &"levelA".into())
+		.add("levelB", "levelA")
 		.expect(SHOULD_NOT_HAPPEN);
 	let mut level1 = SharedBlackboard::with_parent("level1", level0.clone(), remappings1, true);
 
 	let mut remappings2 = PortRemappings::default();
 	remappings2
-		.add("levelC", &"levelB".into())
+		.add("levelC", "levelB")
 		.expect(SHOULD_NOT_HAPPEN);
 	let mut level2 = SharedBlackboard::with_parent("level2", level1.clone(), remappings2, true);
 
 	let mut remappings3 = PortRemappings::default();
 	remappings3
-		.add("levelD", &"levelC".into())
+		.add("levelD", "levelC")
 		.expect(SHOULD_NOT_HAPPEN);
 	let mut level3 = SharedBlackboard::with_parent("level3", level2.clone(), remappings3, true);
 

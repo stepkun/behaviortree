@@ -9,7 +9,7 @@ use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Decorator, IDLE, NUM_CYCLES,
+	Decorator, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::PortList,
@@ -17,6 +17,11 @@ use crate::{
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const NUM_CYCLES: &str = "num_cycles";
+// endregion:	--- globals
 
 // region:      --- Repeat
 /// The [`Repeat`] decorator is used to execute a child several times as long as it succeeds.

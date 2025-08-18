@@ -42,28 +42,28 @@ impl PortRemappings {
 	/// [`PortDefinition`](crate::port::port_definition::PortDefinition)
 	/// # Errors
 	/// - if entry already exists
-	pub fn add(&mut self, name: &'static str, remapped_name: &ConstString) -> Result<(), Error> {
+	pub fn add(&mut self, name: &'static str, remapped_name: impl Into<ConstString>) -> Result<(), Error> {
 		for (original, _) in &self.0 {
 			if original.as_ref() == name {
 				return Err(Error::AlreadyInRemappings(name.into()));
 			}
 		}
-		self.0.push((name.into(), remapped_name.clone()));
+		self.0.push((name.into(), remapped_name.into()));
 		Ok(())
 	}
 
 	/// Add an entry to the [`PortRemappings`].
 	/// Already existing values will be overwritten
-	pub fn overwrite(&mut self, name: &str, remapped_name: &ConstString) {
+	pub fn overwrite(&mut self, name: &str, remapped_name: impl Into<ConstString>) {
 		for (original, old_value) in &mut self.0 {
 			if original.as_ref() == name {
 				// replace value
-				*old_value = remapped_name.clone();
+				*old_value = remapped_name.into();
 				return;
 			}
 		}
 		// create if not existent
-		self.0.push((name.into(), remapped_name.clone()));
+		self.0.push((name.into(), remapped_name.into()));
 	}
 
 	/// Lookup the remapped name.

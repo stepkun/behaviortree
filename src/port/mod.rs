@@ -16,10 +16,18 @@ pub use port_list::PortList;
 pub use port_remappings::PortRemappings;
 
 // region:      --- modules
-use crate::ConstString;
-use crate::FORBIDDEN_PORT_NAMES;
+use crate::{
+	AUTOREMAP, ConstString, FAILURE_IF, ID, NAME, ON_FAILURE, ON_HALTED, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE,
+};
 use error::Error;
 // endregion:   --- modules
+
+// region:		--- globals
+// forbidden port names
+const FORBIDDEN_PORT_NAMES: &[&str] = &[
+	NAME, ID, AUTOREMAP, FAILURE_IF, SUCCESS_IF, SKIP_IF, WHILE, ON_HALTED, ON_FAILURE, ON_SUCCESS, POST,
+];
+// endregion:	--- globals
 
 // region:      --- helper
 /// Check on blackboard pointer.

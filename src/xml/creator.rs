@@ -7,7 +7,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{ConstString, SHOULD_NOT_HAPPEN};
+use crate::{ConstString, ID, NAME, SHOULD_NOT_HAPPEN, SUBTREE};
 use alloc::{
 	collections::btree_map::BTreeMap,
 	string::{String, ToString},
@@ -49,11 +49,11 @@ impl XmlCreator {
 		for item in factory.registry().behaviors() {
 			if !item.1.0.groot2() {
 				writer.begin_elem(item.1.0.kind_str())?;
-				writer.attr("ID", item.0)?;
+				writer.attr(ID, item.0)?;
 				// look for a PortsList
 				for port in &item.1.0.ports().0 {
 					writer.begin_elem(port.direction().type_str())?;
-					writer.attr("name", port.name())?;
+					writer.attr(NAME, port.name())?;
 					writer.attr("type", port.type_name())?;
 					writer.end_elem()?;
 				}
@@ -120,7 +120,7 @@ impl XmlCreator {
 			// create the BehaviorTree's
 			for (_path, subtree) in subtrees {
 				writer.begin_elem("BehaviorTree")?;
-				writer.attr("ID", subtree.data().description().name())?;
+				writer.attr(ID, subtree.data().description().name())?;
 				writer.attr("_fullpath", subtree.data().description().groot2_path())?;
 
 				// recursive dive into children
@@ -136,11 +136,11 @@ impl XmlCreator {
 			for (name, item) in &behaviors {
 				if builtin_models || !item.groot2() {
 					writer.begin_elem(item.kind_str())?;
-					writer.attr("ID", name)?;
+					writer.attr(ID, name)?;
 					// look for a PortsList
 					for port in &item.ports().0 {
 						writer.begin_elem(port.direction().type_str())?;
-						writer.attr("name", port.name())?;
+						writer.attr(NAME, port.name())?;
 						writer.attr("type", port.type_name())?;
 						if !port.description().is_empty() {
 							writer.set_compact_mode();
@@ -173,12 +173,12 @@ impl XmlCreator {
 		let is_subtree = match element.kind() {
 			TreeElementKind::Leaf | TreeElementKind::Node => {
 				writer.begin_elem(element.data().description().id())?;
-				writer.attr("name", element.data().description().name())?;
+				writer.attr(NAME, element.data().description().name())?;
 				false
 			}
 			TreeElementKind::SubTree => {
-				writer.begin_elem("SubTree")?;
-				writer.attr("ID", element.data().description().name())?;
+				writer.begin_elem(SUBTREE)?;
+				writer.attr(ID, element.data().description().name())?;
 				if metadata {
 					writer.attr("_fullpath", element.data().description().groot2_path())?;
 				}
@@ -269,7 +269,7 @@ impl XmlCreator {
 			// create the BehaviorTree's
 			for (_path, subtree) in subtrees {
 				writer.begin_elem("BehaviorTree")?;
-				writer.attr("ID", subtree.data().description().name())?;
+				writer.attr(ID, subtree.data().description().name())?;
 				writer.attr("_fullpath", subtree.data().description().groot2_path())?;
 
 				// recursive dive into children
@@ -284,11 +284,11 @@ impl XmlCreator {
 			// loop over collected behavior entries
 			for (name, item) in &behaviors {
 				writer.begin_elem(item.kind_str())?;
-				writer.attr("ID", name)?;
+				writer.attr(ID, name)?;
 				// look for a PortsList
 				for port in &item.ports().0 {
 					writer.begin_elem(port.direction().type_str())?;
-					writer.attr("name", port.name())?;
+					writer.attr(NAME, port.name())?;
 					writer.attr("type", Self::groot_map_types(port.type_name()))?;
 					if !port.description().is_empty() {
 						writer.text(port.description())?;
@@ -314,12 +314,12 @@ impl XmlCreator {
 		let is_subtree = match element.kind() {
 			TreeElementKind::Leaf | TreeElementKind::Node => {
 				writer.begin_elem(element.data().description().id())?;
-				writer.attr("name", element.data().description().name())?;
+				writer.attr(NAME, element.data().description().name())?;
 				false
 			}
 			TreeElementKind::SubTree => {
-				writer.begin_elem("SubTree")?;
-				writer.attr("ID", element.data().description().name())?;
+				writer.begin_elem(SUBTREE)?;
+				writer.attr(ID, element.data().description().name())?;
 				writer.attr("_fullpath", element.data().description().groot2_path())?;
 				true
 			}

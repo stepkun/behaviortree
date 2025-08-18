@@ -21,7 +21,8 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 Support of embedded
 
 ### Added
-- embedded examples: t04_reactive_sequence,
+- embedded examples:
+  t04_reactive_sequence, t05_crossdoor, t06_subtree_port_remappings
   t07_load_multiple_xml, t08_additional_node_args, t09_scripting
 
 ### Changed

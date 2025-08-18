@@ -7,14 +7,18 @@
 #[cfg(feature = "std")]
 extern crate std;
 
+use core::ops::Range;
+
 // region:      --- modules
-use crate::ConstString;
-use alloc::{collections::btree_map::BTreeMap, sync::Arc, vec::Vec};
+use alloc::{boxed::Box, collections::btree_map::BTreeMap, sync::Arc, vec::Vec};
 #[cfg(feature = "std")]
 use libloading::Library;
 use tinyscript::Runtime;
 
-use crate::behavior::{BehaviorCreationFn, BehaviorDescription, BehaviorPtr};
+use crate::{
+	ConstString,
+	behavior::{BehaviorCreationFn, BehaviorDescription, BehaviorPtr},
+};
 
 use super::error::Error;
 
@@ -30,11 +34,11 @@ pub struct BehaviorRegistry {
 	/// The key is the name stored in the [`BehaviorDescription`].
 	behaviors: BTreeMap<ConstString, (BehaviorDescription, Arc<BehaviorCreationFn>)>,
 	/// [`BTreeMap`] of registered behavior tree definitions.
-	tree_definitions: BTreeMap<ConstString, ConstString>,
+	tree_definitions: BTreeMap<ConstString, (ConstString, Range<usize>)>,
 	/// Main tree ID
 	main_tree_id: Option<ConstString>,
 	/// Scripting runtime
-	runtime: Runtime,
+	runtime: Box<Runtime>,
 	/// List of loaded libraries.
 	/// Every tree must keep a reference to its needed libraries to keep the libraries in memory
 	/// until end of programm.
@@ -89,10 +93,15 @@ impl BehaviorRegistry {
 	/// Add a behavior tree definition to the registry.
 	/// # Errors
 	/// - if the behavior tree definition is already registered.
-	pub(crate) fn add_tree_defintion(&mut self, id: &str, tree_definition: ConstString) -> Result<(), Error> {
+	pub(crate) fn add_tree_defintion(
+		&mut self,
+		id: &str,
+		tree_definition: ConstString,
+		range: Range<usize>,
+	) -> Result<(), Error> {
 		let key: ConstString = id.into();
 		if let alloc::collections::btree_map::Entry::Vacant(e) = self.tree_definitions.entry(key) {
-			e.insert(tree_definition);
+			e.insert((tree_definition, range));
 			Ok(())
 		} else {
 			Err(Error::SubtreeAlreadyRegistered(id.into()))
@@ -109,7 +118,7 @@ impl BehaviorRegistry {
 	}
 
 	#[must_use]
-	pub(crate) fn find_tree_definition(&self, name: &str) -> Option<ConstString> {
+	pub(crate) fn find_tree_definition(&self, name: &str) -> Option<(ConstString, Range<usize>)> {
 		self.tree_definitions.get(name).cloned()
 	}
 

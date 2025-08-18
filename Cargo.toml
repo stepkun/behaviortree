@@ -52,6 +52,10 @@ name = "tree"
 harness = false
 
 [dependencies]
+#ariel-os = { path = "./build/imports/ariel-os/src/ariel-os", features = [
+#    "time",
+#] }
+#ariel-os-boards = { path = "./build/imports/ariel-os/src/ariel-os-boards" }
 behaviortree-derive = { path = "derive", version = "0.2.0" }
 async-trait = { version = "0.1.88", default-features = false }
 bytes = { version = "1.10.1", default-features = false }

@@ -12,13 +12,19 @@ use tinyscript::SharedRuntime;
 
 use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Action, OUTPUT_KEY, VALUE,
+	Action,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	port::{PortList, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 use crate::{inout_port, input_port, port_list};
 // endregion:   --- modules
+
+// region:		--- globals
+/// Port name literals
+const OUTPUT_KEY: &str = "output_key";
+const VALUE: &str = "value";
+// endregion:	--- globals
 
 // region:      --- SetBlackboard
 /// The [`SetBlackboard`] behavior is used to store a value of type T
