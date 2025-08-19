@@ -6,11 +6,11 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-// region:      --- modules
 use alloc::{
 	boxed::Box,
 	string::{String, ToString},
 };
+// region:      --- modules
 use roxmltree::{Document, Node, NodeType};
 #[cfg(feature = "std")]
 use std::path::PathBuf;
@@ -19,18 +19,97 @@ use tracing::{Level, event, instrument};
 use crate::{
 	ConstString, EMPTY_STR, ID, NAME, SUBTREE,
 	behavior::{
-		BehaviorData, BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorPtr,
+		BehaviorDataCollection, BehaviorKind, BehaviorPtr,
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
 	blackboard::SharedBlackboard,
 	factory::registry::BehaviorRegistry,
 	port::{PortRemappings, is_allowed_port_name, strip_bb_pointer},
-	tree::{tree_element::BehaviorTreeElement, tree_element_list::BehaviorTreeElementList},
+	tree::{
+		tree_element::BehaviorTreeElement,
+		tree_element_list::{BehaviorTreeElementList, ConstBehaviorTreeElementList},
+	},
 	xml::error::Error,
 };
 // endregion:   --- modules
 
 // region:		--- helper
+fn create_data_collection_from_xml(
+	registry: &BehaviorRegistry,
+	path: &str,
+	node: &Node,
+	uid: u16,
+	blackboard: Option<SharedBlackboard>,
+) -> Result<Box<BehaviorDataCollection>, Error> {
+	let mut tag_name = node.tag_name().name();
+	if tag_name == "BehaviorTree" {
+		tag_name = SUBTREE;
+	}
+	let is_subtree = tag_name == SUBTREE;
+
+	// if node is denoted with type of behavior, use attribute "ID" as name
+	if tag_name == crate::ACTION
+		|| tag_name == crate::CONDITION
+		|| tag_name == crate::CONTROL
+		|| tag_name == crate::DECORATOR
+		|| tag_name == crate::SUBTREE
+	{
+		if let Some(id) = node.attribute(ID) {
+			tag_name = id;
+		} else {
+			return Err(Error::MissingId(node.tag_name().name().into()));
+		}
+	}
+
+	// if node has no assigned name, use tag name
+	let node_name = node
+		.attribute(NAME)
+		.map_or_else(|| tag_name.to_string(), ToString::to_string);
+	let mut path = String::from(path) + "/" + &node_name;
+	// in case no explicit name was given, we extend the node_name with the uid
+	if node.attribute(NAME).is_none() {
+		path.push_str("::");
+		path.push_str(&uid.to_string());
+	}
+
+	// look for the behavior in the `BehaviorRegistry`
+	let res = if is_subtree {
+		registry.fetch(SUBTREE)
+	} else {
+		registry.fetch(tag_name)
+	};
+	let Ok((mut bhvr_desc, bhvr_creation_fn)) = res else {
+		return Err(Error::BehaviorNotRegistered(tag_name.into()));
+	};
+	bhvr_desc.set_name(&node_name);
+	bhvr_desc.set_path(&path);
+
+	let bhvr = bhvr_creation_fn();
+	let (autoremap, mut remappings, conditions) = handle_attributes(tag_name, is_subtree, &bhvr, node)?;
+
+	let new_blackboard = blackboard.map_or_else(SharedBlackboard::default, |blackboard| {
+		if is_subtree {
+			// A SubTree gets a new Blackboard with parent and remappings.
+			let mut new_remappings = PortRemappings::default();
+			core::mem::swap(&mut new_remappings, &mut remappings);
+			SharedBlackboard::with_parent(&node_name, blackboard, new_remappings, autoremap)
+		} else {
+			blackboard
+		}
+	});
+
+	Ok(Box::new(BehaviorDataCollection {
+		node_name,
+		path,
+		bhvr_desc,
+		blackboard: new_blackboard,
+		bhvr,
+		remappings,
+		conditions,
+		uid,
+	}))
+}
+
 fn handle_attributes(
 	name: &str,
 	is_subtree: bool,
@@ -170,41 +249,7 @@ fn handle_attributes(
 	};
 	Ok((autoremap, remappings, conditions))
 }
-// endregion:	--- DataItem
-
-// region:		--- DataItem
-/// This is used to minimize the stack consumption during recursion of tree creation.
-struct DataItem {
-	bhvr_desc: BehaviorDescription,
-	bhvr: Box<dyn BehaviorExecution>,
-	remappings: PortRemappings,
-	conditions: Conditions,
-	autoremap: bool,
-}
-
-impl DataItem {
-	fn create(bhvr_name: &str, is_subtree: bool, registry: &BehaviorRegistry, node: &Node) -> Result<Box<Self>, Error> {
-		// look for the behavior in the `BehaviorRegistry`
-		let res = if is_subtree {
-			registry.fetch(SUBTREE)
-		} else {
-			registry.fetch(bhvr_name)
-		};
-		let Ok((bhvr_desc, bhvr_creation_fn)) = res else {
-			return Err(Error::BehaviorNotRegistered(bhvr_name.into()));
-		};
-		let bhvr = bhvr_creation_fn();
-		let (autoremap, remappings, conditions) = handle_attributes(bhvr_name, is_subtree, &bhvr, node)?;
-		Ok(Box::new(Self {
-			bhvr_desc,
-			bhvr,
-			remappings,
-			conditions,
-			autoremap,
-		}))
-	}
-}
-// endregion:	--- DataItem
+// endregion:	--- helper
 
 // region:      --- XmlParser
 #[derive(Default)]
@@ -333,25 +378,19 @@ impl XmlParser {
 					Ok(doc) => doc,
 					Err(_err) => return Err(Error::XmlParser).into(),
 				};
-				let node = doc.root_element();
-				let uid = self.next_uid();
-				let mut data = DataItem::create(SUBTREE, true, registry, &node)?;
-				let blackboard = if let Some(external_bb) = external_blackboard {
-					// in this case, the remappings are against parent BlackBoard
-					let mut remappings = PortRemappings::default();
-					core::mem::swap(&mut remappings, &mut data.remappings);
-					SharedBlackboard::with_parent(name, external_bb, remappings, data.autoremap)
-				} else {
-					SharedBlackboard::new(name)
-				};
+				let data = create_data_collection_from_xml(
+					registry,
+					EMPTY_STR,
+					&doc.root_element(),
+					self.next_uid(),
+					external_blackboard,
+				)?;
 				// for tree root "path" is empty
-				let children = self.build_children(EMPTY_STR, node, registry, &blackboard)?;
+				let children = self.build_children(&data, doc.root_element(), registry)?;
 				if children.len() > 1 {
-					return Err(Error::SubtreeOneChild(node.tag_name().name().into()));
+					return Err(Error::SubtreeOneChild(doc.root_element().tag_name().name().into()));
 				}
-				let bhvr_data = BehaviorData::new(uid, name, EMPTY_STR, data.remappings, blackboard, data.bhvr_desc);
-				let behaviortree =
-					BehaviorTreeElement::create_subtree(bhvr_data, children.into(), data.bhvr, data.conditions);
+				let behaviortree = BehaviorTreeElement::create_subtree(data, children);
 				Ok(behaviortree)
 			},
 		)
@@ -360,11 +399,10 @@ impl XmlParser {
 	#[instrument(level = Level::DEBUG, skip_all)]
 	fn build_children(
 		&mut self,
-		path: &str,
+		data: &BehaviorDataCollection,
 		node: Node,
 		registry: &mut BehaviorRegistry,
-		blackboard: &SharedBlackboard,
-	) -> Result<BehaviorTreeElementList, Error> {
+	) -> Result<ConstBehaviorTreeElementList, Error> {
 		event!(Level::TRACE, "build_children");
 		let mut children = BehaviorTreeElementList::default();
 		for child in node.children() {
@@ -375,7 +413,7 @@ impl XmlParser {
 					return Err(Error::Unexpected("root element".into(), file!().into(), line!()))?;
 				}
 				NodeType::Element => {
-					let element = self.build_child(path, child, registry, blackboard.clone())?;
+					let element = self.build_child(data, child, registry)?;
 					children.push(element);
 				}
 				NodeType::PI => {
@@ -383,69 +421,35 @@ impl XmlParser {
 				}
 			}
 		}
-
-		children.shrink_to_fit();
-		Ok(children)
+		Ok(children.into())
 	}
 
 	#[instrument(level = Level::DEBUG, skip_all)]
 	fn build_child(
 		&mut self,
-		path: &str,
+		data: &BehaviorDataCollection,
 		node: Node,
 		registry: &mut BehaviorRegistry,
-		blackboard: SharedBlackboard,
 	) -> Result<BehaviorTreeElement, Error> {
 		event!(Level::TRACE, "build_child");
-		let uid = self.next_uid();
-		let mut tag_name = node.tag_name().name();
-		let is_subtree = tag_name == SUBTREE;
-
-		// if node is denoted with type of behavior, use attribute "ID" as name
-		if tag_name == crate::ACTION
-			|| tag_name == crate::CONDITION
-			|| tag_name == crate::CONTROL
-			|| tag_name == crate::DECORATOR
-			|| tag_name == crate::SUBTREE
-		{
-			if let Some(id) = node.attribute(ID) {
-				tag_name = id;
-			} else {
-				return Err(Error::MissingId(node.tag_name().name().into()))?;
-			}
-		}
-
-		// if node has no assigned name, use tag name
-		let node_name = node
-			.attribute(NAME)
-			.map_or_else(|| String::from(tag_name), ToString::to_string);
-		let mut path = String::from(path) + "/" + &node_name;
-		// in case no explicit name was given, we extend the node_name with the uid
-		if node.attribute(NAME).is_none() {
-			path.push_str("::");
-			path.push_str(&uid.to_string());
-		}
-
-		let data = DataItem::create(tag_name, is_subtree, registry, &node)?;
-		// ariel_os::debug::log::info!("build child: {}", node_name.as_str());
+		let data =
+			create_data_collection_from_xml(registry, &data.path, &node, self.next_uid(), Some(data.blackboard.clone()))?;
 		let tree_node = match data.bhvr_desc.kind() {
 			BehaviorKind::Action | BehaviorKind::Condition => {
 				// A leaf uses a cloned Blackboard
 				if node.has_children() {
-					return Err(Error::ChildrenNotAllowed(node_name.into()))?;
+					return Err(Error::ChildrenNotAllowed(data.node_name.into()))?;
 				}
-				let bhvr_data = BehaviorData::new(uid, &node_name, &path, data.remappings, blackboard, data.bhvr_desc);
-				BehaviorTreeElement::create_leaf(bhvr_data, data.bhvr, data.conditions)
+				BehaviorTreeElement::create_leaf(data)
 			}
 			BehaviorKind::Control | BehaviorKind::Decorator => {
 				// A node uses a cloned Blackboard
-				let children = self.build_children(&path, node, registry, &blackboard)?;
+				let children = self.build_children(&data, node, registry)?;
 
 				if data.bhvr_desc.kind() == BehaviorKind::Decorator && children.len() != 1 {
 					return Err(Error::DecoratorOneChild(node.tag_name().name().into()))?;
 				}
-				let bhvr_data = BehaviorData::new(uid, &node_name, &path, data.remappings, blackboard, data.bhvr_desc);
-				BehaviorTreeElement::create_node(bhvr_data, children.into(), data.bhvr, data.conditions)
+				BehaviorTreeElement::create_node(data, children)
 			}
 			BehaviorKind::SubTree => {
 				if let Some(id) = node.attribute(ID) {
@@ -459,31 +463,18 @@ impl XmlParser {
 								Ok(doc) => doc,
 								Err(_err) => return Err(Error::XmlParser),
 							};
-							let node = doc.root_element();
-							// A SubTree gets a new Blackboard with parent and remappings.
-							let blackboard1 =
-								SharedBlackboard::with_parent(&node_name, blackboard, data.remappings, data.autoremap);
-							let children = self.build_children(&path, node, registry, &blackboard1)?;
+							let children = self.build_children(&data, doc.root_element(), registry)?;
 							if children.len() > 1 {
-								return Err(Error::SubtreeOneChild(node.tag_name().name().into()))?;
+								return Err(Error::SubtreeOneChild(node.tag_name().name().into()));
 							}
-							// the PortRemappings have been used against parent BlackBoard
-							let bhvr_data = BehaviorData::new(
-								uid,
-								&node_name,
-								&path,
-								PortRemappings::default(),
-								blackboard1,
-								data.bhvr_desc,
-							);
-							BehaviorTreeElement::create_subtree(bhvr_data, children.into(), data.bhvr, data.conditions)
+							BehaviorTreeElement::create_subtree(data, children)
 						}
 						None => {
-							return Err(Error::SubtreeNotFound(node_name.into()))?;
+							return Err(Error::SubtreeNotFound(data.node_name.into()));
 						}
 					}
 				} else {
-					return Err(Error::MissingId(node.tag_name().name().into()))?;
+					return Err(Error::MissingId(node.tag_name().name().into()));
 				}
 			}
 		};

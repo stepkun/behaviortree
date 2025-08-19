@@ -2,10 +2,12 @@
 
 //! A [`BehaviorTree`](crate::tree::tree::BehaviorTree) element.
 
+use alloc::boxed::Box;
 // region:      --- modules
 use alloc::string::ToString;
 use tinyscript::{Error, SharedRuntime};
 
+use crate::behavior::BehaviorDataCollection;
 use crate::blackboard::SharedBlackboard;
 use crate::tree::tree_iter::TreeIterMut;
 use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE};
@@ -88,36 +90,29 @@ impl BehaviorTreeElement {
 
 	/// Create a tree leaf.
 	#[must_use]
-	pub(crate) fn create_leaf(data: BehaviorData, behavior: BehaviorPtr, conditions: Conditions) -> Self {
+	pub(crate) fn create_leaf(data: Box<BehaviorDataCollection>) -> Self {
+		let bhvr_data = BehaviorData::new(&data);
 		Self::new(
 			TreeElementKind::Leaf,
-			behavior,
-			data,
+			data.bhvr,
+			bhvr_data,
 			ConstBehaviorTreeElementList::default(),
-			conditions,
+			data.conditions,
 		)
 	}
 
 	/// Create a tree node.
 	#[must_use]
-	pub(crate) fn create_node(
-		data: BehaviorData,
-		children: ConstBehaviorTreeElementList,
-		behavior: BehaviorPtr,
-		conditions: Conditions,
-	) -> Self {
-		Self::new(TreeElementKind::Node, behavior, data, children, conditions)
+	pub(crate) fn create_node(data: Box<BehaviorDataCollection>, children: ConstBehaviorTreeElementList) -> Self {
+		let bhvr_data = BehaviorData::new(&data);
+		Self::new(TreeElementKind::Node, data.bhvr, bhvr_data, children, data.conditions)
 	}
 
 	/// Create a subtree.
 	#[must_use]
-	pub(crate) fn create_subtree(
-		data: BehaviorData,
-		children: ConstBehaviorTreeElementList,
-		behavior: BehaviorPtr,
-		conditions: Conditions,
-	) -> Self {
-		Self::new(TreeElementKind::SubTree, behavior, data, children, conditions)
+	pub(crate) fn create_subtree(data: Box<BehaviorDataCollection>, children: ConstBehaviorTreeElementList) -> Self {
+		let bhvr_data = BehaviorData::new(&data);
+		Self::new(TreeElementKind::SubTree, data.bhvr, bhvr_data, children, data.conditions)
 	}
 
 	/// Get the uid.

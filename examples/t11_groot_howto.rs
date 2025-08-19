@@ -181,7 +181,7 @@ const RESULT: &str = r#"<root BTCPP_format="4">
 
 #[allow(unused)]
 const METADATA_RESULT: &str = r#"<root BTCPP_format="4">
-  <BehaviorTree ID="MainTree" _fullpath="">
+  <BehaviorTree ID="MainTree" _fullpath="MainTree::0">
     <Sequence name="Sequence" _uid="1">
       <Script name="Script" _uid="2" code="door_open:=false"/>
       <UpdatePosition name="UpdatePosition" _uid="3" pos="{pos_2D}"/>

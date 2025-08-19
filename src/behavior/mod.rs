@@ -12,20 +12,23 @@ pub mod pre_post_conditions;
 mod simple_behavior;
 mod sub_tree;
 
-use crate::{
-	ACTION, CONDITION, CONTROL, ConstString, DECORATOR, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
-};
 // flatten
 pub use error::BehaviorError;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 pub use sub_tree::SubTree;
 
 // region:      --- modules
-use alloc::{boxed::Box, string::ToString, vec::Vec};
+use alloc::{
+	boxed::Box,
+	string::{String, ToString},
+	vec::Vec,
+};
 use core::{any::Any, str::FromStr};
 use tinyscript::SharedRuntime;
 
 use crate::{
+	ACTION, CONDITION, CONTROL, ConstString, DECORATOR, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
+	behavior::pre_post_conditions::Conditions,
 	blackboard::{BlackboardInterface, SharedBlackboard},
 	port::{PortList, PortRemappings, error::Error, strip_bb_pointer},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
@@ -47,6 +50,21 @@ pub type BehaviorCreationFn = dyn Fn() -> BehaviorPtr + Send + Sync;
 /// This callback can be used to observe [`BehaviorData`] and manipulate the resulting [`BehaviorState`] of a tick.
 pub type BehaviorTickCallback = dyn Fn(&BehaviorData, &mut BehaviorState) + Send + Sync;
 // endregion:   --- types
+
+// region:		--- BehaviorDataCollection
+/// This is used to minimize the stack consumption during recursion of tree creation
+/// and to transport the data collection between function calls.
+pub(crate) struct BehaviorDataCollection {
+	pub node_name: String,
+	pub path: String,
+	pub bhvr_desc: BehaviorDescription,
+	pub blackboard: SharedBlackboard,
+	pub bhvr: Box<dyn BehaviorExecution>,
+	pub remappings: PortRemappings,
+	pub conditions: Conditions,
+	pub uid: u16,
+}
+// endregion:	--- BehaviorDataCollection
 
 // region:      --- BehaviorExecution
 /// Supertrait for execution of a [`Behavior`].
@@ -191,23 +209,14 @@ pub struct BehaviorData {
 impl BehaviorData {
 	/// Constructor
 	#[must_use]
-	pub fn new(
-		uid: u16,
-		name: &str,
-		path: &str,
-		remappings: PortRemappings,
-		blackboard: SharedBlackboard,
-		mut description: BehaviorDescription,
-	) -> Self {
-		description.set_name(name);
-		description.set_path(path);
+	pub(crate) fn new(data: &BehaviorDataCollection) -> Self {
 		Self {
-			uid,
+			uid: data.uid,
 			state: BehaviorState::default(),
-			remappings,
-			blackboard,
+			remappings: data.remappings.clone(),
+			blackboard: data.blackboard.clone(),
 			pre_state_change_hooks: Vec::default(),
-			description,
+			description: data.bhvr_desc.clone(),
 		}
 	}
 

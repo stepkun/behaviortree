@@ -390,7 +390,7 @@ impl BehaviorTreeFactory {
 	/// - the plugin resides in the executables directory and
 	/// - is compiled with the same `Rust` version.
 	/// # Errors
-	/// - if library is not found ore does not found
+	/// - if library is not found
 	/// - if library does not provide the `extern "Rust" register(&mut BehaviorTreeFactory) -> i32` function
 	/// # Panics
 	/// - on OS other than `Windows` and `Linux`,
