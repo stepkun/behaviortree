@@ -16,9 +16,9 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.3.0] - 2025-??-??
+## [0.3.0] - 2025-08-20
 
-Support of embedded
+Version 0.3.0 enhances the support of embedded devices.
 
 ### Added
 - embedded examples:

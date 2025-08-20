@@ -5,18 +5,14 @@ name = "behaviortree-derive"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
 description = "Derive macros for behaviortree"
 edition = "2024"
-version = "0.2.0"
+version = "0.3.0"
 rust-version = "1.86.0"
 #license = "NGMC"
 license-file = "LICENSE"
 repository = "https://github.com/stepkun/behaviortree.git"
 documentation = "https://docs.rs/behaviortree-derive/latest/behaviortree-derive/"
 readme = "README.md"
-exclude = [
-    "benches/**",
-    "examples/**",
-    "tests/**",
-]
+exclude = ["laze*", "benches/**", "embedded/**", "examples/**", "tests/**"]
 
 [lib]
 proc-macro = true

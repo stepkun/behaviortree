@@ -12,6 +12,7 @@ repository = "https://github.com/stepkun/behaviortree.git"
 homepage = "http://github.com/stepkun/behaviortree.git"
 documentation = "https://docs.rs/behaviortree/"
 readme = "README.md"
+keywords = ["automation", "behavior", "behaviortree", "robots", "robotics"]
 exclude = ["laze*", "benches/**", "embedded/**", "examples/**", "tests/**"]
 
 [lib]
@@ -56,9 +57,10 @@ harness = false
 #    "time",
 #] }
 #ariel-os-boards = { path = "./build/imports/ariel-os/src/ariel-os-boards" }
-behaviortree-derive = { path = "derive", version = "0.2.0" }
+behaviortree-derive = { path = "derive", version = "0.3.0" }
+#behaviortree-derive = { version = "0.3.0" }
 async-trait = { version = "0.1.88", default-features = false }
-bytes = { version = "1.10.1", default-features = false }
+bytes = { version = "1", default-features = false }
 libloading = { version = "0.8.8", default-features = false, optional = true }
 nanoserde = { version = "0.2.1", default-features = false, features = ["json"] }
 rand = { version = "0.9.2", optional = true }
@@ -71,7 +73,8 @@ spin = { version = "0.10.0", default-features = false, features = [
     "use_ticket_mutex",
 ] } # spin_mutex??
 thiserror = { version = "2", default-features = false }
-tinyscript = { version = "^0.1.4", default-features = false }
+tinyscript = { path = "../tinyscript", version = "^0.1.4", default-features = false }
+#tinyscript = { version = "^0.1.4", default-features = false }
 tokio = { version = "1.47.1", features = [
     "rt-multi-thread",
     "macros",
@@ -84,7 +87,8 @@ tracing = { version = "0.1.41", default-features = false, features = [
 uuid = { version = "1.18.0", default-features = false, features = [
     "v4",
 ], optional = true }
-woxml = { version = "0.3.0", default-features = false }
+woxml = { path = "../woxml", version = "0.4.0", default-features = false }
+#woxml = { version = "0.4.0", default-features = false }
 zeromq = { version = "0.4.1", default-features = false, features = [
     "tcp-transport",
 ], optional = true }

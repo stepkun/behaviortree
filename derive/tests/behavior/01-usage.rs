@@ -11,11 +11,11 @@ struct TestAction;
 impl Behavior for TestAction {
 	async fn tick(
 		&mut self,
-		_behavior: &mut behaviortree::behavior::BehaviorData,
-		_children: &mut behaviortree::tree::ConstBehaviorTreeElementList,
-		_runtime: &tinyscript::runtime::SharedRuntime,
-	) -> behaviortree::behavior::BehaviorResult {
-		Ok(behaviortree::behavior::BehaviorState::Success)
+		_behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		Ok(BehaviorState::Success)
 	}
 }
 
@@ -26,11 +26,11 @@ struct TestCondition;
 impl Behavior for TestCondition {
 	async fn tick(
 		&mut self,
-		_behavior: &mut behaviortree::behavior::BehaviorData,
-		_children: &mut behaviortree::tree::ConstBehaviorTreeElementList,
-		_runtime: &tinyscript::runtime::SharedRuntime,
-	) -> behaviortree::behavior::BehaviorResult {
-		Ok(behaviortree::behavior::BehaviorState::Success)
+		_behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		Ok(BehaviorState::Success)
 	}
 }
 
@@ -41,11 +41,11 @@ struct TestControl;
 impl Behavior for TestControl {
 	async fn tick(
 		&mut self,
-		_behavior: &mut behaviortree::behavior::BehaviorData,
-		_children: &mut behaviortree::tree::ConstBehaviorTreeElementList,
-		_runtime: &tinyscript::runtime::SharedRuntime,
-	) -> behaviortree::behavior::BehaviorResult {
-		Ok(behaviortree::behavior::BehaviorState::Success)
+		_behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		Ok(BehaviorState::Success)
 	}
 }
 
@@ -56,11 +56,11 @@ struct TestDecorator;
 impl Behavior for TestDecorator {
 	async fn tick(
 		&mut self,
-		_behavior: &mut behaviortree::behavior::BehaviorData,
-		_children: &mut behaviortree::tree::ConstBehaviorTreeElementList,
-		_runtime: &tinyscript::runtime::SharedRuntime,
-	) -> behaviortree::behavior::BehaviorResult {
-		Ok(behaviortree::behavior::BehaviorState::Success)
+		_behavior: &mut BehaviorData,
+		_children: &mut ConstBehaviorTreeElementList,
+		_runtime: &SharedRuntime,
+	) -> BehaviorResult {
+		Ok(BehaviorState::Success)
 	}
 }
 
