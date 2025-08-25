@@ -11,6 +11,8 @@ use alloc::{
 	string::{String, ToString},
 };
 // region:      --- modules
+#[cfg(feature = "std")]
+use crate::SHOULD_NOT_HAPPEN;
 use roxmltree::{Document, Node, NodeType};
 #[cfg(feature = "std")]
 use std::path::PathBuf;
@@ -268,7 +270,11 @@ impl XmlParser {
 	}
 
 	#[instrument(level = Level::DEBUG, skip_all)]
-	pub(crate) fn register_document(registry: &mut BehaviorRegistry, xml: &ConstString) -> Result<(), Error> {
+	pub(crate) fn register_document(
+		registry: &mut BehaviorRegistry,
+		xml: &ConstString,
+		#[cfg(feature = "std")] path: ConstString,
+	) -> Result<(), Error> {
 		// general checks
 		// @TODO embedded: use same mechanism for both -> manual conversion of error!!
 		#[cfg(feature = "std")]
@@ -292,13 +298,21 @@ impl XmlParser {
 		if let Some(name) = root.attribute("main_tree_to_execute") {
 			registry.set_main_tree_id(name);
 		}
-
+		#[cfg(feature = "std")]
+		Self::register_document_root(registry, root, xml, path)?;
+		#[cfg(not(feature = "std"))]
 		Self::register_document_root(registry, root, xml)?;
 		Ok(())
 	}
 
+	#[allow(clippy::needless_pass_by_value)]
 	#[instrument(level = Level::DEBUG, skip_all)]
-	fn register_document_root(registry: &mut BehaviorRegistry, element: Node, source: &ConstString) -> Result<(), Error> {
+	fn register_document_root(
+		registry: &mut BehaviorRegistry,
+		element: Node,
+		source: &ConstString,
+		#[cfg(feature = "std")] path: ConstString,
+	) -> Result<(), Error> {
 		event!(Level::TRACE, "register_document_root");
 		for element in element.children() {
 			match element.node_type() {
@@ -331,18 +345,29 @@ impl XmlParser {
 						#[cfg(feature = "std")]
 						"include" => {
 							let mut file_path: PathBuf;
-							if let Some(path) = element.attribute("path") {
-								file_path = PathBuf::from(path);
+							if let Some(path_attr) = element.attribute("path") {
+								file_path = PathBuf::from(path_attr);
 								if file_path.is_relative() {
-									// get the "current" directory
-									file_path = std::env::current_dir()?;
-									file_path.push(path);
+									// use the given path
+									file_path = PathBuf::from(path.as_ref());
+									file_path.push(path_attr);
 								}
 							} else {
 								return Err(Error::MissingPath(element.tag_name().name().into()))?;
 							}
-							let xml = std::fs::read_to_string(file_path)?.into();
-							Self::register_document(registry, &xml)?;
+							match std::fs::read_to_string(&file_path) {
+								Ok(xml) => {
+									let cur_path = file_path
+										.parent()
+										.expect(SHOULD_NOT_HAPPEN)
+										.to_string_lossy()
+										.into();
+									Self::register_document(registry, &xml.into(), cur_path)?;
+								}
+								Err(err) => {
+									return Err(Error::ReadFile(file_path.to_string_lossy().into(), err.to_string().into()));
+								}
+							}
 						}
 						_ => {
 							return Err(Error::ElementNotSupported(element.tag_name().name().into()))?;
@@ -388,7 +413,7 @@ impl XmlParser {
 				// for tree root "path" is empty
 				let children = self.build_children(&data, doc.root_element(), registry)?;
 				if children.len() > 1 {
-					return Err(Error::SubtreeOneChild(doc.root_element().tag_name().name().into()));
+					return Err(Error::SubtreeOneChild(name.into()));
 				}
 				let behaviortree = BehaviorTreeElement::create_subtree(data, children);
 				Ok(behaviortree)
@@ -465,7 +490,7 @@ impl XmlParser {
 							};
 							let children = self.build_children(&data, doc.root_element(), registry)?;
 							if children.len() > 1 {
-								return Err(Error::SubtreeOneChild(node.tag_name().name().into()));
+								return Err(Error::SubtreeOneChild(id.into()));
 							}
 							BehaviorTreeElement::create_subtree(data, children)
 						}

@@ -61,6 +61,10 @@ pub enum Error {
 	/// Precondition error
 	#[error("add precondition for [{0}] failed due to [{1}]")]
 	Precondition(ConstString, crate::BehaviorError),
+	/// Read of file failed
+	#[cfg(feature = "std")]
+	#[error("file [{0}] could not be read: {1}")]
+	ReadFile(ConstString, ConstString),
 	/// Registration error
 	#[error("registration of [{0}] failed due to [{1}]")]
 	Registration(ConstString, crate::factory::error::Error),

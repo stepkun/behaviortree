@@ -16,6 +16,18 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
+## [0.3.1] - 2025-??-??
+
+### Added
+- factory method to clear registered tree definitions
+- factory method to load the xml from file
+
+### Changed
+
+### Fixed
+
+### Removed
+
 ## [0.3.0] - 2025-08-20
 
 Version 0.3.0 enhances the support of embedded devices.

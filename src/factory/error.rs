@@ -16,23 +16,6 @@ use thiserror::Error;
 #[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum Error {
-	// /// Passthrough for `BehaviorErrors`
-	// #[error("{0}")]
-	// Behavior(#[from] crate::behavior::BehaviorError),
-	// /// Passthrough port error
-	// #[error("{0}")]
-	// Port(#[from] crate::port::error::Error),
-	// /// Passthrough for behavior tree Errors
-	// #[error("{0}")]
-	// Tree(#[from] crate::tree::error::Error),
-	/// Passthrough for `libloading::Error`s
-	// #[cfg(feature = "std")]
-	// #[error("{0}")]
-	// XmlParser(#[from] roxmltree::Error),
-	// /// roxmltree Errors
-	// #[cfg(not(feature = "std"))]
-	// #[error("Error parsing XML")]
-	// XmlParser,
 	/// Passthrough for `std::io::Error`s
 	#[cfg(feature = "std")]
 	#[error("{0}")]
@@ -51,6 +34,11 @@ pub enum Error {
 	#[error("behavior [{0}] is not registered")]
 	BehaviorNotRegistered(ConstString),
 	/// Creation of tree failed
+	#[cfg(feature = "std")]
+	#[error("creation of (sub)tree [{0}] failed: {1}")]
+	Create(ConstString, ConstString),
+	/// Creation of tree failed
+	#[cfg(not(feature = "std"))]
 	#[error("creation of (sub)tree [{0}] failed")]
 	Create(ConstString),
 	/// Deadlock situation
@@ -69,8 +57,13 @@ pub enum Error {
 	#[error("no 'main_tree_to_execute' provided")]
 	NoTreeToExecute,
 	/// Register XML failed
+	#[cfg(feature = "std")]
+	#[error("registering xml failed due to {0}")]
+	RegisterXml(ConstString),
+	/// Register XML failed
+	#[cfg(not(feature = "std"))]
 	#[error("registering xml failed")]
-	Register,
+	RegisterXml,
 	/// Loading a library failed
 	#[error("registering library [{0}] failed with [{1}]")]
 	RegisterLib(ConstString, u32),

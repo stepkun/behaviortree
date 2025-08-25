@@ -301,6 +301,11 @@ impl BehaviorTreeFactory {
 		self.registry.register_enum_tuple(key, value)
 	}
 
+	/// Clear previously registered behavior trees.
+	pub fn clear_registered_behavior_trees(&mut self) {
+		self.registry.clear_registered_trees();
+	}
+
 	/// Create a [`BehaviorTree`] directly from XML.
 	/// # Errors
 	/// - if XML is not well formatted
@@ -333,14 +338,12 @@ impl BehaviorTreeFactory {
 	/// - if behaviors or subtrees are missing
 	pub fn create_tree(&mut self, name: &str) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
-		if let Ok(root) = parser.create_tree_from_definition(name, &mut self.registry, None) {
-			Ok(BehaviorTree::new(root, &self.registry))
-		} else {
-			let id = self
-				.registry
-				.main_tree_id()
-				.map_or_else(|| "unknown".into(), |id| id);
-			Err(Error::Create(id))
+		match parser.create_tree_from_definition(name, &mut self.registry, None) {
+			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),
+			#[cfg(feature = "std")]
+			Err(err) => Err(Error::Create(name.into(), err.to_string().into())),
+			#[cfg(not(feature = "std"))]
+			Err(_) => Err(Error::Create(name.into())),
 		}
 	}
 
@@ -350,16 +353,12 @@ impl BehaviorTreeFactory {
 	/// - if behaviors or subtrees are missing
 	pub fn create_tree_with(&mut self, name: &str, blackboard: SharedBlackboard) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
-		// let root = parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard))?;
-		// Ok(BehaviorTree::new(root, &self.registry))
-		if let Ok(root) = parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard)) {
-			Ok(BehaviorTree::new(root, &self.registry))
-		} else {
-			let id = self
-				.registry
-				.main_tree_id()
-				.map_or_else(|| "unknown".into(), |id| id);
-			Err(Error::Create(id))
+		match parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard)) {
+			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),
+			#[cfg(feature = "std")]
+			Err(err) => Err(Error::Create(name.into(), err.to_string().into())),
+			#[cfg(not(feature = "std"))]
+			Err(_) => Err(Error::Create(name.into())),
 		}
 	}
 
@@ -372,10 +371,47 @@ impl BehaviorTreeFactory {
 	/// # Errors
 	/// - on incorrect XML
 	/// - if tree description is not in BTCPP v4
+	/// - if tree is already registered
 	pub fn register_behavior_tree_from_text(&mut self, xml: impl Into<ConstString>) -> Result<(), Error> {
-		match XmlParser::register_document(&mut self.registry, &xml.into()) {
+		#[cfg(feature = "std")]
+		{
+			let dir = std::env::current_dir()?.to_string_lossy().into();
+			match XmlParser::register_document(&mut self.registry, &xml.into(), dir) {
+				Ok(()) => Ok(()),
+				Err(err) => Err(Error::RegisterXml(err.to_string().into())),
+			}
+		}
+		#[cfg(not(feature = "std"))]
+		{
+			match XmlParser::register_document(&mut self.registry, &xml.into()) {
+				Ok(()) => Ok(()),
+				Err(_) => Err(Error::RegisterXml),
+			}
+		}
+	}
+
+	/// Register the behavior (sub)trees described by the XML in the file.
+	/// # Errors
+	/// - on incorrect XML
+	/// - if tree description is not in BTCPP v4
+	/// - if tree is already registered
+	/// # Panics
+	/// - if the file path does not contain a valid
+	#[cfg(feature = "std")]
+	pub fn register_behavior_tree_from_file(&mut self, file: impl Into<std::path::PathBuf>) -> Result<(), Error> {
+		let file_path: std::path::PathBuf = file.into();
+		let file_dir = file_path.parent().expect(SHOULD_NOT_HAPPEN);
+		let dir: ConstString = if file_path.is_relative() {
+			let mut dir = std::env::current_dir()?;
+			dir.push(file_dir);
+			dir.to_string_lossy().into()
+		} else {
+			file_dir.to_string_lossy().into()
+		};
+		let xml: ConstString = std::fs::read_to_string(file_path)?.into();
+		match XmlParser::register_document(&mut self.registry, &xml, dir) {
 			Ok(()) => Ok(()),
-			Err(_) => Err(Error::Register),
+			Err(err) => Err(Error::RegisterXml(err.to_string().into())),
 		}
 	}
 

@@ -49,7 +49,7 @@ async fn example() -> BehaviorTreeResult {
 	factory.register_behavior_tree_from_text(XML_SUB_B)?;
 	factory.register_behavior_tree_from_text(XML_MAIN)?;
 
-	//Check that the BTs have been registered correctly
+	// Check that the BTs have been registered correctly
 	println!("Registered BehaviorTrees:");
 	for bt_name in factory.registered_behavior_trees() {
 		println!(" - {bt_name}");

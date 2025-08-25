@@ -11,32 +11,14 @@ mod common;
 use behaviortree::prelude::*;
 use common::test_data::SaySomething;
 
-const XML_WITH_INCLUDE: &str = r#"
-<root BTCPP_format="4">
-    <include path="./subtree_A.xml" />
-    <include path="./subtree_B.xml" />
-    <BehaviorTree ID="MainTree">
-        <Sequence>
-            <SaySomething message="starting MainTree" />
-            <SubTree ID="SubA"/>
-            <SubTree ID="SubB"/>
-        </Sequence>
-    </BehaviorTree>
-</root>
-"#;
-
 async fn example() -> BehaviorTreeResult {
-	// set the necessary directory, only working if in project root directory
-	let mut dir = std::env::current_dir()?;
-	dir.push("examples");
-	std::env::set_current_dir(dir)?;
-
 	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 
-	// Register the behavior tree definition, but do not instantiate the tree yet.
-	factory.register_behavior_tree_from_text(XML_WITH_INCLUDE)?;
+	// Load tree from files, but do not instantiate the tree yet.
+	// The subdir 'examples' is necessary because typically this is started from workspace directory.
+	factory.register_behavior_tree_from_file("./examples/maintree.xml")?;
 
 	// Check that the BTs have been registered correctly
 	println!("Registered BehaviorTrees:");
@@ -70,7 +52,7 @@ mod test {
 	use super::*;
 
 	#[tokio::test]
-	async fn t07_load_multiple_xml_with_include() -> Result<(), Error> {
+	async fn t07_load_multiple_xml_from_files() -> Result<(), Error> {
 		let result = example().await?;
 		assert_eq!(result, BehaviorState::Success);
 		Ok(())

@@ -40,6 +40,7 @@ pub struct BehaviorRegistry {
 	/// Scripting runtime
 	runtime: Box<Runtime>,
 	/// List of loaded libraries.
+	///
 	/// Every tree must keep a reference to its needed libraries to keep the libraries in memory
 	/// until end of programm.
 	#[cfg(feature = "std")]
@@ -49,7 +50,7 @@ pub struct BehaviorRegistry {
 impl BehaviorRegistry {
 	/// Add a behavior to the registry
 	/// # Errors
-	/// - if the entry already exists
+	/// - if the behavior entry already exists
 	pub fn add_behavior<F>(&mut self, bhvr_description: BehaviorDescription, bhvr_creation_fn: F) -> Result<(), Error>
 	where
 		F: Fn() -> BehaviorPtr + Send + Sync + 'static,
@@ -82,6 +83,18 @@ impl BehaviorRegistry {
 	/// Set the main tree id
 	pub fn set_main_tree_id(&mut self, id: &str) {
 		self.main_tree_id = Some(id.into());
+	}
+
+	/// Clear registered behavior trees.
+	///
+	/// Clears only the registered trees, not the registered behaviors.
+	/// In case you want to clear everything, use a new factory.
+	pub fn clear_registered_trees(&mut self) {
+		// delete the main tree id
+		self.main_tree_id = None;
+		// @TODO: What about the libraries???
+		// remove tree definitions
+		self.tree_definitions.clear();
 	}
 
 	/// Get the main tree id

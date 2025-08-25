@@ -1,0 +1,9 @@
+<root BTCPP_format="4">
+    <include path="./subtree_D.xml" />
+    <BehaviorTree ID="SubC">
+        <Sequence>
+            <SaySomething message="Executing SubC" />
+            <SubTree ID="SubD"/>
+        </Sequence>
+     </BehaviorTree>
+</root>
