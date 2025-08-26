@@ -24,8 +24,10 @@ const MAX_FAILURES: &str = "max_failures";
 // endregion:	--- globals
 
 // region:      --- ParallelAll
-/// A `ParallelAll` executes its children
+/// A [`ParallelAll`] executes its children __concurrently__ in one thread.
 ///
+/// In difference to the [`Parallel`](crate::behavior::control::parallel::Parallel) behavior,
+/// the [`ParallelAll`] finishes the execution of all its children before deciding whether its a Success or a Failure.
 #[derive(Control, Debug)]
 pub struct ParallelAll {
 	/// The maximum allowed failures.

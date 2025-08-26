@@ -11,7 +11,7 @@ use tinyscript::SharedRuntime;
 use crate as behaviortree;
 use crate::{
 	Control, IDLE,
-	behavior::{BehaviorData, BehaviorError, Behavior, BehaviorResult, BehaviorState},
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	port::PortList,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -19,8 +19,12 @@ use crate::{input_port, port_list};
 // endregion:   --- modules
 
 // region:      --- Parallel
-/// A `Parallel` ticks executes children in
+/// A [`Parallel`] executes its children __concurrently__ in one thread.
 ///
+/// The behavior is completed either when the `success_threshold` or the `failure_threshold` is reached.
+/// These are configured using the ports `success_count` and `failure_count`.
+/// If any of the thresholds is reached, still running children will be halted.
+/// This differs from the [`ParallelAll`](crate::behavior::control::parallel_all::ParallelAll) behavior.
 #[derive(Control, Debug)]
 pub struct Parallel {
 	/// The minimum needed Successes to retrun a Success.

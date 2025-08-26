@@ -1,0 +1,4 @@
+apps:
+  - name: t16_global_blackboard
+    selects:
+      - alloc

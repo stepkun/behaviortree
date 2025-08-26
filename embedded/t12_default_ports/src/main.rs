@@ -1,11 +1,10 @@
 // Copyright © 2025 Stephan Kunz
+#![no_main]
+#![no_std]
 
-//! This test implements the twelvth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
-//!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_12_default_ports)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t12_default_ports.cpp)
-//!
+//! Embedded version of [t12_default_ports](examples/t12_default_ports.rs).
 
+use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::{EMPTY_STR, prelude::*};
 use core::fmt::{Display, Formatter};
 use nanoserde::{DeJson, SerJson};
@@ -78,32 +77,32 @@ impl Behavior for BehaviorWithDefaultPoints {
 		let msg: String = behavior.get("input")?;
 		let point = Point2D::from_str(&msg).map_err(|_| BehaviorError::ParsePortValue("input".into(), msg.into()))?;
 		assert_eq!(point, Point2D { x: -1, y: -2 });
-		println!("input:  [{},{}]", point.x, point.y);
+		info!("input:  [{},{}]", point.x, point.y);
 
 		let point: Point2D = behavior.get("pointA")?;
 		assert_eq!(point, Point2D { x: 1, y: 2 });
-		println!("pointA:  [{},{}]", point.x, point.y);
+		info!("pointA:  [{},{}]", point.x, point.y);
 
 		let point: Point2D = behavior.get("pointB")?;
 		assert_eq!(point, Point2D { x: 3, y: 4 });
-		println!("pointB:  [{},{}]", point.x, point.y);
+		info!("pointB:  [{},{}]", point.x, point.y);
 
 		let msg: String = behavior.get("pointC")?;
 		let point = Point2D::from_str(&msg).map_err(|_| BehaviorError::ParsePortValue("pointC".into(), msg.into()))?;
 		assert_eq!(point, Point2D { x: 5, y: 6 });
-		println!("pointC:  [{},{}]", point.x, point.y);
+		info!("pointC:  [{},{}]", point.x, point.y);
 
 		let point: Point2D = behavior.get("pointD")?;
 		assert_eq!(point, Point2D { x: 7, y: 8 });
-		println!("pointD:  [{},{}]", point.x, point.y);
+		info!("pointD:  [{},{}]", point.x, point.y);
 
 		let point: Point2D = behavior.get("pointE")?;
 		assert_eq!(point, Point2D { x: 9, y: 10 });
-		println!("pointE:  [{},{}]", point.x, point.y);
+		info!("pointE:  [{},{}]", point.x, point.y);
 
 		let point: Point2D = behavior.get("pointF")?;
 		assert_eq!(point, Point2D { x: 11, y: 12 });
-		println!("pointF:  [{},{}]", point.x, point.y);
+		info!("pointF:  [{},{}]", point.x, point.y);
 
 		Ok(BehaviorState::Success)
 	}
@@ -142,20 +141,17 @@ async fn example() -> BehaviorTreeResult {
 	Ok(result)
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-	example().await?;
-	Ok(())
-}
-
-#[cfg(test)]
-mod test {
-	use super::*;
-
-	#[tokio::test]
-	async fn t12_default_ports() -> Result<(), Error> {
-		let result = example().await?;
-		assert_eq!(result, BehaviorState::Success);
-		Ok(())
-	}
+#[ariel_os::task(autostart)]
+async fn main() {
+	info!("running t12_default_ports...");
+	match example().await {
+		Ok(_) => {
+			info!("...succeeded!");
+			exit(ExitCode::SUCCESS)
+		}
+		Err(_) => {
+			error!("...failed!");
+			exit(ExitCode::FAILURE)
+		}
+	};
 }

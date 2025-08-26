@@ -21,6 +21,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Added
 - factory method to clear registered tree definitions
 - factory method to load the xml from file
+- embedded examples: t12_default_ports, t14_subtee_model, t16_global_blackboard, t18_waypoints
 
 ### Changed
 

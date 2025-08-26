@@ -15,4 +15,7 @@ subdirs:
   - t07_load_multiple_xml
   - t08_additional_node_args
   - t09_scripting
-  
+  - t12_default_ports
+  - t14_subtree_model
+  - t16_global_blackboard
+  - t18_waypoints
