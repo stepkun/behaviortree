@@ -6,13 +6,13 @@ version = "0.3.1"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
-description = "A BehaviorTree library"
+description = "A BehaviorTree library similar to [BehaviorTree.CPP](https://www.behaviortree.dev/), which can be used in embedded environments."
 rust-version = "1.86.0"
 repository = "https://github.com/stepkun/behaviortree.git"
 homepage = "http://github.com/stepkun/behaviortree.git"
 documentation = "https://docs.rs/behaviortree/"
 readme = "README.md"
-keywords = ["automation", "behavior", "behaviortree", "robots", "robotics"]
+keywords = ["automation", "behavior", "embedded", "robots", "robotics"]
 categories = ["development-tools", "science::robotics", "simulation"]
 exclude = ["laze*", "benches/**", "embedded/**", "examples/**", "tests/**"]
 

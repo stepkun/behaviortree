@@ -61,7 +61,7 @@ impl GripperInterface {
 }
 
 /// Action `SaySomething`
-/// Example of custom `ActionNode` (synchronous action) with an input port.
+/// Example of custom `Action` with an input port.
 #[derive(Action, Debug, Default)]
 pub struct SaySomething {}
 
@@ -106,7 +106,7 @@ impl Behavior for ThinkWhatToSay {
 
 /// Same as struct `SaySomething`, but to be registered with `SimpleBehavior`
 /// # Errors
-#[allow(clippy::needless_pass_by_ref_mut)]
+/// In this case never :-)
 pub fn say_something_simple(behavior: &mut BehaviorData) -> BehaviorResult {
 	let msg = behavior.get::<String>("message")?;
 	println!("Robot2 says: {msg}");
