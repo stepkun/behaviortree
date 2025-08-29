@@ -3,7 +3,7 @@
 //! Blackboard for behaviortree
 
 // region:      --- modules
-use crate::{ConstString, SHOULD_NOT_HAPPEN};
+use crate::ConstString;
 use alloc::{
 	borrow::ToOwned,
 	collections::btree_map::BTreeMap,
@@ -17,7 +17,7 @@ use core::{
 	ops::{Deref, DerefMut},
 	str::FromStr,
 };
-use tinyscript::{Environment, Error as ScriptingError, execution::ScriptingValue};
+use tinyscript::{environment::Environment, execution::ScriptingValue};
 
 use super::{BlackboardInterface, error::Error};
 // endregion:   --- modules
@@ -148,164 +148,309 @@ impl BlackboardInterface for BlackboardData {
 }
 
 impl Environment for BlackboardData {
-	fn define_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), ScriptingError> {
+	fn define_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), tinyscript::environment::Error> {
 		if self.contains(key) {
 			self.set_env(key, value)
 		} else {
 			match value {
 				ScriptingValue::Nil() => unreachable!(),
-				ScriptingValue::Boolean(b) => {
-					self.set(key, b).expect(SHOULD_NOT_HAPPEN);
-				}
-				ScriptingValue::Float64(f) => {
-					self.set(key, f).expect(SHOULD_NOT_HAPPEN);
-				}
-				ScriptingValue::Int64(i) => {
-					self.set(key, i).expect(SHOULD_NOT_HAPPEN);
-				}
-				ScriptingValue::String(s) => {
-					self.set(key, s).expect(SHOULD_NOT_HAPPEN);
-				}
+				ScriptingValue::Boolean(b) => match self.set(key, b) {
+					Ok(_) => {}
+					Err(cause) => {
+						return Err(tinyscript::environment::Error::EnvVarSet {
+							name: key.into(),
+							cause: cause.to_string().into(),
+						});
+					}
+				},
+				ScriptingValue::Float64(f) => match self.set(key, f) {
+					Ok(_) => {}
+					Err(cause) => {
+						return Err(tinyscript::environment::Error::EnvVarSet {
+							name: key.into(),
+							cause: cause.to_string().into(),
+						});
+					}
+				},
+				ScriptingValue::Int64(i) => match self.set(key, i) {
+					Ok(_) => {}
+					Err(cause) => {
+						return Err(tinyscript::environment::Error::EnvVarSet {
+							name: key.into(),
+							cause: cause.to_string().into(),
+						});
+					}
+				},
+				ScriptingValue::String(s) => match self.set(key, s) {
+					Ok(_) => {}
+					Err(cause) => {
+						return Err(tinyscript::environment::Error::EnvVarSet {
+							name: key.into(),
+							cause: cause.to_string().into(),
+						});
+					}
+				},
 			}
 			Ok(())
 		}
 	}
 
-	fn get_env(&self, name: &str) -> Result<ScriptingValue, ScriptingError> {
+	#[allow(clippy::too_many_lines)]
+	fn get_env(&self, name: &str) -> Result<ScriptingValue, tinyscript::environment::Error> {
 		self.get_entry(name).map_or_else(
-			|| Err(ScriptingError::GlobalNotDefined(name.into())),
+			|| Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() }),
 			|entry| {
 				// let entry = **(entry);
 				let type_id = (**entry).type_id();
 				if type_id == TypeId::of::<String>() {
-					let s = entry
-						.downcast_ref::<String>()
-						.expect(SHOULD_NOT_HAPPEN);
+					let s =
+						entry
+							.downcast_ref::<String>()
+							.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+								name: name.into(),
+								var_type: "String".into(),
+							})?;
 					Ok(ScriptingValue::String(s.to_owned()))
 				} else if type_id == TypeId::of::<f64>() {
 					let f = entry
 						.downcast_ref::<f64>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "f64".into(),
+						})?;
 					Ok(ScriptingValue::Float64(f.to_owned()))
 				} else if type_id == TypeId::of::<f32>() {
 					let f = entry
 						.downcast_ref::<f32>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "f32".into(),
+						})?;
 					Ok(ScriptingValue::Float64(f64::from(f.to_owned())))
 				} else if type_id == TypeId::of::<i64>() {
 					let i = entry
 						.downcast_ref::<i64>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "i64".into(),
+						})?;
 					Ok(ScriptingValue::Int64(i.to_owned()))
 				} else if type_id == TypeId::of::<i32>() {
 					let i = entry
 						.downcast_ref::<i32>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "i32".into(),
+						})?;
 					Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
 				} else if type_id == TypeId::of::<u32>() {
 					let i = entry
 						.downcast_ref::<u32>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "u32".into(),
+						})?;
 					Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
 				} else if type_id == TypeId::of::<i16>() {
 					let i = entry
 						.downcast_ref::<i16>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "i16".into(),
+						})?;
 					Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
 				} else if type_id == TypeId::of::<u16>() {
 					let i = entry
 						.downcast_ref::<u16>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "u16".into(),
+						})?;
 					Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
 				} else if type_id == TypeId::of::<u8>() {
 					let i = entry
 						.downcast_ref::<u8>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "u8".into(),
+						})?;
 					Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
 				} else if type_id == TypeId::of::<i8>() {
 					let i = entry
 						.downcast_ref::<i8>()
-						.expect(SHOULD_NOT_HAPPEN);
+						.ok_or_else(|| tinyscript::environment::Error::EnvVarTypeCast {
+							name: name.into(),
+							var_type: "i8".into(),
+						})?;
 					Ok(ScriptingValue::Int64(i64::from(i.to_owned())))
 				} else {
-					Err(ScriptingError::GlobalHasUnknownType(name.into()))
+					Err(tinyscript::environment::Error::EnvVarUnknownType { name: name.into() })
 				}
 			},
 		)
 	}
 
+	#[allow(clippy::too_many_lines)]
 	#[allow(clippy::cast_possible_truncation)]
 	#[allow(clippy::cast_sign_loss)]
-	fn set_env(&mut self, name: &str, value: ScriptingValue) -> Result<(), ScriptingError> {
+	fn set_env(&mut self, name: &str, value: ScriptingValue) -> Result<(), tinyscript::environment::Error> {
 		let entry_type_id = if let Some(entry) = self.get_entry(name) {
 			let inner_entry = &entry;
 			(*(inner_entry.0.0)).type_id()
 		} else {
-			return Err(ScriptingError::GlobalNotDefined(name.into()));
+			return Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() });
 		};
 		match value {
 			ScriptingValue::Nil() => unreachable!(),
 			ScriptingValue::Boolean(b) => {
 				if TypeId::of::<bool>() == entry_type_id {
-					self.set(name, b).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, b) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else {
-					return Err(ScriptingError::GlobalWrongType(name.into()));
+					return Err(tinyscript::environment::Error::EnvVarWrongType { name: name.into() });
 				}
 			}
 			ScriptingValue::Float64(f) => {
 				if TypeId::of::<f64>() == entry_type_id {
-					self.set(name, f).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, f) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else if TypeId::of::<f32>() == entry_type_id {
 					if f > f64::from(f32::MAX) || f < f64::from(f32::MIN) {
-						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
+						return Err(tinyscript::environment::Error::EnvVarExceedsLimits { name: name.into() });
 					}
-					self.set(name, f as f32).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, f) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else {
-					return Err(ScriptingError::GlobalWrongType(name.into()));
+					return Err(tinyscript::environment::Error::EnvVarWrongType { name: name.into() });
 				}
 			}
 			ScriptingValue::Int64(i) => {
 				if TypeId::of::<i64>() == entry_type_id {
-					self.set(name, i).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, i) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else if TypeId::of::<i32>() == entry_type_id {
 					if i > i64::from(i32::MAX) || i < i64::from(i32::MIN) {
-						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
+						return Err(tinyscript::environment::Error::EnvVarExceedsLimits { name: name.into() });
 					}
-					self.set(name, i as i32).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, i as i32) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else if TypeId::of::<u32>() == entry_type_id {
 					if i > i64::from(u32::MAX) || i < i64::from(u32::MIN) {
-						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
+						return Err(tinyscript::environment::Error::EnvVarExceedsLimits { name: name.into() });
 					}
-					self.set(name, i as u32).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, i as u32) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else if TypeId::of::<i16>() == entry_type_id {
 					if i > i64::from(i16::MAX) || i < i64::from(i16::MIN) {
-						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
+						return Err(tinyscript::environment::Error::EnvVarExceedsLimits { name: name.into() });
 					}
-					self.set(name, i as i16).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, i as i16) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else if TypeId::of::<u16>() == entry_type_id {
 					if i > i64::from(u16::MAX) || i < i64::from(u16::MIN) {
-						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
+						return Err(tinyscript::environment::Error::EnvVarExceedsLimits { name: name.into() });
 					}
-					self.set(name, i as u16).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, i as u16) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else if TypeId::of::<i8>() == entry_type_id {
 					if i > i64::from(i8::MAX) || i < i64::from(i8::MIN) {
-						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
+						return Err(tinyscript::environment::Error::EnvVarExceedsLimits { name: name.into() });
 					}
-					self.set(name, i as i8).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, i as i8) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else if TypeId::of::<u8>() == entry_type_id {
 					if i > i64::from(u8::MAX) || i < i64::from(u8::MIN) {
-						return Err(ScriptingError::GlobalExceedsLimits(name.into()));
+						return Err(tinyscript::environment::Error::EnvVarExceedsLimits { name: name.into() });
 					}
-					self.set(name, i as u8).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, i as u8) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else {
-					return Err(ScriptingError::GlobalWrongType(name.into()));
+					return Err(tinyscript::environment::Error::EnvVarWrongType { name: name.into() });
 				}
 			}
 			ScriptingValue::String(s) => {
 				if TypeId::of::<String>() == entry_type_id {
-					self.set(name, s).expect(SHOULD_NOT_HAPPEN);
+					match self.set(name, s) {
+						Ok(_) => {}
+						Err(cause) => {
+							return Err(tinyscript::environment::Error::EnvVarSet {
+								name: name.into(),
+								cause: cause.to_string().into(),
+							});
+						}
+					}
 				} else {
-					return Err(ScriptingError::GlobalWrongType(name.into()));
+					return Err(tinyscript::environment::Error::EnvVarWrongType { name: name.into() });
 				}
 			}
 		}

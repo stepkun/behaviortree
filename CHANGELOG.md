@@ -24,7 +24,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Changed
 
 ### Fixed
-- several todo!()'s
+- several `todo!()`'s and `expect(...)`'s
 
 ### Removed
 

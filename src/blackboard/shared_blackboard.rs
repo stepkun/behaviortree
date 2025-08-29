@@ -19,7 +19,7 @@ use core::{
 	str::FromStr,
 };
 use spin::RwLock;
-use tinyscript::{Environment, Error as ScriptingError, execution::ScriptingValue};
+use tinyscript::{environment::Environment, execution::ScriptingValue};
 
 use super::{BlackboardInterface, blackboard::Blackboard, blackboard_data::Entry, error::Error};
 
@@ -203,7 +203,7 @@ impl BlackboardInterface for SharedBlackboard {
 }
 
 impl Environment for SharedBlackboard {
-	fn define_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), ScriptingError> {
+	fn define_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), tinyscript::environment::Error> {
 		// if it is a key starting with an '@' redirect to root bb
 		if let Some(key_stripped) = key.strip_prefix('@') {
 			return self.root().define_env(key_stripped, value);
@@ -231,7 +231,7 @@ impl Environment for SharedBlackboard {
 		self.read().content.write().define_env(key, value)
 	}
 
-	fn get_env(&self, key: &str) -> Result<ScriptingValue, ScriptingError> {
+	fn get_env(&self, key: &str) -> Result<ScriptingValue, tinyscript::environment::Error> {
 		// if it is a key starting with an '@' redirect to root bb
 		if let Some(key_stripped) = key.strip_prefix('@') {
 			return self.root().get_env(key_stripped);
@@ -251,10 +251,10 @@ impl Environment for SharedBlackboard {
 			}
 		}
 
-		Err(ScriptingError::GlobalNotDefined(key.into()))
+		Err(tinyscript::environment::Error::EnvVarNotDefined { name: key.into() })
 	}
 
-	fn set_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), ScriptingError> {
+	fn set_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), tinyscript::environment::Error> {
 		// if it is a key starting with an '@' redirect to root bb
 		if let Some(key_stripped) = key.strip_prefix('@') {
 			return self.root().set_env(key_stripped, value);
@@ -278,7 +278,7 @@ impl Environment for SharedBlackboard {
 			}
 		}
 
-		Err(ScriptingError::GlobalNotDefined(key.into()))
+		Err(tinyscript::environment::Error::EnvVarNotDefined { name: key.into() })
 	}
 }
 
