@@ -16,19 +16,19 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum Error {
 	/// Entry is not in `Blackboard`.
-	#[error("Couldn't find entry [{0}] in blackboard")]
+	#[error("couldn't find entry [{0}] in blackboard")]
 	NotFound(ConstString),
 	/// Entry is not in `Blackboard`.
-	#[error("Couldn't find entry [{0}] in blackboard of [{1}]")]
+	#[error("couldn't find entry [{0}] in blackboard of [{1}]")]
 	NotFoundIn(ConstString, ConstString),
 	/// Entry has other type than expected.
-	#[error("Entry [{0}] has a different type")]
+	#[error("entry [{0}] has a different type")]
 	WrongType(ConstString),
 	/// Type mismatch between port definiton and found value
 	#[error("could not parse value for port [{0}] into specified type [{1}]")]
 	ParsePortValue(ConstString, ConstString),
 	/// Port is not defined.
-	#[error("Couldn't find port [{0}]")]
+	#[error("couldn't find port [{0}]")]
 	Port(ConstString),
 
 	/// Something weird happened.

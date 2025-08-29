@@ -89,8 +89,17 @@ const ON_HALTED: &str = "_onHalted";
 const ON_FAILURE: &str = "_onFailure";
 const ON_SUCCESS: &str = "_onSuccess";
 const POST: &str = "_post";
-
 // endregion:	--- globals
+
+// region:		--- helpers
+/// Removes the enclosing brackets `{}` from a str if there are any,
+/// otherwise returns the unchanged str.
+#[must_use]
+pub fn strip_curly_brackets(key: &str) -> &str {
+	let key = key.strip_prefix('{').unwrap_or(key);
+	key.strip_suffix('}').unwrap_or(key)
+}
+// endregion:	--- helpers
 
 // region:		---macros
 /// Macro to register a behavior with additional arguments.

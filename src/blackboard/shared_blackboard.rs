@@ -7,7 +7,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::ConstString;
+use crate::{ConstString, strip_curly_brackets};
 use alloc::{
 	string::{String, ToString},
 	sync::Arc,
@@ -25,17 +25,6 @@ use super::{BlackboardInterface, blackboard::Blackboard, blackboard_data::Entry,
 
 use crate::port::PortRemappings;
 // endregion:   --- modules
-
-fn strip_key(key: &str) -> &str {
-	if key.starts_with('{') && key.ends_with('}') {
-		key.strip_prefix('{')
-			.unwrap_or_else(|| todo!())
-			.strip_suffix('}')
-			.unwrap_or_else(|| todo!())
-	} else {
-		key
-	}
-}
 
 // region:      --- SharedBlackboard
 /// Thread safe reference to a [`Blackboard`].
@@ -348,7 +337,7 @@ impl SharedBlackboard {
 				let (remapped_key, has_remapping) = remappings
 					.find(key)
 					.map_or_else(|| (key.into(), false), |remapped| (remapped, true));
-				(strip_key(&remapped_key).into(), has_remapping)
+				(strip_curly_brackets(&remapped_key).into(), has_remapping)
 			},
 		);
 		let autoremap = guard.autoremap_to_parent;

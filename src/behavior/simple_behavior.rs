@@ -9,7 +9,7 @@ use tinyscript::SharedRuntime;
 
 use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::tree_element_list::ConstBehaviorTreeElementList};
 
-use super::{BehaviorCreationFn, BehaviorExecution, Behavior, BehaviorResult};
+use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult};
 // endregion:   --- modules
 
 // region:      --- types
@@ -22,6 +22,7 @@ pub type ComplexBhvrTickFn = Arc<dyn Fn(&mut BehaviorData) -> BehaviorResult + S
 
 // region:      --- BehaviorFunction
 /// A simple behavior
+#[derive(Default)]
 pub struct SimpleBehavior {
 	/// The function to be called on tick
 	simple_tick_fn: Option<SimpleBhvrTickFn>,
@@ -41,7 +42,7 @@ impl BehaviorExecution for SimpleBehavior {
 	}
 
 	fn creation_fn() -> Box<BehaviorCreationFn> {
-		todo!(); //alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self))
+		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
 	}
 
 	fn kind() -> BehaviorKind {

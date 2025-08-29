@@ -27,6 +27,7 @@ use crate::{
 	blackboard::SharedBlackboard,
 	factory::registry::BehaviorRegistry,
 	port::{PortRemappings, is_allowed_port_name, strip_bb_pointer},
+	strip_curly_brackets,
 	tree::{
 		tree_element::BehaviorTreeElement,
 		tree_element_list::{BehaviorTreeElementList, ConstBehaviorTreeElementList},
@@ -197,23 +198,13 @@ fn handle_attributes(
 		} else {
 			// for a subtree we cannot check the ports
 			if is_subtree {
-				// check if it is a BB pointer
-				if value.starts_with('{') && value.ends_with('}') {
-					let stripped = value
-						.strip_prefix('{')
-						.unwrap_or_else(|| todo!())
-						.strip_suffix('}')
-						.unwrap_or_else(|| todo!());
-
-					// check value for allowed names
-					if is_allowed_port_name(stripped) {
-						remappings.overwrite(key, value);
-					} else {
-						return Err(Error::NameNotAllowed(stripped.into()));
-					}
-				} else {
-					// this is a normal string, representing a port value
+				// strip if it is a BB pointer
+				let stripped = strip_curly_brackets(value);
+				// check value for allowed names
+				if is_allowed_port_name(stripped) {
 					remappings.overwrite(key, value);
+				} else {
+					return Err(Error::NameNotAllowed(stripped.into()));
 				}
 			} else {
 				// check found port name against list of provided ports
