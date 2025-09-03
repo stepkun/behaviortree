@@ -1,12 +1,12 @@
-// Copyright © 2025 Stephan Kunz
-#![allow(missing_docs)]
-
 //! Benchmarks of parallel behaviors [`Parallel`] and [`ParallelAll`]
+// Copyright © 2025 Stephan Kunz
+
+#![allow(missing_docs)]
+#![allow(clippy::unwrap_used)]
 
 use std::time::Duration;
 
 use behaviortree::{
-	SHOULD_NOT_HAPPEN,
 	behavior::{
 		BehaviorState::{Running, Success},
 		action::ChangeStateAfter,
@@ -71,7 +71,7 @@ const SUBTREE: &str = r#"
 fn parallel(c: &mut Criterion) {
 	let runtime = tokio::runtime::Builder::new_multi_thread()
 		.build()
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 
 	let mut group = c.benchmark_group("parallel");
 	group
@@ -79,42 +79,32 @@ fn parallel(c: &mut Criterion) {
 		.sample_size(SAMPLES);
 
 	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).expect(SHOULD_NOT_HAPPEN);
-	register_behavior!(factory, ParallelAll, "ParallelAll").expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
+	register_behavior!(factory, ParallelAll, "ParallelAll").unwrap();
 	factory
 		.register_behavior_tree_from_text(SUBTREE)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 
-	let mut tree = factory
-		.create_from_text(STANDARD)
-		.expect(SHOULD_NOT_HAPPEN);
+	let mut tree = factory.create_from_text(STANDARD).unwrap();
 	group.bench_function("standard", |b| {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
-					tree.reset().expect(SHOULD_NOT_HAPPEN);
-					let _result = tree
-						.tick_while_running()
-						.await
-						.expect(SHOULD_NOT_HAPPEN);
+					tree.reset().unwrap();
+					let _result = tree.tick_while_running().await.unwrap();
 				}
 				std::hint::black_box(());
 			});
 		});
 	});
 
-	let mut tree = factory
-		.create_from_text(ALL)
-		.expect(SHOULD_NOT_HAPPEN);
+	let mut tree = factory.create_from_text(ALL).unwrap();
 	group.bench_function("all", |b| {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
-					tree.reset().expect(SHOULD_NOT_HAPPEN);
-					let _result = tree
-						.tick_while_running()
-						.await
-						.expect(SHOULD_NOT_HAPPEN);
+					tree.reset().unwrap();
+					let _result = tree.tick_while_running().await.unwrap();
 				}
 				std::hint::black_box(());
 			});

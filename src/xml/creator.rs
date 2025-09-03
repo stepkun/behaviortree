@@ -7,7 +7,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{ConstString, ID, NAME, SHOULD_NOT_HAPPEN, SUBTREE};
+use crate::{ConstString, ID, NAME, SUBTREE};
 use alloc::{
 	collections::btree_map::BTreeMap,
 	string::{String, ToString},
@@ -161,8 +161,8 @@ impl XmlCreator {
 		}
 
 		let inner = writer.into_inner();
-		let res = String::from_utf8(inner).expect(SHOULD_NOT_HAPPEN);
-		Ok(res.into())
+		// @TODO: create a proper error in woxml
+		String::from_utf8(inner).map_or(Err(woxml::Error::WriteAllEof), |res| Ok(res.into()))
 	}
 
 	fn write_subtree<'a>(

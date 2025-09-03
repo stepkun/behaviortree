@@ -5,7 +5,7 @@
 //! Embedded version of [t08_additional_node_args](examples/t08_additional_node_args.rs).
 
 use ariel_os::debug::{ExitCode, exit, log::*};
-use behaviortree::{SHOULD_NOT_HAPPEN, prelude::*};
+use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -101,12 +101,13 @@ async fn example() -> BehaviorTreeResult {
 	// initialize ActionB with the help of an iterator
 	for node in tree.iter_mut() {
 		if node.data().description().name().as_ref() == ("Action_B") {
-			let action = node
+			if let Some(action) = node
 				.behavior_mut()
 				.as_any_mut()
 				.downcast_mut::<ActionB>()
-				.expect(SHOULD_NOT_HAPPEN);
-			action.initialize(69, "interesting value".into());
+			{
+				action.initialize(69, "interesting value".into());
+			}
 		}
 	}
 

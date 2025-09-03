@@ -108,7 +108,7 @@ macro_rules! input_port {
 			$crate::EMPTY_STR,
 			$crate::EMPTY_STR,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro input_port case 1 failed")
 	}};
 	// 3 elements
 	($tp:ty, $name:expr, $default:expr $(,)?) => {
@@ -119,7 +119,7 @@ macro_rules! input_port {
 			&$default.to_string(),
 			$crate::EMPTY_STR,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro input_port case 2 failed")
 	};
 	// 4 elements
 	($tp:ty, $name:expr, $default:expr, $desc:literal $(,)?) => {
@@ -130,7 +130,7 @@ macro_rules! input_port {
 			&$default.to_string(),
 			$desc,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro input_port case 3 failed")
 	};
 }
 
@@ -146,7 +146,7 @@ macro_rules! inout_port {
 			$crate::EMPTY_STR,
 			$crate::EMPTY_STR,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro inout_port case 1 failed")
 	}};
 	// 3 elements
 	($tp:ty, $name:expr, $default:expr $(,)?) => {
@@ -157,7 +157,7 @@ macro_rules! inout_port {
 			&$default.to_string(),
 			$crate::EMPTY_STR,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro inout_port case 2 failed")
 	};
 	// 4 elements
 	($tp:ty, $name:expr, $default:expr, $desc:literal $(,)?) => {
@@ -168,7 +168,7 @@ macro_rules! inout_port {
 			&$default.to_string(),
 			$desc,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro inout_port case 3 failed")
 	};
 }
 
@@ -184,7 +184,7 @@ macro_rules! output_port {
 			$crate::EMPTY_STR,
 			$crate::EMPTY_STR,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro output_port case 1 failed")
 	}};
 	// 3 elements
 	($tp:ty, $name:expr, $default:expr $(,)?) => {
@@ -195,7 +195,7 @@ macro_rules! output_port {
 			&$default.to_string(),
 			$crate::EMPTY_STR,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro output_port case 2 failed")
 	};
 	// 4 elements
 	($tp:ty, $name:expr, $default:expr, $desc:literal $(,)?) => {
@@ -206,7 +206,7 @@ macro_rules! output_port {
 			&$default.to_string(),
 			$desc,
 		)
-		.expect($crate::SHOULD_NOT_HAPPEN)
+		.expect("macro output_port case 3 failed")
 	};
 }
 

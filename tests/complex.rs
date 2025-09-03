@@ -1,17 +1,16 @@
+//! Tests a complex [`BehaviorTree`]
 // Copyright © 2025 Stephan Kunz
 
-//! Tests a complex [`BehaviorTree`]
+#![allow(missing_docs)]
+#![allow(clippy::unwrap_used)]
 
 extern crate alloc;
 
-use behaviortree::prelude::*;
-use behaviortree::{
-	SHOULD_NOT_HAPPEN,
-	behavior::{
-		action::ChangeStateAfter,
-		control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
-	},
+use behaviortree::behavior::{
+	action::ChangeStateAfter,
+	control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
 };
+use behaviortree::prelude::*;
 
 const TREE: &str = r#"
 <root BTCPP_format="4"
@@ -86,7 +85,7 @@ async fn complex() -> Result<(), Error> {
 		BehaviorState::Failure,
 		5
 	)
-	.expect(SHOULD_NOT_HAPPEN);
+	.unwrap();
 	register_behavior!(
 		factory,
 		ChangeStateAfter,
@@ -95,18 +94,18 @@ async fn complex() -> Result<(), Error> {
 		BehaviorState::Success,
 		5
 	)
-	.expect(SHOULD_NOT_HAPPEN);
-	register_behavior!(factory, ParallelAll, "ParallelAll").expect(SHOULD_NOT_HAPPEN);
-	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect(SHOULD_NOT_HAPPEN);
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").expect(SHOULD_NOT_HAPPEN);
-	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").expect(SHOULD_NOT_HAPPEN);
+	.unwrap();
+	register_behavior!(factory, ParallelAll, "ParallelAll").unwrap();
+	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").unwrap();
+	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").unwrap();
+	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").unwrap();
 
 	let mut tree = factory.create_from_text(TREE)?;
 	drop(factory);
 
 	let mut result = tree.tick_while_running().await?;
 	assert_eq!(result, BehaviorState::Success);
-	tree.reset().expect(SHOULD_NOT_HAPPEN);
+	tree.reset().unwrap();
 	result = tree.tick_while_running().await?;
 	assert_eq!(result, BehaviorState::Success);
 	Ok(())

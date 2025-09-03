@@ -1,12 +1,13 @@
+//! Benchmarks of complex tree scenarios
 // Copyright © 2025 Stephan Kunz
-#![allow(missing_docs)]
 
-//! Benchmarks of complex scenario
+#![allow(missing_docs)]
+#![allow(clippy::unwrap_used)]
 
 use std::time::Duration;
 
 use behaviortree::{
-	BehaviorTreeObserver, Groot2Connector, SHOULD_NOT_HAPPEN,
+	BehaviorTreeObserver, Groot2Connector,
 	behavior::{
 		BehaviorState::{Failure, Running, Success},
 		action::ChangeStateAfter,
@@ -151,19 +152,19 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
 	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
 	factory
 		.register_behavior_tree_from_text(SUBTREE)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 	factory
 		.register_behavior_tree_from_text(TREE)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 	factory
 		.register_behavior_tree_from_text(TREE1)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 	factory
 		.register_behavior_tree_from_text(TREE2)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 	factory
 		.register_behavior_tree_from_text(TREE3)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 	Ok(factory)
 }
 
@@ -172,34 +173,28 @@ fn trees(c: &mut Criterion) {
 	let runtime = tokio::runtime::Builder::new_multi_thread()
 		.enable_io()
 		.build()
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 
 	let mut group = c.benchmark_group("tree");
 	group
 		.measurement_time(DURATION)
 		.sample_size(SAMPLES);
 
-	let mut factory = create_factory().expect(SHOULD_NOT_HAPPEN);
-	let mut tree = factory
-		.create_tree("MainTree")
-		.expect(SHOULD_NOT_HAPPEN);
+	let mut factory = create_factory().unwrap();
+	let mut tree = factory.create_tree("MainTree").unwrap();
 	group.bench_function("execution", |b| {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
-					tree.reset().expect(SHOULD_NOT_HAPPEN);
-					tree.tick_while_running()
-						.await
-						.expect(SHOULD_NOT_HAPPEN);
+					tree.reset().unwrap();
+					tree.tick_while_running().await.unwrap();
 				}
 				std::hint::black_box(());
 			});
 		});
 	});
 
-	let mut tree = factory
-		.create_tree("MainTree")
-		.expect(SHOULD_NOT_HAPPEN);
+	let mut tree = factory.create_tree("MainTree").unwrap();
 	runtime.block_on(async {
 		let _observer = BehaviorTreeObserver::new(&mut tree);
 	});
@@ -207,10 +202,8 @@ fn trees(c: &mut Criterion) {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
-					tree.reset().expect(SHOULD_NOT_HAPPEN);
-					tree.tick_while_running()
-						.await
-						.expect(SHOULD_NOT_HAPPEN);
+					tree.reset().unwrap();
+					tree.tick_while_running().await.unwrap();
 				}
 				std::hint::black_box(());
 			});
@@ -218,9 +211,7 @@ fn trees(c: &mut Criterion) {
 		});
 	});
 
-	let mut tree = factory
-		.create_tree("MainTree")
-		.expect(SHOULD_NOT_HAPPEN);
+	let mut tree = factory.create_tree("MainTree").unwrap();
 	runtime.block_on(async {
 		let _publisher = Groot2Connector::new(&mut tree, 9999);
 	});
@@ -228,10 +219,8 @@ fn trees(c: &mut Criterion) {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
-					tree.reset().expect(SHOULD_NOT_HAPPEN);
-					tree.tick_while_running()
-						.await
-						.expect(SHOULD_NOT_HAPPEN);
+					tree.reset().unwrap();
+					tree.tick_while_running().await.unwrap();
 				}
 				std::hint::black_box(());
 			});
@@ -241,18 +230,10 @@ fn trees(c: &mut Criterion) {
 
 	group.bench_function("multi concurrent", |b| {
 		b.iter(|| {
-			let mut tree = factory
-				.create_tree("MainTree")
-				.expect(SHOULD_NOT_HAPPEN);
-			let mut tree1 = factory
-				.create_tree("MainTree1")
-				.expect(SHOULD_NOT_HAPPEN);
-			let mut tree2 = factory
-				.create_tree("MainTree2")
-				.expect(SHOULD_NOT_HAPPEN);
-			let mut tree3 = factory
-				.create_tree("MainTree3")
-				.expect(SHOULD_NOT_HAPPEN);
+			let mut tree = factory.create_tree("MainTree").unwrap();
+			let mut tree1 = factory.create_tree("MainTree1").unwrap();
+			let mut tree2 = factory.create_tree("MainTree2").unwrap();
+			let mut tree3 = factory.create_tree("MainTree3").unwrap();
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
 					let h = async {
@@ -271,7 +252,7 @@ fn trees(c: &mut Criterion) {
 						tree3.reset()?;
 						tree3.tick_while_running().await
 					};
-					try_join!(h, h1, h2, h3).expect(SHOULD_NOT_HAPPEN);
+					try_join!(h, h1, h2, h3).unwrap();
 				}
 				std::hint::black_box(());
 			});
@@ -280,52 +261,33 @@ fn trees(c: &mut Criterion) {
 
 	group.bench_function("multi spawned", |b| {
 		b.iter(|| {
-			let mut tree = factory
-				.create_tree("MainTree")
-				.expect(SHOULD_NOT_HAPPEN);
-			let mut tree1 = factory
-				.create_tree("MainTree1")
-				.expect(SHOULD_NOT_HAPPEN);
-			let mut tree2 = factory
-				.create_tree("MainTree2")
-				.expect(SHOULD_NOT_HAPPEN);
-			let mut tree3 = factory
-				.create_tree("MainTree3")
-				.expect(SHOULD_NOT_HAPPEN);
+			let mut tree = factory.create_tree("MainTree").unwrap();
+			let mut tree1 = factory.create_tree("MainTree1").unwrap();
+			let mut tree2 = factory.create_tree("MainTree2").unwrap();
+			let mut tree3 = factory.create_tree("MainTree3").unwrap();
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
 					let h = tokio::spawn(async {
-						tree.reset().expect(SHOULD_NOT_HAPPEN);
-						tree.tick_while_running()
-							.await
-							.expect(SHOULD_NOT_HAPPEN);
+						tree.reset().unwrap();
+						tree.tick_while_running().await.unwrap();
 						tree
 					});
 					let h1 = tokio::spawn(async {
-						tree1.reset().expect(SHOULD_NOT_HAPPEN);
-						tree1
-							.tick_while_running()
-							.await
-							.expect(SHOULD_NOT_HAPPEN);
+						tree1.reset().unwrap();
+						tree1.tick_while_running().await.unwrap();
 						tree1
 					});
 					let h2 = tokio::spawn(async {
-						tree2.reset().expect(SHOULD_NOT_HAPPEN);
-						tree2
-							.tick_while_running()
-							.await
-							.expect(SHOULD_NOT_HAPPEN);
+						tree2.reset().unwrap();
+						tree2.tick_while_running().await.unwrap();
 						tree2
 					});
 					let h3 = tokio::spawn(async {
-						tree3.reset().expect(SHOULD_NOT_HAPPEN);
-						tree3
-							.tick_while_running()
-							.await
-							.expect(SHOULD_NOT_HAPPEN);
+						tree3.reset().unwrap();
+						tree3.tick_while_running().await.unwrap();
 						tree3
 					});
-					(tree, tree1, tree2, tree3) = try_join!(h, h1, h2, h3).expect(SHOULD_NOT_HAPPEN);
+					(tree, tree1, tree2, tree3) = try_join!(h, h1, h2, h3).unwrap();
 				}
 				std::hint::black_box(());
 			});

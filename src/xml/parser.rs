@@ -11,8 +11,6 @@ use alloc::{
 	string::{String, ToString},
 };
 // region:      --- modules
-#[cfg(feature = "std")]
-use crate::SHOULD_NOT_HAPPEN;
 use roxmltree::{Document, Node, NodeType};
 #[cfg(feature = "std")]
 use std::path::PathBuf;
@@ -348,12 +346,11 @@ impl XmlParser {
 							}
 							match std::fs::read_to_string(&file_path) {
 								Ok(xml) => {
-									let cur_path = file_path
-										.parent()
-										.expect(SHOULD_NOT_HAPPEN)
-										.to_string_lossy()
-										.into();
-									Self::register_document(registry, &xml.into(), cur_path)?;
+									if let Some(cur_path) = file_path.parent() {
+										Self::register_document(registry, &xml.into(), cur_path.to_string_lossy().into())?;
+									} else {
+										return Err(Error::ReadFile(file_path.to_string_lossy().into(), "no parent".into()));
+									}
 								}
 								Err(err) => {
 									return Err(Error::ReadFile(file_path.to_string_lossy().into(), err.to_string().into()));

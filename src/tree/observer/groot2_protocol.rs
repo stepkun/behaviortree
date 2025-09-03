@@ -274,7 +274,8 @@ pub struct ConditionVariable {}
 
 #[cfg(test)]
 mod tests {
-	use crate::SHOULD_NOT_HAPPEN;
+	#![allow(missing_docs)]
+	#![allow(clippy::unwrap_used)]
 
 	use super::*;
 
@@ -286,7 +287,7 @@ mod tests {
 			rq_type: Groot2RequestType::FullTree,
 		};
 		let bytes = Bytes::from(&header);
-		let deserialized = Groot2RequestHeader::try_from(&bytes).expect(SHOULD_NOT_HAPPEN);
+		let deserialized = Groot2RequestHeader::try_from(&bytes).unwrap();
 		assert_eq!(deserialized.protocol_id, header.protocol_id);
 		assert_eq!(deserialized.rq_type, header.rq_type);
 		assert_eq!(deserialized.uid, header.uid);

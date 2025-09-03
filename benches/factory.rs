@@ -1,12 +1,12 @@
+//! Benchmarks of factory instantiation and tree creation
 // Copyright © 2025 Stephan Kunz
-#![allow(missing_docs)]
 
-//! Benchmarks of complex scenario
+#![allow(missing_docs)]
+#![allow(clippy::unwrap_used)]
 
 use std::time::Duration;
 
 use behaviortree::{
-	SHOULD_NOT_HAPPEN,
 	behavior::{
 		BehaviorState::{Failure, Running, Success},
 		action::ChangeStateAfter,
@@ -97,10 +97,10 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
 	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
 	factory
 		.register_behavior_tree_from_text(SUBTREE)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 	factory
 		.register_behavior_tree_from_text(TREE)
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 	Ok(factory)
 }
 
@@ -113,20 +113,18 @@ fn factory(c: &mut Criterion) {
 	group.bench_function("instantiation", |b| {
 		b.iter(|| {
 			for _ in 1..=ITERATIONS {
-				let factory = create_factory().expect(SHOULD_NOT_HAPPEN);
+				let factory = create_factory().unwrap();
 				drop(factory);
 			}
 			std::hint::black_box(());
 		});
 	});
 
-	let mut factory = create_factory().expect(SHOULD_NOT_HAPPEN);
+	let mut factory = create_factory().unwrap();
 	group.bench_function("tree creation", |b| {
 		b.iter(|| {
 			for _ in 1..=100 {
-				let _tree = factory
-					.create_tree("MainTree")
-					.expect(SHOULD_NOT_HAPPEN);
+				let _tree = factory.create_tree("MainTree").unwrap();
 			}
 			std::hint::black_box(());
 		});

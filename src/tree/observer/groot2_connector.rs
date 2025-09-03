@@ -18,7 +18,7 @@ use crate::tree::observer::groot2_protocol::{
 	Groot2ReplyHeader, Groot2RequestHeader, Groot2RequestType, Groot2TransitionInfo,
 };
 use crate::tree::tree::BehaviorTreeMessage;
-use crate::{ConstString, SHOULD_NOT_HAPPEN, XmlCreator};
+use crate::{ConstString, XmlCreator};
 
 use crate::tree::tree::BehaviorTree;
 // endregion:   --- modules
@@ -140,7 +140,7 @@ impl Groot2Connector {
 		// @TODO: proper error handling
 		let shared_clone = shared.clone();
 		let tree_id = tree.uuid();
-		let xml = XmlCreator::groot_write_tree(tree).expect(SHOULD_NOT_HAPPEN);
+		let xml = XmlCreator::groot_write_tree(tree).expect("usually this should not happen");
 		let sender = tree.sender();
 
 		let server_handle = tokio::spawn(async move {

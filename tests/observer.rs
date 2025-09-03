@@ -1,11 +1,13 @@
+//! Tests the [`BehaviorTreeObserver`]
 // Copyright © 2025 Stephan Kunz
 
-//! Tests the [`BehaviorTreeObserver`]
+#![allow(missing_docs)]
+#![allow(clippy::unwrap_used)]
 
 extern crate alloc;
 
 use behaviortree::prelude::*;
-use behaviortree::{BehaviorTreeObserver, SHOULD_NOT_HAPPEN, behavior::action::ChangeStateAfter};
+use behaviortree::{BehaviorTreeObserver, behavior::action::ChangeStateAfter};
 
 const TREE: &str = r#"
 <root BTCPP_format="4"
@@ -31,7 +33,7 @@ async fn tree_observer() -> Result<(), Error> {
 		BehaviorState::Failure,
 		2
 	)
-	.expect(SHOULD_NOT_HAPPEN);
+	.unwrap();
 	register_behavior!(
 		factory,
 		ChangeStateAfter,
@@ -40,7 +42,7 @@ async fn tree_observer() -> Result<(), Error> {
 		BehaviorState::Success,
 		2
 	)
-	.expect(SHOULD_NOT_HAPPEN);
+	.unwrap();
 
 	let mut tree = factory.create_from_text(TREE)?;
 	let observer = BehaviorTreeObserver::new(&mut tree);
@@ -51,21 +53,21 @@ async fn tree_observer() -> Result<(), Error> {
 	assert_eq!(
 		observer
 			.get_statistics(4)
-			.expect(SHOULD_NOT_HAPPEN)
+			.unwrap()
 			.transitions_count,
 		3
 	);
 	assert_eq!(
 		observer
 			.get_statistics(4)
-			.expect(SHOULD_NOT_HAPPEN)
+			.unwrap()
 			.transitions_count,
 		3
 	);
 	assert_eq!(
 		observer
 			.get_statistics(0)
-			.expect(SHOULD_NOT_HAPPEN)
+			.unwrap()
 			.transitions_count,
 		2
 	);

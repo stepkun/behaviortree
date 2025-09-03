@@ -15,8 +15,6 @@ use crate::{ConstString, behavior::Behavior, behavior::SubTree};
 use alloc::string::ToString;
 use alloc::{boxed::Box, string::String, vec::Vec};
 
-#[cfg(feature = "std")]
-use crate::SHOULD_NOT_HAPPEN;
 use crate::{
 	behavior::{
 		BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState, ComplexBhvrTickFn, SimpleBehavior,
@@ -393,25 +391,29 @@ impl BehaviorTreeFactory {
 	/// Register the behavior (sub)trees described by the XML in the file.
 	/// # Errors
 	/// - on incorrect XML
-	/// - if tree description is not in BTCPP v4
-	/// - if tree is already registered
-	/// # Panics
-	/// - if the file path does not contain a valid
+	/// - if the given file path is not a valid path
+	/// - if description is not 'BTCPP v4'
+	/// - if a behavior is already registered
+	/// - if a (sub)tree is already registered
 	#[cfg(feature = "std")]
 	pub fn register_behavior_tree_from_file(&mut self, file: impl Into<std::path::PathBuf>) -> Result<(), Error> {
 		let file_path: std::path::PathBuf = file.into();
-		let file_dir = file_path.parent().expect(SHOULD_NOT_HAPPEN);
-		let dir: ConstString = if file_path.is_relative() {
-			let mut dir = std::env::current_dir()?;
-			dir.push(file_dir);
-			dir.to_string_lossy().into()
+		if let Some(file_dir) = file_path.parent() {
+			let dir: ConstString = if file_path.is_relative() {
+				let mut dir = std::env::current_dir()?;
+				dir.push(file_dir);
+				dir.to_string_lossy().into()
+			} else {
+				file_dir.to_string_lossy().into()
+			};
+			let xml: ConstString = std::fs::read_to_string(file_path)?.into();
+			//XmlParser::register_document(&mut self.registry, &xml, dir)
+			match XmlParser::register_document(&mut self.registry, &xml, dir) {
+				Ok(()) => Ok(()),
+				Err(err) => Err(Error::RegisterXml(err.to_string().into())),
+			}
 		} else {
-			file_dir.to_string_lossy().into()
-		};
-		let xml: ConstString = std::fs::read_to_string(file_path)?.into();
-		match XmlParser::register_document(&mut self.registry, &xml, dir) {
-			Ok(()) => Ok(()),
-			Err(err) => Err(Error::RegisterXml(err.to_string().into())),
+			Err(Error::RegisterXml("filepath without parent".into()))
 		}
 	}
 
@@ -437,35 +439,38 @@ impl BehaviorTreeFactory {
 		// create path from exe path
 		// in dev environment maybe we have to remove a '/deps'
 
-		let exe_path = std::env::current_exe()?
-			.parent()
-			.expect(SHOULD_NOT_HAPPEN)
-			.to_str()
-			.expect(SHOULD_NOT_HAPPEN)
-			.trim_end_matches("/deps")
-			.to_string();
+		if let Some(path) = std::env::current_exe()?.parent() {
+			if let Some(str_path) = path.to_str() {
+				let path = str_path.trim_end_matches("/deps").to_string();
 
-		#[cfg(not(any(target_os = "linux", target_os = "windows")))]
-		todo!("This plattform is not upported!");
-		#[cfg(target_os = "linux")]
-		let libname = exe_path + "/lib" + name + ".so";
-		#[cfg(target_os = "windows")]
-		let libname = exe_path + "\\" + name + ".dll";
+				#[cfg(not(any(target_os = "linux", target_os = "windows")))]
+				todo!("This plattform is not upported!");
+				#[cfg(target_os = "linux")]
+				let libname = path + "/lib" + name + ".so";
+				#[cfg(target_os = "windows")]
+				let libname = str_path + "\\" + name + ".dll";
 
-		let lib = unsafe {
-			let lib = libloading::Library::new(libname)?;
-			let registration_fn: libloading::Symbol<unsafe extern "Rust" fn(&mut Self) -> u32> = lib.get(b"register")?;
-			let res = registration_fn(&mut *self);
-			if res != 0 {
-				return Err(Error::RegisterLib(name.into(), res));
+				let lib = unsafe {
+					let lib = libloading::Library::new(libname)?;
+					let registration_fn: libloading::Symbol<unsafe extern "Rust" fn(&mut Self) -> u32> =
+						lib.get(b"register")?;
+					let res = registration_fn(&mut *self);
+					if res != 0 {
+						return Err(Error::RegisterLib(name.into(), res));
+					}
+					lib
+				};
+
+				// The Library must be kept in storage until the [`BehaviorTree`] is destroyed.
+				// Therefore the library is handed over to the behavior registry and later referenced by any tree.
+				self.registry.add_library(lib);
+				Ok(())
+			} else {
+				Err(Error::InvalidPath { path: name.into() })
 			}
-			lib
-		};
-
-		// The Library must be kept in storage until the [`BehaviorTree`] is destroyed.
-		// Therefore the library is handed over to the behavior registry and later referenced by any tree.
-		self.registry.add_library(lib);
-		Ok(())
+		} else {
+			Err(Error::InvalidPath { path: name.into() })
+		}
 	}
 
 	/// Register a `Behavior` of type `<T>`.

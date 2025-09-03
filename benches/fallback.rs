@@ -1,12 +1,12 @@
+//! Benchmarks of fallback behaviors [`Fallback`] and [`ReactiveFallback`]
 // Copyright © 2025 Stephan Kunz
-#![allow(missing_docs)]
 
-//! Benchmarks of Fallback behaviors [`Fallback`] and [`ReactiveFallback`]
+#![allow(missing_docs)]
+#![allow(clippy::unwrap_used)]
 
 use std::time::Duration;
 
 use behaviortree::{
-	SHOULD_NOT_HAPPEN,
 	behavior::{
 		BehaviorState::{Failure, Running, Success},
 		action::ChangeStateAfter,
@@ -61,7 +61,7 @@ const REACTIVE: &str = r#"
 fn fallback(c: &mut Criterion) {
 	let runtime = tokio::runtime::Builder::new_multi_thread()
 		.build()
-		.expect(SHOULD_NOT_HAPPEN);
+		.unwrap();
 
 	let mut group = c.benchmark_group("fallback");
 	group
@@ -69,40 +69,30 @@ fn fallback(c: &mut Criterion) {
 		.sample_size(SAMPLES);
 
 	let mut factory = BehaviorTreeFactory::default();
-	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5).expect(SHOULD_NOT_HAPPEN);
-	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).expect(SHOULD_NOT_HAPPEN);
-	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").expect(SHOULD_NOT_HAPPEN);
+	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5).unwrap();
+	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
+	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").unwrap();
 
-	let mut tree = factory
-		.create_from_text(STANDARD)
-		.expect(SHOULD_NOT_HAPPEN);
+	let mut tree = factory.create_from_text(STANDARD).unwrap();
 	group.bench_function("standard", |b| {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
-					tree.reset().expect(SHOULD_NOT_HAPPEN);
-					let _result = tree
-						.tick_while_running()
-						.await
-						.expect(SHOULD_NOT_HAPPEN);
+					tree.reset().unwrap();
+					let _result = tree.tick_while_running().await.unwrap();
 				}
 				std::hint::black_box(());
 			});
 		});
 	});
 
-	tree = factory
-		.create_from_text(REACTIVE)
-		.expect(SHOULD_NOT_HAPPEN);
+	tree = factory.create_from_text(REACTIVE).unwrap();
 	group.bench_function("reactive", |b| {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {
-					tree.reset().expect(SHOULD_NOT_HAPPEN);
-					let _result = tree
-						.tick_while_running()
-						.await
-						.expect(SHOULD_NOT_HAPPEN);
+					tree.reset().unwrap();
+					let _result = tree.tick_while_running().await.unwrap();
 				}
 				std::hint::black_box(());
 			});

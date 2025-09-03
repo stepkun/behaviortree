@@ -5,7 +5,7 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_08_additional_args)
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t08_additional_node_args.cpp)
 
-use behaviortree::{SHOULD_NOT_HAPPEN, prelude::*};
+use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -91,12 +91,13 @@ async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
 	// initialize ActionB with the help of an iterator
 	for node in tree.iter_mut() {
 		if node.data().description().name().as_ref() == ("Action_B") {
-			let action = node
+			if let Some(action) = node
 				.behavior_mut()
 				.as_any_mut()
 				.downcast_mut::<ActionB>()
-				.expect(SHOULD_NOT_HAPPEN);
-			action.initialize(69, "interesting value".into());
+			{
+				action.initialize(69, "interesting value".into());
+			}
 		}
 	}
 
@@ -113,6 +114,9 @@ async fn main() -> Result<(), Error> {
 
 #[cfg(test)]
 mod test {
+	#![allow(missing_docs)]
+	#![allow(clippy::unwrap_used)]
+
 	use super::*;
 
 	#[tokio::test]
@@ -124,7 +128,7 @@ mod test {
 		let mut iter = result.1.iter();
 		assert_eq!(
 			iter.next()
-				.expect(SHOULD_NOT_HAPPEN)
+				.unwrap()
 				.data()
 				.description()
 				.name()
@@ -133,7 +137,7 @@ mod test {
 		);
 		assert_eq!(
 			iter.next()
-				.expect(SHOULD_NOT_HAPPEN)
+				.unwrap()
 				.data()
 				.description()
 				.name()
@@ -142,7 +146,7 @@ mod test {
 		);
 		assert_eq!(
 			iter.next()
-				.expect(SHOULD_NOT_HAPPEN)
+				.unwrap()
 				.data()
 				.description()
 				.name()
@@ -151,7 +155,7 @@ mod test {
 		);
 		assert_eq!(
 			iter.next()
-				.expect(SHOULD_NOT_HAPPEN)
+				.unwrap()
 				.data()
 				.description()
 				.name()

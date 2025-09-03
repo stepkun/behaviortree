@@ -22,6 +22,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Added
 
 ### Changed
+- replaced `expect(SHOULD_NOT_HAPPEN)` with better error handling
 
 ### Fixed
 - several `todo!()`'s and `expect(...)`'s

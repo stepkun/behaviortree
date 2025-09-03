@@ -110,6 +110,7 @@ impl Behavior for SaySomething {
 | Capability           | With OS | Embedded |
 | -------------------- | ------- | -------- |
 | XML parsing          | ✅      | ✅       |
+| XML generation       | ✅      | ✅       |
 | Ports                | ✅      | ✅       |
 | - access by ref      | 🔴      | 🔴       |
 | Port remapping       | ✅      | ✅       |
@@ -118,13 +119,11 @@ impl Behavior for SaySomething {
 | Blackboard           | ✅      | ✅       |
 | - access by ref      | 🔴      | 🔴       |
 | - backup             | 🔴      | 🔴       |
-| &nbsp;               |         |          |
-| XML generation       | ✅      | ✅       |
 | Scripting            | ✅      | ✅       |
 | Pre-/post-conditions | ✅      | ✅       |
 | Loggers/Observers    | ✅      | 🔴       |
 | Substitution rules   | 🔴      | 🔴       |
-| &nbsp;               |         |          |
+|                      |         |          |
 | Using Groot2 for:    |         |          |
 | - XML Create/Edit    | ✅      | ✅       |
 | - Live Monitoring    | ✅      | 🔴       |
@@ -135,10 +134,14 @@ impl Behavior for SaySomething {
 | BehaviorTree.CPP nodes  | With OS | Embedded |
 | ----------------------- | ------- | -------- |
 | __Action__              |         |          |
+| AlwaysFailure           | ✅      | ✅       |
+| AlwaysSuccess           | ✅      | ✅       |
 | Script                  | ✅      | ✅       |
 | SetBlackboard           | (✅)    | (✅)     |
 | Sleep                   | (✅)    | 🔴       |
 | UnsetBlackboard         | (✅)    | (✅)     |
+| TestBehavior            | 🔴      | 🔴       |
+| PoPFromQueue (new)      | 🔴      | 🔴       |
 |                         |         |          |
 | __Condition__           |         |          |
 | ScriptCondition         | (✅)    | (✅)     |
@@ -155,6 +158,7 @@ impl Behavior for SaySomething {
 | IfThenElse              | ✅      | (✅)     |
 | WhileDoElse             | ✅      | (✅)     |
 | Switch                  | ✅      | (✅)     |
+| ManualSelector (new)    | 🔴      | 🔴       |
 |                         |         |          |
 | __Decorator__           |         |          |
 | ForceFailure            | ✅      | (✅)     |
@@ -170,6 +174,7 @@ impl Behavior for SaySomething {
 | RunOnce                 | ✅      | (✅)     |
 | ScriptPrecondition      | (✅)    | (✅)     |
 | Timeout                 | (✅)    | 🔴       |
+| ConsumeQueue (new)      | 🔴      | 🔴       |
 
 ## License
 

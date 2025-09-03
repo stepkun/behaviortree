@@ -44,7 +44,13 @@ pub enum Error {
 	/// Deadlock situation
 	#[error("search for subtree in registry [{0}] caused a deadlock, most probably because this subtree contains himself")]
 	DeadLock(ConstString),
-	/// Missing a corresponing end tag
+	/// Invalid plugin path
+	#[error("invalid plugin path [{path}]")]
+	InvalidPath {
+		/// The given path to plugin
+		path: ConstString,
+	},
+	/// Missing a corresponding end tag @TODO: No longer needed
 	#[error("missing end tag for [{0}]")]
 	MissingEndTag(ConstString),
 	/// The main tree information is missing
