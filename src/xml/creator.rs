@@ -74,7 +74,7 @@ impl XmlCreator {
 
 	/// Create XML from tree including `TreeNodesModel`.
 	/// # Errors
-	/// # Panics
+	/// - if it cannot create an xml entry
 	pub fn write_tree(
 		tree: &BehaviorTree,
 		metadata: bool,
@@ -235,7 +235,7 @@ impl XmlCreator {
 
 	/// Create XML from tree including `TreeNodesModel`.
 	/// # Errors
-	/// # Panics
+	/// - if it cannot create an xml entry
 	pub fn groot_write_tree(tree: &BehaviorTree) -> Result<bytes::Bytes, woxml::Error> {
 		// storage for (non groot2 builtin) behaviors to mention in TreeNodesModel
 		let mut behaviors: BTreeMap<ConstString, BehaviorDescription> = BTreeMap::new();

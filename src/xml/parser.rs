@@ -245,8 +245,9 @@ pub struct XmlParser {
 
 impl XmlParser {
 	/// Get the next uid for a [`BehaviorTreeElement`].
+	/// The maximum allowed number of behaviors in a tree is 65535!
 	/// # Panics
-	/// if more than 65536 [`BehaviorTreeElement`]s are required for a [`BehaviorTree`](crate::tree::tree::BehaviorTree)
+	/// - if more than 65535 [`BehaviorTreeElement`]s are created for a [`BehaviorTree`](crate::tree::tree::BehaviorTree)
 	const fn next_uid(&mut self) -> u16 {
 		let next = self.uid;
 		self.uid += 1;
