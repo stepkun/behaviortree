@@ -26,7 +26,7 @@ use super::tree_element_list::ConstBehaviorTreeElementList;
 // region:		--- TreeElementKind
 #[repr(u8)]
 #[derive(Clone, Copy, Debug)]
-/// @TODO:
+/// The different kinds of a [`BehaviorTreeElement`]
 pub enum TreeElementKind {
 	/// A behavior tree leaf.
 	Leaf,

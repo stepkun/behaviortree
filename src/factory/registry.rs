@@ -92,9 +92,9 @@ impl BehaviorRegistry {
 	pub fn clear_registered_trees(&mut self) {
 		// delete the main tree id
 		self.main_tree_id = None;
-		// @TODO: What about the libraries???
 		// remove tree definitions
 		self.tree_definitions.clear();
+		// @TODO: What about the libraries???
 	}
 
 	/// Get the main tree id

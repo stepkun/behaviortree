@@ -486,6 +486,19 @@ impl BehaviorTreeFactory {
 			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 
+	/// Register a `Behavior` of type `<T>`.
+	/// # Errors
+	/// - if a behavior with that `name` is already registered
+	pub fn register_behavior_type_with<T>(&mut self, name: &str) -> Result<(), Error>
+	where
+		T: BehaviorExecution,
+	{
+		let bhvr_desc = BehaviorDescription::new(name, name, T::kind(), false, T::provided_ports());
+		let bhvr_creation_fn = T::creation_fn();
+		self.registry
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
+	}
+
 	/// Register a `Behavior` of type `<T>` which is builtin in Groot2.
 	/// # Errors
 	/// - if a behavior with that `name` is already registered

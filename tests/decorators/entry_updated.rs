@@ -37,8 +37,6 @@ async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
 		BehaviorState::Success,
 		0
 	)?;
-	// @TODO: replace after creating the proper macro variant
-	//register_behavior!(factory, EntryUpdated, "EntryUpdated", input)?;
 	let bhvr_desc = BehaviorDescription::new(
 		"EntryUpdated",
 		"EntryUpdated",
@@ -95,8 +93,6 @@ async fn entry_updated_errors(#[case] input: BehaviorState) -> Result<(), Error>
 		BehaviorState::Success,
 		0
 	)?;
-	// @TODO: replace after creating the proper macro variant
-	//register_behavior!(factory, EntryUpdated, "EntryUpdated", input)?;
 	let bhvr_desc = BehaviorDescription::new(
 		"EntryUpdated",
 		"EntryUpdated",

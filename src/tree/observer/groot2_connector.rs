@@ -240,7 +240,7 @@ impl Groot2Connector {
 								}
 							}
 							Groot2RequestType::GetTransitions => {
-								// @TODO: send transition buffer
+								// send transition buffer
 								let mut bytes = BytesMut::with_capacity((TRANSITION_SIZE * 9) as usize);
 								let mut shared_guard = shared_clone.lock();
 								for info in &shared_guard.transitions_buffer {

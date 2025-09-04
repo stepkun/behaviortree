@@ -100,18 +100,18 @@ pub fn strip_curly_brackets(key: &str) -> &str {
 // endregion:	--- helpers
 
 // region:		---macros
-/// Macro to register a behavior with additional arguments.
+/// Macro to register different kinds of behaviors.
 ///
 /// # Usage:
 ///
-/// Register a Behavior:
+/// Register a Behavior (may be generic):
 /// ```no-test
-/// register_behavior!(<mutable (reference to) behavior factory>, <struct to register>, <"identifying name">)
+/// register_behavior!(<mutable (reference to) behavior factory>, <behavior to register>, <"identifying name">)
 /// ```
 ///
 /// Register a Behavior with additional arguments for construction:
 /// ```no-test
-/// register_behavior!(<mutable (reference to) behavior factory>, <struct to register>, <"identifying name">, <arg1>, <arg2>, ...)
+/// register_behavior!(<mutable (reference to) behavior factory>, <behavior to register>, <"identifying name">, <arg1>, <arg2>, ...)
 /// ```
 ///
 /// Register a simple function as Behavior:
@@ -138,8 +138,10 @@ pub fn strip_curly_brackets(key: &str) -> &str {
 ///
 /// ```no-test
 /// let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
-///
-/// register_behavior!(factory, ActionA, "Action_A", 42, "hello world".into())?;
+/// // register derived behaviors:
+/// register_behavior!(factory, ActionA, "Action_A")?;
+/// register_behavior!(factory, ActionB, "Action_B", 42, "hello world".into())?;
+/// register_behavior!(factory, Loop<Pose2D>, "LoopPose")?;
 /// ```
 #[macro_export]
 macro_rules! register_behavior {
@@ -151,8 +153,23 @@ macro_rules! register_behavior {
 	($factory:expr, $fn:path, $name:literal, $ports:expr, $kind:path $(,)?) => {{
 		$factory.register_simple_function_with_ports($name, alloc::sync::Arc::new($fn), $kind, $ports)
 	}};
+	// behavior type struct
+	($factory:expr, $tp:ty, $name:literal $(,)?) => {{
+		$factory.register_behavior_type::<$tp>($name)
+	}};
+	// behavior type struct with arguments for construction
+	($factory:expr, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
+		let bhvr_desc = $crate::behavior::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), false, <$tp>::provided_ports());
+		let bhvr_creation_fn = alloc::boxed::Box::new(move || -> alloc::boxed::Box<dyn $crate::behavior::BehaviorExecution> {
+			alloc::boxed::Box::new(<$tp>::new($($arg),*))
+		});
+		$factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
+	}};
 	// multiple methods of a struct - will indicate only the last error if any
-	// returns a Arc-Mutex-wrapped item of the given struct
+	// this needs to be last becaus the second argument beiing an expression covers most other kinds!!
+	// returns an Arc-Mutex-wrapped item of the given struct
 	($factory:expr, $item:expr, $($fun:ident, $name:literal, $kind:path $(,)?)+) => {{
 		let base = alloc::sync::Arc::new(spin::Mutex::new($item));
 		// let mut res: core::result::Result<alloc::sync::Arc<spin::Mutex<$item>>, $crate::factory::error::Error> = Ok(base.clone());
@@ -164,21 +181,6 @@ macro_rules! register_behavior {
 			}
 		})+;
 		res
-	}};
-	// the behavior structs handling needs to be last!
-	// behavior struct
-	($factory:expr, $tp:ty, $name:literal $(,)?) => {{
-		$factory.register_behavior_type::<$tp>($name)
-	}};
-	// behavior struct with arguments for construction
-	($factory:expr, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
-		let bhvr_desc = $crate::behavior::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), false, <$tp>::provided_ports());
-		let bhvr_creation_fn = alloc::boxed::Box::new(move || -> alloc::boxed::Box<dyn $crate::behavior::BehaviorExecution> {
-			alloc::boxed::Box::new(<$tp>::new($($arg),*))
-		});
-		$factory
-			.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}};
 }
 
