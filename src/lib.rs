@@ -50,9 +50,6 @@ pub type ConstString = Arc<str>;
 // region:		--- globals
 /// Often needed empty str
 pub const EMPTY_STR: &str = "";
-/// Global constant for expect statements that should never happen
-#[doc(hidden)]
-pub const SHOULD_NOT_HAPPEN: &str = "should not happen";
 
 /// [`BehaviorState`] literal "Failure"
 pub const FAILURE: &str = "Failure";
@@ -80,6 +77,7 @@ pub const SUBTREE: &str = "SubTree";
 const NAME: &str = "name";
 /// Literal "ID" for ports etc.
 const ID: &str = "ID";
+/// Literals for scripting ports
 const AUTOREMAP: &str = "_autoremap";
 const FAILURE_IF: &str = "_failureIf";
 const SUCCESS_IF: &str = "_successIf";
@@ -92,7 +90,7 @@ const POST: &str = "_post";
 // endregion:	--- globals
 
 // region:		--- helpers
-/// Removes the enclosing brackets `{}` from a str if there are any,
+/// Removes enclosing brackets `{}` from a str if there are any,
 /// otherwise returns the unchanged str.
 #[must_use]
 pub fn strip_curly_brackets(key: &str) -> &str {

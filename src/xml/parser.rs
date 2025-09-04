@@ -137,22 +137,19 @@ fn handle_attributes(
 	// this value can later be overwritten by default values given by xml attribute
 	for port_definition in port_list.iter() {
 		if let Some(default_value) = port_definition.default_value() {
-			// check if it is a BB pointer
+			// check if 'default_value' is a valid BB pointer
 			match strip_bb_pointer(default_value) {
-				// Bb pointer
+				// BB pointer
 				Some(stripped) => {
-					if stripped.as_ref() == "=" {
-						// remapping to itself not necessary
-					} else if is_allowed_port_name(&stripped) {
+					// remapping to itself is not necessary
+					if stripped.as_ref() != "=" {
 						match remappings.add(port_definition.name(), default_value.clone()) {
 							Ok(()) => {}
 							Err(err) => return Err(Error::Remapping(err)),
 						}
-					} else {
-						return Err(Error::NameNotAllowed(port_definition.name().to_string().into()));
 					}
 				}
-				// No bb pointer
+				// No BB pointer
 				None => match remappings.add(port_definition.name(), default_value.clone()) {
 					Ok(()) => {}
 					Err(err) => return Err(Error::Remapping(err)),
@@ -196,7 +193,7 @@ fn handle_attributes(
 		} else {
 			// for a subtree we cannot check the ports
 			if is_subtree {
-				// strip if it is a BB pointer
+				// if it is a BB pointer, strip it
 				let stripped = strip_curly_brackets(value);
 				// check value for allowed names
 				if is_allowed_port_name(stripped) {
@@ -207,22 +204,20 @@ fn handle_attributes(
 			} else {
 				// check found port name against list of provided ports
 				match port_list.find(key) {
-					Some(_) => {
-						// check if it is a BB pointer
+					Some(_port) => {
+						// check if 'value' is a valid BB pointer
 						match strip_bb_pointer(value) {
-							// Bb pointer
-							Some(stripped) => {
-								// check stripped value for allowed names
-								if is_allowed_port_name(&stripped) {
+							// BB pointer
+							Some(_) => {
+								remappings.overwrite(key, value);
+							}
+							// Normal string, representing a port
+							None => {
+								if is_allowed_port_name(key) {
 									remappings.overwrite(key, value);
 								} else {
-									return Err(Error::NameNotAllowed(stripped));
+									return Err(Error::NameNotAllowed(key.into()));
 								}
-							}
-							// No bb pointer
-							None => {
-								// this is a normal string, representing a port value
-								remappings.overwrite(key, value);
 							}
 						}
 					}

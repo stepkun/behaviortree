@@ -1,7 +1,5 @@
-// Copyright © 2025 Stephan Kunz
-
 //! `SetBlackboard` behavior implementation
-//!
+// Copyright © 2025 Stephan Kunz
 
 // region:      --- modules
 use alloc::string::String;
@@ -10,14 +8,14 @@ use core::marker::PhantomData;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Action,
+	self as behaviortree, Action, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
-	port::{PortList, strip_bb_pointer},
+	input_port,
+	port::PortList,
+	port_list, strip_curly_brackets,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
-use crate::{input_port, port_list};
 // endregion:   --- modules
 
 // region:		--- globals
@@ -49,14 +47,8 @@ where
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let key = behavior.get::<String>(KEY)?;
-		match strip_bb_pointer(&key) {
-			Some(stripped_key) => {
-				let _ = behavior.delete::<String>(&stripped_key);
-			}
-			None => {
-				let _ = behavior.delete::<String>(&key);
-			}
-		}
+		let stripped_key = strip_curly_brackets(&key);
+		behavior.delete::<String>(stripped_key)?;
 
 		Ok(BehaviorState::Success)
 	}

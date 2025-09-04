@@ -31,6 +31,7 @@ use crate::{
 	behavior::pre_post_conditions::Conditions,
 	blackboard::{BlackboardInterface, SharedBlackboard},
 	port::{PortList, PortRemappings, error::Error, strip_bb_pointer},
+	strip_curly_brackets,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -267,11 +268,8 @@ impl BehaviorData {
 		T: Any + Clone + FromStr + ToString + Send + Sync,
 	{
 		if let Some(remapped) = self.remappings.find(key) {
-			if let Some(stripped) = strip_bb_pointer(&remapped) {
-				Ok(self.blackboard.set::<T>(&stripped, value)?)
-			} else {
-				Ok(self.blackboard.set::<T>(key, value)?)
-			}
+			let stripped_key = strip_curly_brackets(&remapped);
+			Ok(self.blackboard.set::<T>(stripped_key, value)?)
 		} else {
 			Ok(self.blackboard.set::<T>(key, value)?)
 		}
