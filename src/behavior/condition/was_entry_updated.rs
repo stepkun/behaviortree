@@ -1,7 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `Updated` behavior implementation
-//!
+//! [`WasEntryUpdated`] [`Condition`] implementation.
 
 // region:      --- modules
 use alloc::{
@@ -10,14 +8,14 @@ use alloc::{
 };
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Condition, ConstString,
+	self as behaviortree, Condition, ConstString, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
+	input_port,
 	port::{PortList, strip_bb_pointer},
+	port_list,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
-use crate::{input_port, port_list};
 // endregion:   --- modules
 
 // region:		--- globals

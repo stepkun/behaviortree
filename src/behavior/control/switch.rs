@@ -1,6 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `Switch` behavior implementation
+//! [`Switch<T>`] [`Control`] implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
@@ -8,9 +7,8 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	ConstString, Control, IDLE,
+	self as behaviortree, ConstString, Control, EMPTY_STR, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::{PortList, is_bb_pointer, strip_bb_pointer},

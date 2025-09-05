@@ -104,31 +104,42 @@ impl Behavior for SaySomething {
  ✅: Supported<br>
  🚦: Not yet fully tested but should work<br>
  🔴: Not yet supported<br>
+ ??: Unclear if it can be supported<br>
  ❌: Will not be supported
 
 ### General capabilities
 
 | Capability              | With OS | Embedded |
 | ----------------------- | ------- | -------- |
-| XML parsing             | ✅      | ✅       |
-| XML generation          | ✅      | ✅       |
-| Ports                   | ✅      | ✅       |
+| XML                     |         |          |
+| - parsing               | ✅      | ✅       |
+| - generation            | ✅      | ✅       |
+|                         |         |          |
+| Ports                   |         |          |
+| - remapping             | ✅      | ✅       |
 | - access by ref         | 🔴      | 🔴       |
-| Port remapping          | ✅      | ✅       |
-| SubTrees                | ✅      | ✅       |
-| SubTree remapping       | ✅      | ✅       |
-| Blackboard              | ✅      | ✅       |
+|                         |         |          |
+| SubTrees                |         |          |
+| - structure             | ✅      | ✅       |
+| - remapping             | ✅      | ✅       |
+| - 'include' from file   | ✅      | ❌       |
+|                         |         |          |
+| Blackboard              |         |          |
+| - hierarchy             | ✅      | ✅       |
+| - remapping             | ✅      | ✅       |
 | - access by ref         | 🔴      | 🔴       |
-| - backup                | 🔴      | 🔴       |
-| Scripting               | ✅      | ✅       |
+| - backup                | 🔴      | ??       |
+|                         |         |          |
 | Pre-/post-conditions    | ✅      | ✅       |
-| Loggers/Observers       | ✅      | 🔴       |
-| Substitution rules      | 🔴      | 🔴       |
+| Scripting               | ✅      | ✅       |
+|                         |         |          |
+| Loggers/Observers       | ✅      | ??       |
+| Substitution rules      | 🔴      | ??       |
 |                         |         |          |
 | Using Groot2 for:       |         |          |
 | - XML Create/Edit       | ✅      | ✅       |
-| - Live Monitoring       | ✅      | 🔴       |
-| - Pro Features          | 🔴      | 🔴       |
+| - Live Monitoring       | ✅      | ??       |
+| - Pro Features          | 🔴      | ??       |
 
 ### Built-in behaviors
 
@@ -141,8 +152,7 @@ impl Behavior for SaySomething {
 | SetBlackboard           | ✅      | 🚦       |
 | Sleep                   | 🚦      | 🔴       |
 | UnsetBlackboard         | ✅      | 🚦       |
-| TestBehavior            | ❌      | ❌       |
-| PopFromQueue (new)      | ✅      | 🚦       |
+| PopFromQueue            | ✅      | 🚦       |
 |                         |         |          |
 | __Condition__           |         |          |
 | ScriptCondition         | 🚦      | 🚦       |
@@ -159,7 +169,7 @@ impl Behavior for SaySomething {
 | IfThenElse              | ✅      | 🚦       |
 | WhileDoElse             | ✅      | 🚦       |
 | Switch                  | ✅      | 🚦       |
-| ManualSelector (new)    | 🔴      | 🔴       |
+| ManualSelector          | 🔴      | ??       |
 |                         |         |          |
 | __Decorator__           |         |          |
 | ForceFailure            | ✅      | 🚦       |
@@ -167,7 +177,6 @@ impl Behavior for SaySomething {
 | Inverter                | ✅      | ✅       |
 | KeepRunningUntilFailure | ✅      | 🚦       |
 | Repeat                  | ✅      | 🚦       |
-| Retry (deprecated)      | ❌      | ❌       |
 | RetryUntilSuccessful    | ✅      | 🚦       |
 | Delay                   | 🚦      | 🔴       |
 | EntryUpdated            | ✅      | 🚦       |
@@ -175,7 +184,6 @@ impl Behavior for SaySomething {
 | RunOnce                 | ✅      | 🚦       |
 | ScriptPrecondition      | 🚦      | 🚦       |
 | Timeout                 | 🚦      | 🔴       |
-| ConsumeQueue (new)      | 🔴      | 🔴       |
 
 ## License
 

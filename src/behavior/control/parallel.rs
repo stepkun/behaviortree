@@ -1,21 +1,19 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `Parallel` behavior implementation
-//!
+//! [`Parallel`] [`Control`] implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
 use alloc::collections::btree_set::BTreeSet;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
 use crate::{
-	Control, IDLE,
+	self as behaviortree, Control, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
+	input_port,
 	port::PortList,
+	port_list,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
-use crate::{input_port, port_list};
 // endregion:   --- modules
 
 // region:      --- Parallel

@@ -1,16 +1,12 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `SubTree` behavior implementation
-//!
+//! [`SubTree`]  implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
 use crate::{
-	behavior::{
-		BehaviorData, BehaviorError, BehaviorExecution, Behavior, BehaviorKind, BehaviorResult, BehaviorState,
-	},
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorExecution, BehaviorKind, BehaviorResult, BehaviorState},
 	port::PortList,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
@@ -52,8 +48,8 @@ impl Behavior for SubTree {
 		children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
-		if children.is_empty() {
-			return Err(BehaviorError::Composition("subtree must have 1 child".into()));
+		if children.is_empty() || children.len() > 1 {
+			return Err(BehaviorError::Composition("a subtree must have exactly 1 child".into()));
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())

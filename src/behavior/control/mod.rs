@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-
 //! Built-in `Control` behaviors of [`behaviortree`](crate).
 
 mod fallback;

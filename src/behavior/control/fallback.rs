@@ -1,15 +1,12 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `Fallback` behavior implementation
-//!
+//! [`Fallback`] [`Control`] implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
 use crate::{
-	Control, IDLE,
+	self as behaviortree, Control, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };

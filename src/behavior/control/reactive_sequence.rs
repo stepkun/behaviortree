@@ -1,16 +1,13 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `ReactiveSequence` behavior implementation
-//!
+//! [`ReactiveSequence`] [`Control`] implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
 use crate::{
-	Control, IDLE,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control, IDLE,
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules

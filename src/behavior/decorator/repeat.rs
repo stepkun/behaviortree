@@ -1,15 +1,12 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `Repeat` behavior implementation
-//!
+//! [`Repeat`] [`Decorator`] implementation.
 
 // region:      --- modules
 use alloc::{boxed::Box, string::ToString};
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Decorator, IDLE,
+	self as behaviortree, Decorator, EMPTY_STR, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::PortList,

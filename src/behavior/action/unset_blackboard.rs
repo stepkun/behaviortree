@@ -1,5 +1,5 @@
-//! `SetBlackboard` behavior implementation
 // Copyright © 2025 Stephan Kunz
+//! [`UnsetBlackboard`] [`Action`] implementation.
 
 // region:      --- modules
 use alloc::string::String;

@@ -1,15 +1,13 @@
 // Copyright © 2025 Stephan Kunz
-
-//! Implementation for registering functions as behavior
+//! [`SimpleBehavior`]  implementation for registering functions as behavior.
 
 // region:      --- modules
 use alloc::{boxed::Box, sync::Arc};
 use core::any::Any;
 use tinyscript::SharedRuntime;
 
-use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::tree_element_list::ConstBehaviorTreeElementList};
-
 use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult};
+use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::tree_element_list::ConstBehaviorTreeElementList};
 // endregion:   --- modules
 
 // region:      --- types

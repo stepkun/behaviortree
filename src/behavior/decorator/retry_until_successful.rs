@@ -1,15 +1,12 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `RetryUntilSuccessful` behavior implementation
-//!
+//! [`RetryUntilSuccessful`] [`Decorator`] implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
 use crate::{
-	Decorator, IDLE,
+	self as behaviortree, Decorator, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::PortList,

@@ -1,6 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-
-//! Built in scripted action behavior
+//! [`Script`] [`Action`] implementation.
 
 // region:      --- modules
 use alloc::{
@@ -9,9 +8,8 @@ use alloc::{
 };
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Action,
+	self as behaviortree, Action, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,

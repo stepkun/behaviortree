@@ -1,17 +1,13 @@
 // Copyright © 2025 Stephan Kunz
-
-//! Built in `AlwaysXxx` behavior
-//!
+//! [`ChangeStateAfter`] [`Action`] implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::{BehaviorData, BehaviorError};
 use crate::{
-	Action,
-	behavior::{Behavior, BehaviorResult, BehaviorState},
+	self as behaviortree, Action,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules

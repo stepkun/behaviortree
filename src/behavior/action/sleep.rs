@@ -1,24 +1,23 @@
 // Copyright © 2025 Stephan Kunz
-
-//! Built in [`Sleep`] action behavior
+//! [`Sleep`] [`Action`] implementation.
 
 // region:      --- modules
 use alloc::{boxed::Box, string::ToString};
-#[cfg(feature = "std")]
-use core::time::Duration;
 use tinyscript::SharedRuntime;
-#[cfg(feature = "std")]
-use tokio::task::JoinHandle;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Action,
+	self as behaviortree, Action, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
+
+#[cfg(feature = "std")]
+use core::time::Duration;
+#[cfg(feature = "std")]
+use tokio::task::JoinHandle;
 //endregion:    --- modules
 
 // region:		--- globals

@@ -1,5 +1,4 @@
 // Copyright © 2024 Stephan Kunz
-
 //! `behaviortree` behavior errors
 
 #[doc(hidden)]

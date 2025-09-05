@@ -1,15 +1,12 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `RunOnce` behavior implementation
-//!
+//! [`RunOnce`] [`Decorator`] implementation.
 
 // region:      --- modules
 use alloc::{boxed::Box, string::ToString};
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
 use crate::{
-	Decorator, IDLE,
+	self as behaviortree, Decorator, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,

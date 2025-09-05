@@ -1,5 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-//! `Loop` behavior implementation
+//! [`Loop<T>`] [`Decorator`] implementation.
 
 // region:      --- modules
 use alloc::{boxed::Box, string::ToString};
@@ -7,11 +7,9 @@ use core::fmt::Debug;
 use core::str::FromStr;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
-use crate::behavior::shared_queue::SharedQueue;
 use crate::{
-	Decorator,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Decorator,
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError, shared_queue::SharedQueue},
 	inout_port, input_port, output_port,
 	port::PortList,
 	port_list,

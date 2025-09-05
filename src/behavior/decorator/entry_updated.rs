@@ -1,7 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `EntryUpdated` behavior implementation
-//!
+//! [`EntryUpdated`] [`Decorator`] implementation.
 
 // region:      --- modules
 use alloc::sync::Arc;
@@ -11,14 +9,14 @@ use alloc::{
 };
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	ConstString, Decorator,
+	self as behaviortree, ConstString, Decorator, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
+	input_port,
 	port::{PortList, strip_bb_pointer},
+	port_list,
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
-use crate::{input_port, port_list};
 // endregion:   --- modules
 
 // region:		--- globals

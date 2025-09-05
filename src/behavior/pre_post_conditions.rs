@@ -1,13 +1,11 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `PreConditions` and `PostConditions`.
-//!
+//! [`PreConditions`] and [`PostConditions`] implementation.
 
 // region		--- modules
-use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_HALTED, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE};
 use core::ops::{Deref, DerefMut};
 
 use super::error::BehaviorError;
+use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_HALTED, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE};
 // endregion:	--- modules
 
 // region:      --- Conditions

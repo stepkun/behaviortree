@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-
 //! Built-in `Condition` behaviors of [`behaviortree`](crate).
 
 mod script_condition;

@@ -1,5 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-//! `SharedQueue`  implementation
+//! [`SharedQueue<T>`]  implementation.
 
 #![allow(dead_code)]
 
@@ -11,8 +11,7 @@ use core::fmt::{Debug, Display, Formatter};
 use core::str::FromStr;
 use spin::Mutex;
 
-use crate as behaviortree;
-use crate::behavior::error::BehaviorError;
+use crate::{self as behaviortree, behavior::error::BehaviorError};
 // endregion:   --- modules
 
 // region:		--- SharedQueue

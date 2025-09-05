@@ -1,7 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `ScriptPrecondition` behavior implementation
-//!
+//! [`Precondition`] [`Decorator`] implementation.
 
 // region:      --- modules
 use alloc::{
@@ -10,9 +8,8 @@ use alloc::{
 };
 use tinyscript::SharedRuntime;
 
-use crate::{self as behaviortree, EMPTY_STR};
 use crate::{
-	Decorator, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS,
+	self as behaviortree, Decorator, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,

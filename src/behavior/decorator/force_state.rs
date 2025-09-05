@@ -1,16 +1,13 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `ForceFailure` behavior implementation
-//!
+//! [`ForceState`] [`Decorator`] implementation.
 
 // region:      --- modules
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
 
-use crate as behaviortree;
 use crate::{
-	Decorator, IDLE,
-	behavior::{BehaviorData, Behavior, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Decorator, IDLE,
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	tree::tree_element_list::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
