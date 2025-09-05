@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t14_subtree_mode](examples/t14_subtree_model.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t14_subtree_mode](examples/t14_subtree_model.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;
@@ -38,7 +38,8 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	factory.register_test_behaviors()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	// register subtrees nodes

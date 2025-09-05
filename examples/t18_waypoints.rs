@@ -1,5 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-//! This test implements the eighteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
+//! Implements the eighteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t18_waypoints.cpp).
 

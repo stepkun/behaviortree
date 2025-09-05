@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t09_scripting](examples/t09_scripting.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t09_scripting](examples/t09_scripting.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;

@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t07_load_multiple_xml](examples/t07_load_multiple_xml.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t07_load_multiple_xml](examples/t07_load_multiple_xml.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;

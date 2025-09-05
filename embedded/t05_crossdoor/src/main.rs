@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t05_crossdoor](examples/t05_crossdoor.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t05_crossdoor](examples/t05_crossdoor.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;

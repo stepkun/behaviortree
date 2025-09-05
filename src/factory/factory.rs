@@ -92,25 +92,39 @@ impl BehaviorTreeFactory {
 		&mut self.registry
 	}
 
-	/// Create a factory with core set of behaviors
+	/// Create a factory with core set of behaviors which adds to the default behaviors:
+	/// - Actions: [`Script`]
+	/// - Conditions: [`ScriptCondition`], [`WasEntryUpdated`]
+	/// - Controls: [`ParallelAll`], [`ReactiveFallback`], [`ReactiveSequence`], [`SequenceWithMemory`]
+	/// - Decorators: [`Inverter`], [`Precondition`], [`RetryUntilSuccessful`],
 	/// # Errors
 	/// - if behaviors cannot be registered
 	pub fn with_core_behaviors() -> Result<Self, Error> {
 		let mut factory = Self::default();
-		factory.core_behaviors()?;
+		factory.register_core_behaviors()?;
 		Ok(factory)
 	}
 
-	/// Create a factory with extended set of behaviors
+	/// Create a factory with extended set of behaviors which adds to the core behaviors:
+	/// - Actions: [`Sleep`]
+	/// - Controls: [`IfThenElse`], [`WhileDoElse`]
+	/// - Decorators: [`Delay`], [`KeepRunningUntilFailure`], [`Repeat`], [`RunOnce`], [`Timeout`],
+	///   `SkipUnlessUpdated`, `WaitValueUpdated`
 	/// # Errors
 	/// - if behaviors cannot be registered
 	pub fn with_extended_behaviors() -> Result<Self, Error> {
 		let mut factory = Self::with_core_behaviors()?;
-		factory.extended_behaviors()?;
+		factory.register_extended_behaviors()?;
 		Ok(factory)
 	}
 
-	/// Create a factory with groot2 builtin behaviors
+	/// Create a factory with groot2 builtin behaviors which adds to the extended behaviors:
+	/// - Actions: [`SetBlackboard`], [`UnsetBlackboard`]
+	/// - Controls: `AsyncFallback`, `AsyncSequence`, `Switch2`, `Switch3`, `Switch4`, `Switch5`, `Switch6`,
+	/// - Decorators: `LoopDouble`, `LoopString`
+	///
+	/// Note: It does not include the test behaviors `AlwaysFailure`, `AlwaysSuccess`, `ForceFailure` and `ForceSuccess`!
+	///       These have to be registered separately with `factory.register_test_behaviors()`!
 	/// # Errors
 	/// - if behaviors cannot be registered
 	pub fn with_groot2_behaviors() -> Result<Self, Error> {
@@ -119,10 +133,25 @@ impl BehaviorTreeFactory {
 		Ok(factory)
 	}
 
-	/// register core behaviors
+	/// Create a factory with all builtin behaviors which adds to the groot2 behaviors:
+	/// - Actions: `PopBool`, `PopDouble`, `PopInt`, `PopString`
+	/// - Decorators: `LoopBool`, `LoopInt`
+	/// # Errors
+	/// - if behaviors cannot be registered
+	pub fn with_all_behaviors() -> Result<Self, Error> {
+		let mut factory = Self::with_groot2_behaviors()?;
+		factory.additional_behaviors()?;
+		Ok(factory)
+	}
+
+	/// Register core behaviors:
+	/// - Actions: [`Script`]
+	/// - Conditions: [`ScriptCondition`], [`WasEntryUpdated`]
+	/// - Controls: [`ParallelAll`], [`ReactiveFallback`], [`ReactiveSequence`], [`SequenceWithMemory`]
+	/// - Decorators: [`Inverter`], [`Precondition`], [`RetryUntilSuccessful`],
 	/// # Errors
 	/// - if any registration fails
-	pub fn core_behaviors(&mut self) -> Result<(), Error> {
+	pub fn register_core_behaviors(&mut self) -> Result<(), Error> {
 		// actions
 		self.register_groot2_behavior_type::<Script>("Script")?;
 
@@ -141,17 +170,32 @@ impl BehaviorTreeFactory {
 		self.register_groot2_behavior_type::<Precondition>("Precondition")?;
 		self.register_groot2_behavior_type::<RetryUntilSuccessful>("RetryUntilSuccessful")?;
 
-		let bhvr_desc = BehaviorDescription::new(
-			"ForceFailure",
-			"ForceFailure",
-			ForceState::kind(),
-			true,
-			ForceState::provided_ports(),
-		);
-		let bhvr_creation_fn =
-			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Failure)) });
-		self.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+		Ok(())
+	}
+
+	/// Register extended behaviors which includes:
+	/// - Actions: [`Sleep`]
+	/// - Controls: [`IfThenElse`], [`WhileDoElse`]
+	/// - Decorators: [`Delay`], [`KeepRunningUntilFailure`], [`Repeat`], [`RunOnce`], [`Timeout`],
+	///   `SkipUnlessUpdated`, `WaitValueUpdated`
+	/// # Errors
+	/// - if any registration fails
+	pub fn register_extended_behaviors(&mut self) -> Result<(), Error> {
+		// actions
+		self.register_groot2_behavior_type::<Sleep>("Sleep")?;
+
+		// conditions
+
+		// controls
+		self.register_groot2_behavior_type::<IfThenElse>("IfThenElse")?;
+		self.register_groot2_behavior_type::<WhileDoElse>("WhileDoElse")?;
+
+		// decorators
+		self.register_groot2_behavior_type::<Delay>("Delay")?;
+		self.register_groot2_behavior_type::<KeepRunningUntilFailure>("KeepRunningUntilFailure")?;
+		self.register_groot2_behavior_type::<Repeat>("Repeat")?;
+		self.register_groot2_behavior_type::<RunOnce>("RunOnce")?;
+		self.register_groot2_behavior_type::<Timeout>("Timeout")?;
 
 		let bhvr_desc = BehaviorDescription::new(
 			"SkipUnlessUpdated",
@@ -180,79 +224,62 @@ impl BehaviorTreeFactory {
 		Ok(())
 	}
 
-	/// register test behaviors
-	/// # Errors
-	/// - if any registration fails
-	pub fn test_behaviors(&mut self) -> Result<(), Error> {
-		// actions
-		let bhvr_desc = BehaviorDescription::new(
-			"AlwaysRunning",
-			"AlwaysRunning",
-			ChangeStateAfter::kind(),
-			false,
-			ChangeStateAfter::provided_ports(),
-		);
-		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Running, 0))
-		});
-		self.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
-		// conditions
-
-		// controls
-
-		// decorators
-		let bhvr_desc = BehaviorDescription::new(
-			"ForceSuccess",
-			"ForceSuccess",
-			ForceState::kind(),
-			true,
-			ForceState::provided_ports(),
-		);
-		let bhvr_creation_fn =
-			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Success)) });
-		self.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
-		Ok(())
-	}
-
-	/// register extended behaviors
-	/// # Errors
-	/// - if any registration fails
-	pub fn extended_behaviors(&mut self) -> Result<(), Error> {
-		// actions
-		self.register_groot2_behavior_type::<Sleep>("Sleep")?;
-
-		// conditions
-
-		// controls
-		self.register_groot2_behavior_type::<IfThenElse>("IfThenElse")?;
-		self.register_groot2_behavior_type::<WhileDoElse>("WhileDoElse")?;
-
-		// decorators
-		self.register_groot2_behavior_type::<Delay>("Delay")?;
-		self.register_groot2_behavior_type::<KeepRunningUntilFailure>("KeepRunningUntilFailure")?;
-		self.register_groot2_behavior_type::<Repeat>("Repeat")?;
-		self.register_groot2_behavior_type::<RunOnce>("RunOnce")?;
-		self.register_groot2_behavior_type::<Timeout>("Timeout")?;
-
-		Ok(())
-	}
-
-	/// register groot2 builtin behaviors
+	/// Register additional groot2 builtin behaviors which includes:
+	/// - Actions: [`SetBlackboard`], [`UnsetBlackboard`]
+	/// - Controls: `AsyncFallback`, `AsyncSequence`, `Switch2`, `Switch3`, `Switch4`, `Switch5`, `Switch6`,
+	/// - Decorators: `LoopDouble`, `LoopString`
+	///
+	/// Note: It does not include the test behaviors `AlwaysFailure`, `AlwaysSuccess`, `ForceFailure` and `ForceSuccess`!
+	///       These have to be registered separately with `factory.register_test_behaviors()`!
 	/// # Errors
 	/// - if any registration fails
 	pub fn groot2_behaviors(&mut self) -> Result<(), Error> {
+		// actions
+		self.register_groot2_behavior_type::<SetBlackboard<String>>("SetBlackboard")?;
+		self.register_groot2_behavior_type::<UnsetBlackboard<String>>("UnsetBlackboard")?;
+
+		// controls
+		self.register_groot2_behavior_type::<Fallback>("AsyncFallback")?;
+		self.register_groot2_behavior_type::<Sequence>("AsyncSequence")?;
+		self.register_groot2_behavior_type::<Switch<2>>("Switch2")?;
+		self.register_groot2_behavior_type::<Switch<3>>("Switch3")?;
+		self.register_groot2_behavior_type::<Switch<4>>("Switch4")?;
+		self.register_groot2_behavior_type::<Switch<5>>("Switch5")?;
+		self.register_groot2_behavior_type::<Switch<6>>("Switch6")?;
+
+		// decorators
+		self.register_groot2_behavior_type::<Loop<f64>>("LoopDouble")?;
+		self.register_groot2_behavior_type::<Loop<String>>("LoopString")?;
+
+		Ok(())
+	}
+
+	/// Register additional builtin behaviors which includes:
+	/// - Actions: `PopBool`, `PopDouble`, `PopInt`, `PopString`
+	/// - Decorators: `LoopBool`, `LoopInt`
+	/// # Errors
+	/// - if any registration fails
+	pub fn additional_behaviors(&mut self) -> Result<(), Error> {
 		// actions
 		self.register_behavior_type::<PopFromQueue<i32>>("PopInt")?;
 		self.register_behavior_type::<PopFromQueue<bool>>("PopBool")?;
 		self.register_behavior_type::<PopFromQueue<f64>>("PopDouble")?;
 		self.register_behavior_type::<PopFromQueue<String>>("PopString")?;
-		self.register_groot2_behavior_type::<SetBlackboard<String>>("SetBlackboard")?;
-		self.register_groot2_behavior_type::<UnsetBlackboard<String>>("UnsetBlackboard")?;
 
+		// decorators
+		self.register_behavior_type::<Loop<bool>>("LoopBool")?;
+		self.register_behavior_type::<Loop<i32>>("LoopInt")?;
+
+		Ok(())
+	}
+
+	/// Register test behaviors which includes:
+	/// - Actions: `AlwaysFailure`, `AlwaysRunning`, `AlwaysSuccess`,
+	/// - Decorators: `ForceFailure`, `ForceRunning`, `ForceSuccess`
+	/// # Errors
+	/// - if any registration fails
+	pub fn register_test_behaviors(&mut self) -> Result<(), Error> {
+		// actions
 		let bhvr_desc = BehaviorDescription::new(
 			"AlwaysFailure",
 			"AlwaysFailure",
@@ -262,6 +289,19 @@ impl BehaviorTreeFactory {
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
 			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Failure, 0))
+		});
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
+		let bhvr_desc = BehaviorDescription::new(
+			"AlwaysRunning",
+			"AlwaysRunning",
+			ChangeStateAfter::kind(),
+			false,
+			ChangeStateAfter::provided_ports(),
+		);
+		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Running, 0))
 		});
 		self.registry_mut()
 			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
@@ -282,19 +322,43 @@ impl BehaviorTreeFactory {
 		// conditions
 
 		// controls
-		self.register_groot2_behavior_type::<Fallback>("AsyncFallback")?;
-		self.register_groot2_behavior_type::<Sequence>("AsyncSequence")?;
-		self.register_groot2_behavior_type::<Switch<2>>("Switch2")?;
-		self.register_groot2_behavior_type::<Switch<3>>("Switch3")?;
-		self.register_groot2_behavior_type::<Switch<4>>("Switch4")?;
-		self.register_groot2_behavior_type::<Switch<5>>("Switch5")?;
-		self.register_groot2_behavior_type::<Switch<6>>("Switch6")?;
 
 		// decorators
-		self.register_behavior_type::<Loop<i32>>("LoopInt")?;
-		self.register_behavior_type::<Loop<bool>>("LoopBool")?;
-		self.register_groot2_behavior_type::<Loop<f64>>("LoopDouble")?;
-		self.register_groot2_behavior_type::<Loop<String>>("LoopString")?;
+		let bhvr_desc = BehaviorDescription::new(
+			"ForceFailure",
+			"ForceFailure",
+			ForceState::kind(),
+			true,
+			ForceState::provided_ports(),
+		);
+		let bhvr_creation_fn =
+			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Failure)) });
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
+		let bhvr_desc = BehaviorDescription::new(
+			"ForceRunning",
+			"ForceRunning",
+			ForceState::kind(),
+			false,
+			ForceState::provided_ports(),
+		);
+		let bhvr_creation_fn =
+			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Running)) });
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
+		let bhvr_desc = BehaviorDescription::new(
+			"ForceSuccess",
+			"ForceSuccess",
+			ForceState::kind(),
+			true,
+			ForceState::provided_ports(),
+		);
+		let bhvr_creation_fn =
+			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Success)) });
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
 		Ok(())
 	}

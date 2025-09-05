@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t04_reactive_sequence](examples/t04_reactive_sequence.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t04_reactive_sequence](examples/t04_reactive_sequence.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;

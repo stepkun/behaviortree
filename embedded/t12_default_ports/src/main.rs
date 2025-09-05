@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t12_default_ports](examples/t12_default_ports.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t12_default_ports](examples/t12_default_ports.rs).
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::{EMPTY_STR, prelude::*};

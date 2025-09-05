@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t06_subtree_port_remappings](examples/t06_subtree_port_remappings.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t06_subtree_port_remappings](examples/t06_subtree_port_remappings.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;
@@ -37,6 +37,7 @@ const XML: &str = r#"
 
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	factory.register_test_behaviors()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	register_behavior!(factory, MoveBaseAction, "MoveBase")?;

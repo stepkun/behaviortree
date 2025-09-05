@@ -25,6 +25,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Changed
 - replaced `expect(SHOULD_NOT_HAPPEN)` with better error handling
 - `SharedQueue` as separate module
+- reorganized factory constructor methods
 
 ### Fixed
 - several `todo!()`'s and `expect(...)`'s

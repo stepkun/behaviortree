@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t08_additional_node_args](examples/t08_additional_node_args.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t08_additional_node_args](examples/t08_additional_node_args.rs).
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;

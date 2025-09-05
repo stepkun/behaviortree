@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t01_buid_your_first_tree](examples/t01_build_your_first_tree.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t01_buid_your_first_tree](examples/t01_build_your_first_tree.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;

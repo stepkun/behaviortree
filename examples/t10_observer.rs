@@ -34,7 +34,8 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	factory.register_test_behaviors()?;
 
 	factory.register_behavior_tree_from_text(XML)?;
 

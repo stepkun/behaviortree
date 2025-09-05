@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Cross door behaviors.
+
 #![allow(clippy::unnecessary_wraps)]
 #![allow(unused)]
-
-//! Cross door behaviors.
 
 use std::{sync::Arc, thread, time::Duration};
 

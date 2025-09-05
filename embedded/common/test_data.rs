@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Test behaviors
+
 #![allow(clippy::unnecessary_wraps)]
 #![allow(unused)]
-
-//! Test behaviors
 
 // region:		--- modules
 use ariel_os::{

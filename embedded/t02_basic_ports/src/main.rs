@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t02_basic_ports](examples/t02_basic_ports.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t02_basic_ports](examples/t02_basic_ports.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;

@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t18_waypoints](examples/t18_waypints.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t18_waypoints](examples/t18_waypints.rs).
 
 #[path = "../../common/mod.rs"]
 mod common;

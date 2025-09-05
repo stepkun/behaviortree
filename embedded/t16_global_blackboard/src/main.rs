@@ -1,8 +1,8 @@
 // Copyright © 2025 Stephan Kunz
+//! Embedded version of [t16_global_blackboard](examples/t16_global_blackboard.rs).
+
 #![no_main]
 #![no_std]
-
-//! Embedded version of [t16_global_blackboard](examples/t16_global_blackboard.rs).
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::{port::PortRemappings, prelude::*};
