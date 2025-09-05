@@ -41,6 +41,7 @@ fn create_data_collection_from_xml(
 	node: &Node,
 	uid: u16,
 	blackboard: Option<SharedBlackboard>,
+	is_root: bool,
 ) -> Result<Box<BehaviorDataCollection>, Error> {
 	let mut tag_name = node.tag_name().name();
 	if tag_name == "BehaviorTree" {
@@ -89,7 +90,7 @@ fn create_data_collection_from_xml(
 	let (autoremap, mut remappings, conditions) = handle_attributes(tag_name, is_subtree, &bhvr, node)?;
 
 	let new_blackboard = blackboard.map_or_else(SharedBlackboard::default, |blackboard| {
-		if is_subtree {
+		if is_subtree && !is_root {
 			// A SubTree gets a new Blackboard with parent and remappings.
 			let mut new_remappings = PortRemappings::default();
 			core::mem::swap(&mut new_remappings, &mut remappings);
@@ -393,6 +394,7 @@ impl XmlParser {
 					&doc.root_element(),
 					self.next_uid(),
 					external_blackboard,
+					true,
 				)?;
 				// for tree root "path" is empty
 				let children = self.build_children(&data, doc.root_element(), registry)?;
@@ -441,8 +443,14 @@ impl XmlParser {
 		registry: &mut BehaviorRegistry,
 	) -> Result<BehaviorTreeElement, Error> {
 		event!(Level::TRACE, "build_child");
-		let data =
-			create_data_collection_from_xml(registry, &data.path, &node, self.next_uid(), Some(data.blackboard.clone()))?;
+		let data = create_data_collection_from_xml(
+			registry,
+			&data.path,
+			&node,
+			self.next_uid(),
+			Some(data.blackboard.clone()),
+			false,
+		)?;
 		let tree_node = match data.bhvr_desc.kind() {
 			BehaviorKind::Action | BehaviorKind::Condition => {
 				// A leaf uses a cloned Blackboard

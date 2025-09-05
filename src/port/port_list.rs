@@ -53,10 +53,9 @@ impl PortList {
 	/// Create a list of the `Port` names in the list
 	#[must_use]
 	pub fn entries(&self) -> ConstString {
-		let comma = false;
 		let mut result = String::new();
 		for entry in &self.0 {
-			if comma {
+			if !result.is_empty() {
 				result += ", ";
 			}
 			result += entry.name();

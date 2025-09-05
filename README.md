@@ -101,33 +101,34 @@ impl Behavior for SaySomething {
 
 ## Capabilities
 
- ✅: Supported
-(✅): Supported, not fully tested, should work
- 🔴: Not supported
+ ✅: Supported<br>
+ 🚦: Not yet fully tested but should work<br>
+ 🔴: Not yet supported<br>
+ ❌: Will not be supported
 
 ### General capabilities
 
-| Capability           | With OS | Embedded |
-| -------------------- | ------- | -------- |
-| XML parsing          | ✅      | ✅       |
-| XML generation       | ✅      | ✅       |
-| Ports                | ✅      | ✅       |
-| - access by ref      | 🔴      | 🔴       |
-| Port remapping       | ✅      | ✅       |
-| SubTrees             | ✅      | ✅       |
-| SubTree remapping    | ✅      | ✅       |
-| Blackboard           | ✅      | ✅       |
-| - access by ref      | 🔴      | 🔴       |
-| - backup             | 🔴      | 🔴       |
-| Scripting            | ✅      | ✅       |
-| Pre-/post-conditions | ✅      | ✅       |
-| Loggers/Observers    | ✅      | 🔴       |
-| Substitution rules   | 🔴      | 🔴       |
-|                      |         |          |
-| Using Groot2 for:    |         |          |
-| - XML Create/Edit    | ✅      | ✅       |
-| - Live Monitoring    | ✅      | 🔴       |
-| - Pro Features       | 🔴      | 🔴       |
+| Capability              | With OS | Embedded |
+| ----------------------- | ------- | -------- |
+| XML parsing             | ✅      | ✅       |
+| XML generation          | ✅      | ✅       |
+| Ports                   | ✅      | ✅       |
+| - access by ref         | 🔴      | 🔴       |
+| Port remapping          | ✅      | ✅       |
+| SubTrees                | ✅      | ✅       |
+| SubTree remapping       | ✅      | ✅       |
+| Blackboard              | ✅      | ✅       |
+| - access by ref         | 🔴      | 🔴       |
+| - backup                | 🔴      | 🔴       |
+| Scripting               | ✅      | ✅       |
+| Pre-/post-conditions    | ✅      | ✅       |
+| Loggers/Observers       | ✅      | 🔴       |
+| Substitution rules      | 🔴      | 🔴       |
+|                         |         |          |
+| Using Groot2 for:       |         |          |
+| - XML Create/Edit       | ✅      | ✅       |
+| - Live Monitoring       | ✅      | 🔴       |
+| - Pro Features          | 🔴      | 🔴       |
 
 ### Built-in behaviors
 
@@ -137,43 +138,43 @@ impl Behavior for SaySomething {
 | AlwaysFailure           | ✅      | ✅       |
 | AlwaysSuccess           | ✅      | ✅       |
 | Script                  | ✅      | ✅       |
-| SetBlackboard           | (✅)    | (✅)     |
-| Sleep                   | (✅)    | 🔴       |
-| UnsetBlackboard         | (✅)    | (✅)     |
-| TestBehavior            | 🔴      | 🔴       |
-| PoPFromQueue (new)      | 🔴      | 🔴       |
+| SetBlackboard           | ✅      | 🚦       |
+| Sleep                   | 🚦      | 🔴       |
+| UnsetBlackboard         | ✅      | 🚦       |
+| TestBehavior            | ❌      | ❌       |
+| PopFromQueue (new)      | 🔴      | 🔴       |
 |                         |         |          |
 | __Condition__           |         |          |
-| ScriptCondition         | (✅)    | (✅)     |
-| WasEntryUpdated         | ✅      | (✅)     |
+| ScriptCondition         | 🚦      | 🚦       |
+| WasEntryUpdated         | ✅      | 🚦       |
 |                         |         |          |
 | __Control__             |         |          |
 | Fallback                | ✅      | ✅       |
-| ReactiveFallback        | ✅      | (✅)     |
+| ReactiveFallback        | ✅      | 🚦       |
 | Sequence                | ✅      | ✅       |
 | ReactiveSequence        | ✅      | ✅       |
-| SequenceWithMemory      | ✅      | (✅)     |
-| Parallel                | ✅      | (✅)     |
-| ParallelAll             | ✅      | (✅)     |
-| IfThenElse              | ✅      | (✅)     |
-| WhileDoElse             | ✅      | (✅)     |
-| Switch                  | ✅      | (✅)     |
+| SequenceWithMemory      | ✅      | 🚦       |
+| Parallel                | ✅      | 🚦       |
+| ParallelAll             | ✅      | 🚦       |
+| IfThenElse              | ✅      | 🚦       |
+| WhileDoElse             | ✅      | 🚦       |
+| Switch                  | ✅      | 🚦       |
 | ManualSelector (new)    | 🔴      | 🔴       |
 |                         |         |          |
 | __Decorator__           |         |          |
-| ForceFailure            | ✅      | (✅)     |
-| ForceSuccess            | ✅      | (✅)     |
+| ForceFailure            | ✅      | 🚦       |
+| ForceSuccess            | ✅      | 🚦       |
 | Inverter                | ✅      | ✅       |
-| KeepRunningUntilFailure | ✅      | (✅)     |
-| Repeat                  | ✅      | (✅)     |
-| Retry (deprecated)      | 🔴      | 🔴       |
-| RetryUntilSuccessful    | ✅      | (✅)     |
-| Delay                   | (✅)    | 🔴       |
-| EntryUpdated            | ✅      | (✅)     |
+| KeepRunningUntilFailure | ✅      | 🚦       |
+| Repeat                  | ✅      | 🚦       |
+| Retry (deprecated)      | ❌      | ❌       |
+| RetryUntilSuccessful    | ✅      | 🚦       |
+| Delay                   | 🚦      | 🔴       |
+| EntryUpdated            | ✅      | 🚦       |
 | LoopeQueue              | ✅      | ✅       |
-| RunOnce                 | ✅      | (✅)     |
-| ScriptPrecondition      | (✅)    | (✅)     |
-| Timeout                 | (✅)    | 🔴       |
+| RunOnce                 | ✅      | 🚦       |
+| ScriptPrecondition      | 🚦      | 🚦       |
+| Timeout                 | 🚦      | 🔴       |
 | ConsumeQueue (new)      | 🔴      | 🔴       |
 
 ## License
