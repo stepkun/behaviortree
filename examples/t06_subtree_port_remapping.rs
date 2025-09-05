@@ -1,9 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the sixth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the sixth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://https://www.behaviortree.dev/docs/tutorial-basics/tutorial_06_subtree_ports)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t06_subtree_port_remapping.cpp)
+//! [tutorial:](https://https://www.behaviortree.dev/docs/tutorial-basics/tutorial_06_subtree_ports).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t06_subtree_port_remapping.cpp).
 
 mod common;
 

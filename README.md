@@ -142,7 +142,7 @@ impl Behavior for SaySomething {
 | Sleep                   | 🚦      | 🔴       |
 | UnsetBlackboard         | ✅      | 🚦       |
 | TestBehavior            | ❌      | ❌       |
-| PopFromQueue (new)      | 🔴      | 🔴       |
+| PopFromQueue (new)      | ✅      | 🚦       |
 |                         |         |          |
 | __Condition__           |         |          |
 | ScriptCondition         | 🚦      | 🚦       |

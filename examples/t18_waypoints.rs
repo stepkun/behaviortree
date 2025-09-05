@@ -1,15 +1,14 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the eighteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! This test implements the eighteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t18_waypoints.cpp)
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t18_waypoints.cpp).
 
-// //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_18_XXX)
+// //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_18_XXX).
 
 mod common;
 
 use behaviortree::{
-	behavior::decorator::{Loop, SharedQueue},
+	behavior::{SharedQueue, decorator::Loop},
 	prelude::*,
 };
 use common::test_data::Pose2D;

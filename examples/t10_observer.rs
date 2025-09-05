@@ -1,10 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the tenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the tenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_10_observer)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t10_observer.cpp)
-//!
+//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_10_observer).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t10_observer.cpp).
 
 use behaviortree::{BehaviorTreeObserver, prelude::*};
 

@@ -1,9 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the fifth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the fifth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_05_subtrees)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t01_build_your_first_tree.cpp)
+//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_05_subtrees).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t01_build_your_first_tree.cpp).
 
 mod common;
 

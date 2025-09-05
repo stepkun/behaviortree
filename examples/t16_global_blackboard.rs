@@ -1,10 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the sixteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the sixteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_16_global_blackboard)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t16_global_blackboard.cpp)
-//!
+//! [tutorial:](https://https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_16_global_blackboard).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t16_global_blackboard.cpp).
 
 use behaviortree::{port::PortRemappings, prelude::*};
 

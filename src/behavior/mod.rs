@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-
 //! Built-In behaviors of [`behaviortree`](crate).
 
 pub mod action;
@@ -9,11 +8,13 @@ pub mod control;
 pub mod decorator;
 pub mod error;
 pub mod pre_post_conditions;
+mod shared_queue;
 mod simple_behavior;
 mod sub_tree;
 
 // flatten
 pub use error::BehaviorError;
+pub use shared_queue::SharedQueue;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 pub use sub_tree::SubTree;
 

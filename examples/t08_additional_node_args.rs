@@ -1,9 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the eigth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the eigth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_08_additional_args)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t08_additional_node_args.cpp)
+//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_08_additional_args).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t08_additional_node_args.cpp).
 
 use behaviortree::prelude::*;
 

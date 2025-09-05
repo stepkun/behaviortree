@@ -1,10 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the thirteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the thirteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_13_blackboard_reference)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t13_access_by_ref.cpp)
-//!
+//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_13_blackboard_reference).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t13_access_by_ref.cpp).
 
 use core::{
 	fmt::{Display, Formatter},

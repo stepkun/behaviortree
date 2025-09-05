@@ -1,11 +1,9 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the seventeenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the seventeenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t17_blackboard_backup.cpp)
-//!
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t17_blackboard_backup.cpp).
 
-// //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_17_XXX)
+// //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_17_XXX).
 
 use behaviortree::prelude::*;
 

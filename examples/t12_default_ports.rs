@@ -1,10 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the twelvth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the twelvth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_12_default_ports)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t12_default_ports.cpp)
-//!
+//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_12_default_ports).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t12_default_ports.cpp).
 
 use behaviortree::{EMPTY_STR, prelude::*};
 use core::fmt::{Display, Formatter};

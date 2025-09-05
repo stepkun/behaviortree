@@ -1,9 +1,8 @@
 // Copyright © 2025 Stephan Kunz
-
-//! This test implements the nineth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev)
+//! Implements the nineth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
 //!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_09_scripting)
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t09_scripting.cpp)
+//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_09_scripting).
+//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t09_scripting.cpp).
 
 mod common;
 

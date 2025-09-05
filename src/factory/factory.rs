@@ -10,7 +10,10 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{ConstString, behavior::Behavior, behavior::SubTree};
+use crate::{
+	ConstString,
+	behavior::{Behavior, SubTree, action::PopFromQueue},
+};
 #[cfg(feature = "std")]
 use alloc::string::ToString;
 use alloc::{boxed::Box, string::String, vec::Vec};
@@ -243,6 +246,10 @@ impl BehaviorTreeFactory {
 	/// - if any registration fails
 	pub fn groot2_behaviors(&mut self) -> Result<(), Error> {
 		// actions
+		self.register_behavior_type::<PopFromQueue<i32>>("PopInt")?;
+		self.register_behavior_type::<PopFromQueue<bool>>("PopBool")?;
+		self.register_behavior_type::<PopFromQueue<f64>>("PopDouble")?;
+		self.register_behavior_type::<PopFromQueue<String>>("PopString")?;
 		self.register_groot2_behavior_type::<SetBlackboard<String>>("SetBlackboard")?;
 		self.register_groot2_behavior_type::<UnsetBlackboard<String>>("UnsetBlackboard")?;
 
@@ -284,8 +291,8 @@ impl BehaviorTreeFactory {
 		self.register_groot2_behavior_type::<Switch<6>>("Switch6")?;
 
 		// decorators
-		self.register_groot2_behavior_type::<Loop<i32>>("LoopInt")?;
-		self.register_groot2_behavior_type::<Loop<bool>>("LoopBool")?;
+		self.register_behavior_type::<Loop<i32>>("LoopInt")?;
+		self.register_behavior_type::<Loop<bool>>("LoopBool")?;
 		self.register_groot2_behavior_type::<Loop<f64>>("LoopDouble")?;
 		self.register_groot2_behavior_type::<Loop<String>>("LoopString")?;
 

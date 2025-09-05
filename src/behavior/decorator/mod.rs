@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-
 //! Built-in `Decorator` behaviors of [`behaviortree`](crate).
 
 mod delay;
@@ -20,7 +19,7 @@ pub use entry_updated::EntryUpdated;
 pub use force_state::ForceState;
 pub use inverter::Inverter;
 pub use keep_running_until_failure::KeepRunningUntilFailure;
-pub use loop_queue::{Loop, SharedQueue};
+pub use loop_queue::Loop;
 pub use repeat::Repeat;
 pub use retry_until_successful::RetryUntilSuccessful;
 pub use run_once::RunOnce;
