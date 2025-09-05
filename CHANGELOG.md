@@ -17,19 +17,21 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Removed
 
 
-## [0.3.2] - 2025-??-??
+## [0.4.0] - 2025-??-??
 
 ### Added
 - `PopFromQueue` behavior
 
 ### Changed
 - replaced `expect(SHOULD_NOT_HAPPEN)` with better error handling
+- `SharedQueue` as separate module
 
 ### Fixed
 - several `todo!()`'s and `expect(...)`'s
 - behaviors known to Groot2
 
 ### Removed
+- some never used errors
 
 ## [0.3.1] - 2025-08-27
 

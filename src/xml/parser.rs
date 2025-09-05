@@ -295,17 +295,17 @@ impl XmlParser {
 	#[instrument(level = Level::DEBUG, skip_all)]
 	fn register_document_root(
 		registry: &mut BehaviorRegistry,
-		element: Node,
+		root: Node,
 		source: &ConstString,
 		#[cfg(feature = "std")] path: ConstString,
 	) -> Result<(), Error> {
 		event!(Level::TRACE, "register_document_root");
-		for element in element.children() {
+		for element in root.children() {
 			match element.node_type() {
 				NodeType::Comment | NodeType::Text => {} // ignore
 				NodeType::Root => {
 					// this should not happen
-					return Err(Error::Unexpected("root element".into(), file!().into(), line!()))?;
+					return Err(Error::InvalidRootElement)?;
 				}
 				NodeType::Element => {
 					// only 'BehaviorTree' or 'TreeNodesModel' are valid
@@ -421,7 +421,7 @@ impl XmlParser {
 				NodeType::Comment | NodeType::Text => {} // ignore
 				NodeType::Root => {
 					// this should not happen
-					return Err(Error::Unexpected("root element".into(), file!().into(), line!()))?;
+					return Err(Error::InvalidRootElement)?;
 				}
 				NodeType::Element => {
 					let element = self.build_child(data, child, registry)?;

@@ -43,6 +43,9 @@ pub enum Error {
 	/// Unsupported XML element:
 	#[error("element [{0}] is not supported")]
 	ElementNotSupported(ConstString),
+	/// Invalid root element below a root
+	#[error("a root element below a root element is not allowed")]
+	InvalidRootElement,
 	/// Attribut 'ID' is missing
 	#[error("missing attribute 'ID' in tag [{0}]")]
 	MissingId(ConstString),
@@ -89,9 +92,5 @@ pub enum Error {
 	/// Wrong name for the root element
 	#[error("root element must be named 'root'")]
 	WrongRootName,
-
-	/// A really unexpected error happened
-	#[error("unexpected [{0}] in file [{1}] at line [{2}]")]
-	Unexpected(ConstString, ConstString, u32),
 }
 // region:		--- Error

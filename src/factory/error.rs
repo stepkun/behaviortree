@@ -41,18 +41,13 @@ pub enum Error {
 	#[cfg(not(feature = "std"))]
 	#[error("creation of (sub)tree [{0}] failed")]
 	Create(ConstString),
-	/// Deadlock situation
-	#[error("search for subtree in registry [{0}] caused a deadlock, most probably because this subtree contains himself")]
-	DeadLock(ConstString),
 	/// Invalid plugin path
+	#[cfg(feature = "std")]
 	#[error("invalid plugin path [{path}]")]
 	InvalidPath {
 		/// The given path to plugin
 		path: ConstString,
 	},
-	/// Missing a corresponding end tag @TODO: No longer needed
-	#[error("missing end tag for [{0}]")]
-	MissingEndTag(ConstString),
 	/// The main tree information is missing
 	#[error("no 'main_tree_to_execute' name provided")]
 	NoMainTreeName,
@@ -76,9 +71,5 @@ pub enum Error {
 	/// Subtree already registered
 	#[error("subtree with id [{0}] is already registered")]
 	SubtreeAlreadyRegistered(ConstString),
-
-	/// A really unexpected error happened
-	#[error("unexpected [{0}] in file [{1}] at line [{2}]")]
-	Unexpected(ConstString, ConstString, u32),
 }
 // region:		--- Error

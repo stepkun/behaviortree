@@ -38,12 +38,12 @@ use super::{error::Error, tree_element::BehaviorTreeElement};
 // endregion:   --- modules
 
 // region:		--- helper
-/// Recursion function to print a (sub)tree recursively
+/// Recursion function to print a (sub)tree recursively, limit is a tree-depth of 127
 /// # Errors
-/// - Limit is a tree-depth of 127
+/// - if limit of 127 for tree depth is exceeded
 fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error> {
 	if level == i8::MAX {
-		return Err(Error::Unexpected("recursion limit reached".into(), file!().into(), line!()));
+		return Err(Error::RecursionLimit(node.data().description().name().clone()));
 	}
 
 	let next_level = level + 1;

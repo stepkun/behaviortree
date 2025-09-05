@@ -30,9 +30,5 @@ pub enum Error {
 	/// Port is not defined.
 	#[error("couldn't find port [{0}]")]
 	Port(ConstString),
-
-	/// Something weird happened.
-	#[error("unexpected [{0}] in file [{1}] at line [{2}]")]
-	Unexpected(ConstString, ConstString, u32),
 }
 // region:		--- Error

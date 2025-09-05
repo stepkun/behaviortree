@@ -85,9 +85,5 @@ pub enum BehaviorError {
 	/// Unable to set the pre condition
 	#[error("unable to set the pre condition [{0}]")]
 	UnableToSetPreCondition(ConstString),
-
-	/// Something happened that should not have been possible
-	#[error("unexpected [{0}] in file [{1}] at line [{2}]")]
-	Unexpected(ConstString, ConstString, u32),
 }
 // region:		--- BehaviorError
