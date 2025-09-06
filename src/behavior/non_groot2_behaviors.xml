@@ -3,7 +3,7 @@
         <Action ID="AlwaysRunning"/>
         <Action ID="PopBool">
             <input_port name="queue" type="BT::Any<bool>">The bool queue</input_port>
-            <output_port name="popped_item" type="bool">Extracted bool value</input_port>
+            <output_port name="popped_item" type="bool">Extracted bool value</output_port>
         </Action>
         <Action ID="PopDouble">
             <input_port name="queue" type="BT::Any<double>">The double queue</input_port>
