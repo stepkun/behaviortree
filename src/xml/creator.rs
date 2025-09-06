@@ -373,7 +373,7 @@ impl XmlCreator {
 	// @TODO: things like: SharedQueue<T: FromStr + ToString>(pub Arc<Mutex<VecDeque<T>>>);
 	fn groot_map_types(input: &str) -> &str {
 		match input {
-			"char" => input,
+			"char" => "char",
 			"i16" => "short",
 			"u16" => "unsigned short",
 			"i32" => "int",

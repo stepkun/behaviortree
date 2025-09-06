@@ -1,0 +1,32 @@
+<root BTCPP_format="4">
+    <TreeNodesModel>
+        <Action ID="AlwaysRunning"/>
+        <Action ID="PopBool">
+            <input_port name="queue" type="BT::Any<bool>">The bool queue</input_port>
+            <output_port name="popped_item" type="bool">Extracted bool value</input_port>
+        </Action>
+        <Action ID="PopDouble">
+            <input_port name="queue" type="BT::Any<double>">The double queue</input_port>
+            <output_port name="popped_item" type="double">Extracted doble value</output_port>
+        </Action>
+        <Action ID="PopInt">
+            <input_port name="queue" type="BT::Any<int>">The integer queue</input_port>
+            <output_port name="popped_item" type="int">Extracted integer value</output_port>
+        </Action>
+        <Action ID="PopString">
+            <input_port name="queue" type="BT::Any<std::string>">The string queue</input_port>
+            <output_port name="popped_item" type="std::string">Extracted string value</output_port>
+        </Action>
+        <Decorator ID="ForceRunning"/>
+        <Decorator ID="LoopBool">
+            <input_port name="if_empty" type="BT::NodeStatus">Returned state if queue is empty</input_port>
+            <inout_port name="queue" type="BT::Any<bool>">The bool queue</inout_port>
+            <output_port name="value" type="bool">Extracted bool value</output_port>
+        </Decorator>
+        <Decorator ID="LoopBool">
+            <input_port name="if_empty" type="BT::NodeStatus">Returned state if queue is empty</input_port>
+            <inout_port name="queue" type="BT::Any<std::string>">The string queue</inout_port>
+            <output_port name="value" type="std::string">Extracted string value</output_port>
+        </Decorator>
+    </TreeNodesModel>
+</root>
