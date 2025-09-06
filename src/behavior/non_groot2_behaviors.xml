@@ -23,10 +23,10 @@
             <inout_port name="queue" type="BT::Any<bool>">The bool queue</inout_port>
             <output_port name="value" type="bool">Extracted bool value</output_port>
         </Decorator>
-        <Decorator ID="LoopBool">
+        <Decorator ID="LoopInt">
             <input_port name="if_empty" type="BT::NodeStatus">Returned state if queue is empty</input_port>
-            <inout_port name="queue" type="BT::Any<std::string>">The string queue</inout_port>
-            <output_port name="value" type="std::string">Extracted string value</output_port>
+            <inout_port name="queue" type="BT::Any<int>">The integer queue</inout_port>
+            <output_port name="value" type="int">Extracted integer value</output_port>
         </Decorator>
     </TreeNodesModel>
 </root>
