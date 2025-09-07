@@ -12,7 +12,7 @@ use crate::{
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::{PortList, is_bb_pointer, strip_bb_pointer},
-	tree::tree_element_list::ConstBehaviorTreeElementList,
+	tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 

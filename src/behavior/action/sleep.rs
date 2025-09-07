@@ -11,7 +11,7 @@ use crate::{
 	input_port,
 	port::PortList,
 	port_list,
-	tree::tree_element_list::ConstBehaviorTreeElementList,
+	tree::ConstBehaviorTreeElementList,
 };
 
 #[cfg(feature = "std")]

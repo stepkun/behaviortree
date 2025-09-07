@@ -8,7 +8,7 @@ use tinyscript::SharedRuntime;
 use crate::{
 	self as behaviortree, Action,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
-	tree::tree_element_list::ConstBehaviorTreeElementList,
+	tree::ConstBehaviorTreeElementList,
 };
 //endregion:    --- modules
 
@@ -17,6 +17,23 @@ use crate::{
 /// - the stored [`BehaviorState`] `state2` after the amount of ticks given by `count`,
 /// - the [`BehaviorState`] `state1` just one tick before reaching `count`,
 /// - before that the [`BehaviorState::Running`].
+///
+/// This [`Behavior`] is used to provide the [`Action`]s that return a certain response after a certain amount of ticks like
+/// `AlwaysFailure` and `AlwaysSuccess`.
+/// The registration is not possible via the providedd functions or macros, butmust be done manually using its new(...) method like:
+/// ```no-test
+/// let bhvr_desc = BehaviorDescription::new(
+///     "AlwaysSkipped",
+///     "AlwaysSkipped",
+///     ChangeStateAfter::kind(),
+///     false,                         // true, if it is a builtin behavior by Groot2
+///     ChangeStateAfter::provided_ports(),
+/// );
+/// let bhvr_creation_fn =
+///     Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Skipped, 0)) });
+/// self.registry_mut()
+///     add_behavior(bhvr_desc, bhvr_creation_fn)?;
+/// ```
 #[derive(Action, Debug, Default)]
 pub struct ChangeStateAfter {
 	/// The [`BehaviorState`] to return initially.

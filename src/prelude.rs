@@ -43,4 +43,4 @@ pub use crate::factory::BehaviorTreeFactory;
 // port
 pub use crate::port::PortList;
 // tree
-pub use crate::tree::{tree::BehaviorTree, tree_element_list::ConstBehaviorTreeElementList};
+pub use crate::tree::{BehaviorTree, ConstBehaviorTreeElementList};

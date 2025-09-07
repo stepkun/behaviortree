@@ -33,7 +33,7 @@ use crate::{
 	blackboard::{BlackboardInterface, SharedBlackboard},
 	port::{PortList, PortRemappings, error::Error, strip_bb_pointer},
 	strip_curly_brackets,
-	tree::tree_element_list::ConstBehaviorTreeElementList,
+	tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -359,9 +359,9 @@ impl BehaviorData {
 /// Description of a Behavior, used in xml parsing and creating.
 #[derive(Clone, Debug, Default)]
 pub struct BehaviorDescription {
-	/// Name of the behavior.
+	/// Name of the behavior, with which it is used in the [`BehaviorTree`](crate::tree::tree::BehaviorTree).
 	name: ConstString,
-	/// id of the behavior.
+	/// Id of the behavior under which it can be found in the [`BehaviorTreeFactory`](crate::factory::BehaviorTreeFactory).
 	id: ConstString,
 	/// Path to the element.
 	/// In contrast to BehaviorTree.CPP this path is fully qualified,

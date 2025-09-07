@@ -8,7 +8,7 @@ use tinyscript::SharedRuntime;
 use crate::{
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorExecution, BehaviorKind, BehaviorResult, BehaviorState},
 	port::PortList,
-	tree::tree_element_list::ConstBehaviorTreeElementList,
+	tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
 

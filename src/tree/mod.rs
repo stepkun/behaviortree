@@ -5,7 +5,12 @@
 pub mod error;
 pub mod observer;
 #[allow(clippy::module_inception)]
-pub mod tree;
-pub mod tree_element;
-pub mod tree_element_list;
-pub mod tree_iter;
+mod tree;
+mod tree_element;
+mod tree_element_list;
+mod tree_iter;
+
+// flatten
+pub use tree::BehaviorTree;
+pub use tree_element::{BehaviorTreeElement, TreeElementKind};
+pub use tree_element_list::{BehaviorTreeElementList, ConstBehaviorTreeElementList};

@@ -7,7 +7,7 @@ use core::any::Any;
 use tinyscript::SharedRuntime;
 
 use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult};
-use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::tree_element_list::ConstBehaviorTreeElementList};
+use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::ConstBehaviorTreeElementList};
 // endregion:   --- modules
 
 // region:      --- types

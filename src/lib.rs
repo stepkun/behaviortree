@@ -31,7 +31,7 @@ pub use port::PortList;
 pub use tree::observer::groot2_connector::Groot2Connector;
 #[cfg(feature = "std")]
 pub use tree::observer::tree_observer::BehaviorTreeObserver;
-pub use tree::{tree::BehaviorTree, tree_element::BehaviorTreeElement, tree_element_list::BehaviorTreeElementList};
+pub use tree::{BehaviorTree, BehaviorTreeElement, BehaviorTreeElementList};
 pub use xml::creator::XmlCreator;
 
 // re-exports:

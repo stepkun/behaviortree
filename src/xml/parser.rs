@@ -26,10 +26,7 @@ use crate::{
 	factory::registry::BehaviorRegistry,
 	port::{PortRemappings, is_allowed_port_name, strip_bb_pointer},
 	strip_curly_brackets,
-	tree::{
-		tree_element::BehaviorTreeElement,
-		tree_element_list::{BehaviorTreeElementList, ConstBehaviorTreeElementList},
-	},
+	tree::{BehaviorTreeElement, BehaviorTreeElementList, ConstBehaviorTreeElementList},
 	xml::error::Error,
 };
 // endregion:   --- modules

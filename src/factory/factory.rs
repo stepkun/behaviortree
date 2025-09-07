@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-
 //! Factory for creation and modification of [`BehaviorTree`]s.
 //!
 //! The factory ensures that a tree is properly created and libraries or plugins
@@ -10,18 +9,16 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{
-	ConstString,
-	behavior::{Behavior, SubTree, action::PopFromQueue},
-};
 #[cfg(feature = "std")]
 use alloc::string::ToString;
 use alloc::{boxed::Box, string::String, vec::Vec};
 
 use crate::{
+	ConstString,
 	behavior::{
-		BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState, ComplexBhvrTickFn, SimpleBehavior,
-		SimpleBhvrTickFn,
+		Behavior, BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState, ComplexBhvrTickFn, SimpleBehavior,
+		SimpleBhvrTickFn, SubTree,
+		action::PopFromQueue,
 		action::{ChangeStateAfter, Script, SetBlackboard, Sleep, UnsetBlackboard},
 		condition::{ScriptCondition, WasEntryUpdated},
 		control::{
@@ -35,7 +32,7 @@ use crate::{
 	},
 	blackboard::SharedBlackboard,
 	port::PortList,
-	tree::tree::BehaviorTree,
+	tree::BehaviorTree,
 	xml::parser::XmlParser,
 };
 
@@ -509,7 +506,6 @@ impl BehaviorTreeFactory {
 	pub fn register_from_plugin(&mut self, name: &str) -> Result<(), Error> {
 		// create path from exe path
 		// in dev environment maybe we have to remove a '/deps'
-
 		if let Some(path) = std::env::current_exe()?.parent() {
 			if let Some(str_path) = path.to_str() {
 				let path = str_path.trim_end_matches("/deps").to_string();
@@ -519,7 +515,7 @@ impl BehaviorTreeFactory {
 				#[cfg(target_os = "linux")]
 				let libname = path + "/lib" + name + ".so";
 				#[cfg(target_os = "windows")]
-				let libname = str_path + "\\" + name + ".dll";
+				let libname = path + "\\" + name + ".dll";
 
 				let lib = unsafe {
 					let lib = libloading::Library::new(libname)?;
@@ -557,20 +553,7 @@ impl BehaviorTreeFactory {
 			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 
-	/// Register a `Behavior` of type `<T>`.
-	/// # Errors
-	/// - if a behavior with that `name` is already registered
-	pub fn register_behavior_type_with<T>(&mut self, name: &str) -> Result<(), Error>
-	where
-		T: BehaviorExecution,
-	{
-		let bhvr_desc = BehaviorDescription::new(name, name, T::kind(), false, T::provided_ports());
-		let bhvr_creation_fn = T::creation_fn();
-		self.registry
-			.add_behavior(bhvr_desc, bhvr_creation_fn)
-	}
-
-	/// Register a `Behavior` of type `<T>` which is builtin in Groot2.
+	/// Register a `Behavior` of type `<T>` which is also builtin in Groot2.
 	/// # Errors
 	/// - if a behavior with that `name` is already registered
 	fn register_groot2_behavior_type<T>(&mut self, name: &str) -> Result<(), Error>
