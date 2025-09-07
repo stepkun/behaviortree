@@ -18,20 +18,22 @@ exclude = ["laze*", "benches/**", "embedded/**", "examples/**", "tests/**"]
 proc-macro = true
 
 [lints.rust]
+missing_docs = "warn"
 unexpected_cfgs = { level = "warn", check-cfg = [
   'cfg(context, values(any()))',
 ] }
 unsafe_code = "warn"
-missing_docs = "warn"
-#unused="allow" # for dev only
+unused_must_use = "warn"
 
 [lints.rustdoc]
 private_intra_doc_links = "allow"
 
 [lints.clippy]
 enum_glob_use = "deny"
-pedantic = { level = "deny", priority = -1 }
+expect_used = "deny"
 nursery = { level = "deny", priority = -1 }
+panic = "deny"
+pedantic = { level = "deny", priority = -1 }
 unwrap_used = "deny"
 
 [[test]]

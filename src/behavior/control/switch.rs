@@ -206,6 +206,7 @@ impl<const T: u8> Behavior for Switch<T> {
 	}
 }
 
+#[allow(clippy::expect_used)]
 fn create_port_list(size: u8) -> PortList {
 	let mut ports = PortList(Vec::with_capacity(size as usize));
 	let port = input_port!(String, VARIABLE);

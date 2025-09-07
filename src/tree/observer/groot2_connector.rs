@@ -60,6 +60,7 @@ pub fn attach_groot_callback(tree: &mut BehaviorTree, shared: Arc<Mutex<Groot2Co
 
 					if shared_guard.recording {
 						#[allow(clippy::cast_possible_truncation)]
+						#[allow(clippy::expect_used)]
 						let timestamp = std::time::SystemTime::now()
 							.duration_since(std::time::UNIX_EPOCH)
 							.expect("Time went backwards")
@@ -140,6 +141,7 @@ impl Groot2Connector {
 		// @TODO: proper error handling
 		let shared_clone = shared.clone();
 		let tree_id = tree.uuid();
+		#[allow(clippy::expect_used)]
 		let xml = XmlCreator::groot_write_tree(tree).expect("usually this should not happen");
 		let sender = tree.sender();
 
@@ -219,6 +221,7 @@ impl Groot2Connector {
 											drop(shared_guard);
 											// return the microseconds since 01.01.1970
 											#[allow(clippy::cast_possible_truncation)]
+											#[allow(clippy::expect_used)]
 											let timestamp = std::time::SystemTime::now()
 												.duration_since(std::time::UNIX_EPOCH)
 												.expect("Time went backwards")

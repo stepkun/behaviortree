@@ -119,7 +119,7 @@ impl Behavior for SaySomething {
 | - remapping             | ✅      | ✅       |
 | - access by ref         | 🔴      | 🔴       |
 |                         |         |          |
-| SubTrees                |         |          |
+| Subtrees                |         |          |
 | - structure             | ✅      | ✅       |
 | - remapping             | ✅      | ✅       |
 | - 'include' from file   | ✅      | ❌       |
@@ -143,47 +143,47 @@ impl Behavior for SaySomething {
 
 ### Built-in behaviors
 
-| BehaviorTree.CPP nodes  | With OS | Embedded |
-| ----------------------- | ------- | -------- |
-| __Action__              |         |          |
-| AlwaysFailure           | ✅      | ✅       |
-| AlwaysSuccess           | ✅      | ✅       |
-| Script                  | ✅      | ✅       |
-| SetBlackboard           | ✅      | 🚦       |
-| Sleep                   | 🚦      | 🔴       |
-| UnsetBlackboard         | ✅      | 🚦       |
-| PopFromQueue            | ✅      | 🚦       |
-|                         |         |          |
-| __Condition__           |         |          |
-| ScriptCondition         | 🚦      | 🚦       |
-| WasEntryUpdated         | ✅      | 🚦       |
-|                         |         |          |
-| __Control__             |         |          |
-| Fallback                | ✅      | ✅       |
-| ReactiveFallback        | ✅      | 🚦       |
-| Sequence                | ✅      | ✅       |
-| ReactiveSequence        | ✅      | ✅       |
-| SequenceWithMemory      | ✅      | 🚦       |
-| Parallel                | ✅      | 🚦       |
-| ParallelAll             | ✅      | 🚦       |
-| IfThenElse              | ✅      | 🚦       |
-| WhileDoElse             | ✅      | 🚦       |
-| Switch                  | ✅      | 🚦       |
-| ManualSelector          | 🔴      | ??       |
-|                         |         |          |
-| __Decorator__           |         |          |
-| ForceFailure            | ✅      | 🚦       |
-| ForceSuccess            | ✅      | 🚦       |
-| Inverter                | ✅      | ✅       |
-| KeepRunningUntilFailure | ✅      | 🚦       |
-| Repeat                  | ✅      | 🚦       |
-| RetryUntilSuccessful    | ✅      | 🚦       |
-| Delay                   | 🚦      | 🔴       |
-| EntryUpdated            | ✅      | 🚦       |
-| LoopeQueue              | ✅      | ✅       |
-| RunOnce                 | ✅      | 🚦       |
-| ScriptPrecondition      | 🚦      | 🚦       |
-| Timeout                 | 🚦      | 🔴       |
+| BehaviorTree.CPP nodes    | With OS | Embedded |
+| ------------------------- | ------- | -------- |
+| __Action__                |         |          |
+| `AlwaysFailure`           | ✅      | ✅       |
+| `AlwaysSuccess`           | ✅      | ✅       |
+| `Script`                  | ✅      | ✅       |
+| `SetBlackboard`           | ✅      | 🚦       |
+| `Sleep`                   | 🚦      | 🔴       |
+| `UnsetBlackboard`         | ✅      | 🚦       |
+| `PopFromQueue` (new)      | ✅      | 🚦       |
+|                           |         |          |
+| __Condition__             |         |          |
+| `ScriptCondition`         | 🚦      | 🚦       |
+| `WasEntryUpdated`         | ✅      | 🚦       |
+|                           |         |          |
+| __Control__               |         |          |
+| `Fallback`                | ✅      | ✅       |
+| `ReactiveFallback`        | ✅      | 🚦       |
+| `Sequence`                | ✅      | ✅       |
+| `ReactiveSequence`        | ✅      | ✅       |
+| `SequenceWithMemory`      | ✅      | 🚦       |
+| `Parallel`                | ✅      | 🚦       |
+| `ParallelAll`             | ✅      | 🚦       |
+| `IfThenElse`              | ✅      | 🚦       |
+| `WhileDoElse`             | ✅      | 🚦       |
+| `Switch`                  | ✅      | 🚦       |
+| `ManualSelector` (new)    | 🔴      | ??       |
+|                           |         |          |
+| __Decorator__             |         |          |
+| `ForceFailure`            | ✅      | 🚦       |
+| `ForceSuccess`            | ✅      | 🚦       |
+| `Inverter`                | ✅      | ✅       |
+| `KeepRunningUntilFailure` | ✅      | 🚦       |
+| `Repeat`                  | ✅      | 🚦       |
+| `RetryUntilSuccessful`    | ✅      | 🚦       |
+| `Delay`                   | 🚦      | 🔴       |
+| `EntryUpdated`            | ✅      | 🚦       |
+| `LoopQueue`               | ✅      | ✅       |
+| `RunOnce`                 | ✅      | 🚦       |
+| `ScriptPrecondition`      | 🚦      | 🚦       |
+| `Timeout`                 | 🚦      | 🔴       |
 
 ## License
 

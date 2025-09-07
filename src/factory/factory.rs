@@ -56,6 +56,7 @@ pub struct BehaviorTreeFactory {
 }
 
 impl Default for BehaviorTreeFactory {
+	#[allow(clippy::expect_used)]
 	fn default() -> Self {
 		let mut f = Self {
 			registry: Box::new(BehaviorRegistry::default()),
