@@ -23,7 +23,7 @@ use crate::{
 	factory::BehaviorTreeFactory,
 	tree::{BehaviorTree, BehaviorTreeElement, TreeElementKind},
 };
-use woxml::XmlWriter;
+use woxml::{Write, XmlWriter};
 
 // endregion:   --- modules
 
@@ -45,7 +45,6 @@ impl XmlCreator {
 		writer.begin_elem("root")?;
 		writer.attr("BTCPP_format", "4")?;
 		writer.begin_elem("TreeNodesModel")?;
-
 		// loop over factories behavior entries in registry
 		for item in factory.registry().behaviors() {
 			if !item.1.0.groot2() {
@@ -61,16 +60,11 @@ impl XmlCreator {
 				writer.end_elem()?;
 			}
 		}
-
 		writer.end_elem()?; // TreeNodesModel
 		writer.end_elem()?; // root
 		writer.flush()?;
-		let raw = writer.into_inner();
-		let mut output = String::with_capacity(raw.len());
-		for c in raw {
-			output.push(c as char);
-		}
-		Ok(output.into())
+
+		Ok(String::try_from(writer)?.into())
 	}
 
 	/// Create XML from tree including `TreeNodesModel`.
@@ -82,91 +76,53 @@ impl XmlCreator {
 		builtin_models: bool,
 		pretty: bool,
 	) -> Result<ConstString, woxml::Error> {
-		// storage for (non groot2 builtin) behaviors to mention in TreeNodesModel
-		let mut behaviors: BTreeMap<ConstString, BehaviorDescription> = BTreeMap::new();
-		let mut subtrees: BTreeMap<ConstString, &BehaviorTreeElement> = BTreeMap::new();
-
 		let mut writer = if pretty {
 			XmlWriter::pretty_mode(Vec::new())
 		} else {
 			XmlWriter::compact_mode(Vec::new())
 		};
 
+		writer.begin_elem("root")?;
+		writer.attr("BTCPP_format", "4")?;
+		// scan the tree
+		let (behaviors, subtrees) = Self::scan_tree(tree, builtin_models);
+		// ensure lifetimes
 		{
-			writer.begin_elem("root")?;
-			writer.attr("BTCPP_format", "4")?;
-
-			// scan the tree
-			for item in tree.iter() {
-				#[allow(clippy::match_same_arms)]
-				match item.kind() {
-					TreeElementKind::Leaf => {
-						let desc = item.data().description();
-						if builtin_models || !desc.groot2() {
-							behaviors.insert(desc.name().clone(), desc.clone());
-						}
-					}
-					TreeElementKind::Node => {
-						let desc = item.data().description();
-						if builtin_models || !desc.groot2() {
-							behaviors.insert(desc.name().clone(), desc.clone());
-						}
-					}
-					TreeElementKind::SubTree => {
-						subtrees.insert(item.data().description().path().clone(), item);
-					}
-				}
-			}
-
 			// create the BehaviorTree's
-			for (_path, subtree) in subtrees {
-				writer.begin_elem("BehaviorTree")?;
-				writer.attr(ID, subtree.data().description().name())?;
-				writer.attr("_fullpath", subtree.data().description().groot2_path())?;
-
-				// recursive dive into children
-				for element in subtree.children().iter() {
-					Self::write_subtree(element, &mut writer, metadata)?;
-				}
-				writer.end_elem()?; // BehaviorTree
-			}
+			Self::create_behavior_trees(&mut writer, &subtrees, metadata)?;
 
 			// create the TreeNodesModel
-			writer.begin_elem("TreeNodesModel")?;
-			// loop over collected behavior entries
-			for (name, item) in &behaviors {
-				if builtin_models || !item.groot2() {
-					writer.begin_elem(item.kind_str())?;
-					writer.attr(ID, name)?;
-					// look for a PortsList
-					for port in &item.ports().0 {
-						writer.begin_elem(port.direction().type_str())?;
-						writer.attr(NAME, port.name())?;
-						writer.attr("type", port.type_name())?;
-						if !port.description().is_empty() {
-							writer.set_compact_mode();
-							writer.text(port.description())?;
-						}
-						writer.end_elem()?;
-						if pretty {
-							writer.set_pretty_mode();
-						}
-					}
-					writer.end_elem()?;
-				}
-			}
-
-			writer.end_elem()?; // TreeNodesModel
-			writer.end_elem()?; // root
-			writer.flush()?;
+			Self::create_tree_nodes_model(&mut writer, &behaviors, builtin_models, pretty, false)?;
 		}
+		writer.end_elem()?; // root
+		writer.flush()?;
 
 		Ok(String::try_from(writer)?.into())
 	}
 
+	fn create_behavior_trees<'a>(
+		writer: &mut XmlWriter<'a, impl Write>,
+		subtrees: &'a BTreeMap<ConstString, &BehaviorTreeElement>,
+		metadata: bool,
+	) -> Result<(), woxml::Error> {
+		for subtree in subtrees.values() {
+			writer.begin_elem("BehaviorTree")?;
+			writer.attr(ID, subtree.data().description().name())?;
+			writer.attr("_fullpath", subtree.data().description().groot2_path())?;
+
+			// recursive dive into children
+			for element in subtree.children().iter() {
+				Self::write_subtree(element, writer, metadata)?;
+			}
+			writer.end_elem()?; // BehaviorTree
+		}
+
+		Ok(())
+	}
+
 	fn write_subtree<'a>(
 		element: &'a BehaviorTreeElement,
-		writer: &mut XmlWriter<'a, Vec<u8>>,
+		writer: &mut XmlWriter<'a, impl Write>,
 		metadata: bool,
 	) -> Result<(), woxml::Error> {
 		let is_subtree = match element.kind() {
@@ -232,140 +188,103 @@ impl XmlCreator {
 		Ok(())
 	}
 
-	/// Create XML from tree including `TreeNodesModel`.
-	/// # Errors
-	/// - if it cannot create an xml entry
-	pub fn groot_write_tree(tree: &BehaviorTree) -> Result<bytes::Bytes, woxml::Error> {
-		// storage for (non groot2 builtin) behaviors to mention in TreeNodesModel
-		let mut behaviors: BTreeMap<ConstString, BehaviorDescription> = BTreeMap::new();
-		let mut subtrees: BTreeMap<ConstString, &BehaviorTreeElement> = BTreeMap::new();
-
-		let mut writer = XmlWriter::compact_mode(bytes::BytesMut::new());
-		{
-			writer.begin_elem("root")?;
-			writer.attr("BTCPP_format", "4")?;
-
-			// scan the tree
-			for item in tree.iter() {
-				#[allow(clippy::match_same_arms)]
-				match item.kind() {
-					TreeElementKind::Leaf => {
-						let desc = item.data().description();
-						behaviors.insert(desc.name().clone(), desc.clone());
-					}
-					TreeElementKind::Node => {
-						let desc = item.data().description();
-						if !desc.groot2() {
-							behaviors.insert(desc.name().clone(), desc.clone());
-						}
-					}
-					TreeElementKind::SubTree => {
-						subtrees.insert(item.data().description().path().clone(), item);
-					}
-				}
-			}
-
-			// create the BehaviorTree's
-			for (_path, subtree) in subtrees {
-				writer.begin_elem("BehaviorTree")?;
-				writer.attr(ID, subtree.data().description().name())?;
-				writer.attr("_fullpath", subtree.data().description().groot2_path())?;
-
-				// recursive dive into children
-				for element in subtree.children().iter() {
-					Self::groot_write_subtree(element, &mut writer)?;
-				}
-				writer.end_elem()?; // BehaviorTree
-			}
-
-			// create the TreeNodesModel
-			writer.begin_elem("TreeNodesModel")?;
-			// loop over collected behavior entries
-			for (name, item) in &behaviors {
+	fn create_tree_nodes_model<'a>(
+		writer: &mut XmlWriter<'a, impl Write>,
+		behaviors: &'a BTreeMap<ConstString, BehaviorDescription>,
+		builtin_models: bool,
+		pretty: bool,
+		groot: bool,
+	) -> Result<(), woxml::Error> {
+		writer.begin_elem("TreeNodesModel")?;
+		// loop over collected behavior entries
+		for (name, item) in behaviors {
+			if builtin_models || !item.groot2() {
 				writer.begin_elem(item.kind_str())?;
 				writer.attr(ID, name)?;
 				// look for a PortsList
 				for port in &item.ports().0 {
 					writer.begin_elem(port.direction().type_str())?;
 					writer.attr(NAME, port.name())?;
-					writer.attr("type", Self::groot_map_types(port.type_name()))?;
+					if groot {
+						writer.attr("type", Self::groot_map_types(port.type_name()))?;
+					} else {
+						writer.attr("type", port.type_name())?;
+					}
 					if !port.description().is_empty() {
+						writer.set_compact_mode();
 						writer.text(port.description())?;
 					}
 					writer.end_elem()?;
+					if pretty {
+						writer.set_pretty_mode();
+					}
 				}
 				writer.end_elem()?;
 			}
-
-			writer.end_elem()?; // TreeNodesModel
-			writer.end_elem()?; // root
-			writer.flush()?;
 		}
 
-		Ok(String::try_from(writer)?.into())
-	}
-
-	fn groot_write_subtree<'a>(
-		element: &'a BehaviorTreeElement,
-		writer: &mut XmlWriter<'a, bytes::BytesMut>,
-	) -> Result<(), woxml::Error> {
-		let is_subtree = match element.kind() {
-			TreeElementKind::Leaf | TreeElementKind::Node => {
-				writer.begin_elem(element.data().description().id())?;
-				writer.attr(NAME, element.data().description().name())?;
-				false
-			}
-			TreeElementKind::SubTree => {
-				writer.begin_elem(SUBTREE)?;
-				writer.attr(ID, element.data().description().name())?;
-				writer.attr("_fullpath", element.data().description().groot2_path())?;
-				true
-			}
-		};
-		writer.attr("_uid", &element.data().uid().to_string())?;
-
-		if is_subtree {
-			// subtree port mappings/values are in blackboard
-			if let Some(remappings) = element.data().blackboard().remappings() {
-				for remapping in remappings.iter() {
-					writer.attr(&remapping.0, &remapping.1)?;
-				}
-			}
-		} else {
-			// behavior port mappings/values
-			for remapping in element.data().remappings().iter() {
-				writer.attr(&remapping.0, &remapping.1)?;
-			}
-		}
-
-		// Pre-conditions
-		if let Some(conditions) = &element.pre_conditions().0 {
-			for i in 0..PRE_CONDITIONS.len() {
-				if let Some(cond) = &conditions[i] {
-					writer.attr(PRE_CONDITIONS[i], cond)?;
-				}
-			}
-		}
-
-		// Post-conditions
-		if let Some(conditions) = &element.post_conditions().0 {
-			for i in 0..POST_CONDITIONS.len() {
-				if let Some(cond) = &conditions[i] {
-					writer.attr(POST_CONDITIONS[i], cond)?;
-				}
-			}
-		}
-
-		if !is_subtree {
-			// recursive dive into children, ignoring subtrees
-			for element in element.children().iter() {
-				Self::groot_write_subtree(element, writer)?;
-			}
-		}
-
-		writer.end_elem()?;
+		writer.end_elem()?; // TreeNodesModel
 
 		Ok(())
+	}
+
+	fn scan_tree(
+		tree: &BehaviorTree,
+		builtin_models: bool,
+	) -> (
+		BTreeMap<ConstString, BehaviorDescription>,
+		BTreeMap<ConstString, &BehaviorTreeElement>,
+	) {
+		let mut behaviors: BTreeMap<ConstString, BehaviorDescription> = BTreeMap::new();
+		let mut subtrees: BTreeMap<ConstString, &BehaviorTreeElement> = BTreeMap::new();
+
+		// scan the tree
+		for item in tree.iter() {
+			#[allow(clippy::match_same_arms)]
+			match item.kind() {
+				TreeElementKind::Leaf => {
+					let desc = item.data().description();
+					if builtin_models || !desc.groot2() {
+						behaviors.insert(desc.name().clone(), desc.clone());
+					}
+				}
+				TreeElementKind::Node => {
+					let desc = item.data().description();
+					if builtin_models || !desc.groot2() {
+						behaviors.insert(desc.name().clone(), desc.clone());
+					}
+				}
+				TreeElementKind::SubTree => {
+					subtrees.insert(item.data().description().path().clone(), item);
+				}
+			}
+		}
+
+		(behaviors, subtrees)
+	}
+
+	/// Create XML from tree including `TreeNodesModel`.
+	/// # Errors
+	/// - if it cannot create an xml entry
+	pub fn groot_write_tree(tree: &BehaviorTree) -> Result<bytes::Bytes, woxml::Error> {
+		let mut writer = XmlWriter::compact_mode(bytes::BytesMut::new());
+
+		writer.begin_elem("root")?;
+		writer.attr("BTCPP_format", "4")?;
+		// scan the tree
+		let (behaviors, subtrees) = Self::scan_tree(tree, false);
+		// ensure lifetimes
+		{
+			// create the BehaviorTree's
+			Self::create_behavior_trees(&mut writer, &subtrees, true)?;
+
+			// create the TreeNodesModel
+			Self::create_tree_nodes_model(&mut writer, &behaviors, false, false, true)?;
+		}
+		writer.end_elem()?; // root
+		writer.flush()?;
+
+		Ok(String::try_from(writer)?.into())
 	}
 
 	// @TODO: things like: SharedQueue<T: FromStr + ToString>(pub Arc<Mutex<VecDeque<T>>>);
