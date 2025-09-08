@@ -33,6 +33,7 @@ const XML: &str = r#"
 </root>
 "#;
 
+#[allow(clippy::expect_used)]
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 	factory.register_test_behaviors()?;

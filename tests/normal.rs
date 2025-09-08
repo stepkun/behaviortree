@@ -3,8 +3,8 @@
 //! Tests
 
 use behaviortree::{
-	BehaviorTree, BehaviorTreeElement, BehaviorTreeElementList, Blackboard, BlackboardData, SharedBlackboard,
-	port::{PortDefinition, PortList, PortRemappings},
+	BehaviorTree, BehaviorTreeElement, BehaviorTreeElementList, Blackboard, BlackboardData, Remappings, SharedBlackboard,
+	port::{PortDefinition, PortList},
 };
 
 // check, that the auto traits are available
@@ -14,6 +14,7 @@ const fn is_normal<T: Sized + Send + Sync>() {}
 const fn normal_types() {
 	is_normal::<Blackboard>();
 	is_normal::<BlackboardData>();
+	is_normal::<Remappings>();
 	is_normal::<SharedBlackboard>();
 
 	is_normal::<BehaviorTree>();
@@ -22,5 +23,4 @@ const fn normal_types() {
 
 	is_normal::<PortDefinition>();
 	is_normal::<PortList>();
-	is_normal::<PortRemappings>();
 }

@@ -1,19 +1,15 @@
 // Copyright © 2025 Stephan Kunz
-
 //! Implementation for using a tree hierarchy of [`Blackboard`]s within `behaviortree`.
 //!
 //! This separates the hierarchy from the [`Blackboard`] itself, allowing a [`Blackboard`]
 //! beeing part of multiple hierarchies without interferences between those.
-//!
 
 // region:      --- modules
 use alloc::sync::Arc;
 use core::fmt::Debug;
 use spin::RwLock;
 
-use super::{BlackboardData, SharedBlackboard};
-
-use crate::port::PortRemappings;
+use super::{BlackboardData, Remappings, SharedBlackboard};
 // endregion:   --- modules
 
 // region:      --- Blackboard
@@ -28,7 +24,7 @@ pub struct Blackboard {
 	/// Optional parent [`SharedBlackboard`].
 	pub(super) parent: Option<SharedBlackboard>,
 	/// Optional lsit of [`PortRemappings`] to the parent.
-	pub(super) remappings_to_parent: Option<PortRemappings>,
+	pub(super) remappings_to_parent: Option<Remappings>,
 	/// Optional autoremapping to the parent.
 	pub(super) autoremap_to_parent: bool,
 }
@@ -47,7 +43,7 @@ impl Blackboard {
 
 	/// Create a new [`Blackboard`] with remappings.
 	#[must_use]
-	pub fn with(remappings: PortRemappings) -> Self {
+	pub fn with(remappings: Remappings) -> Self {
 		Self {
 			content: Arc::new(RwLock::new(BlackboardData::default())),
 			parent: None,
@@ -59,7 +55,7 @@ impl Blackboard {
 	/// Create a new [`Blackboard`] with parent [`SharedBlackboard`].
 	/// In that case the remappings are against parent.
 	#[must_use]
-	pub fn with_parent(parent: SharedBlackboard, remappings: PortRemappings, autoremap: bool) -> Self {
+	pub fn with_parent(parent: SharedBlackboard, remappings: Remappings, autoremap: bool) -> Self {
 		Self {
 			content: Arc::new(RwLock::new(BlackboardData::default())),
 			parent: Some(parent),

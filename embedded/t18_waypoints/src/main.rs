@@ -12,7 +12,7 @@ use ariel_os::{
 	time::Timer,
 };
 use behaviortree::{
-	behavior::decorator::{Loop, SharedQueue},
+	behavior::{SharedQueue, decorator::Loop},
 	prelude::*,
 };
 use common::test_data::Pose2D;

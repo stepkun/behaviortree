@@ -21,9 +21,7 @@ use core::{
 use spin::RwLock;
 use tinyscript::{environment::Environment, execution::ScriptingValue};
 
-use super::{BlackboardInterface, blackboard::Blackboard, blackboard_data::Entry, error::Error};
-
-use crate::port::PortRemappings;
+use super::{BlackboardInterface, Remappings, blackboard::Blackboard, blackboard_data::Entry, error::Error};
 // endregion:   --- modules
 
 // region:      --- SharedBlackboard
@@ -296,7 +294,7 @@ impl SharedBlackboard {
 
 	/// Create a `SharedBlackboard` remappings.
 	#[must_use]
-	pub fn with(creator: &str, remappings: PortRemappings) -> Self {
+	pub fn with(creator: &str, remappings: Remappings) -> Self {
 		Self {
 			creator: creator.into(),
 			path: creator.into(),
@@ -306,7 +304,7 @@ impl SharedBlackboard {
 
 	/// Create a `SharedBlackboard` with parent.
 	#[must_use]
-	pub fn with_parent(creator: &str, parent: Self, remappings: PortRemappings, autoremap: bool) -> Self {
+	pub fn with_parent(creator: &str, parent: Self, remappings: Remappings, autoremap: bool) -> Self {
 		let path = String::from(&*parent.path) + "/" + creator;
 		Self {
 			creator: creator.into(),
@@ -361,7 +359,7 @@ impl SharedBlackboard {
 	}
 
 	#[must_use]
-	pub(crate) fn remappings(&self) -> Option<PortRemappings> {
+	pub(crate) fn remappings(&self) -> Option<Remappings> {
 		self.blackboard
 			.read()
 			.remappings_to_parent

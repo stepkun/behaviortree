@@ -7,14 +7,15 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{ConstString, ID, NAME, SUBTREE};
 use alloc::{
 	collections::btree_map::BTreeMap,
 	string::{String, ToString},
 	vec::Vec,
 };
+use core::convert::TryFrom;
 
 use crate::{
+	ConstString, ID, NAME, SUBTREE,
 	behavior::{
 		BehaviorDescription,
 		pre_post_conditions::{POST_CONDITIONS, PRE_CONDITIONS},
@@ -160,9 +161,7 @@ impl XmlCreator {
 			writer.flush()?;
 		}
 
-		let inner = writer.into_inner();
-		// @TODO: create a proper error in woxml
-		String::from_utf8(inner).map_or(Err(woxml::Error::WriteAllEof), |res| Ok(res.into()))
+		Ok(String::try_from(writer)?.into())
 	}
 
 	fn write_subtree<'a>(
@@ -303,8 +302,7 @@ impl XmlCreator {
 			writer.flush()?;
 		}
 
-		let inner = writer.into_inner();
-		Ok(inner.into())
+		Ok(String::try_from(writer)?.into())
 	}
 
 	fn groot_write_subtree<'a>(

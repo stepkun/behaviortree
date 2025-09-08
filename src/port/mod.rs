@@ -6,14 +6,11 @@ pub mod error;
 mod port_definition;
 mod port_direction;
 mod port_list;
-#[allow(clippy::module_inception)]
-mod port_remappings;
 
 // flatten
 pub use port_definition::PortDefinition;
 pub use port_direction::PortDirection;
 pub use port_list::PortList;
-pub use port_remappings::PortRemappings;
 
 // region:      --- modules
 use crate::{

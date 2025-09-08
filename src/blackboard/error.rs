@@ -1,6 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-
-//! `behaviortree` Blackboard errors
+//! Blackboard errors.
 
 #[doc(hidden)]
 extern crate alloc;
@@ -15,6 +14,9 @@ use thiserror::Error;
 #[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum Error {
+	/// Enry already in [`Remappings`](crate::blackboard::remappings::Remappings)
+	#[error("name [{0}] already in remapping list")]
+	AlreadyInRemappings(ConstString),
 	/// Entry is not in `Blackboard`.
 	#[error("couldn't find entry [{0}] in blackboard")]
 	NotFound(ConstString),

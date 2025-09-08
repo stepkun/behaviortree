@@ -1,6 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-
-//! Blackboard for behaviortree
+//! Core for [`Blackboard`](crate::blackboard::Blackboard) implementation for behaviortree.
 
 // region:      --- modules
 use crate::ConstString;

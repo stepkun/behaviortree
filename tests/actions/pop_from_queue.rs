@@ -53,6 +53,7 @@ async fn pop_from_int_queue() -> Result<(), Error> {
 }
 
 #[tokio::test]
+#[allow(clippy::float_cmp)]
 async fn pop_from_double_queue() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::default();
 	register_behavior!(factory, PopFromQueue<f64>, "PopFromQueue")?;

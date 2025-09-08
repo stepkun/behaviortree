@@ -22,9 +22,9 @@ use crate::{
 		BehaviorDataCollection, BehaviorKind, BehaviorPtr,
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
-	blackboard::SharedBlackboard,
+	blackboard::{Remappings, SharedBlackboard},
 	factory::registry::BehaviorRegistry,
-	port::{PortRemappings, is_allowed_port_name, strip_bb_pointer},
+	port::{is_allowed_port_name, strip_bb_pointer},
 	strip_curly_brackets,
 	tree::{BehaviorTreeElement, BehaviorTreeElementList, ConstBehaviorTreeElementList},
 	xml::error::Error,
@@ -89,7 +89,7 @@ fn create_data_collection_from_xml(
 	let new_blackboard = blackboard.map_or_else(SharedBlackboard::default, |blackboard| {
 		if is_subtree && !is_root {
 			// A SubTree gets a new Blackboard with parent and remappings.
-			let mut new_remappings = PortRemappings::default();
+			let mut new_remappings = Remappings::default();
 			core::mem::swap(&mut new_remappings, &mut remappings);
 			SharedBlackboard::with_parent(&node_name, blackboard, new_remappings, autoremap)
 		} else {
@@ -117,13 +117,13 @@ fn handle_attributes(
 ) -> Result<
 	(
 		/*autoremap:*/ bool,
-		/*remappings:*/ PortRemappings,
+		/*remappings:*/ Remappings,
 		/*pre&post conditions:*/ Conditions,
 	),
 	Error,
 > {
 	let mut autoremap = false;
-	let mut remappings = PortRemappings::default();
+	let mut remappings = Remappings::default();
 	let mut preconditions = PreConditions::default();
 	let mut postconditions = PostConditions::default();
 

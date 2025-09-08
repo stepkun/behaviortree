@@ -23,7 +23,7 @@ mod xml;
 // flatten:
 pub use behavior::{Behavior, BehaviorExecution};
 pub use behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState};
-pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, SharedBlackboard};
+pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, Remappings, SharedBlackboard};
 pub use error::{BehaviorTreeResult, Error};
 pub use factory::BehaviorTreeFactory;
 pub use port::PortList;

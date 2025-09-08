@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-
 //! [`behaviortree`](crate) [`PortRemappings`] implementation.
 
 // region:      --- modules
@@ -20,9 +19,9 @@ type RemappingEntry = (ConstString, ConstString);
 /// Mutable remapping list.
 #[derive(Clone, Debug, Default)]
 #[repr(transparent)]
-pub struct PortRemappings(Vec<RemappingEntry>);
+pub struct Remappings(Vec<RemappingEntry>);
 
-impl Deref for PortRemappings {
+impl Deref for Remappings {
 	type Target = Vec<RemappingEntry>;
 
 	fn deref(&self) -> &Self::Target {
@@ -30,13 +29,13 @@ impl Deref for PortRemappings {
 	}
 }
 
-impl DerefMut for PortRemappings {
+impl DerefMut for Remappings {
 	fn deref_mut(&mut self) -> &mut Self::Target {
 		&mut self.0
 	}
 }
 
-impl PortRemappings {
+impl Remappings {
 	/// Add an entry to the [`PortRemappings`].
 	/// The original name is a `&'static str` as provided by
 	/// [`PortDefinition`](crate::port::port_definition::PortDefinition)

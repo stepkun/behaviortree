@@ -43,8 +43,8 @@ impl Behavior for Precondition {
 			.lock()
 			.run(&if_branch, behavior.blackboard_mut())?;
 
-		let new_state = if value.is_bool() {
-			let val = value.as_bool()?;
+		let new_state = /* if value.is_bool()*/ {
+			let val = bool::try_from(value)?;
 			let child = &mut children[0];
 			if val {
 				// tick child and return the resulting value
@@ -64,7 +64,7 @@ impl Behavior for Precondition {
 							.lock()
 							.run(&else_branch, behavior.blackboard_mut())?;
 						if value.is_bool() {
-							let val = value.as_bool()?;
+							let val = bool::try_from(value)?;
 							if val { BehaviorState::Success } else { BehaviorState::Failure }
 						} else {
 							return Err(BehaviorError::NotABool);
@@ -72,8 +72,8 @@ impl Behavior for Precondition {
 					}
 				}
 			}
-		} else {
-			return Err(BehaviorError::NotABool);
+		// } else {
+		// 	return Err(BehaviorError::NotABool);
 		};
 
 		Ok(new_state)

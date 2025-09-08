@@ -41,7 +41,7 @@ impl Behavior for Script {
 			.run(&code, behavior.blackboard_mut())?;
 
 		let state = if value.is_bool() {
-			let val = value.as_bool()?;
+			let val = bool::try_from(value)?;
 			if val { BehaviorState::Success } else { BehaviorState::Failure }
 		} else {
 			BehaviorState::Success

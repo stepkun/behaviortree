@@ -306,7 +306,7 @@ impl BehaviorTreeElement {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
-					if res.is_bool() && res.as_bool()? {
+					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Failure));
 					}
 				}
@@ -314,7 +314,7 @@ impl BehaviorTreeElement {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
-					if res.is_bool() && res.as_bool()? {
+					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Success));
 					}
 				}
@@ -322,7 +322,7 @@ impl BehaviorTreeElement {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
-					if res.is_bool() && res.as_bool()? {
+					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Skipped));
 					}
 				}
@@ -330,7 +330,7 @@ impl BehaviorTreeElement {
 					let res = runtime
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
-					if res.is_bool() && res.as_bool()? {
+					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Skipped));
 					}
 				}
@@ -342,7 +342,7 @@ impl BehaviorTreeElement {
 						.lock()
 						.run(script, self.data.blackboard_mut())?;
 					// if not true halt element and return `Skipped`
-					if res.is_bool() && !res.as_bool()? {
+					if bool::try_from(res)? {
 						let _res = self.halt(runtime);
 						return Ok(Some(BehaviorState::Skipped));
 					}

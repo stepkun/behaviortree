@@ -4,7 +4,7 @@
 #![allow(missing_docs)]
 #![allow(clippy::unwrap_used)]
 
-use behaviortree::{BlackboardData, BlackboardInterface, SharedBlackboard, port::PortRemappings};
+use behaviortree::{BlackboardData, BlackboardInterface, Remappings, SharedBlackboard};
 
 #[test]
 fn blackboard() {
@@ -81,7 +81,7 @@ fn blackboard_node_with_parent() {
 		.unwrap();
 	assert_eq!(old, None);
 
-	let mut remappings = PortRemappings::default();
+	let mut remappings = Remappings::default();
 	remappings.add("test", "test1").unwrap();
 	let mut node = SharedBlackboard::with_parent("level0", level0, remappings, true);
 
@@ -105,15 +105,15 @@ fn blackboard_node_with_parent() {
 fn blackboard_node_hierarchy() {
 	let mut level0 = SharedBlackboard::new("level0");
 
-	let mut remappings1 = PortRemappings::default();
+	let mut remappings1 = Remappings::default();
 	remappings1.add("levelB", "levelA").unwrap();
 	let mut level1 = SharedBlackboard::with_parent("level1", level0.clone(), remappings1, true);
 
-	let mut remappings2 = PortRemappings::default();
+	let mut remappings2 = Remappings::default();
 	remappings2.add("levelC", "levelB").unwrap();
 	let mut level2 = SharedBlackboard::with_parent("level2", level1.clone(), remappings2, true);
 
-	let mut remappings3 = PortRemappings::default();
+	let mut remappings3 = Remappings::default();
 	remappings3.add("levelD", "levelC").unwrap();
 	let mut level3 = SharedBlackboard::with_parent("level3", level2.clone(), remappings3, true);
 

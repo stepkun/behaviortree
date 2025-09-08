@@ -1,5 +1,4 @@
 // Copyright © 2025 Stephan Kunz
-
 //! [`behaviortree`](crate) blackboard module.
 //!
 //! In [`behaviortree`](crate) the [`Blackboard`]s are used in a hierarchical structure, remapping the key names
@@ -10,11 +9,13 @@
 mod blackboard;
 mod blackboard_data;
 pub mod error;
+mod remappings;
 mod shared_blackboard;
 
 // flatten
 pub use blackboard::Blackboard;
 pub use blackboard_data::BlackboardData;
+pub use remappings::Remappings;
 pub use shared_blackboard::SharedBlackboard;
 
 // region:      --- modules

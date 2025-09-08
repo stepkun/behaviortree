@@ -107,6 +107,7 @@ impl Behavior for ThinkWhatToSay {
 /// Same as struct `SaySomething`, but to be registered with `SimpleBehavior`
 /// # Errors
 /// In this case never :-)
+#[allow(clippy::needless_pass_by_ref_mut)]
 pub fn say_something_simple(behavior: &mut BehaviorData) -> BehaviorResult {
 	let msg = behavior.get::<String>("message")?;
 	println!("Robot2 says: {msg}");

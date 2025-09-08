@@ -30,8 +30,8 @@ use tinyscript::SharedRuntime;
 use crate::{
 	ACTION, CONDITION, CONTROL, ConstString, DECORATOR, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
 	behavior::pre_post_conditions::Conditions,
-	blackboard::{BlackboardInterface, SharedBlackboard},
-	port::{PortList, PortRemappings, error::Error, strip_bb_pointer},
+	blackboard::{BlackboardInterface, Remappings, SharedBlackboard},
+	port::{PortList, error::Error, strip_bb_pointer},
 	strip_curly_brackets,
 	tree::ConstBehaviorTreeElementList,
 };
@@ -62,7 +62,7 @@ pub(crate) struct BehaviorDataCollection {
 	pub bhvr_desc: BehaviorDescription,
 	pub blackboard: SharedBlackboard,
 	pub bhvr: Box<dyn BehaviorExecution>,
-	pub remappings: PortRemappings,
+	pub remappings: Remappings,
 	pub conditions: Conditions,
 	pub uid: u16,
 }
@@ -195,9 +195,9 @@ pub struct BehaviorData {
 	uid: u16,
 	/// Current state of the behavior.
 	state: BehaviorState,
-	/// List of internal [`PortRemappings`] including
+	/// List of internal [`Remappings`] including
 	/// direct assigned values to a `Port`, e.g. default values.
-	remappings: PortRemappings,
+	remappings: Remappings,
 	/// Reference to the [`Blackboard`] for the element.
 	blackboard: SharedBlackboard,
 	/// List of pre state change callbacks with an identifier.
@@ -349,7 +349,7 @@ impl BehaviorData {
 		}
 	}
 
-	pub(crate) const fn remappings(&self) -> &PortRemappings {
+	pub(crate) const fn remappings(&self) -> &Remappings {
 		&self.remappings
 	}
 }

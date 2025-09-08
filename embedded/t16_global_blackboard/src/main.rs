@@ -5,7 +5,7 @@
 #![no_std]
 
 use ariel_os::debug::{ExitCode, exit, log::*};
-use behaviortree::{port::PortRemappings, prelude::*};
+use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -68,8 +68,7 @@ async fn example() -> BehaviorTreeResult {
 	// create an external blackboard which will survive the tree
 	let mut global_blackboard = SharedBlackboard::default();
 	// BT-Trees blackboard has global blackboard as parent
-	let root_blackboard =
-		SharedBlackboard::with_parent("global", global_blackboard.clone(), PortRemappings::default(), false);
+	let root_blackboard = SharedBlackboard::with_parent("global", global_blackboard.clone(), Remappings::default(), false);
 
 	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
