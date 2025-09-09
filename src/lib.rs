@@ -146,19 +146,19 @@ pub fn strip_curly_brackets(key: &str) -> &str {
 #[macro_export]
 macro_rules! register_behavior {
 	// function
-	($factory:expr, $fn:path, $name:literal, $kind:path $(,)?) => {{
+	($factory:ident, $fn:path, $name:literal, $kind:path $(,)?) => {{
 		$factory.register_simple_function($name, alloc::sync::Arc::new($fn), $kind)
 	}};
 	// function with ports
-	($factory:expr, $fn:path, $name:literal, $ports:expr, $kind:path $(,)?) => {{
+	($factory:ident, $fn:path, $name:literal, $ports:expr, $kind:path $(,)?) => {{
 		$factory.register_simple_function_with_ports($name, alloc::sync::Arc::new($fn), $kind, $ports)
 	}};
 	// behavior type struct
-	($factory:expr, $tp:ty, $name:literal $(,)?) => {{
+	($factory:ident, $tp:ty, $name:literal $(,)?) => {{
 		$factory.register_behavior_type::<$tp>($name)
 	}};
 	// behavior type struct with arguments for construction
-	($factory:expr, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
+	($factory:ident, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
 		let bhvr_desc = $crate::behavior::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), false, <$tp>::provided_ports());
 		let bhvr_creation_fn = alloc::boxed::Box::new(move || -> alloc::boxed::Box<dyn $crate::behavior::BehaviorExecution> {
 			alloc::boxed::Box::new(<$tp>::new($($arg),*))
@@ -170,7 +170,7 @@ macro_rules! register_behavior {
 	// multiple methods of a struct - will indicate only the last error if any
 	// this needs to be last becaus the second argument beiing an expression covers most other kinds!!
 	// returns an Arc-Mutex-wrapped item of the given struct
-	($factory:expr, $item:expr, $($fun:ident, $name:literal, $kind:path $(,)?)+) => {{
+	($factory:ident, $item:expr, $($fun:ident, $name:literal, $kind:path $(,)?)+) => {{
 		let base = alloc::sync::Arc::new(spin::Mutex::new($item));
 		// let mut res: core::result::Result<alloc::sync::Arc<spin::Mutex<$item>>, $crate::factory::error::Error> = Ok(base.clone());
 		let mut res = Ok(base.clone());

@@ -1,5 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-//! [`behaviortree`](crate) [`PortRemappings`] implementation.
+//! [`behaviortree`](crate) [`Blackboard`][`Remappings`] implementation.
 
 // region:      --- modules
 use alloc::{string::String, vec::Vec};
@@ -15,7 +15,7 @@ use super::error::Error;
 type RemappingEntry = (ConstString, ConstString);
 // endregion:   --- types
 
-// region:		--- PortRemappings
+// region:		--- Remappings
 /// Mutable remapping list.
 #[derive(Clone, Debug, Default)]
 #[repr(transparent)]
@@ -36,9 +36,9 @@ impl DerefMut for Remappings {
 }
 
 impl Remappings {
-	/// Add an entry to the [`PortRemappings`].
+	/// Add an entry to the [`Remappings`].
 	/// The original name is a `&'static str` as provided by
-	/// [`PortDefinition`](crate::port::port_definition::PortDefinition)
+	/// [`PortDefinition`](crate::port::PortDefinition)
 	/// # Errors
 	/// - if entry already exists
 	pub fn add(&mut self, name: &'static str, remapped_name: impl Into<ConstString>) -> Result<(), Error> {
@@ -51,7 +51,7 @@ impl Remappings {
 		Ok(())
 	}
 
-	/// Add an entry to the [`PortRemappings`].
+	/// Add an entry to the [`Remappings`].
 	/// Already existing values will be overwritten
 	pub fn overwrite(&mut self, name: &str, remapped_name: impl Into<ConstString>) {
 		for (original, old_value) in &mut self.0 {
@@ -86,4 +86,4 @@ impl Remappings {
 		self.0.shrink_to_fit();
 	}
 }
-// endregion:   --- PortRemappings
+// endregion:   --- Remappings

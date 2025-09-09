@@ -193,6 +193,12 @@ criteria = "safe-to-deploy"
 delta = "0.43.0 -> 0.45.0"
 notes = "The Bytecode Alliance is the author of this crate"
 
+[[audits.bytecode-alliance.audits.wit-bindgen]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.45.0 -> 0.45.1"
+notes = "The Bytecode Alliance is the author of this crate"
+
 [[audits.embark-studios.audits.thiserror]]
 who = "Johan Andersson <opensource@embark-studios.com>"
 criteria = "safe-to-deploy"

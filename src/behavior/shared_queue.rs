@@ -15,7 +15,9 @@ use crate::{self as behaviortree, behavior::error::BehaviorError};
 // endregion:   --- modules
 
 // region:		--- SharedQueue
-/// Shared queue implementation for the [`Loop`] behavior
+/// Shared queue implementation for the behaviors
+/// - [`Loop<T>`](crate::behavior::decorator::Loop)
+/// - [`PopFromQueue<T>`](crate::behavior::action::PopFromQueue)
 #[derive(Debug, Default)]
 pub struct SharedQueue<T: FromStr + ToString>(pub Arc<Mutex<VecDeque<T>>>);
 

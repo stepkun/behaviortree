@@ -102,10 +102,10 @@ impl XmlCreator {
 
 	fn create_behavior_trees<'a>(
 		writer: &mut XmlWriter<'a, impl Write>,
-		subtrees: &'a BTreeMap<ConstString, &BehaviorTreeElement>,
+		subtrees: &'a Vec<&BehaviorTreeElement>,
 		metadata: bool,
 	) -> Result<(), woxml::Error> {
-		for subtree in subtrees.values() {
+		for subtree in subtrees {
 			writer.begin_elem("BehaviorTree")?;
 			writer.attr(ID, subtree.data().description().name())?;
 			writer.attr("_fullpath", subtree.data().description().groot2_path())?;
@@ -231,12 +231,9 @@ impl XmlCreator {
 	fn scan_tree(
 		tree: &BehaviorTree,
 		builtin_models: bool,
-	) -> (
-		BTreeMap<ConstString, BehaviorDescription>,
-		BTreeMap<ConstString, &BehaviorTreeElement>,
-	) {
+	) -> (BTreeMap<ConstString, BehaviorDescription>, Vec<&BehaviorTreeElement>) {
 		let mut behaviors: BTreeMap<ConstString, BehaviorDescription> = BTreeMap::new();
-		let mut subtrees: BTreeMap<ConstString, &BehaviorTreeElement> = BTreeMap::new();
+		let mut subtrees: Vec<&BehaviorTreeElement> = Vec::new();
 
 		// scan the tree
 		for item in tree.iter() {
@@ -255,7 +252,7 @@ impl XmlCreator {
 					}
 				}
 				TreeElementKind::SubTree => {
-					subtrees.insert(item.data().description().path().clone(), item);
+					subtrees.push(item);
 				}
 			}
 		}

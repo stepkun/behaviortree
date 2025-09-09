@@ -14,7 +14,7 @@ use super::{BlackboardData, Remappings, SharedBlackboard};
 
 // region:      --- Blackboard
 /// Implementation of a [`Blackboard`] with a possible parent, a [`SharedBlackboard`],
-/// internal & external remappings and/or value assignments, all as [`PortRemappings`].
+/// internal & external remappings and/or value assignments, all as [`Remappings`].
 ///
 /// Access to the fields is public within this module.
 #[derive(Debug, Default)]
@@ -23,7 +23,7 @@ pub struct Blackboard {
 	pub(super) content: Arc<RwLock<BlackboardData>>,
 	/// Optional parent [`SharedBlackboard`].
 	pub(super) parent: Option<SharedBlackboard>,
-	/// Optional lsit of [`PortRemappings`] to the parent.
+	/// Optional lsit of [`Remappings`] to the parent.
 	pub(super) remappings_to_parent: Option<Remappings>,
 	/// Optional autoremapping to the parent.
 	pub(super) autoremap_to_parent: bool,

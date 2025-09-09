@@ -17,7 +17,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Removed
 
 
-## [0.4.0] - 2025-??-??
+## [0.4.0] - 2025-09-10
 
 ### Added
 - `PopFromQueue` behavior

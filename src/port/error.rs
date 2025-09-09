@@ -21,7 +21,7 @@ pub enum Error {
 	/// Port already in [`PortList`](crate::port::port_list::PortList)
 	#[error("name [{0}] already in port list")]
 	AlreadyInPortList(ConstString),
-	/// Port already in [`PortRemappings`](crate::port::port_remappings::PortRemappings)
+	/// Port already in [`Remappings`](crate::blackboard::Remappings)
 	#[error("name [{0}] already in remapping list")]
 	AlreadyInRemappings(ConstString),
 	/// Name for a port is not allowed
