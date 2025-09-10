@@ -120,10 +120,7 @@ async fn example() -> BehaviorTreeResult {
 	register_behavior!(factory, PrintNumber, "PrintNumber")?;
 	register_behavior!(factory, GenerateWaypoints, "GenerateWaypoints")?;
 
-	info!("registration done");
-
 	let mut tree = factory.create_from_text(XML)?;
-	info!("creation done");
 	drop(factory);
 
 	let result = tree.tick_while_running().await?;

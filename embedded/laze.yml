@@ -19,3 +19,4 @@ subdirs:
   - t14_subtree_model
   - t16_global_blackboard
   - t18_waypoints
+  - testing

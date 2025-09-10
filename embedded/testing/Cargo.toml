@@ -1,0 +1,44 @@
+# Copyright © 2025 Stephan Kunz
+[package]
+name = "behaviortree-testing"
+edition = "2024"
+license = "MIT/Apache-2.0"
+authors = ["stepkun <stephan.kunz@kabelbw.de>"]
+
+publish = false
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+  'cfg(context, values(any()))',
+] }
+unsafe_code = "warn"
+missing_docs = "warn"
+#unused="allow" # for dev only
+
+[lints.rustdoc]
+private_intra_doc_links = "allow"
+
+[lints.clippy]
+enum_glob_use = "deny"
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+
+
+[dependencies]
+ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [
+  "time",
+] }
+ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
+behaviortree = { path = "../..", default-features = false }
+spin = { version = "0.10.0", default-features = false }
+
+[dev-dependencies]
+embedded-test = { version = "0.6.1", default-features = false, features = [
+  "ariel-os",
+  "semihosting",
+] }
+
+[[test]]
+name = "recursion"
+harness = false

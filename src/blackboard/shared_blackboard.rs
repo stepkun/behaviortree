@@ -19,7 +19,7 @@ use core::{
 	str::FromStr,
 };
 use spin::RwLock;
-use tinyscript::{environment::Environment, execution::ScriptingValue};
+use tinyscript::{Environment, ScriptingValue};
 
 use super::{BlackboardInterface, Remappings, blackboard::Blackboard, blackboard_data::Entry, error::Error};
 // endregion:   --- modules

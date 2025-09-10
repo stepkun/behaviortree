@@ -357,7 +357,7 @@ impl BehaviorTreeElement {
 			match state {
 				BehaviorState::Failure => {
 					if let Some(script) = self.post_conditions.get(ON_FAILURE) {
-						let _: Result<tinyscript::execution::ScriptingValue, tinyscript::Error> = runtime
+						let _: Result<tinyscript::ScriptingValue, tinyscript::Error> = runtime
 							.lock()
 							.run(script, self.data.blackboard_mut());
 					}

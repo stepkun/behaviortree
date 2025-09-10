@@ -16,7 +16,7 @@ use core::{
 	ops::{Deref, DerefMut},
 	str::FromStr,
 };
-use tinyscript::{environment::Environment, execution::ScriptingValue};
+use tinyscript::{Environment, ScriptingValue};
 
 use super::{BlackboardInterface, error::Error};
 // endregion:   --- modules
