@@ -78,8 +78,8 @@ spin = { version = "0.10.0", default-features = false, features = [
     "use_ticket_mutex",
 ] } # spin_mutex??
 thiserror = { version = "2", default-features = false }
-#tinyscript = { path = "../tinyscript", version = "^0.3.1", default-features = false }
-tinyscript = { version = "^0.3.1", default-features = false }
+tinyscript = { path = "../tinyscript", version = "0.4", default-features = false }
+#tinyscript = { version = "0.4", default-features = false }
 tokio = { version = "1.47.1", features = [
     "rt-multi-thread",
     "macros",
