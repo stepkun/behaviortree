@@ -23,24 +23,24 @@ async fn was_entry_updated() -> Result<(), Error> {
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
 
-	tree.blackboard_mut().set("test", 1)?;
+	tree.blackboard().set("test", 1)?;
 	let mut result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Failure);
-	tree.blackboard_mut().set("test", 2)?;
+	tree.blackboard().set("test", 2)?;
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
 
-	tree.blackboard_mut().delete::<i32>("test")?;
+	tree.blackboard().delete::<i32>("test")?;
 	tree.reset()?;
 
-	tree.blackboard_mut().set("test", 1)?;
+	tree.blackboard().set("test", 1)?;
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Failure);
-	tree.blackboard_mut().set("test", 2)?;
+	tree.blackboard().set("test", 2)?;
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
 

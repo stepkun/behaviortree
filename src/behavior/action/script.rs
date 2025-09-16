@@ -36,9 +36,7 @@ impl Behavior for Script {
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let code = behavior.get::<String>(CODE)?;
-		let value = runtime
-			.lock()
-			.run(&code, behavior.blackboard_mut())?;
+		let value = runtime.lock().run(&code, behavior)?;
 
 		let state = if value.is_bool() {
 			let val = bool::try_from(value)?;

@@ -71,9 +71,9 @@ pub enum Error {
 	/// Registration error
 	#[error("registration of [{0}] failed due to [{1}]")]
 	Registration(ConstString, crate::factory::error::Error),
-	/// Remapping error
+	/// Remapping error -> passthrough for [`Databoard`](databoard) errors
 	#[error("add remapping failed due to [{0}]")]
-	Remapping(crate::blackboard::error::Error),
+	Remapping(databoard::Error),
 	/// The subtree is not registered
 	#[error("(sub)tree [{0}] not found in registry")]
 	SubtreeNotFound(ConstString),

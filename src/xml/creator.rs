@@ -17,7 +17,7 @@ use core::convert::TryFrom;
 use crate::{
 	ConstString, ID, NAME, SUBTREE,
 	behavior::{
-		BehaviorDescription,
+		behavior_description::BehaviorDescription,
 		pre_post_conditions::{POST_CONDITIONS, PRE_CONDITIONS},
 	},
 	factory::BehaviorTreeFactory,

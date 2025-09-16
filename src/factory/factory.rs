@@ -9,17 +9,14 @@
 extern crate std;
 
 // region:      --- modules
-#[cfg(feature = "std")]
-use alloc::string::ToString;
-use alloc::{boxed::Box, string::String, vec::Vec};
-
 use crate::{
 	ConstString,
 	behavior::{
-		Behavior, BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorState, ComplexBhvrTickFn, SimpleBehavior,
-		SimpleBhvrTickFn, SubTree,
+		Behavior, BehaviorExecution, BehaviorKind, BehaviorState, ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn,
+		SubTree,
 		action::PopFromQueue,
 		action::{ChangeStateAfter, Script, SetBlackboard, Sleep, UnsetBlackboard},
+		behavior_description::BehaviorDescription,
 		condition::{ScriptCondition, WasEntryUpdated},
 		control::{
 			Fallback, IfThenElse, Parallel, ParallelAll, ReactiveFallback, ReactiveSequence, Sequence, SequenceWithMemory,
@@ -30,11 +27,14 @@ use crate::{
 			RetryUntilSuccessful, RunOnce, Timeout,
 		},
 	},
-	blackboard::SharedBlackboard,
 	port::PortList,
 	tree::BehaviorTree,
 	xml::parser::XmlParser,
 };
+#[cfg(feature = "std")]
+use alloc::string::ToString;
+use alloc::{boxed::Box, string::String, vec::Vec};
+use databoard::DataboardPtr;
 
 use super::{error::Error, registry::BehaviorRegistry};
 // endregion:   --- modules
@@ -418,7 +418,7 @@ impl BehaviorTreeFactory {
 	/// # Errors
 	/// - if no tree with `name` can be found
 	/// - if behaviors or subtrees are missing
-	pub fn create_tree_with(&mut self, name: &str, blackboard: SharedBlackboard) -> Result<BehaviorTree, Error> {
+	pub fn create_tree_with(&mut self, name: &str, blackboard: DataboardPtr) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
 		match parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard)) {
 			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),

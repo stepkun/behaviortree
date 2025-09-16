@@ -6,21 +6,20 @@ extern crate std;
 
 use alloc::collections::vec_deque::VecDeque;
 // region:      --- modules
+use crate::{
+	ConstString, XmlCreator,
+	behavior::{BehaviorState, behavior_data::BehaviorData},
+	tree::{
+		observer::groot2_protocol::{Groot2ReplyHeader, Groot2RequestHeader, Groot2RequestType, Groot2TransitionInfo},
+		tree::{BehaviorTree, BehaviorTreeMessage},
+	},
+};
 use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use bytes::{Bytes, BytesMut};
 use spin::Mutex;
 use tokio::{sync::mpsc, task::JoinHandle};
 use zeromq::{Socket, SocketRecv, SocketSend, ZmqMessage};
-
-use crate::behavior::{BehaviorData, BehaviorState};
-use crate::tree::observer::groot2_protocol::{
-	Groot2ReplyHeader, Groot2RequestHeader, Groot2RequestType, Groot2TransitionInfo,
-};
-use crate::tree::tree::BehaviorTreeMessage;
-use crate::{ConstString, XmlCreator};
-
-use crate::tree::tree::BehaviorTree;
 // endregion:   --- modules
 
 /// Predefined size of the behavior state transition buffer.

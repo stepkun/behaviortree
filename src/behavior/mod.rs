@@ -1,7 +1,9 @@
 // Copyright © 2025 Stephan Kunz
-//! Built-In behaviors of [`behaviortree`](crate).
+//! Behavior implementation of [`behaviortree`](crate).
 
 pub mod action;
+pub mod behavior_data;
+pub mod behavior_description;
 #[allow(clippy::module_inception)]
 pub mod condition;
 pub mod control;
@@ -19,22 +21,16 @@ pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 pub use sub_tree::SubTree;
 
 // region:      --- modules
-use alloc::{
-	boxed::Box,
-	string::{String, ToString},
-	vec::Vec,
-};
-use core::{any::Any, str::FromStr};
-use tinyscript::SharedRuntime;
-
 use crate::{
-	ACTION, CONDITION, CONTROL, ConstString, DECORATOR, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
-	behavior::pre_post_conditions::Conditions,
-	blackboard::{BlackboardInterface, Remappings, SharedBlackboard},
-	port::{PortList, error::Error, strip_bb_pointer},
-	strip_curly_brackets,
+	ACTION, CONDITION, CONTROL, DECORATOR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
+	behavior::{behavior_data::BehaviorData, behavior_description::BehaviorDescription, pre_post_conditions::Conditions},
+	port::PortList,
 	tree::ConstBehaviorTreeElementList,
 };
+use alloc::{boxed::Box, string::String};
+use core::any::Any;
+use databoard::{DataboardPtr, Remappings};
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- types
@@ -60,7 +56,7 @@ pub(crate) struct BehaviorDataCollection {
 	pub node_name: String,
 	pub path: String,
 	pub bhvr_desc: BehaviorDescription,
-	pub blackboard: SharedBlackboard,
+	pub blackboard: DataboardPtr,
 	pub bhvr: Box<dyn BehaviorExecution>,
 	pub remappings: Remappings,
 	pub conditions: Conditions,
@@ -184,281 +180,7 @@ pub trait Behavior: Send + Sync {
 }
 // endregion:	--- Behavior
 
-// region:      --- BehaviorData
-/// Structure for implementing behaviors.
-#[derive(Default)]
-pub struct BehaviorData {
-	/// UID of the behavior within the [`BehaviorTree`](crate::tree::BehaviorTree).
-	/// 65536 behaviors in a [`BehaviorTree`](crate::tree::BehaviorTree) should be sufficient.
-	/// The ordering of the uid is following the creation order by the [`XmlParser`](crate::factory::xml_parser::XmlParser).
-	/// This should end up in a depth first ordering.
-	uid: u16,
-	/// Current state of the behavior.
-	state: BehaviorState,
-	/// List of internal [`Remappings`] including
-	/// direct assigned values to a `Port`, e.g. default values.
-	remappings: Remappings,
-	/// Reference to the [`Blackboard`] for the element.
-	blackboard: SharedBlackboard,
-	/// List of pre state change callbacks with an identifier.
-	/// These callbacks can be used for observation of the [`BehaviorTreeElement`] and
-	/// for manipulation of the resulting [`BehaviorState`] of a tick.
-	pre_state_change_hooks: Vec<(ConstString, Box<BehaviorTickCallback>)>,
-	/// Description of the Behavior.
-	description: BehaviorDescription,
-}
-
-impl BehaviorData {
-	/// Constructor
-	#[must_use]
-	pub(crate) fn new(data: &BehaviorDataCollection) -> Self {
-		Self {
-			uid: data.uid,
-			state: BehaviorState::default(),
-			remappings: data.remappings.clone(),
-			blackboard: data.blackboard.clone(),
-			pre_state_change_hooks: Vec::default(),
-			description: data.bhvr_desc.clone(),
-		}
-	}
-
-	/// Delete an entry of type `T` from Blackboard.
-	/// # Errors
-	/// - if entry is not found
-	pub fn delete<T>(&mut self, key: &str) -> Result<T, crate::blackboard::error::Error>
-	where
-		T: Any + Clone + FromStr + ToString + Send + Sync,
-	{
-		self.blackboard.delete(key)
-	}
-
-	/// Get a value of type `T` from Blackboard.
-	/// # Errors
-	/// - if value is not found
-	pub fn get<T>(&self, key: &str) -> Result<T, Error>
-	where
-		T: Any + Clone + FromStr + ToString + Send + Sync,
-	{
-		if let Some(remapped) = self.remappings.find(key) {
-			match strip_bb_pointer(&remapped) {
-				Some(key) => Ok(self.blackboard.get::<T>(&key)?),
-				None => match T::from_str(&remapped) {
-					Ok(res) => Ok(res),
-					Err(_err) => Err(Error::CouldNotConvert(remapped)),
-				},
-			}
-		} else {
-			Ok(self.blackboard.get::<T>(key)?)
-		}
-	}
-
-	/// Get the sequence ID of a Blackboard entry.
-	/// # Errors
-	/// - if key is not found in blackboard
-	#[inline]
-	pub fn get_sequence_id(&self, key: &str) -> Result<usize, crate::blackboard::error::Error> {
-		self.blackboard.get_sequence_id(key)
-	}
-
-	/// Set a value of type `T` into Blackboard.
-	/// Returns old value if any.
-	/// # Errors
-	/// - if value can not be set
-	pub fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
-	where
-		T: Any + Clone + FromStr + ToString + Send + Sync,
-	{
-		if let Some(remapped) = self.remappings.find(key) {
-			let stripped_key = strip_curly_brackets(&remapped);
-			Ok(self.blackboard.set::<T>(stripped_key, value)?)
-		} else {
-			Ok(self.blackboard.set::<T>(key, value)?)
-		}
-	}
-
-	/// Method to access the blackboard.
-	#[must_use]
-	pub const fn blackboard(&self) -> &SharedBlackboard {
-		&self.blackboard
-	}
-
-	/// Method to access the blackboard mutable.
-	#[must_use]
-	pub const fn blackboard_mut(&mut self) -> &mut SharedBlackboard {
-		&mut self.blackboard
-	}
-
-	/// Method to get the desription.
-	#[must_use]
-	pub const fn description(&self) -> &BehaviorDescription {
-		&self.description
-	}
-
-	/// Method to get the desription mutable.
-	#[must_use]
-	pub const fn description_mut(&mut self) -> &mut BehaviorDescription {
-		&mut self.description
-	}
-
-	/// Method to get the uid.
-	#[must_use]
-	pub const fn uid(&self) -> u16 {
-		self.uid
-	}
-
-	/// Method to get the state.
-	#[must_use]
-	pub const fn state(&self) -> BehaviorState {
-		self.state
-	}
-
-	/// Method to set the state.
-	pub fn set_state(&mut self, state: BehaviorState) {
-		if state != self.state {
-			// Callback before setting state
-			let mut state = state;
-			for (_, callback) in &self.pre_state_change_hooks {
-				callback(self, &mut state);
-			}
-			self.state = state;
-		}
-	}
-
-	/// Add a pre state change callback with the given name.
-	/// The name is not unique, which is important when removing callback.
-	pub fn add_pre_state_change_callback<T>(&mut self, name: ConstString, callback: T)
-	where
-		T: Fn(&Self, &mut BehaviorState) + Send + Sync + 'static,
-	{
-		self.pre_state_change_hooks
-			.push((name, Box::new(callback)));
-	}
-
-	/// Remove any pre state change callback with the given name.
-	pub fn remove_pre_state_change_callback(&mut self, name: &ConstString) {
-		// first collect all subscriber with that name ...
-		let mut indices = Vec::new();
-		for (index, (cb_name, _)) in self.pre_state_change_hooks.iter().enumerate() {
-			if cb_name == name {
-				indices.push(index);
-			}
-		}
-		// ... then remove them from vec
-		for index in indices {
-			let _ = self.pre_state_change_hooks.remove(index);
-		}
-	}
-
-	pub(crate) const fn remappings(&self) -> &Remappings {
-		&self.remappings
-	}
-}
-// endregion:	--- BehaviorData
-
-// region:		--- BehaviorDescription
-/// Description of a Behavior, used in xml parsing and creating.
-#[derive(Clone, Debug, Default)]
-pub struct BehaviorDescription {
-	/// Name of the behavior, with which it is used in the [`BehaviorTree`](crate::tree::tree::BehaviorTree).
-	name: ConstString,
-	/// Id of the behavior under which it can be found in the [`BehaviorTreeFactory`](crate::factory::BehaviorTreeFactory).
-	id: ConstString,
-	/// Path to the element.
-	/// In contrast to BehaviorTree.CPP this path is fully qualified,
-	/// which means that every level is denoted explicitly, including the tree root.
-	path: ConstString,
-	/// Kind of the behavior.
-	kind: BehaviorKind,
-	/// The [`PortList`]
-	ports: PortList,
-	/// Flag to indicate whether this behavior is builtin by Groot2.
-	groot2: bool,
-	/// Path for Groot2
-	groot2_path: ConstString,
-}
-
-impl BehaviorDescription {
-	/// Create a behavior description.
-	#[must_use]
-	pub fn new(name: &str, id: &str, kind: BehaviorKind, groot2: bool, ports: PortList) -> Self {
-		Self {
-			name: name.into(),
-			id: id.into(),
-			path: EMPTY_STR.into(),
-			kind,
-			ports,
-			groot2_path: EMPTY_STR.into(),
-			groot2,
-		}
-	}
-
-	/// Get name
-	#[must_use]
-	pub const fn name(&self) -> &ConstString {
-		&self.name
-	}
-
-	/// Method to set the name.
-	pub fn set_name(&mut self, name: &str) {
-		self.name = name.into();
-	}
-
-	/// Get id
-	#[must_use]
-	pub const fn id(&self) -> &ConstString {
-		&self.id
-	}
-
-	/// Method to get the path.
-	#[must_use]
-	pub const fn path(&self) -> &ConstString {
-		&self.path
-	}
-
-	/// Method to set the path.
-	pub fn set_path(&mut self, path: &str) {
-		self.path = path.into();
-	}
-
-	/// Get kind
-	#[must_use]
-	pub const fn kind(&self) -> BehaviorKind {
-		self.kind
-	}
-
-	/// Get kind as str
-	#[must_use]
-	pub const fn kind_str(&self) -> &'static str {
-		self.kind.as_str()
-	}
-
-	/// Get ports
-	#[must_use]
-	pub const fn ports(&self) -> &PortList {
-		&self.ports
-	}
-
-	/// If is builtin of Groot2
-	#[must_use]
-	pub const fn groot2(&self) -> bool {
-		self.groot2
-	}
-
-	/// Get the path for Groot2.
-	#[must_use]
-	pub const fn groot2_path(&self) -> &ConstString {
-		&self.groot2_path
-	}
-
-	/// Set the path for Groot2.
-	pub fn set_groot2_path(&mut self, groot2_path: ConstString) {
-		self.groot2_path = groot2_path;
-	}
-}
-// endregion:	--- BehaviorDescription
-
 // region:		--- BehaviorKind
-
 /// All types of behaviors usable in a behavior tree.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[repr(u8)]

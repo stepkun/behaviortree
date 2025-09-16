@@ -17,7 +17,7 @@ use tinyscript::Runtime;
 
 use crate::{
 	ConstString,
-	behavior::{BehaviorCreationFn, BehaviorDescription, BehaviorPtr},
+	behavior::{BehaviorCreationFn, BehaviorPtr, behavior_description::BehaviorDescription},
 };
 
 use super::error::Error;

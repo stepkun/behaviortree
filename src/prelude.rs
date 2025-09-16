@@ -18,8 +18,10 @@ pub use alloc::{
 	vec::Vec,
 };
 pub use behaviortree_derive::{Action, Condition, Control, Decorator};
-pub use tinyscript::ScriptEnum;
-pub use tinyscript::SharedRuntime;
+// databoard
+pub use databoard::{Databoard, DataboardPtr, Remappings};
+// tinyscript
+pub use tinyscript::{ScriptEnum, SharedRuntime};
 
 // public exports
 // literals
@@ -31,13 +33,16 @@ pub use crate::{register_behavior, register_scripting_enum};
 // port macros
 pub use crate::{inout_port, input_port, output_port, port_list};
 // behavior
-pub use crate::behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState};
+pub use crate::behavior::{
+	BehaviorError, BehaviorKind, BehaviorResult, BehaviorState, behavior_data::BehaviorData,
+	behavior_description::BehaviorDescription,
+};
 // behavior traits
 pub use crate::behavior::{Behavior, BehaviorExecution};
-// blackboard
-pub use crate::blackboard::{Remappings, SharedBlackboard};
-// blackboard traits
-pub use crate::blackboard::BlackboardInterface;
+// // blackboard
+// pub use crate::blackboard::{Remappings, SharedBlackboard};
+// // blackboard traits
+// pub use crate::blackboard::BlackboardInterface;
 // factory
 pub use crate::factory::BehaviorTreeFactory;
 // port

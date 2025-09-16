@@ -29,7 +29,7 @@ async fn pop_from_int_queue() -> Result<(), Error> {
 	queue.push_front(1);
 	queue.push_back(4);
 
-	let mut root_blackboard = SharedBlackboard::default();
+	let root_blackboard = Databoard::new();
 	root_blackboard.set("queue", queue)?;
 	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
 	drop(factory);
@@ -66,7 +66,7 @@ async fn pop_from_double_queue() -> Result<(), Error> {
 	queue.push_front(1.0);
 	queue.push_back(4.3);
 
-	let mut root_blackboard = SharedBlackboard::default();
+	let root_blackboard = Databoard::new();
 	root_blackboard.set("queue", queue)?;
 	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
 	drop(factory);
@@ -102,7 +102,7 @@ async fn pop_from_string_queue() -> Result<(), Error> {
 	queue.push_front(String::from("1.0"));
 	queue.push_back(String::from("4.3"));
 
-	let mut root_blackboard = SharedBlackboard::default();
+	let root_blackboard = Databoard::new();
 	root_blackboard.set("queue", queue)?;
 	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
 	drop(factory);

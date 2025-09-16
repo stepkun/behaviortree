@@ -46,8 +46,7 @@ async fn switch2(
 	let mut tree = factory.create_from_text(SWITCH2_TREE)?;
 	drop(factory);
 
-	tree.blackboard_mut()
-		.set("var", String::from(case))?;
+	tree.blackboard().set("var", String::from(case))?;
 
 	let mut result = tree.tick_once().await?;
 	assert_eq!(result, expected);
@@ -136,11 +135,10 @@ async fn switch5(
 	let mut tree = factory.create_from_text(SWITCH_5_TREE)?;
 	drop(factory);
 
-	tree.blackboard_mut()
-		.set("var", String::from(case))?;
+	tree.blackboard().set("var", String::from(case))?;
 
 	// set the bb value 'the_answer'
-	tree.blackboard_mut().set("the_answer", 42)?;
+	tree.blackboard().set("the_answer", 42)?;
 
 	let mut result = tree.tick_once().await?;
 	assert_eq!(result, expected);

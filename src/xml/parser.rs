@@ -11,24 +11,23 @@ use alloc::{
 	string::{String, ToString},
 };
 // region:      --- modules
-use roxmltree::{Document, Node, NodeType};
-#[cfg(feature = "std")]
-use std::path::PathBuf;
-use tracing::{Level, event, instrument};
-
 use crate::{
 	ConstString, EMPTY_STR, ID, NAME, SUBTREE,
 	behavior::{
 		BehaviorDataCollection, BehaviorKind, BehaviorPtr,
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
-	blackboard::{Remappings, SharedBlackboard},
 	factory::registry::BehaviorRegistry,
 	port::{is_allowed_port_name, strip_bb_pointer},
 	strip_curly_brackets,
 	tree::{BehaviorTreeElement, BehaviorTreeElementList, ConstBehaviorTreeElementList},
 	xml::error::Error,
 };
+use databoard::{Databoard, DataboardPtr, Remappings};
+use roxmltree::{Document, Node, NodeType};
+#[cfg(feature = "std")]
+use std::path::PathBuf;
+use tracing::{Level, event, instrument};
 // endregion:   --- modules
 
 // region:		--- helper
@@ -37,7 +36,7 @@ fn create_data_collection_from_xml(
 	path: &str,
 	node: &Node,
 	uid: u16,
-	blackboard: Option<SharedBlackboard>,
+	blackboard: Option<DataboardPtr>,
 	is_root: bool,
 ) -> Result<Box<BehaviorDataCollection>, Error> {
 	let mut tag_name = node.tag_name().name();
@@ -86,12 +85,12 @@ fn create_data_collection_from_xml(
 	let bhvr = bhvr_creation_fn();
 	let (autoremap, mut remappings, conditions) = handle_attributes(tag_name, is_subtree, &bhvr, node)?;
 
-	let new_blackboard = blackboard.map_or_else(SharedBlackboard::default, |blackboard| {
+	let new_blackboard = blackboard.map_or_else(Databoard::new, |blackboard| {
 		if is_subtree && !is_root {
 			// A SubTree gets a new Blackboard with parent and remappings.
 			let mut new_remappings = Remappings::default();
 			core::mem::swap(&mut new_remappings, &mut remappings);
-			SharedBlackboard::with_parent(&node_name, blackboard, new_remappings, autoremap)
+			Databoard::with(Some(blackboard), Some(new_remappings), autoremap)
 		} else {
 			blackboard
 		}
@@ -370,7 +369,7 @@ impl XmlParser {
 		&mut self,
 		name: &str,
 		registry: &mut BehaviorRegistry,
-		external_blackboard: Option<SharedBlackboard>,
+		external_blackboard: Option<DataboardPtr>,
 	) -> Result<BehaviorTreeElement, Error> {
 		event!(Level::TRACE, "create_tree_from_definition");
 

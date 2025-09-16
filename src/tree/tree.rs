@@ -8,11 +8,22 @@ extern crate std;
 
 // region:      --- modules
 #[cfg(feature = "std")]
+use crate::{
+	behavior::{BehaviorError, BehaviorResult, BehaviorState},
+	factory::BehaviorRegistry,
+	tree::observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback},
+	tree::{
+		tree_element::TreeElementKind,
+		tree_iter::{TreeIter, TreeIterMut},
+	},
+};
+#[cfg(feature = "std")]
 use alloc::vec::Vec;
 use alloc::{
 	string::{String, ToString},
 	sync::Arc,
 };
+use databoard::Databoard;
 #[cfg(feature = "std")]
 use libloading::Library;
 use spin::Mutex;
@@ -21,18 +32,6 @@ use tinyscript::SharedRuntime;
 use tokio::sync::mpsc;
 #[cfg(feature = "std")]
 use uuid::Uuid;
-
-#[cfg(feature = "std")]
-use crate::tree::observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback};
-use crate::{
-	behavior::{BehaviorError, BehaviorResult, BehaviorState},
-	blackboard::SharedBlackboard,
-	factory::BehaviorRegistry,
-	tree::{
-		tree_element::TreeElementKind,
-		tree_iter::{TreeIter, TreeIterMut},
-	},
-};
 
 use super::{error::Error, tree_element::BehaviorTreeElement};
 // endregion:   --- modules
@@ -125,14 +124,8 @@ impl BehaviorTree {
 
 	/// Access the root blackboard of the tree.
 	#[must_use]
-	pub const fn blackboard(&self) -> &SharedBlackboard {
+	pub fn blackboard(&self) -> &Databoard {
 		self.root.data().blackboard()
-	}
-
-	/// Access the root blackboard of the tree.
-	#[must_use]
-	pub const fn blackboard_mut(&mut self) -> &mut SharedBlackboard {
-		self.root.data_mut().blackboard_mut()
 	}
 
 	/// Pretty print the tree.

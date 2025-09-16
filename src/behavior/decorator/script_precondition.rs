@@ -39,9 +39,7 @@ impl Behavior for Precondition {
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let if_branch = behavior.get::<String>(IF)?;
-		let value = runtime
-			.lock()
-			.run(&if_branch, behavior.blackboard_mut())?;
+		let value = runtime.lock().run(&if_branch, behavior)?;
 
 		let new_state = /* if value.is_bool()*/ {
 			let val = bool::try_from(value)?;
@@ -62,7 +60,7 @@ impl Behavior for Precondition {
 					_ => {
 						let value = runtime
 							.lock()
-							.run(&else_branch, behavior.blackboard_mut())?;
+							.run(&else_branch, behavior)?;
 						if value.is_bool() {
 							let val = bool::try_from(value)?;
 							if val { BehaviorState::Success } else { BehaviorState::Failure }

@@ -130,9 +130,9 @@ async fn example() -> BehaviorTreeResult {
 	drop(factory);
 
 	// initialize blackboard values
-	tree.blackboard_mut()
+	tree.blackboard()
 		.set("point", Point2D { x: 3, y: 4 })?;
-	tree.blackboard_mut()
+	tree.blackboard()
 		.set("pointD", Point2D { x: 7, y: 8 })?;
 
 	// run the BT

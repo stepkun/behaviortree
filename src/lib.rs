@@ -13,7 +13,6 @@ pub mod prelude;
 
 // modules
 pub mod behavior; // due to macros!!
-mod blackboard;
 mod error;
 pub mod factory; // due to macros!!
 pub mod port; // due to macros!!
@@ -21,16 +20,16 @@ mod tree;
 mod xml;
 
 // flatten:
-pub use behavior::{Behavior, BehaviorExecution};
-pub use behavior::{BehaviorData, BehaviorDescription, BehaviorError, BehaviorKind, BehaviorResult, BehaviorState};
-pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, Remappings, SharedBlackboard};
+pub use behavior::{
+	Behavior, BehaviorError, BehaviorExecution, BehaviorKind, BehaviorResult, BehaviorState, behavior_data::BehaviorData,
+	behavior_description::BehaviorDescription,
+};
+//pub use blackboard::{Blackboard, BlackboardData, BlackboardInterface, Remappings, SharedBlackboard};
 pub use error::{BehaviorTreeResult, Error};
 pub use factory::BehaviorTreeFactory;
 pub use port::PortList;
 #[cfg(feature = "std")]
-pub use tree::observer::groot2_connector::Groot2Connector;
-#[cfg(feature = "std")]
-pub use tree::observer::tree_observer::BehaviorTreeObserver;
+pub use tree::observer::{groot2_connector::Groot2Connector, tree_observer::BehaviorTreeObserver};
 pub use tree::{BehaviorTree, BehaviorTreeElement, BehaviorTreeElementList};
 pub use xml::creator::XmlCreator;
 
@@ -44,7 +43,7 @@ use alloc::sync::Arc;
 // region		--- types
 /// An immutable thread safe `String` type
 /// see: [Logan Smith](https://www.youtube.com/watch?v=A4cKi7PTJSs).
-pub type ConstString = Arc<str>;
+type ConstString = Arc<str>;
 // endregion:   --- types
 
 // region:		--- globals
@@ -159,7 +158,7 @@ macro_rules! register_behavior {
 	}};
 	// behavior type struct with arguments for construction
 	($factory:ident, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
-		let bhvr_desc = $crate::behavior::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), false, <$tp>::provided_ports());
+		let bhvr_desc = $crate::behavior::behavior_description::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), false, <$tp>::provided_ports());
 		let bhvr_creation_fn = alloc::boxed::Box::new(move || -> alloc::boxed::Box<dyn $crate::behavior::BehaviorExecution> {
 			alloc::boxed::Box::new(<$tp>::new($($arg),*))
 		});

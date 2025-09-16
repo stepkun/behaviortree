@@ -66,6 +66,8 @@ harness = false
 behaviortree-derive = { path = "derive", version = "0.3" }
 async-trait = { version = "0.1.88", default-features = false }
 bytes = { version = "1", default-features = false }
+databoard = { path = "../databoard", version = "0.1", default-features = false }
+#databoard = { version = "0.1", default-features = false }
 libloading = { version = "0.8.8", default-features = false, optional = true }
 nanoserde = { version = "0.2.1", default-features = false, features = ["json"] }
 rand = { version = "0.9.2", optional = true }
@@ -109,6 +111,7 @@ trybuild = { version = "1.0.110", features = ["diff"] }
 [features]
 default = ["std"]
 std = [
+    "databoard/std",
     "libloading",
     "roxmltree/std",
     "rand",

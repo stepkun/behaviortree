@@ -2,12 +2,6 @@
 //! [`SetBlackboard`] [`Action`] implementation.
 
 // region:      --- modules
-use alloc::string::String;
-use alloc::{boxed::Box, string::ToString};
-use core::marker::PhantomData;
-use core::str::FromStr;
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Action, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
@@ -16,6 +10,9 @@ use crate::{
 	port_list, strip_curly_brackets,
 	tree::ConstBehaviorTreeElementList,
 };
+use alloc::{boxed::Box, string::String, string::ToString};
+use core::{fmt::Debug, marker::PhantomData, str::FromStr};
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -29,7 +26,7 @@ const VALUE: &str = "value";
 /// into an entry of the Blackboard specified via port `output_key`.
 ///
 #[derive(Action, Default)]
-pub struct SetBlackboard<T>
+pub struct SetBlackboard<T: Debug>
 where
 	T: Clone + Default + FromStr + ToString + Send + Sync + 'static,
 {
@@ -39,7 +36,7 @@ where
 #[async_trait::async_trait]
 impl<T> Behavior for SetBlackboard<T>
 where
-	T: Clone + Default + FromStr + ToString + Send + Sync,
+	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
 	async fn tick(
 		&mut self,

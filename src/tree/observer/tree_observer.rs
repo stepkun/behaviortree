@@ -5,16 +5,15 @@
 extern crate std;
 
 // region:      --- modules
-use crate::ConstString;
+use crate::{
+	ConstString,
+	behavior::{BehaviorState, behavior_data::BehaviorData},
+	tree::tree::BehaviorTree,
+};
 use alloc::{sync::Arc, vec::Vec};
 use spin::Mutex;
 #[cfg(feature = "std")]
 use tokio::time::Instant;
-
-use crate::{
-	behavior::{BehaviorData, BehaviorState},
-	tree::tree::BehaviorTree,
-};
 // endregion:   --- modules
 
 // region:      --- Statistics

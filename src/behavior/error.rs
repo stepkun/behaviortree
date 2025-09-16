@@ -22,9 +22,9 @@ pub enum BehaviorError {
 	/// Pass through from `core::num::ParseIntError`
 	#[error("{0}")]
 	ParseInt(#[from] core::num::ParseIntError),
-	/// Pass through blackboard error
+	/// Passthrough for [`Databoard`](databoard) errors
 	#[error("{0}")]
-	Blackboard(#[from] crate::blackboard::error::Error),
+	Blackboard(#[from] databoard::Error),
 	/// Pass through port error
 	#[error("{0}")]
 	Port(#[from] crate::port::error::Error),

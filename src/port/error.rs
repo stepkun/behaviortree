@@ -12,9 +12,9 @@ use thiserror::Error;
 #[non_exhaustive]
 #[derive(Error, Debug)]
 pub enum Error {
-	/// Passthrough for [`Blackboard`](crate::blackboard) errors
+	/// Passthrough for [`Databoard`](databoard) errors
 	#[error("{0}")]
-	Blackboard(#[from] crate::blackboard::error::Error),
+	Blackboard(#[from] databoard::Error),
 	/// Could not convert the str into required T
 	#[error("could not convert [{0}] into wanted type")]
 	CouldNotConvert(ConstString),
@@ -27,5 +27,8 @@ pub enum Error {
 	/// Name for a port is not allowed
 	#[error("name [{0}] not allowed for a port")]
 	NameNotAllowed(ConstString),
+	/// port not found
+	#[error("port [{0}] not found")]
+	NotFound(ConstString),
 }
 // region:		--- Error

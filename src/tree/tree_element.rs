@@ -2,25 +2,24 @@
 
 //! A [`BehaviorTree`](crate::tree::tree::BehaviorTree) element.
 
-use alloc::boxed::Box;
 // region:      --- modules
-use alloc::string::ToString;
-use tinyscript::{Error, SharedRuntime};
-
-use crate::behavior::BehaviorDataCollection;
-use crate::blackboard::SharedBlackboard;
-use crate::tree::tree_iter::TreeIterMut;
-use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE};
 use crate::{
+	ConstString, FAILURE_IF, ON_FAILURE, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE,
+	behavior::BehaviorDataCollection,
 	behavior::{
-		BehaviorData, BehaviorPtr, BehaviorResult, BehaviorState,
+		BehaviorPtr, BehaviorResult, BehaviorState,
+		behavior_data::BehaviorData,
 		error::BehaviorError,
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
-	tree::tree_iter::TreeIter,
+	tree::{
+		tree_element_list::ConstBehaviorTreeElementList,
+		tree_iter::{TreeIter, TreeIterMut},
+	},
 };
-
-use super::tree_element_list::ConstBehaviorTreeElementList;
+use alloc::{boxed::Box, string::ToString};
+use databoard::Databoard;
+use tinyscript::{Error, SharedRuntime};
 // endregion:   --- modules
 
 // region:		--- TreeElementKind
@@ -147,14 +146,8 @@ impl BehaviorTreeElement {
 
 	/// Get a reference to the blackboard.
 	#[must_use]
-	pub const fn blackboard(&self) -> &SharedBlackboard {
+	pub fn blackboard(&self) -> &Databoard {
 		self.data().blackboard()
-	}
-
-	/// Get a mutable reference to the blackboard.
-	#[must_use]
-	pub const fn blackboard_mut(&mut self) -> &mut SharedBlackboard {
-		self.data_mut().blackboard_mut()
 	}
 
 	/// Get the children.
@@ -190,9 +183,7 @@ impl BehaviorTreeElement {
 				.halt(&mut self.data, &mut self.children, runtime)?;
 			self.data.set_state(state);
 			if let Some(script) = self.post_conditions.get("_onHalted") {
-				let _ = runtime
-					.lock()
-					.run(script, self.data.blackboard_mut())?;
+				let _ = runtime.lock().run(script, &mut self.data)?;
 			}
 		}
 		Ok(())
@@ -303,33 +294,25 @@ impl BehaviorTreeElement {
 			// Preconditions only applied when the node state is `Idle` or `Skipped`
 			if self.data.state() == BehaviorState::Idle || self.data.state() == BehaviorState::Skipped {
 				if let Some(script) = self.pre_conditions.get(FAILURE_IF) {
-					let res = runtime
-						.lock()
-						.run(script, self.data.blackboard_mut())?;
+					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Failure));
 					}
 				}
 				if let Some(script) = self.pre_conditions.get(SUCCESS_IF) {
-					let res = runtime
-						.lock()
-						.run(script, self.data.blackboard_mut())?;
+					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Success));
 					}
 				}
 				if let Some(script) = self.pre_conditions.get(SKIP_IF) {
-					let res = runtime
-						.lock()
-						.run(script, self.data.blackboard_mut())?;
+					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Skipped));
 					}
 				}
 				if let Some(script) = self.pre_conditions.get(WHILE) {
-					let res = runtime
-						.lock()
-						.run(script, self.data.blackboard_mut())?;
+					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Skipped));
 					}
@@ -338,9 +321,7 @@ impl BehaviorTreeElement {
 			// Preconditions only applied when the node state is `Running`
 			if self.data.state() == BehaviorState::Running {
 				if let Some(script) = self.pre_conditions.get(WHILE) {
-					let res = runtime
-						.lock()
-						.run(script, self.data.blackboard_mut())?;
+					let res = runtime.lock().run(script, &mut self.data)?;
 					// if not true halt element and return `Skipped`
 					if bool::try_from(res)? {
 						let _res = self.halt(runtime);
@@ -357,25 +338,20 @@ impl BehaviorTreeElement {
 			match state {
 				BehaviorState::Failure => {
 					if let Some(script) = self.post_conditions.get(ON_FAILURE) {
-						let _: Result<tinyscript::ScriptingValue, tinyscript::Error> = runtime
-							.lock()
-							.run(script, self.data.blackboard_mut());
+						let _: Result<tinyscript::ScriptingValue, tinyscript::Error> =
+							runtime.lock().run(script, &mut self.data);
 					}
 				}
 				BehaviorState::Success => {
 					if let Some(script) = self.post_conditions.get(ON_SUCCESS) {
-						let _ = runtime
-							.lock()
-							.run(script, self.data.blackboard_mut());
+						let _ = runtime.lock().run(script, &mut self.data);
 					}
 				}
 				// rest is ignored
 				_ => {}
 			}
 			if let Some(script) = self.post_conditions.get(POST) {
-				let _ = runtime
-					.lock()
-					.run(script, self.data.blackboard_mut());
+				let _ = runtime.lock().run(script, &mut self.data);
 			}
 		}
 	}

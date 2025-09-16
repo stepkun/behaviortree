@@ -1,152 +1,249 @@
 // Copyright © 2025 Stephan Kunz
-//! Core for [`Blackboard`](crate::blackboard::Blackboard) implementation for behaviortree.
+//! Built-In behaviors of [`behaviortree`](crate).
 
-// region:      --- modules
-use crate::ConstString;
+use crate::{
+	BehaviorState, ConstString,
+	behavior::{BehaviorDataCollection, BehaviorTickCallback, behavior_description::BehaviorDescription},
+	port::{error::Error, strip_bb_pointer},
+	strip_curly_brackets,
+};
 use alloc::{
 	borrow::ToOwned,
-	collections::btree_map::BTreeMap,
-	format,
+	boxed::Box,
 	string::{String, ToString},
-	sync::Arc,
+	vec::Vec,
 };
 use core::{
 	any::{Any, TypeId},
 	fmt::Debug,
-	ops::{Deref, DerefMut},
 	str::FromStr,
 };
+use databoard::{Databoard, DataboardPtr, Remappings};
 use tinyscript::{Environment, ScriptingValue};
 
-use super::{BlackboardInterface, error::Error};
-// endregion:   --- modules
-
-// region:      --- BlackboardData
-/// `BlackboardData` are a key value store capable of storing any value.
-#[derive(Debug, Default)]
-pub struct BlackboardData {
-	storage: BTreeMap<ConstString, Entry>,
+// region:      --- BehaviorData
+/// Structure for implementing behaviors.
+#[derive(Default)]
+pub struct BehaviorData {
+	/// UID of the behavior within the [`BehaviorTree`](crate::tree::BehaviorTree).
+	/// 65536 behaviors in a [`BehaviorTree`](crate::tree::BehaviorTree) should be sufficient.
+	/// The ordering of the uid is following the creation order by the [`XmlParser`](crate::factory::xml_parser::XmlParser).
+	/// This should end up in a depth first ordering.
+	uid: u16,
+	/// Current state of the behavior.
+	state: BehaviorState,
+	/// List of internal [`Remappings`] including
+	/// direct assigned values to a `Port`, e.g. default values.
+	remappings: Remappings,
+	/// Reference to the [`Blackboard`] for the element.
+	blackboard: DataboardPtr,
+	/// List of pre state change callbacks with an identifier.
+	/// These callbacks can be used for observation of the [`BehaviorTreeElement`] and
+	/// for manipulation of the resulting [`BehaviorState`] of a tick.
+	pre_state_change_hooks: Vec<(ConstString, Box<BehaviorTickCallback>)>,
+	/// Description of the Behavior.
+	description: BehaviorDescription,
 }
 
-impl BlackboardInterface for BlackboardData {
-	fn contains(&self, key: &str) -> bool {
-		self.storage.contains_key(key)
-	}
-
-	fn delete<T>(&mut self, key: &str) -> Result<T, Error>
-	where
-		T: Any + Clone + FromStr + ToString + Send + Sync,
-	{
-		if let Some(old_entry) = self.storage.get(key) {
-			let e = &*old_entry.0.0;
-			let e = e as &dyn Any;
-			let e = e.downcast_ref::<T>().cloned();
-			if let Some(old) = e {
-				self.storage.remove(key);
-				Ok(old)
-			} else {
-				Err(Error::WrongType(key.into()))
-			}
-		} else {
-			Err(Error::NotFound(key.into()))
+impl BehaviorData {
+	/// Constructor
+	#[must_use]
+	pub(crate) fn new(data: &BehaviorDataCollection) -> Self {
+		Self {
+			uid: data.uid,
+			state: BehaviorState::default(),
+			remappings: data.remappings.clone(),
+			blackboard: data.blackboard.clone(),
+			pre_state_change_hooks: Vec::default(),
+			description: data.bhvr_desc.clone(),
 		}
 	}
 
-	fn get<T>(&self, key: &str) -> Result<T, Error>
+	/// Returns `true` if the `key` is available, otherwise `false`.
+	#[must_use]
+	pub fn contains(&self, key: &str) -> bool {
+		let key = strip_curly_brackets(key);
+		let key = self.remappings.remap(key);
+		self.blackboard().contains_key(&key)
+	}
+
+	/// Delete an entry of type `T` from Blackboard.
+	/// # Errors
+	/// - if entry is not found
+	pub fn delete<T>(&mut self, key: &str) -> Result<T, databoard::Error>
 	where
-		T: Any + Clone + FromStr + ToString + Send + Sync,
+		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
 	{
-		self.storage.get(key).map_or_else(
-			|| Err(Error::NotFound(key.into())),
-			|entry| {
-				let en = &*entry.0.0;
-				en.downcast_ref::<T>().map_or_else(
-					|| {
-						en.downcast_ref::<String>().map_or_else(
-							|| {
-								// maybe it is a value set by scripting
-								self.get_env(key).map_or_else(
-									|_| Err(Error::WrongType(key.into())),
-									|val| {
-										let s = match val {
-											ScriptingValue::Nil() => unreachable!(),
-											ScriptingValue::Boolean(b) => b.to_string(),
-											ScriptingValue::Float64(f) => f.to_string(),
-											ScriptingValue::Int64(i) => i.to_string(),
-											ScriptingValue::String(s) => s,
-										};
-										T::from_str(&s).map_or_else(
-											|_| {
-												Err(Error::ParsePortValue(
-													key.into(),
-													format!("{:?}", TypeId::of::<T>()).into(),
-												))
-											},
-											|val| Ok(val),
-										)
-									},
-								)
-							},
-							|s| {
-								T::from_str(s).map_or_else(
-									|_| Err(Error::ParsePortValue(key.into(), format!("{:?}", TypeId::of::<T>()).into())),
-									|val| Ok(val),
-								)
-							},
-						)
-					},
-					|value| Ok(value.clone()),
-				)
-			},
-		)
+		self.blackboard.delete(key)
 	}
 
-	fn get_sequence_id(&self, key: &str) -> Result<usize, Error> {
-		self.storage
-			.get(key)
-			.map_or_else(|| Err(Error::NotFound(key.into())), |entry| Ok(entry.0.1))
-	}
-
-	fn get_entry(&self, key: &str) -> Option<Entry> {
-		self.storage.get(key).map_or_else(
-			|| None,
-			|entry| {
-				let e = entry.0.clone();
-				Some(Entry(e))
-			},
-		)
-	}
-
-	fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
+	/// Get a value of type `T` from Blackboard.
+	/// # Errors
+	/// - if value is not found
+	#[allow(clippy::option_if_let_else)]
+	#[allow(clippy::single_match_else)]
+	#[allow(clippy::coerce_container_to_any)]
+	pub fn get<T>(&self, key: &str) -> Result<T, Error>
 	where
-		T: Any + Clone + FromStr + ToString + Send + Sync,
+		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
 	{
-		if let Some(old_entry) = self.storage.get(key) {
-			let new_id = if old_entry.0.1 < usize::MAX {
-				old_entry.0.1 + 1
-			} else {
-				usize::MIN
-			};
-			let e = &*old_entry.0.0;
-			let e = e as &dyn Any;
-			let e = e.downcast_ref::<T>().cloned();
-			if e.is_some() {
-				let entry = Entry((Arc::new(value), new_id));
-				self.storage.insert(key.into(), entry);
-				Ok(e)
-			} else {
-				Err(Error::WrongType(key.into()))
+		// extern crate std;
+		if let Some(remapped) = self.remappings.find(key) {
+			match strip_bb_pointer(&remapped) {
+				Some(remapped_key) => match self.blackboard.entry(&remapped_key) {
+					Ok(entry) => {
+						let en = &*entry.read();
+						// std::dbg!(&en);
+						let data = en.data().as_ref();
+						if let Some(val) = data.downcast_ref::<T>() {
+							Ok(val.clone())
+						} else if let Some(val) = data.downcast_ref::<String>() {
+							match T::from_str(val) {
+								Ok(res) => Ok(res),
+								Err(_) => Err(Error::CouldNotConvert(remapped_key)),
+							}
+						} else {
+							// maybe it is a value set by scripting
+							self.get_env(&remapped_key).map_or_else(
+								|_| Err(Error::NotFound(remapped)),
+								|val| {
+									let s = match val {
+										ScriptingValue::Nil() => unreachable!(),
+										ScriptingValue::Boolean(b) => b.to_string(),
+										ScriptingValue::Float64(f) => f.to_string(),
+										ScriptingValue::Int64(i) => i.to_string(),
+										ScriptingValue::String(s) => s,
+									};
+									T::from_str(&s).map_or_else(|_| Err(Error::CouldNotConvert(remapped_key)), |val| Ok(val))
+								},
+							)
+						}
+					}
+					Err(err) => Err(err.into()),
+				},
+				None => match T::from_str(&remapped) {
+					Ok(res) => Ok(res),
+					Err(_err) => Err(Error::CouldNotConvert(remapped)),
+				},
 			}
 		} else {
-			// sequence_id starts with 1, 0 is used as non existent
-			let entry = Entry((Arc::new(value), usize::MIN + 1));
-			self.storage.insert(key.into(), entry);
-			Ok(None)
+			match self.blackboard.get::<T>(key) {
+				Ok(value) => Ok(value),
+				Err(err) => {
+					let entry = self.blackboard.entry(key)?;
+					let en = &*entry.read();
+					if let Some(val) = en.data().downcast_ref::<String>() {
+						match T::from_str(val) {
+							Ok(res) => Ok(res),
+							Err(_) => Err(Error::CouldNotConvert(key.into())),
+						}
+					} else {
+						Err(err.into())
+					}
+				}
+			}
 		}
 	}
-}
 
-impl Environment for BlackboardData {
+	/// Set a value of type `T` into Blackboard.
+	/// Returns old value if any.
+	/// # Errors
+	/// - if value can not be set
+	pub fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
+	where
+		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+	{
+		if let Some(remapped) = self.remappings.find(key) {
+			let stripped_key = strip_curly_brackets(&remapped);
+			Ok(self.blackboard.set::<T>(stripped_key, value)?)
+		} else {
+			Ok(self.blackboard.set::<T>(key, value)?)
+		}
+	}
+
+	/// Get the sequence ID of a Blackboard entry.
+	/// # Errors
+	/// - if key is not found in blackboard
+	#[inline]
+	pub fn sequence_id(&self, key: &str) -> Result<usize, databoard::Error> {
+		self.blackboard.sequence_id(key)
+	}
+
+	/// Method to access the blackboard.
+	#[must_use]
+	pub fn blackboard(&self) -> &Databoard {
+		&self.blackboard
+	}
+
+	/// Method to get the desription.
+	#[must_use]
+	pub const fn description(&self) -> &BehaviorDescription {
+		&self.description
+	}
+
+	/// Method to get the desription mutable.
+	#[must_use]
+	pub const fn description_mut(&mut self) -> &mut BehaviorDescription {
+		&mut self.description
+	}
+
+	/// Method to get the uid.
+	#[must_use]
+	pub const fn uid(&self) -> u16 {
+		self.uid
+	}
+
+	/// Method to get the state.
+	#[must_use]
+	pub const fn state(&self) -> BehaviorState {
+		self.state
+	}
+
+	/// Method to set the state.
+	pub fn set_state(&mut self, state: BehaviorState) {
+		if state != self.state {
+			// Callback before setting state
+			let mut state = state;
+			for (_, callback) in &self.pre_state_change_hooks {
+				callback(self, &mut state);
+			}
+			self.state = state;
+		}
+	}
+
+	/// Add a pre state change callback with the given name.
+	/// The name is not unique, which is important when removing callback.
+	pub fn add_pre_state_change_callback<T>(&mut self, name: ConstString, callback: T)
+	where
+		T: Fn(&Self, &mut BehaviorState) + Send + Sync + 'static,
+	{
+		self.pre_state_change_hooks
+			.push((name, Box::new(callback)));
+	}
+
+	/// Remove any pre state change callback with the given name.
+	pub fn remove_pre_state_change_callback(&mut self, name: &ConstString) {
+		// first collect all subscriber with that name ...
+		let mut indices = Vec::new();
+		for (index, (cb_name, _)) in self.pre_state_change_hooks.iter().enumerate() {
+			if cb_name == name {
+				indices.push(index);
+			}
+		}
+		// ... then remove them from vec
+		for index in indices {
+			let _ = self.pre_state_change_hooks.remove(index);
+		}
+	}
+
+	pub(crate) const fn remappings(&self) -> &Remappings {
+		&self.remappings
+	}
+}
+// endregion:	--- BehaviorData
+
+// region:		--- impl Environment
+impl Environment for BehaviorData {
 	fn define_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), tinyscript::environment::Error> {
 		if self.contains(key) {
 			self.set_env(key, value)
@@ -196,11 +293,11 @@ impl Environment for BlackboardData {
 
 	#[allow(clippy::too_many_lines)]
 	fn get_env(&self, name: &str) -> Result<ScriptingValue, tinyscript::environment::Error> {
-		self.get_entry(name).map_or_else(
-			|| Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() }),
+		self.blackboard().entry(name).map_or_else(
+			|_| Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() }),
 			|entry| {
-				// let entry = **(entry);
-				let type_id = (**entry).type_id();
+				let entry = entry.read();
+				let type_id = (**entry).as_ref().type_id();
 				if type_id == TypeId::of::<String>() {
 					let s =
 						entry
@@ -293,11 +390,15 @@ impl Environment for BlackboardData {
 	#[allow(clippy::cast_possible_truncation)]
 	#[allow(clippy::cast_sign_loss)]
 	fn set_env(&mut self, name: &str, value: ScriptingValue) -> Result<(), tinyscript::environment::Error> {
-		let entry_type_id = if let Some(entry) = self.get_entry(name) {
-			let inner_entry = &entry;
-			(*(inner_entry.0.0)).type_id()
-		} else {
-			return Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() });
+		let entry_type_id = match self.blackboard().entry(name) {
+			Ok(entry) => {
+				let en = entry.read();
+				let data = en.as_ref();
+				data.type_id()
+			}
+			Err(_) => {
+				return Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() });
+			}
 		};
 		match value {
 			ScriptingValue::Nil() => unreachable!(),
@@ -456,29 +557,4 @@ impl Environment for BlackboardData {
 		Ok(())
 	}
 }
-// endregion:   --- BlackboardData
-
-// region:      --- Entry
-pub struct Entry((Arc<dyn Any + Send + Sync>, usize));
-
-impl Debug for Entry {
-	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-		write!(f, "{:?}", self.0)?;
-		Ok(())
-	}
-}
-
-impl Deref for Entry {
-	type Target = Arc<dyn Any + Send + Sync>;
-
-	fn deref(&self) -> &Self::Target {
-		&self.0.0
-	}
-}
-
-impl DerefMut for Entry {
-	fn deref_mut(&mut self) -> &mut Self::Target {
-		&mut self.0.0
-	}
-}
-// endregion:   --- Entry
+// endregion:	--- impl Environment

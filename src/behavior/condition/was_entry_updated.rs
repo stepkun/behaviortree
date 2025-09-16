@@ -44,7 +44,7 @@ impl Behavior for WasEntryUpdated {
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		self.sequence_id = 0;
-		if let Some(key) = behavior.remappings.find(ENTRY) {
+		if let Some(key) = behavior.remappings().find(ENTRY) {
 			match strip_bb_pointer(&key) {
 				Some(stripped) => self.entry_key = behavior.get::<String>(&stripped)?.into(),
 				None => self.entry_key = key,
@@ -64,7 +64,7 @@ impl Behavior for WasEntryUpdated {
 		_children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		let sequence_id = behavior.get_sequence_id(&self.entry_key)?;
+		let sequence_id = behavior.sequence_id(&self.entry_key)?;
 		if sequence_id == self.sequence_id {
 			Ok(BehaviorState::Failure)
 		} else {

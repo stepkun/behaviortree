@@ -26,7 +26,7 @@ pub enum Error {
 	Behavior(#[from] crate::behavior::error::BehaviorError),
 	/// Pass through from `crate::blackboard::Error`
 	#[error("{0}")]
-	Blackboard(#[from] crate::blackboard::error::Error),
+	Blackboard(#[from] databoard::Error),
 	/// Pass through from `crate::factory::Error`
 	#[error("{0}")]
 	Factory(#[from] crate::factory::error::Error),
