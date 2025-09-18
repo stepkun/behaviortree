@@ -4,8 +4,7 @@
 use crate::{
 	BehaviorState, ConstString,
 	behavior::{BehaviorDataCollection, BehaviorTickCallback, behavior_description::BehaviorDescription},
-	port::{error::Error, strip_bb_pointer},
-	strip_curly_brackets,
+	port::error::Error,
 };
 use alloc::{
 	borrow::ToOwned,
@@ -18,8 +17,18 @@ use core::{
 	fmt::Debug,
 	str::FromStr,
 };
-use databoard::{Databoard, DataboardPtr, Remappings};
+use databoard::{Databoard, DataboardPtr, Remappings, check_board_pointer, strip_board_pointer};
 use tinyscript::{Environment, ScriptingValue};
+
+// region:		--- helpers
+/// Removes enclosing brackets `{}` from a str if there are any,
+/// otherwise returns the unchanged str.
+#[must_use]
+fn strip_curly_brackets(key: &str) -> &str {
+	let key = key.strip_prefix('{').unwrap_or(key);
+	key.strip_suffix('}').unwrap_or(key)
+}
+// endregion:	--- helpers
 
 // region:      --- BehaviorData
 /// Structure for implementing behaviors.
@@ -70,11 +79,16 @@ impl BehaviorData {
 	/// Delete an entry of type `T` from Blackboard.
 	/// # Errors
 	/// - if entry is not found
-	pub fn delete<T>(&mut self, key: &str) -> Result<T, databoard::Error>
+	pub fn delete<T>(&mut self, key: &str) -> Result<T, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
 	{
-		self.blackboard.delete(key)
+		let remapped_key = self.remappings.remap(key);
+		let board_key = match check_board_pointer(&remapped_key) {
+			Ok(board_pointer) => board_pointer,
+			Err(original_key) => original_key,
+		};
+		Ok(self.blackboard.delete::<T>(board_key)?)
 	}
 
 	/// Get a value of type `T` from Blackboard.
@@ -87,25 +101,30 @@ impl BehaviorData {
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
 	{
+		// #[cfg(feature = "std")]
 		// extern crate std;
+
 		if let Some(remapped) = self.remappings.find(key) {
-			match strip_bb_pointer(&remapped) {
-				Some(remapped_key) => match self.blackboard.entry(&remapped_key) {
+			// std::dbg!("remapped");
+			match strip_board_pointer(&remapped) {
+				Some(remapped_key) => match self.blackboard.entry(remapped_key) {
 					Ok(entry) => {
 						let en = &*entry.read();
-						// std::dbg!(&en);
 						let data = en.data().as_ref();
 						if let Some(val) = data.downcast_ref::<T>() {
+							// std::dbg!("remapped1");
 							Ok(val.clone())
 						} else if let Some(val) = data.downcast_ref::<String>() {
+							// std::dbg!("remapped2");
 							match T::from_str(val) {
 								Ok(res) => Ok(res),
-								Err(_) => Err(Error::CouldNotConvert(remapped_key)),
+								Err(_) => Err(Error::CouldNotConvert(remapped_key.into())),
 							}
 						} else {
+							// std::dbg!("remapped3");
 							// maybe it is a value set by scripting
-							self.get_env(&remapped_key).map_or_else(
-								|_| Err(Error::NotFound(remapped)),
+							self.get_env(remapped_key).map_or_else(
+								|_| Err(Error::NotFound(remapped.clone())),
 								|val| {
 									let s = match val {
 										ScriptingValue::Nil() => unreachable!(),
@@ -114,33 +133,62 @@ impl BehaviorData {
 										ScriptingValue::Int64(i) => i.to_string(),
 										ScriptingValue::String(s) => s,
 									};
-									T::from_str(&s).map_or_else(|_| Err(Error::CouldNotConvert(remapped_key)), |val| Ok(val))
+									T::from_str(&s)
+										.map_or_else(|_| Err(Error::CouldNotConvert(remapped_key.into())), |val| Ok(val))
 								},
 							)
 						}
 					}
-					Err(err) => Err(err.into()),
-				},
-				None => match T::from_str(&remapped) {
-					Ok(res) => Ok(res),
-					Err(_err) => Err(Error::CouldNotConvert(remapped)),
-				},
-			}
-		} else {
-			match self.blackboard.get::<T>(key) {
-				Ok(value) => Ok(value),
-				Err(err) => {
-					let entry = self.blackboard.entry(key)?;
-					let en = &*entry.read();
-					if let Some(val) = en.data().downcast_ref::<String>() {
-						match T::from_str(val) {
-							Ok(res) => Ok(res),
-							Err(_) => Err(Error::CouldNotConvert(key.into())),
+					Err(err) => {
+						// std::dbg!("remapped4");
+						match err {
+							databoard::Error::Assignment { key: _, value } => T::from_str(&value)
+								.map_or_else(|_| Err(Error::CouldNotConvert(remapped_key.into())), |val| Ok(val)),
+							_ => Err(err.into()),
 						}
-					} else {
-						Err(err.into())
+					}
+				},
+				None => {
+					// std::dbg!("remapped5");
+					match T::from_str(&remapped) {
+						Ok(res) => Ok(res),
+						Err(_err) => Err(Error::CouldNotConvert(remapped)),
 					}
 				}
+			}
+		} else {
+			// std::dbg!("NOT remapped");
+			match check_board_pointer(key) {
+				Ok(board_ptr) => match self.blackboard.get::<T>(board_ptr) {
+					Ok(value) => Ok(value),
+					Err(err) => {
+						let entry = self.blackboard.entry(key)?;
+						let en = &*entry.read();
+						if let Some(val) = en.data().downcast_ref::<String>() {
+							match T::from_str(val) {
+								Ok(res) => Ok(res),
+								Err(_) => Err(Error::CouldNotConvert(key.into())),
+							}
+						} else {
+							Err(err.into())
+						}
+					}
+				},
+				Err(original_key) => match self.blackboard.get::<T>(original_key) {
+					Ok(value) => Ok(value),
+					Err(err) => {
+						let entry = self.blackboard.entry(key)?;
+						let en = &*entry.read();
+						if let Some(val) = en.data().downcast_ref::<String>() {
+							match T::from_str(val) {
+								Ok(res) => Ok(res),
+								Err(_) => Err(Error::CouldNotConvert(key.into())),
+							}
+						} else {
+							Err(err.into())
+						}
+					}
+				},
 			}
 		}
 	}
@@ -153,12 +201,12 @@ impl BehaviorData {
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
 	{
-		if let Some(remapped) = self.remappings.find(key) {
-			let stripped_key = strip_curly_brackets(&remapped);
-			Ok(self.blackboard.set::<T>(stripped_key, value)?)
-		} else {
-			Ok(self.blackboard.set::<T>(key, value)?)
-		}
+		let remapped_key = self.remappings.remap(key);
+		let board_key = match check_board_pointer(&remapped_key) {
+			Ok(board_pointer) => board_pointer,
+			Err(original_key) => original_key,
+		};
+		Ok(self.blackboard.set::<T>(board_key, value)?)
 	}
 
 	/// Get the sequence ID of a Blackboard entry.

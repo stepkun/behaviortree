@@ -12,7 +12,7 @@ use crate::{
 	self as behaviortree, Condition, ConstString, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
-	port::{PortList, strip_bb_pointer},
+	port::PortList,
 	port_list,
 	tree::ConstBehaviorTreeElementList,
 };
@@ -45,10 +45,11 @@ impl Behavior for WasEntryUpdated {
 	) -> Result<(), BehaviorError> {
 		self.sequence_id = 0;
 		if let Some(key) = behavior.remappings().find(ENTRY) {
-			match strip_bb_pointer(&key) {
-				Some(stripped) => self.entry_key = behavior.get::<String>(&stripped)?.into(),
-				None => self.entry_key = key,
-			}
+			self.entry_key = key;
+			// match strip_bb_pointer(&key) {
+			// 	Some(stripped) => self.entry_key = behavior.get::<String>(&stripped)?.into(),
+			// 	None => self.entry_key = key,
+			// }
 			Ok(())
 		} else {
 			Err(BehaviorError::PortNotDeclared(

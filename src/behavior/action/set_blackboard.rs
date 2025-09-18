@@ -7,11 +7,12 @@ use crate::{
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	inout_port, input_port,
 	port::PortList,
-	port_list, strip_curly_brackets,
+	port_list,
 	tree::ConstBehaviorTreeElementList,
 };
 use alloc::{boxed::Box, string::String, string::ToString};
 use core::{fmt::Debug, marker::PhantomData, str::FromStr};
+use databoard::check_board_pointer;
 use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
@@ -46,8 +47,10 @@ where
 	) -> BehaviorResult {
 		let value = behavior.get::<T>(VALUE)?;
 		let key = behavior.get::<String>(OUTPUT_KEY)?;
-		let stripped_key = strip_curly_brackets(&key);
-		behavior.set(stripped_key, value)?;
+		match check_board_pointer(&key) {
+			Ok(stripped_key) => behavior.set(stripped_key, value)?,
+			Err(original_key) => behavior.set(original_key, value)?,
+		};
 
 		Ok(BehaviorState::Success)
 	}

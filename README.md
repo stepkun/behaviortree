@@ -9,7 +9,7 @@ For __embedded__ devices similar examples are available [here](https://github.co
 ⚠️ WARNING ⚠️
 This crate is still in development.
 
-## Examples
+## Usage
 
 Below is a very simple example using functions as `Actions`.
 For more examples see: 

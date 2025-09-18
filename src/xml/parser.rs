@@ -18,12 +18,11 @@ use crate::{
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
 	factory::registry::BehaviorRegistry,
-	port::{is_allowed_port_name, strip_bb_pointer},
-	strip_curly_brackets,
+	port::is_allowed_port_name,
 	tree::{BehaviorTreeElement, BehaviorTreeElementList, ConstBehaviorTreeElementList},
 	xml::error::Error,
 };
-use databoard::{Databoard, DataboardPtr, Remappings};
+use databoard::{Databoard, DataboardPtr, Remappings, strip_board_pointer};
 use roxmltree::{Document, Node, NodeType};
 #[cfg(feature = "std")]
 use std::path::PathBuf;
@@ -135,11 +134,11 @@ fn handle_attributes(
 	for port_definition in port_list.iter() {
 		if let Some(default_value) = port_definition.default_value() {
 			// check if 'default_value' is a valid BB pointer
-			match strip_bb_pointer(default_value) {
+			match strip_board_pointer(default_value) {
 				// BB pointer
 				Some(stripped) => {
 					// remapping to itself is not necessary
-					if stripped.as_ref() != "=" {
+					if stripped != "=" {
 						match remappings.add(port_definition.name(), default_value.clone()) {
 							Ok(()) => {}
 							Err(err) => return Err(Error::Remapping(err)),
@@ -188,33 +187,35 @@ fn handle_attributes(
 				_ => return Err(Error::UnknownSpecialAttribute(key.into()))?,
 			}
 		} else {
-			// for a subtree we cannot check the ports
+			// for a subtree we cannot check against a port list
 			if is_subtree {
-				// if it is a BB pointer, strip it
-				let stripped = strip_curly_brackets(value);
-				// check value for allowed names
-				if is_allowed_port_name(stripped) {
-					remappings.overwrite(key, value);
-				} else {
-					return Err(Error::NameNotAllowed(stripped.into()));
+				// ensure key is an allowed port name
+				if !is_allowed_port_name(key) {
+					return Err(Error::NameNotAllowed(key.into()));
 				}
+				// if value is a board pointer, ensure it is an allowed port name
+				if let Some(stripped) = strip_board_pointer(value) {
+					if !is_allowed_port_name(stripped) {
+						return Err(Error::NameNotAllowed(stripped.into()));
+					}
+				}
+				remappings.overwrite(key, value);
 			} else {
-				// check found port name against list of provided ports
+				// check key against list of provided ports
 				match port_list.find(key) {
 					Some(_port) => {
-						// check if 'value' is a valid BB pointer
-						match strip_bb_pointer(value) {
-							// BB pointer
-							Some(_) => {
-								remappings.overwrite(key, value);
-							}
-							// Normal string, representing a port
-							None => {
-								if is_allowed_port_name(key) {
+						match strip_board_pointer(value) {
+							Some(stripped) => {
+								// check if 'value' contains a valid BB pointer
+								if is_allowed_port_name(stripped) {
 									remappings.overwrite(key, value);
 								} else {
 									return Err(Error::NameNotAllowed(key.into()));
 								}
+							}
+							// Normal string, representing a const assignment
+							None => {
+								remappings.overwrite(key, value);
 							}
 						}
 					}

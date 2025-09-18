@@ -5,13 +5,14 @@
 use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
+use databoard::is_board_pointer;
 use tinyscript::SharedRuntime;
 
 use crate::{
 	self as behaviortree, ConstString, Control, EMPTY_STR, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
-	port::{PortList, is_bb_pointer, strip_bb_pointer},
+	port::PortList,
 	tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -87,14 +88,15 @@ impl<const T: u8> Behavior for Switch<T> {
 			));
 		}
 		if let Some(var) = behavior.remappings().find(VARIABLE) {
-			if is_bb_pointer(&var) {
-				if let Some(var) = strip_bb_pointer(&var) {
-					self.var = var;
-				} else {
-					return Err(BehaviorError::Composition(
-						"port [variable] must be a Blackboard pointer".into(),
-					));
-				}
+			if is_board_pointer(&var) {
+				self.var = var;
+				// if let Some(var) = strip_bb_pointer(&var) {
+				// 	self.var = var;
+				// } else {
+				// 	return Err(BehaviorError::Composition(
+				// 		"port [variable] must be a Blackboard pointer".into(),
+				// 	));
+				// }
 			} else {
 				return Err(BehaviorError::Composition(
 					"port [variable] must be a Blackboard pointer".into(),

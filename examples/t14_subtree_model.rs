@@ -24,11 +24,12 @@ const XML: &str = r#"
     <BehaviorTree ID="MoveRobot">
         <Fallback>
             <Sequence>
+	            <SaySomething message="{frame}"/>
                 <MoveBase goal="{target}"/>
-                <Script code="result:=&apos;goal_reached&apos;"/>
+                <Script code="result:='goal_reached'"/>
             </Sequence>
             <ForceFailure>
-                <Script code="result:=&apos;error&apos;"/>
+                <Script code="result:='error'"/>
             </ForceFailure>
         </Fallback>
     </BehaviorTree>

@@ -13,7 +13,7 @@ use crate::{
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
-	port_list, strip_curly_brackets,
+	port_list,
 	tree::ConstBehaviorTreeElementList,
 };
 // endregion:   --- modules
@@ -47,8 +47,7 @@ where
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let key = behavior.get::<String>(KEY)?;
-		let stripped_key = strip_curly_brackets(&key);
-		behavior.delete::<String>(stripped_key)?;
+		behavior.delete::<String>(&key)?;
 
 		Ok(BehaviorState::Success)
 	}
