@@ -1,0 +1,4 @@
+apps:
+  - name: t13_access_by_ref
+    selects:
+      - alloc

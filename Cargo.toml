@@ -2,11 +2,11 @@
 [package]
 resolver = "3"
 name = "behaviortree"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
-description = "A BehaviorTree library similar to BehaviorTree.CPP, which can also be used in embedded environments."
+description = "A BehaviorTree library similar to BehaviorTree.CPP, which can be used in embedded environments."
 rust-version = "1.86.0"
 repository = "https://github.com/stepkun/behaviortree.git"
 homepage = "http://github.com/stepkun/behaviortree.git"
@@ -66,8 +66,8 @@ harness = false
 behaviortree-derive = { path = "derive", version = "0.3" }
 async-trait = { version = "0.1.88", default-features = false }
 bytes = { version = "1", default-features = false }
-#databoard = { path = "../databoard", version = "0.1", default-features = false }
-databoard = { version = "0.1", default-features = false }
+databoard = { path = "../databoard", version = "0.1", default-features = false }
+#databoard = { version = "0.1", default-features = false }
 libloading = { version = "0.8.8", default-features = false, optional = true }
 nanoserde = { version = "0.2.1", default-features = false, features = ["json"] }
 rand = { version = "0.9.2", optional = true }

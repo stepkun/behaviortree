@@ -17,7 +17,9 @@ use core::{
 	fmt::Debug,
 	str::FromStr,
 };
-use databoard::{Databoard, DataboardPtr, Remappings, check_board_pointer, strip_board_pointer};
+use databoard::{
+	Databoard, DataboardPtr, EntryGuardRead, EntryGuardWrite, Remappings, check_board_pointer, strip_board_pointer,
+};
 use tinyscript::{Environment, ScriptingValue};
 
 // region:		--- helpers
@@ -191,6 +193,42 @@ impl BehaviorData {
 				},
 			}
 		}
+	}
+
+	/// Returns a reference to value of type `T` from Blackboard.
+	/// # Errors
+	/// - if value is not found
+	#[allow(clippy::option_if_let_else)]
+	#[allow(clippy::single_match_else)]
+	#[allow(clippy::coerce_container_to_any)]
+	pub fn get_ref<T>(&self, key: &str) -> Result<EntryGuardRead<T>, Error>
+	where
+		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+	{
+		let remapped_key = self.remappings.remap(key);
+		let board_key = match check_board_pointer(&remapped_key) {
+			Ok(board_pointer) => board_pointer,
+			Err(original_key) => original_key,
+		};
+		Ok(self.blackboard.get_ref::<T>(board_key)?)
+	}
+
+	/// Returns a mutable reference to value of type `T` from Blackboard.
+	/// # Errors
+	/// - if value is not found
+	#[allow(clippy::option_if_let_else)]
+	#[allow(clippy::single_match_else)]
+	#[allow(clippy::coerce_container_to_any)]
+	pub fn get_mut_ref<T>(&self, key: &str) -> Result<EntryGuardWrite<T>, Error>
+	where
+		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+	{
+		let remapped_key = self.remappings.remap(key);
+		let board_key = match check_board_pointer(&remapped_key) {
+			Ok(board_pointer) => board_pointer,
+			Err(original_key) => original_key,
+		};
+		Ok(self.blackboard.get_mut_ref::<T>(board_key)?)
 	}
 
 	/// Set a value of type `T` into Blackboard.

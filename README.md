@@ -64,7 +64,8 @@ async fn main() {
 }
 ```
 
-For implementation of your own complex behaviors, there is a set of derive macros: `Action`, `Condition`, `Control` and `Decorator`.
+For implementation of your own complex behaviors, there is a set of 
+derive macros: `Action`, `Condition`, `Control` and `Decorator`.
 
 ```rust
 use behaviortree::prelude::*;
@@ -117,7 +118,7 @@ impl Behavior for SaySomething {
 |                         |         |          |
 | Ports                   |         |          |
 | - remapping             | ✅      | ✅       |
-| - access by ref         | 🔴      | 🔴       |
+| - access by ref         | ✅      | ✅       |
 |                         |         |          |
 | Subtrees                |         |          |
 | - structure             | ✅      | ✅       |
@@ -127,7 +128,7 @@ impl Behavior for SaySomething {
 | Blackboard              |         |          |
 | - hierarchy             | ✅      | ✅       |
 | - remapping             | ✅      | ✅       |
-| - access by ref         | 🔴      | 🔴       |
+| - access by ref         | ✅      | ✅       |
 | - backup                | 🔴      | ??       |
 |                         |         |          |
 | Pre-/post-conditions    | ✅      | ✅       |

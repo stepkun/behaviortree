@@ -16,6 +16,17 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
+## [0.5.0] - 2025-??-??
+
+### Added
+- access by reference into blackboard
+
+### Changed
+- externalized blackboard as crate `databoard`
+
+### Fixed
+
+### Removed
 
 ## [0.4.0] - 2025-09-10
 

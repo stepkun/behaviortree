@@ -5,7 +5,7 @@
 #![no_std]
 
 use ariel_os::debug::{ExitCode, exit, log::*};
-use behaviortree::{EMPTY_STR, prelude::*};
+use behaviortree::prelude::*;
 use core::fmt::{Display, Formatter};
 use nanoserde::{DeJson, SerJson};
 
@@ -37,25 +37,18 @@ impl FromStr for Point2D {
 	type Err = BehaviorError;
 
 	fn from_str(value: &str) -> Result<Self, Self::Err> {
-		// remove redundant ' and &apos; from string
-		let s = value
-			.replace('\'', EMPTY_STR)
-			.trim()
-			.replace("&apos;", EMPTY_STR)
-			.trim()
-			.to_string();
 		// check for json marker
-		if let Some(stripped) = s.strip_prefix("json:") {
+		if let Some(stripped) = value.strip_prefix("json:") {
 			let res = DeJson::deserialize_json(stripped)?;
 			Ok(res)
 		} else
 		// check for json content
-		if let Ok(res) = DeJson::deserialize_json(&s) {
+		if let Ok(res) = DeJson::deserialize_json(value) {
 			Ok(res)
 		} else
 		// try conventional
 		{
-			let v: Vec<&str> = s.split(',').collect();
+			let v: Vec<&str> = value.split(',').collect();
 			let x = i32::from_str(v[0])?;
 			let y = i32::from_str(v[1])?;
 			Ok(Self { x, y })

@@ -36,7 +36,7 @@ const XML: &str = r#"
 </root>
 "#;
 
-async fn example() -> BehaviorTreeResult {
+async fn example1() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
 	factory.register_test_behaviors()?;
 
@@ -53,9 +53,63 @@ async fn example() -> BehaviorTreeResult {
 	Ok(result)
 }
 
+const XML2: &str = r#"
+<root BTCPP_format="4">
+  <BehaviorTree ID="MainTree">
+    <Sequence>
+	  <!-- setting this value in BehaviorTree.CPP is superflous-->
+      <Script code=" msg:='hello world' " />
+	  <!-- setting these values manually is not done in BehaviorTree.CPP -->
+      <Script code=" in_value:= 42 "/>
+      <Script code=" in_name:= 'john' "/>
+      <Script code=" out_result:= 69 "/>
+      <SubTree ID="MySub" sub_in_name="{in_name}"
+	  					  sub_in_value="{in_value}"
+                          sub_out_state="{out_state}"/>
+      <ScriptCondition code=" out_result==69 &amp;&amp; out_state=='ACTIVE' " />
+    </Sequence>
+  </BehaviorTree>
+</root>
+"#;
+
+const XML2_SUBTREE: &str = r#"
+<root BTCPP_format="4">
+  <TreeNodesModel>
+    <SubTree ID="MySub">
+      <input_port name="sub_in_value" default="42"/>
+      <input_port name="sub_in_name"/>
+      <output_port name="sub_out_result" default="{out_result}"/>
+      <output_port name="sub_out_state"/>
+    </SubTree>
+  </TreeNodesModel>
+
+  <BehaviorTree ID="MySub">
+    <Sequence>
+      <ScriptCondition code="sub_in_value==42 &amp;&amp; sub_in_name=='john'" />
+      <Script code="sub_out_result:=69; sub_out_state:='ACTIVE'" />
+    </Sequence>
+  </BehaviorTree>
+</root>
+"#;
+
+async fn example2() -> BehaviorTreeResult {
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	factory.register_behavior_tree_from_text(XML2_SUBTREE)?;
+	factory.register_behavior_tree_from_text(XML2)?;
+
+	let mut tree = factory.create_tree("MainTree")?;
+	drop(factory);
+
+	let result = tree.tick_while_running().await?;
+	Ok(result)
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-	example().await?;
+	println!("running example 1");
+	example1().await?;
+	println!("running example 2");
+	example2().await?;
 	Ok(())
 }
 
@@ -65,7 +119,9 @@ mod test {
 
 	#[tokio::test]
 	async fn t14_subtree_model() -> Result<(), Error> {
-		let result = example().await?;
+		let result = example1().await?;
+		assert_eq!(result, BehaviorState::Success);
+		let result = example2().await?;
 		assert_eq!(result, BehaviorState::Success);
 		Ok(())
 	}

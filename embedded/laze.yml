@@ -16,6 +16,7 @@ subdirs:
   - t08_additional_node_args
   - t09_scripting
   - t12_default_ports
+  - t13_access_by_ref
   - t14_subtree_model
   - t16_global_blackboard
   - t18_waypoints

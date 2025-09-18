@@ -1,15 +1,15 @@
 // Copyright © 2025 Stephan Kunz
-//! Implements the thirteenth tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
-//!
-//! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_13_blackboard_reference).
-//! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t13_access_by_ref.cpp).
+//! Embedded version of [t12_default_ports](examples/t12_default_ports.rs).
 
+#![no_main]
+#![no_std]
+
+use ariel_os::debug::{ExitCode, exit, log::*};
+use behaviortree::prelude::*;
 use core::{
 	fmt::{Display, Formatter},
 	num::ParseIntError,
 };
-
-use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -30,7 +30,7 @@ struct Point {
 
 impl Display for Point {
 	fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
-		write!(f, "({},{})", self.x, self.y)
+		write!(f, "{},{}", self.x, self.y)
 	}
 }
 
@@ -58,7 +58,7 @@ impl Display for PointCloud {
 			if delimiter {
 				write!(f, ";")?;
 			}
-			write!(f, "{point}")?;
+			write!(f, "{}", point)?;
 			delimiter = true;
 		}
 		write!(f, "]")
@@ -85,16 +85,14 @@ impl Behavior for CreatePointCloud {
 		_children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		println!("creating PointCloud");
+		info!("creating PointCloud");
 		// put a PointCloud into blackboard
-		let p_cloud: PointCloud = PointCloud {
-			points: vec![
-				Point { x: 0, y: 0 },
-				Point { x: 1, y: 1 },
-				Point { x: 2, y: 2 },
-				Point { x: 3, y: 3 },
-			],
-		};
+		let mut points = Vec::with_capacity(6);
+		points.push(Point { x: 0, y: 0 });
+		points.push(Point { x: 1, y: 1 });
+		points.push(Point { x: 2, y: 2 });
+		points.push(Point { x: 3, y: 3 });
+		let p_cloud: PointCloud = PointCloud { points };
 
 		behavior.set::<PointCloud>("cloud", p_cloud)?;
 
@@ -118,15 +116,19 @@ impl Behavior for ModifyPointCloud {
 		_children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		println!("reading PointCloud by reference");
+		info!("reading PointCloud by reference");
 		let p_cloud = behavior.get_ref::<PointCloud>("cloud")?;
-		println!("PointCloud is {}", &*p_cloud);
+		for point in &*p_cloud.points {
+			info!("Point is {}, {}", point.x, point.y);
+		}
 		drop(p_cloud);
 
-		println!("modifying PointCloud by reference");
+		info!("modifying PointCloud by reference");
 		let mut p_cloud = behavior.get_mut_ref::<PointCloud>("cloud")?;
 		p_cloud.points.push(Point { x: 4, y: 4 });
-		println!("PointCloud is now {}", &*p_cloud);
+		for point in &*p_cloud.points {
+			info!("Point is {}, {}", point.x, point.y);
+		}
 
 		Ok(BehaviorState::Success)
 	}
@@ -151,20 +153,17 @@ async fn example() -> BehaviorTreeResult {
 	Ok(result)
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Error> {
-	example().await?;
-	Ok(())
-}
-
-#[cfg(test)]
-mod test {
-	use super::*;
-
-	#[tokio::test]
-	async fn t13_access_by_ref() -> Result<(), Error> {
-		let result = example().await?;
-		assert_eq!(result, BehaviorState::Success);
-		Ok(())
-	}
+#[ariel_os::task(autostart)]
+async fn main() {
+	info!("running t13_access_by_ref...");
+	match example().await {
+		Ok(_) => {
+			info!("...succeeded!");
+			exit(ExitCode::SUCCESS)
+		}
+		Err(_) => {
+			error!("...failed!");
+			exit(ExitCode::FAILURE)
+		}
+	};
 }
