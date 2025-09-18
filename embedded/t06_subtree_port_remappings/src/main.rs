@@ -48,10 +48,11 @@ async fn example() -> BehaviorTreeResult {
 
 	let result = tree.tick_while_running().await?;
 
-	info!("------ Root BB ------");
-	tree.subtree(0)?.blackboard().debug_message();
-	info!("----- Second BB -----");
-	tree.subtree(1)?.blackboard().debug_message();
+	// this is currently not available in embedded
+	// info!("------ Root BB ------");
+	// tree.subtree(0)?.blackboard().debug_message();
+	// info!("----- Second BB -----");
+	// tree.subtree(1)?.blackboard().debug_message();
 	Ok(result)
 }
 

@@ -39,10 +39,6 @@ pub use crate::behavior::{
 };
 // behavior traits
 pub use crate::behavior::{Behavior, BehaviorExecution};
-// // blackboard
-// pub use crate::blackboard::{Remappings, SharedBlackboard};
-// // blackboard traits
-// pub use crate::blackboard::BlackboardInterface;
 // factory
 pub use crate::factory::BehaviorTreeFactory;
 // port

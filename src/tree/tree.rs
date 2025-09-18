@@ -8,10 +8,10 @@ extern crate std;
 
 // region:      --- modules
 #[cfg(feature = "std")]
+use crate::tree::observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback};
 use crate::{
 	behavior::{BehaviorError, BehaviorResult, BehaviorState},
 	factory::BehaviorRegistry,
-	tree::observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback},
 	tree::{
 		tree_element::TreeElementKind,
 		tree_iter::{TreeIter, TreeIterMut},

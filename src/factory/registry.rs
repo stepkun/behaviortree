@@ -27,7 +27,7 @@ use super::BehaviorTreeFactory;
 // endregion:   --- modules
 
 // region:     --- BehaviorRegistry
-/// A registry for behaviors used by the [`BehaviorTreeFactory`] for creation of behavior trees.
+/// A registry for behaviors used by the [`BehaviorTreeFactory`](crate::factory::BehaviorTreeFactory) for creation of behavior trees.
 #[derive(Default)]
 pub struct BehaviorRegistry {
 	/// [`BTreeMap`] of available behavior creation functions.

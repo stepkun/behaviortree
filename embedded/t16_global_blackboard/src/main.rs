@@ -66,9 +66,9 @@ impl Behavior for PrintNumber {
 
 async fn example() -> BehaviorTreeResult {
 	// create an external blackboard which will survive the tree
-	let mut global_blackboard = SharedBlackboard::default();
-	// BT-Trees blackboard has global blackboard as parent
-	let root_blackboard = SharedBlackboard::with_parent("global", global_blackboard.clone(), Remappings::default(), false);
+	let global_blackboard = Databoard::new();
+	// Trees blackboard has global blackboard as parent
+	let root_blackboard = Databoard::with(Some(global_blackboard.clone()), None, false);
 
 	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
 
