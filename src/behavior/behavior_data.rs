@@ -98,7 +98,6 @@ impl BehaviorData {
 	/// - if value is not found
 	#[allow(clippy::option_if_let_else)]
 	#[allow(clippy::single_match_else)]
-	#[allow(clippy::coerce_container_to_any)]
 	pub fn get<T>(&self, key: &str) -> Result<T, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
@@ -200,7 +199,6 @@ impl BehaviorData {
 	/// - if value is not found
 	#[allow(clippy::option_if_let_else)]
 	#[allow(clippy::single_match_else)]
-	#[allow(clippy::coerce_container_to_any)]
 	pub fn get_ref<T>(&self, key: &str) -> Result<EntryReadGuard<T>, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
@@ -218,7 +216,6 @@ impl BehaviorData {
 	/// - if value is not found
 	#[allow(clippy::option_if_let_else)]
 	#[allow(clippy::single_match_else)]
-	#[allow(clippy::coerce_container_to_any)]
 	pub fn get_mut_ref<T>(&self, key: &str) -> Result<EntryWriteGuard<T>, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
