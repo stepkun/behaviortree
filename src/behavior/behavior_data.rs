@@ -18,7 +18,7 @@ use core::{
 	str::FromStr,
 };
 use databoard::{
-	Databoard, DataboardPtr, EntryGuardRead, EntryGuardWrite, Remappings, check_board_pointer, strip_board_pointer,
+	Databoard, DataboardPtr, EntryReadGuard, EntryWriteGuard, Remappings, check_board_pointer, strip_board_pointer,
 };
 use tinyscript::{Environment, ScriptingValue};
 
@@ -201,7 +201,7 @@ impl BehaviorData {
 	#[allow(clippy::option_if_let_else)]
 	#[allow(clippy::single_match_else)]
 	#[allow(clippy::coerce_container_to_any)]
-	pub fn get_ref<T>(&self, key: &str) -> Result<EntryGuardRead<T>, Error>
+	pub fn get_ref<T>(&self, key: &str) -> Result<EntryReadGuard<T>, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
 	{
@@ -219,7 +219,7 @@ impl BehaviorData {
 	#[allow(clippy::option_if_let_else)]
 	#[allow(clippy::single_match_else)]
 	#[allow(clippy::coerce_container_to_any)]
-	pub fn get_mut_ref<T>(&self, key: &str) -> Result<EntryGuardWrite<T>, Error>
+	pub fn get_mut_ref<T>(&self, key: &str) -> Result<EntryWriteGuard<T>, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
 	{

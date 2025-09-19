@@ -108,7 +108,7 @@ fn create_data_collection_from_xml(
 }
 
 fn handle_attributes(
-	name: &str,
+	tag_name: &str,
 	is_subtree: bool,
 	bhvr: &BehaviorPtr,
 	node: &Node,
@@ -220,7 +220,7 @@ fn handle_attributes(
 						}
 					}
 					None => {
-						return Err(Error::PortInvalid(key.into(), name.into(), port_list.entries()));
+						return Err(Error::PortInvalid(key.into(), tag_name.into(), port_list.entries()));
 					}
 				}
 			}
