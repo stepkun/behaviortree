@@ -69,8 +69,13 @@ pub const CONDITION: &str = "Condition";
 pub const CONTROL: &str = "Control";
 /// [`BehaviorKind`] literal "Decorator"
 pub const DECORATOR: &str = "Decorator";
-/// [`BehaviorKind`] literal "Subtree"
+/// [`BehaviorKind`] literal `"SubTree"`
 pub const SUBTREE: &str = "SubTree";
+
+/// Literal `"BehaviorTree"`
+pub const BEHAVIORTREE: &str = "BehaviorTree";
+/// Literal `"TreeNodesModel"`
+pub const TREENODESMODEL: &str = "TreeNodesModel";
 
 /// Literal "name" for ports etc.
 const NAME: &str = "name";

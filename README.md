@@ -183,7 +183,7 @@ impl Behavior for SaySomething {
 | `EntryUpdated`            | ✅      | 🚦       |
 | `LoopQueue`               | ✅      | ✅       |
 | `RunOnce`                 | ✅      | 🚦       |
-| `ScriptPrecondition`      | 🚦      | 🚦       |
+| `Precondition`            | ✅      | 🚦       |
 | `Timeout`                 | 🚦      | 🔴       |
 
 ## License

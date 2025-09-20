@@ -18,7 +18,8 @@ use core::{
 	str::FromStr,
 };
 use databoard::{
-	Databoard, DataboardPtr, EntryReadGuard, EntryWriteGuard, Remappings, check_board_pointer, strip_board_pointer,
+	Databoard, DataboardPtr, EntryReadGuard, EntryWriteGuard, Remappings, check_board_pointer, is_const_assignment,
+	strip_board_pointer,
 };
 use tinyscript::{Environment, ScriptingValue};
 
@@ -72,10 +73,21 @@ impl BehaviorData {
 
 	/// Returns `true` if the `key` is available, otherwise `false`.
 	#[must_use]
-	pub fn contains(&self, key: &str) -> bool {
+	pub fn contains_key(&self, key: &str) -> bool {
+		// @TODO: rework!!
 		let key = strip_curly_brackets(key);
 		let key = self.remappings.remap(key);
 		self.blackboard().contains_key(&key)
+	}
+
+	/// Returns `true` if a <T> with the `key` is available, otherwise `false`.
+	/// # Errors
+	/// - if type is wrong
+	pub fn contains<T>(&self, _key: &str) -> Result<bool, databoard::Error>
+	where
+		T: Any + Debug + FromStr + ToString + Send + Sync,
+	{
+		todo!()
 	}
 
 	/// Delete an entry of type `T` from Blackboard.
@@ -83,7 +95,7 @@ impl BehaviorData {
 	/// - if entry is not found
 	pub fn delete<T>(&mut self, key: &str) -> Result<T, Error>
 	where
-		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+		T: Any + Debug + FromStr + ToString + Send + Sync,
 	{
 		let remapped_key = self.remappings.remap(key);
 		let board_key = match check_board_pointer(&remapped_key) {
@@ -201,14 +213,26 @@ impl BehaviorData {
 	#[allow(clippy::single_match_else)]
 	pub fn get_ref<T>(&self, key: &str) -> Result<EntryReadGuard<T>, Error>
 	where
-		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+		T: Any + Debug + FromStr + ToString + Send + Sync,
 	{
 		let remapped_key = self.remappings.remap(key);
-		let board_key = match check_board_pointer(&remapped_key) {
-			Ok(board_pointer) => board_pointer,
-			Err(original_key) => original_key,
-		};
-		Ok(self.blackboard.get_ref::<T>(board_key)?)
+		match check_board_pointer(&remapped_key) {
+			Ok(board_pointer) => Ok(self.blackboard.get_ref::<T>(board_pointer)?),
+			Err(original_key) => match self.blackboard.get_ref::<T>(original_key) {
+				Ok(value) => Ok(value),
+				Err(err) => {
+					if is_const_assignment(original_key) {
+						Err(databoard::Error::Assignment {
+							key: key.into(),
+							value: remapped_key,
+						}
+						.into())
+					} else {
+						Err(err.into())
+					}
+				}
+			},
+		}
 	}
 
 	/// Returns a mutable reference to value of type `T` from Blackboard.
@@ -218,14 +242,26 @@ impl BehaviorData {
 	#[allow(clippy::single_match_else)]
 	pub fn get_mut_ref<T>(&self, key: &str) -> Result<EntryWriteGuard<T>, Error>
 	where
-		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+		T: Any + Debug + FromStr + ToString + Send + Sync,
 	{
 		let remapped_key = self.remappings.remap(key);
-		let board_key = match check_board_pointer(&remapped_key) {
-			Ok(board_pointer) => board_pointer,
-			Err(original_key) => original_key,
-		};
-		Ok(self.blackboard.get_mut_ref::<T>(board_key)?)
+		match check_board_pointer(&remapped_key) {
+			Ok(board_pointer) => Ok(self.blackboard.get_mut_ref::<T>(board_pointer)?),
+			Err(original_key) => match self.blackboard.get_mut_ref::<T>(original_key) {
+				Ok(value) => Ok(value),
+				Err(err) => {
+					if is_const_assignment(original_key) {
+						Err(databoard::Error::Assignment {
+							key: key.into(),
+							value: remapped_key,
+						}
+						.into())
+					} else {
+						Err(err.into())
+					}
+				}
+			},
+		}
 	}
 
 	/// Set a value of type `T` into Blackboard.
@@ -234,7 +270,7 @@ impl BehaviorData {
 	/// - if value can not be set
 	pub fn set<T>(&mut self, key: &str, value: T) -> Result<Option<T>, Error>
 	where
-		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
+		T: Any + Debug + FromStr + ToString + Send + Sync,
 	{
 		let remapped_key = self.remappings.remap(key);
 		let board_key = match check_board_pointer(&remapped_key) {
@@ -328,7 +364,7 @@ impl BehaviorData {
 // region:		--- impl Environment
 impl Environment for BehaviorData {
 	fn define_env(&mut self, key: &str, value: ScriptingValue) -> Result<(), tinyscript::environment::Error> {
-		if self.contains(key) {
+		if self.contains_key(key) {
 			self.set_env(key, value)
 		} else {
 			match value {

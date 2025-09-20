@@ -12,7 +12,7 @@ use alloc::{
 };
 // region:      --- modules
 use crate::{
-	ConstString, EMPTY_STR, ID, NAME, SUBTREE,
+	BEHAVIORTREE, ConstString, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
 	behavior::{
 		BehaviorDataCollection, BehaviorKind, BehaviorPtr,
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
@@ -39,7 +39,7 @@ fn create_data_collection_from_xml(
 	is_root: bool,
 ) -> Result<Box<BehaviorDataCollection>, Error> {
 	let mut tag_name = node.tag_name().name();
-	if tag_name == "BehaviorTree" {
+	if tag_name == BEHAVIORTREE {
 		tag_name = SUBTREE;
 	}
 	let is_subtree = tag_name == SUBTREE;
@@ -308,8 +308,8 @@ impl XmlParser {
 					// only 'BehaviorTree' or 'TreeNodesModel' are valid
 					let name = element.tag_name().name();
 					match name {
-						"TreeNodesModel" => {} // ignore
-						"BehaviorTree" => {
+						TREENODESMODEL => {} // @TODO: defaults!!
+						BEHAVIORTREE => {
 							// check for tree ID
 							if let Some(id) = element.attribute(ID) {
 								// if no explicit main tree id is given, the first found id will be used for main tree

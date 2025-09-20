@@ -26,7 +26,6 @@ const THEN_SKIP: &str = "then_skip";
 #[derive(Decorator, Debug, Default)]
 pub struct RunOnce {
 	already_ticked: bool,
-	then_skip: bool,
 	state: BehaviorState,
 }
 
@@ -39,25 +38,14 @@ impl Behavior for RunOnce {
 		Ok(())
 	}
 
-	#[inline]
-	fn on_start(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> Result<(), BehaviorError> {
-		self.then_skip = behavior.get::<bool>(THEN_SKIP)?;
-		Ok(())
-	}
-
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut ConstBehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		if self.already_ticked {
-			if self.then_skip {
+			if behavior.get::<bool>(THEN_SKIP)? {
 				Ok(BehaviorState::Skipped)
 			} else {
 				Ok(self.state)

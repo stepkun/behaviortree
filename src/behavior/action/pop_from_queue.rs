@@ -9,7 +9,7 @@ use tinyscript::SharedRuntime;
 
 use crate::{
 	self as behaviortree, Action,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError, shared_queue::SharedQueue},
+	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, shared_queue::SharedQueue},
 	input_port, output_port,
 	port::PortList,
 	port_list,
@@ -32,7 +32,8 @@ pub struct PopFromQueue<T>
 where
 	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
 {
-	queue: Option<SharedQueue<T>>,
+	/// A temporary queue to store fixed queue definitions
+	tmp_queue: Option<SharedQueue<T>>,
 }
 
 #[async_trait::async_trait]
@@ -40,38 +41,40 @@ impl<T> Behavior for PopFromQueue<T>
 where
 	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
-	fn on_start(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> Result<(), BehaviorError> {
-		// only on first start
-		if self.queue.is_none() {
-			// fetch the shared queue
-			self.queue = Some(behavior.get::<SharedQueue<T>>(QUEUE)?);
-		}
-		behavior.set_state(BehaviorState::Running);
-		Ok(())
-	}
-
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
 		_children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		if let Some(queue) = &self.queue {
-			if let Some(value) = queue.pop_front() {
-				behavior.set::<T>(POPPED_ITEM, value)?;
-				Ok(BehaviorState::Success)
-			} else {
-				Ok(BehaviorState::Failure)
-			}
+		// get a value
+		#[allow(clippy::option_if_let_else)]
+		let value = if let Some(const_queue) = &self.tmp_queue {
+			const_queue.pop_front()
 		} else {
-			Err(BehaviorError::Composition(
-				"PopFromQueue: Queue was not initiialized properly!".into(),
-			))
+			match behavior.get_mut_ref::<SharedQueue<T>>(QUEUE) {
+				Ok(q) => q.pop_front(),
+				Err(err) => match err {
+					crate::port::error::Error::Blackboard(error) => match error {
+						databoard::Error::Assignment { key: _, value } => {
+							let q = SharedQueue::from_str(&value)?;
+							let first = q.pop_front();
+							self.tmp_queue = Some(q);
+							first
+						}
+						_ => return Err(error.into()),
+					},
+					_ => return Err(err.into()),
+				},
+			}
+		};
+
+		if let Some(value) = value {
+			behavior.set::<T>(POPPED_ITEM, value)?;
+			Ok(BehaviorState::Success)
+		} else {
+			self.tmp_queue = None;
+			Ok(BehaviorState::Failure)
 		}
 	}
 

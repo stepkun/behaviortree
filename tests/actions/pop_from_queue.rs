@@ -124,3 +124,37 @@ async fn pop_from_string_queue() -> Result<(), Error> {
 
 	Ok(())
 }
+
+const TREE_DEFINITION2: &str = r#"
+<root BTCPP_format="4">
+	<BehaviorTree ID="MainTree">
+		<PopFromQueue queue="1;2;3"/>
+	</BehaviorTree>
+</root>
+"#;
+
+#[tokio::test]
+async fn pop_from_default_queue() -> Result<(), Error> {
+	let mut factory = BehaviorTreeFactory::default();
+	register_behavior!(factory, PopFromQueue<i32>, "PopFromQueue")?;
+
+	factory.register_behavior_tree_from_text(TREE_DEFINITION2)?;
+
+	let root_blackboard = Databoard::new();
+	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+	drop(factory);
+
+	let mut res = tree.tick_once().await?;
+	assert_eq!(res, BehaviorState::Success);
+	assert_eq!(root_blackboard.get::<i32>("popped_item")?, 1);
+	res = tree.tick_once().await?;
+	assert_eq!(res, BehaviorState::Success);
+	assert_eq!(root_blackboard.get::<i32>("popped_item")?, 2);
+	res = tree.tick_once().await?;
+	assert_eq!(res, BehaviorState::Success);
+	assert_eq!(root_blackboard.get::<i32>("popped_item")?, 3);
+	res = tree.tick_once().await?;
+	assert_eq!(res, BehaviorState::Failure);
+
+	Ok(())
+}

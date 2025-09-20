@@ -2,7 +2,7 @@
 //! [`RetryUntilSuccessful`] [`Decorator`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
+use alloc::{boxed::Box, string::ToString};
 use tinyscript::SharedRuntime;
 
 use crate::{
@@ -40,8 +40,6 @@ const NUM_ATTEMPTS: &str = "num_attempts";
 /// ```
 #[derive(Decorator, Debug)]
 pub struct RetryUntilSuccessful {
-	/// Defaults to `-1`
-	max_attempts: i32,
 	/// Defaults to `0`
 	try_count: i32,
 	/// Defaults to `true`
@@ -51,7 +49,6 @@ pub struct RetryUntilSuccessful {
 impl Default for RetryUntilSuccessful {
 	fn default() -> Self {
 		Self {
-			max_attempts: -1,
 			try_count: 0,
 			all_skipped: true,
 		}
@@ -67,25 +64,14 @@ impl Behavior for RetryUntilSuccessful {
 		Ok(())
 	}
 
-	fn on_start(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> Result<(), BehaviorError> {
-		// Load num_cycles from the port value
-		self.max_attempts = behavior.get::<i32>(NUM_ATTEMPTS)?;
-		behavior.set_state(BehaviorState::Running);
-		Ok(())
-	}
-
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut ConstBehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		while self.try_count < self.max_attempts || self.max_attempts == -1 {
+		let max_attempts = behavior.get::<i32>(NUM_ATTEMPTS)?;
+		while self.try_count < max_attempts || max_attempts == -1 {
 			// A `Decorator` has only 1 child
 			let child = &mut children[0];
 			let new_state = child.tick(runtime).await?;
@@ -121,7 +107,12 @@ impl Behavior for RetryUntilSuccessful {
 	}
 
 	fn provided_ports() -> PortList {
-		port_list![input_port!(i32, NUM_ATTEMPTS)]
+		port_list![input_port!(
+			i32,
+			NUM_ATTEMPTS,
+			-1,
+			"Try up to N times. Use -1 to create an infinite loop."
+		)]
 	}
 }
 // endregion:   --- RetryUntilSuccessful

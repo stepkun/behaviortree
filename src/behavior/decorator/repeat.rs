@@ -6,7 +6,7 @@ use alloc::{boxed::Box, string::ToString};
 use tinyscript::SharedRuntime;
 
 use crate::{
-	self as behaviortree, Decorator, EMPTY_STR, IDLE,
+	self as behaviortree, Decorator, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
 	input_port,
 	port::PortList,
@@ -30,21 +30,10 @@ const NUM_CYCLES: &str = "num_cycles";
 ///     <WaveHand/>
 /// </Repeat>
 /// ```
-#[derive(Decorator, Debug)]
+#[derive(Decorator, Debug, Default)]
 pub struct Repeat {
-	/// Defaults to `-1`
-	num_cycles: i32,
 	/// Defaults to `0`
 	repeat_count: i32,
-}
-
-impl Default for Repeat {
-	fn default() -> Self {
-		Self {
-			num_cycles: -1,
-			repeat_count: 0,
-		}
-	}
 }
 
 #[async_trait::async_trait]
@@ -55,25 +44,14 @@ impl Behavior for Repeat {
 		Ok(())
 	}
 
-	fn on_start(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> Result<(), BehaviorError> {
-		// Load num_cycles from the port value
-		self.num_cycles = behavior.get::<i32>(NUM_CYCLES)?;
-		behavior.set_state(BehaviorState::Running);
-		Ok(())
-	}
-
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut ConstBehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		if self.repeat_count < self.num_cycles || self.num_cycles == -1 {
+		let num_cycles = behavior.get::<i32>(NUM_CYCLES)?;
+		if self.repeat_count < num_cycles || num_cycles == -1 {
 			let child = &mut children[0];
 			let new_state = child.tick(runtime).await?;
 
@@ -104,7 +82,7 @@ impl Behavior for Repeat {
 		port_list![input_port!(
 			i32,
 			NUM_CYCLES,
-			EMPTY_STR,
+			-1,
 			"Repeat a successful child up to N times. Use -1 to create an infinite loop."
 		)]
 	}

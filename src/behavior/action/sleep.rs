@@ -36,30 +36,34 @@ pub struct Sleep {
 
 #[async_trait::async_trait]
 impl Behavior for Sleep {
+	#[inline]
+	fn on_halt(&mut self) -> Result<(), BehaviorError> {
+		#[cfg(feature = "std")]
+		{
+			self.handle = None;
+		}
+		Ok(())
+	}
+
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
 		_children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
-		#[cfg(not(feature = "std"))]
-		let _ = behavior;
-		#[cfg(not(feature = "std"))]
-		let _ = MSEC;
-		#[cfg(feature = "std")]
 		let millis: u64 = behavior.get(MSEC)?;
+		#[cfg(not(feature = "std"))]
+		{
+			let _ = millis;
+		}
 		#[cfg(feature = "std")]
 		{
 			self.handle = Some(tokio::task::spawn(async move {
 				tokio::time::sleep(Duration::from_millis(millis)).await;
 			}));
-			behavior.set_state(BehaviorState::Running);
-			Ok(())
 		}
-		#[cfg(not(feature = "std"))]
-		{
-			todo!();
-		}
+		behavior.set_state(BehaviorState::Running);
+		Ok(())
 	}
 
 	async fn tick(

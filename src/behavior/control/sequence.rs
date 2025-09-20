@@ -53,6 +53,8 @@ impl Behavior for Sequence {
 		_children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
+		self.child_idx = 0;
+		self.all_skipped = true;
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
 	}

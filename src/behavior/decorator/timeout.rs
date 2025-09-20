@@ -50,24 +50,20 @@ impl Behavior for Timeout {
 		_children: &mut ConstBehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
-		#[cfg(not(feature = "std"))]
-		let _ = behavior;
-		#[cfg(not(feature = "std"))]
-		let _ = MSEC;
-		#[cfg(feature = "std")]
 		let millis: u64 = behavior.get(MSEC)?;
+		#[cfg(not(feature = "std"))]
+		{
+			let _ = millis;
+		}
 		#[cfg(feature = "std")]
 		{
 			self.handle = Some(tokio::task::spawn(async move {
 				tokio::time::sleep(Duration::from_millis(millis)).await;
 			}));
-			behavior.set_state(BehaviorState::Running);
-			Ok(())
 		}
-		#[cfg(not(feature = "std"))]
-		{
-			todo!();
-		}
+
+		behavior.set_state(BehaviorState::Running);
+		Ok(())
 	}
 
 	async fn tick(
@@ -77,9 +73,11 @@ impl Behavior for Timeout {
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		#[cfg(not(feature = "std"))]
-		let _ = children;
-		#[cfg(not(feature = "std"))]
-		let _ = runtime;
+		{
+			let _ = children;
+			let _ = runtime;
+			Ok(BehaviorState::Failure)
+		}
 		#[cfg(feature = "std")]
 		if let Some(handle) = self.handle.as_ref() {
 			let state = children[0].tick(runtime).await?;
@@ -96,9 +94,6 @@ impl Behavior for Timeout {
 		} else {
 			Ok(BehaviorState::Failure)
 		}
-
-		#[cfg(not(feature = "std"))]
-		Ok(BehaviorState::Failure)
 	}
 
 	fn provided_ports() -> PortList {

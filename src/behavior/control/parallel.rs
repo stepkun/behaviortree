@@ -25,7 +25,7 @@ use crate::{
 /// This differs from the [`ParallelAll`](crate::behavior::control::parallel_all::ParallelAll) behavior.
 #[derive(Control, Debug)]
 pub struct Parallel {
-	/// The minimum needed Successes to retrun a Success.
+	/// The minimum needed Successes to return a Success.
 	/// "-1" signals any number.
 	success_threshold: i32,
 	/// The maximum allowed failures.
