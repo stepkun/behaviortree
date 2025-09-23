@@ -18,6 +18,7 @@ use tinyscript::Runtime;
 use crate::{
 	ConstString,
 	behavior::{BehaviorCreationFn, BehaviorPtr, behavior_description::BehaviorDescription},
+	port::PortDirection,
 };
 
 use super::error::Error;
@@ -27,6 +28,14 @@ use super::BehaviorTreeFactory;
 // endregion:   --- modules
 
 // region:     --- BehaviorRegistry
+/// A `TreeNodesModel` entry.
+#[derive(Debug)]
+pub(crate) struct TreeNodesModelEntry {
+	pub(crate) _port_type: PortDirection,
+	pub(crate) key: ConstString,
+	pub(crate) remapping: ConstString,
+}
+
 /// A registry for behaviors used by the [`BehaviorTreeFactory`](crate::factory::BehaviorTreeFactory) for creation of behavior trees.
 #[derive(Default)]
 pub struct BehaviorRegistry {
@@ -35,12 +44,13 @@ pub struct BehaviorRegistry {
 	behaviors: BTreeMap<ConstString, (BehaviorDescription, Arc<BehaviorCreationFn>)>,
 	/// [`BTreeMap`] of registered behavior tree definitions.
 	tree_definitions: BTreeMap<ConstString, (ConstString, Range<usize>)>,
+	/// `TreNodesModel` remappings. The key is combined from behaviors type and ID.
+	tree_nodes_models: BTreeMap<ConstString, TreeNodesModelEntry>,
 	/// Main tree ID
 	main_tree_id: Option<ConstString>,
 	/// Scripting runtime
 	runtime: Box<Runtime>,
 	/// List of loaded libraries.
-	///
 	/// Every tree must keep a reference to its needed libraries to keep the libraries in memory
 	/// until end of programm.
 	#[cfg(feature = "std")]
@@ -78,6 +88,21 @@ impl BehaviorRegistry {
 	#[cfg(feature = "std")]
 	pub fn add_library(&mut self, library: Library) {
 		self.libraries.push(Arc::new(library));
+	}
+
+	/// Adds a `TreeNodesModelEntry` to the registy.
+	/// # Errors
+	/// - if an entry with that key already exists.
+	pub(crate) fn add_tree_nodes_model_entry(&mut self, key: ConstString, entry: TreeNodesModelEntry) -> Result<(), Error> {
+		if self.tree_nodes_models.contains_key(&key) {
+			return Err(Error::EntryAlreadyRegistered(key));
+		}
+		self.tree_nodes_models.insert(key, entry);
+		Ok(())
+	}
+
+	pub(crate) const fn tree_nodes_models(&self) -> &BTreeMap<ConstString, TreeNodesModelEntry> {
+		&self.tree_nodes_models
 	}
 
 	/// Set the main tree id

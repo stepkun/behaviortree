@@ -58,6 +58,9 @@ pub enum Error {
 	/// Port not in defined port list
 	#[error("port name [{0}] does not match [{1}]s port list: {2:?}")]
 	PortInvalid(ConstString, ConstString, ConstString),
+	/// Port type not in defined
+	#[error("port type [{0}] is not defined")]
+	PortType(ConstString),
 	/// Postcondition error
 	#[error("add postcondition for [{0}] failed due to [{1}]")]
 	Postcondition(ConstString, crate::BehaviorError),
@@ -80,12 +83,18 @@ pub enum Error {
 	/// Subtree with more than 1 child
 	#[error("the (Sub)Tree [{0}] has more than 1 child")]
 	SubtreeOneChild(ConstString),
+	/// Add entry to tree nodes model
+	#[error("add 'TreeNodesModel' entry [{0}] failed")]
+	TreeNodesModel(ConstString),
+	/// Add entry to tree nodes model to remapping
+	#[error("add 'TreeNodesModel' entry to remapping failed due to [{0}]")]
+	TreeNodesModelToRemapping(ConstString, databoard::Error),
 	/// Special attribute values not defined
 	#[error("special attribute [{0}] is not supported")]
 	UnknownSpecialAttribute(ConstString),
 	/// Unsupported processing instruction
 	#[error("processing instruction [{0}] is not supported")]
-	UnsupportedProcessingInstruction(ConstString),
+	ProcessingInstruction(ConstString),
 	/// Wrong value for "_autoremap"
 	#[error("'_autoremap' must be 'true' or 'false'")]
 	WrongAutoremap,

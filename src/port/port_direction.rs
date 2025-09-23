@@ -55,4 +55,18 @@ impl PortDirection {
 		}
 	}
 }
+
+impl TryFrom<&str> for PortDirection {
+	type Error = crate::port::Error;
+
+	fn try_from(value: &str) -> Result<Self, Self::Error> {
+		let value = value.to_lowercase();
+		match value.as_ref() {
+			INPUT_TYPE | INPUT => Ok(Self::In),
+			OUTPUT_TYPE | OUTPUT => Ok(Self::Out),
+			INOUT_TYPE | INOUT => Ok(Self::InOut),
+			_ => Err(crate::port::Error::CouldNotConvert(value.into())),
+		}
+	}
+}
 // endregion:   --- PortDirection

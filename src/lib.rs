@@ -81,6 +81,9 @@ pub const TREENODESMODEL: &str = "TreeNodesModel";
 const NAME: &str = "name";
 /// Literal "ID" for ports etc.
 const ID: &str = "ID";
+/// Literal "default" for ports etc.
+const DEFAULT: &str = "default";
+
 /// Literals for scripting ports
 const AUTOREMAP: &str = "_autoremap";
 const FAILURE_IF: &str = "_failureIf";

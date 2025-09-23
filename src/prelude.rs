@@ -19,7 +19,7 @@ pub use alloc::{
 };
 pub use behaviortree_derive::{Action, Condition, Control, Decorator};
 // databoard
-pub use databoard::{Databoard, DataboardPtr, Remappings};
+pub use databoard::{Databoard, Remappings};
 // tinyscript
 pub use tinyscript::{ScriptEnum, SharedRuntime};
 

@@ -146,7 +146,7 @@ impl BehaviorTreeElement {
 
 	/// Get a reference to the blackboard.
 	#[must_use]
-	pub fn blackboard(&self) -> &Databoard {
+	pub const fn blackboard(&self) -> &Databoard {
 		self.data().blackboard()
 	}
 

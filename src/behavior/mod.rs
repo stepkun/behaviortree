@@ -29,7 +29,7 @@ use crate::{
 };
 use alloc::{boxed::Box, string::String};
 use core::any::Any;
-use databoard::{DataboardPtr, Remappings};
+use databoard::{Databoard, Remappings};
 use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
@@ -56,7 +56,7 @@ pub(crate) struct BehaviorDataCollection {
 	pub node_name: String,
 	pub path: String,
 	pub bhvr_desc: BehaviorDescription,
-	pub blackboard: DataboardPtr,
+	pub blackboard: Databoard,
 	pub bhvr: Box<dyn BehaviorExecution>,
 	pub remappings: Remappings,
 	pub conditions: Conditions,

@@ -41,6 +41,9 @@ pub enum Error {
 	#[cfg(not(feature = "std"))]
 	#[error("creation of (sub)tree [{0}] failed")]
 	Create(ConstString),
+	/// `TreeNodesModel` entry already registered
+	#[error("a 'TreeNodesModel' registration with [{0}] already exists")]
+	EntryAlreadyRegistered(ConstString),
 	/// Invalid plugin path
 	#[cfg(feature = "std")]
 	#[error("invalid plugin path [{path}]")]

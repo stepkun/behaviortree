@@ -12,17 +12,17 @@ use alloc::{
 };
 // region:      --- modules
 use crate::{
-	BEHAVIORTREE, ConstString, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
+	ACTION, BEHAVIORTREE, CONDITION, CONTROL, ConstString, DECORATOR, DEFAULT, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
 	behavior::{
 		BehaviorDataCollection, BehaviorKind, BehaviorPtr,
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
-	factory::registry::BehaviorRegistry,
-	port::is_allowed_port_name,
+	factory::registry::{BehaviorRegistry, TreeNodesModelEntry},
+	port::{PortDirection, is_allowed_port_name},
 	tree::{BehaviorTreeElement, BehaviorTreeElementList, ConstBehaviorTreeElementList},
 	xml::error::Error,
 };
-use databoard::{Databoard, DataboardPtr, Remappings, strip_board_pointer};
+use databoard::{Databoard, Remappings, strip_board_pointer};
 use roxmltree::{Document, Node, NodeType};
 #[cfg(feature = "std")]
 use std::path::PathBuf;
@@ -35,34 +35,36 @@ fn create_data_collection_from_xml(
 	path: &str,
 	node: &Node,
 	uid: u16,
-	blackboard: Option<DataboardPtr>,
+	blackboard: Option<Databoard>,
 	is_root: bool,
 ) -> Result<Box<BehaviorDataCollection>, Error> {
-	let mut tag_name = node.tag_name().name();
-	if tag_name == BEHAVIORTREE {
-		tag_name = SUBTREE;
-	}
-	let is_subtree = tag_name == SUBTREE;
-
-	// if node is denoted with type of behavior, use attribute "ID" as name
-	if tag_name == crate::ACTION
-		|| tag_name == crate::CONDITION
-		|| tag_name == crate::CONTROL
-		|| tag_name == crate::DECORATOR
-		|| tag_name == crate::SUBTREE
-	{
-		if let Some(id) = node.attribute(ID) {
-			tag_name = id;
-		} else {
-			return Err(Error::MissingId(node.tag_name().name().into()));
+	let (behavior_id, behavior_kind) = {
+		let tag_name = node.tag_name().name();
+		match tag_name {
+			BEHAVIORTREE => {
+				if let Some(id) = node.attribute(ID) {
+					(id, SUBTREE)
+				} else {
+					return Err(Error::MissingId(node.tag_name().name().into()));
+				}
+			}
+			ACTION | CONDITION | CONTROL | DECORATOR | SUBTREE => {
+				if let Some(id) = node.attribute(ID) {
+					(id, tag_name)
+				} else {
+					return Err(Error::MissingId(node.tag_name().name().into()));
+				}
+			}
+			_ => (tag_name, EMPTY_STR),
 		}
-	}
+	};
+	let is_subtree = behavior_kind == SUBTREE;
 
-	// if node has no assigned name, use tag name
-	let node_name = node
+	// if behavior has no assigned name, use beavior id
+	let behavior_name = node
 		.attribute(NAME)
-		.map_or_else(|| tag_name.to_string(), ToString::to_string);
-	let mut path = String::from(path) + "/" + &node_name;
+		.map_or_else(|| behavior_id.to_string(), ToString::to_string);
+	let mut path = String::from(path) + "/" + &behavior_name;
 	// in case no explicit name was given, we extend the node_name with the uid
 	if node.attribute(NAME).is_none() {
 		path.push_str("::");
@@ -73,16 +75,16 @@ fn create_data_collection_from_xml(
 	let res = if is_subtree {
 		registry.fetch(SUBTREE)
 	} else {
-		registry.fetch(tag_name)
+		registry.fetch(behavior_id)
 	};
 	let Ok((mut bhvr_desc, bhvr_creation_fn)) = res else {
-		return Err(Error::BehaviorNotRegistered(tag_name.into()));
+		return Err(Error::BehaviorNotRegistered(behavior_id.into()));
 	};
-	bhvr_desc.set_name(&node_name);
+	bhvr_desc.set_name(&behavior_name);
 	bhvr_desc.set_path(&path);
 
 	let bhvr = bhvr_creation_fn();
-	let (autoremap, mut remappings, conditions) = handle_attributes(tag_name, is_subtree, &bhvr, node)?;
+	let (autoremap, mut remappings, conditions) = handle_attributes(registry, behavior_id, behavior_kind, &bhvr, node)?;
 
 	let new_blackboard = blackboard.map_or_else(Databoard::new, |blackboard| {
 		if is_subtree && !is_root {
@@ -96,7 +98,7 @@ fn create_data_collection_from_xml(
 	});
 
 	Ok(Box::new(BehaviorDataCollection {
-		node_name,
+		node_name: behavior_name,
 		path,
 		bhvr_desc,
 		blackboard: new_blackboard,
@@ -108,8 +110,9 @@ fn create_data_collection_from_xml(
 }
 
 fn handle_attributes(
-	tag_name: &str,
-	is_subtree: bool,
+	registry: &BehaviorRegistry,
+	behavior_id: &str,
+	behavior_kind: &str,
 	bhvr: &BehaviorPtr,
 	node: &Node,
 ) -> Result<
@@ -129,31 +132,29 @@ fn handle_attributes(
 	// - for checking port names in given attributes
 	// - to add default values
 	let port_list = bhvr.static_provided_ports();
+
 	// first check for default values given in port definition.
 	// this value can later be overwritten by default values given by xml attribute
 	for port_definition in port_list.iter() {
 		if let Some(default_value) = port_definition.default_value() {
-			// check if 'default_value' is a valid BB pointer
-			match strip_board_pointer(default_value) {
-				// BB pointer
-				Some(stripped) => {
-					// remapping to itself is not necessary
-					if stripped != "=" {
-						match remappings.add(port_definition.name(), default_value.clone()) {
-							Ok(()) => {}
-							Err(err) => return Err(Error::Remapping(err)),
-						}
-					}
-				}
-				// No BB pointer
-				None => match remappings.add(port_definition.name(), default_value.clone()) {
-					Ok(()) => {}
-					Err(err) => return Err(Error::Remapping(err)),
-				},
+			match remappings.add(port_definition.name(), default_value.clone()) {
+				Ok(()) => {}
+				Err(err) => return Err(Error::Remapping(err)),
 			}
 		}
 	}
-	// handle attributes
+
+	// second fill in remappings from available TreeNodesModel's
+	for entry in registry.tree_nodes_models() {
+		if entry.0.contains(behavior_id) {
+			match remappings.add(entry.1.key.clone(), entry.1.remapping.clone()) {
+				Ok(()) => {}
+				Err(err) => return Err(Error::TreeNodesModelToRemapping(entry.1.key.clone(), err)),
+			}
+		}
+	}
+
+	// third handle attributes
 	for attribute in node.attributes() {
 		let key = attribute.name();
 		let value = attribute.value();
@@ -188,17 +189,7 @@ fn handle_attributes(
 			}
 		} else {
 			// for a subtree we cannot check against a port list
-			if is_subtree {
-				// ensure key is an allowed port name
-				if !is_allowed_port_name(key) {
-					return Err(Error::NameNotAllowed(key.into()));
-				}
-				// if value is a board pointer, ensure it is an allowed port name
-				if let Some(stripped) = strip_board_pointer(value) {
-					if !is_allowed_port_name(stripped) {
-						return Err(Error::NameNotAllowed(stripped.into()));
-					}
-				}
+			if behavior_kind == SUBTREE {
 				remappings.overwrite(key, value);
 			} else {
 				// check key against list of provided ports
@@ -220,7 +211,7 @@ fn handle_attributes(
 						}
 					}
 					None => {
-						return Err(Error::PortInvalid(key.into(), tag_name.into(), port_list.entries()));
+						return Err(Error::PortInvalid(key.into(), behavior_id.into(), port_list.entries()));
 					}
 				}
 			}
@@ -289,6 +280,63 @@ impl XmlParser {
 	}
 
 	#[allow(clippy::needless_pass_by_value)]
+	#[allow(clippy::unnecessary_wraps)]
+	#[allow(clippy::needless_pass_by_ref_mut)]
+	#[allow(unused)]
+	#[allow(clippy::unwrap_used)]
+	fn register_tree_nodes_model(registry: &mut BehaviorRegistry, model: &Node, source: &ConstString) -> Result<(), Error> {
+		for element in model.children() {
+			match element.node_type() {
+				NodeType::Root => return Err(Error::InvalidRootElement),
+				NodeType::Element => {
+					// an entry in the tree nodes model
+					let behavior_type = element.tag_name().name();
+					let mut behavior_id = behavior_type;
+					for attribute in element.attributes() {
+						match attribute.name() {
+							"ID" => {
+								behavior_id = attribute.value();
+							}
+							value => {
+								return Err(Error::UnknownSpecialAttribute(value.into()));
+							}
+						}
+					}
+					for child in element.children() {
+						match child.node_type() {
+							NodeType::Root => return Err(Error::InvalidRootElement),
+							NodeType::Element => {
+								let port_type = child.tag_name().name();
+								let port_name = child.attribute(NAME).unwrap();
+								if let Some(port_default) = child.attribute(DEFAULT) {
+									let key = String::from(behavior_id) + port_name;
+									let Ok(port_type) = PortDirection::try_from(port_type) else {
+										return Err(Error::PortType(port_type.into()));
+									};
+									let entry = TreeNodesModelEntry {
+										_port_type: port_type,
+										key: port_name.into(),
+										remapping: port_default.into(),
+									};
+									match registry.add_tree_nodes_model_entry(key.into(), entry) {
+										Ok(()) => {}
+										Err(err) => return Err(Error::TreeNodesModel(behavior_id.into())),
+									}
+								}
+							}
+							NodeType::PI => return Err(Error::ProcessingInstruction(element.tag_name().name().into())),
+							NodeType::Comment | NodeType::Text => {}
+						}
+					}
+				}
+				NodeType::PI => return Err(Error::ProcessingInstruction(element.tag_name().name().into())),
+				NodeType::Comment | NodeType::Text => {}
+			}
+		}
+		Ok(())
+	}
+
+	#[allow(clippy::needless_pass_by_value)]
 	#[instrument(level = Level::DEBUG, skip_all)]
 	fn register_document_root(
 		registry: &mut BehaviorRegistry,
@@ -300,15 +348,14 @@ impl XmlParser {
 		for element in root.children() {
 			match element.node_type() {
 				NodeType::Comment | NodeType::Text => {} // ignore
-				NodeType::Root => {
-					// this should not happen
-					return Err(Error::InvalidRootElement)?;
-				}
+				NodeType::Root => return Err(Error::InvalidRootElement),
 				NodeType::Element => {
 					// only 'BehaviorTree' or 'TreeNodesModel' are valid
 					let name = element.tag_name().name();
 					match name {
-						TREENODESMODEL => {} // @TODO: defaults!!
+						TREENODESMODEL => {
+							Self::register_tree_nodes_model(registry, &element, source)?;
+						}
 						BEHAVIORTREE => {
 							// check for tree ID
 							if let Some(id) = element.attribute(ID) {
@@ -357,7 +404,7 @@ impl XmlParser {
 					}
 				}
 				NodeType::PI => {
-					return Err(Error::UnsupportedProcessingInstruction(element.tag_name().name().into()))?;
+					Err(Error::ProcessingInstruction(element.tag_name().name().into()))?;
 				}
 			}
 		}
@@ -370,7 +417,7 @@ impl XmlParser {
 		&mut self,
 		name: &str,
 		registry: &mut BehaviorRegistry,
-		external_blackboard: Option<DataboardPtr>,
+		external_blackboard: Option<Databoard>,
 	) -> Result<BehaviorTreeElement, Error> {
 		event!(Level::TRACE, "create_tree_from_definition");
 
@@ -425,7 +472,7 @@ impl XmlParser {
 					children.push(element);
 				}
 				NodeType::PI => {
-					return Err(Error::UnsupportedProcessingInstruction(node.tag_name().name().into()))?;
+					return Err(Error::ProcessingInstruction(node.tag_name().name().into()))?;
 				}
 			}
 		}

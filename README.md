@@ -103,6 +103,7 @@ impl Behavior for SaySomething {
 ## Capabilities
 
  ✅: Supported<br>
+ ☑️: Supported with some caveats<br>
  🚦: Not yet fully tested but should work<br>
  🔴: Not yet supported<br>
  ??: Unclear if it can be supported<br>
@@ -114,7 +115,7 @@ impl Behavior for SaySomething {
 | ----------------------- | ------- | -------- |
 | XML                     |         |          |
 | - parsing               | ✅      | ✅       |
-| - generation            | ✅      | ✅       |
+| - generation            | ☑️      | ☑️       |
 |                         |         |          |
 | Ports                   |         |          |
 | - remapping             | ✅      | ✅       |
@@ -139,7 +140,7 @@ impl Behavior for SaySomething {
 |                         |         |          |
 | Using Groot2 for:       |         |          |
 | - XML Create/Edit       | ✅      | ✅       |
-| - Live Monitoring       | ✅      | ??       |
+| - Live Monitoring       | ☑️      | ??       |
 | - Pro Features          | 🔴      | ??       |
 
 ### Built-in behaviors
@@ -153,7 +154,7 @@ impl Behavior for SaySomething {
 | `SetBlackboard`           | ✅      | 🚦       |
 | `Sleep`                   | 🚦      | 🔴       |
 | `UnsetBlackboard`         | ✅      | 🚦       |
-| `PopFromQueue` (new)      | ✅      | 🚦       |
+| `PopFromQueue<T>` (new)   | ✅      | 🚦       |
 |                           |         |          |
 | __Condition__             |         |          |
 | `ScriptCondition`         | 🚦      | 🚦       |
@@ -169,7 +170,7 @@ impl Behavior for SaySomething {
 | `ParallelAll`             | ✅      | 🚦       |
 | `IfThenElse`              | ✅      | 🚦       |
 | `WhileDoElse`             | ✅      | 🚦       |
-| `Switch`                  | ✅      | 🚦       |
+| `Switch<u8>`              | ✅      | 🚦       |
 | `ManualSelector` (new)    | 🔴      | ??       |
 |                           |         |          |
 | __Decorator__             |         |          |
@@ -181,7 +182,7 @@ impl Behavior for SaySomething {
 | `RetryUntilSuccessful`    | ✅      | 🚦       |
 | `Delay`                   | 🚦      | 🔴       |
 | `EntryUpdated`            | ✅      | 🚦       |
-| `LoopQueue`               | ✅      | ✅       |
+| `LoopQueue<T>`            | ✅      | ✅       |
 | `RunOnce`                 | ✅      | 🚦       |
 | `Precondition`            | ✅      | 🚦       |
 | `Timeout`                 | 🚦      | 🔴       |

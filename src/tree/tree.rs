@@ -124,7 +124,7 @@ impl BehaviorTree {
 
 	/// Access the root blackboard of the tree.
 	#[must_use]
-	pub fn blackboard(&self) -> &Databoard {
+	pub const fn blackboard(&self) -> &Databoard {
 		self.root.data().blackboard()
 	}
 

@@ -9,8 +9,27 @@ use alloc::sync::Arc;
 use behaviortree::prelude::*;
 use spin::Mutex;
 
-fn sleep_ms(millisecs: u64) {
-	// Timer::after_millis(millisecs).await;
+/// Returns `true` if sleeping, `false` after sleep time ended.
+#[must_use]
+#[allow(unsafe_code)]
+fn sleep_ms(millisecs: u64) -> bool {
+	static mut START: Option<Instant> = None;
+	unsafe {
+		START.map_or_else(
+			|| {
+				START = Some(Instant::now());
+				true
+			},
+			|start| {
+				if Instant::now().duration_since(start) > Duration::from_millis(millisecs) {
+					START = None;
+					false
+				} else {
+					true
+				}
+			},
+		)
+	}
 }
 
 /// `CrossDoor` behavior interface
@@ -37,7 +56,6 @@ impl CrossDoor {
 	/// # Errors
 	/// never
 	pub fn is_door_closed(&self) -> BehaviorResult {
-		sleep_ms(200);
 		if self.door_open {
 			Ok(BehaviorState::Failure)
 		} else {
@@ -49,8 +67,9 @@ impl CrossDoor {
 	/// # Errors
 	/// never
 	pub fn open_door(&mut self) -> BehaviorResult {
-		sleep_ms(500);
-		if self.door_locked {
+		if sleep_ms(500) {
+			Ok(BehaviorState::Running)
+		} else if self.door_locked {
 			Ok(BehaviorState::Failure)
 		} else {
 			self.door_open = true;
@@ -62,8 +81,9 @@ impl CrossDoor {
 	/// # Errors
 	/// never
 	pub fn pass_through_door(&self) -> BehaviorResult {
-		sleep_ms(500);
-		if self.door_open {
+		if sleep_ms(500) {
+			Ok(BehaviorState::Running)
+		} else if self.door_open {
 			Ok(BehaviorState::Success)
 		} else {
 			Ok(BehaviorState::Failure)
@@ -75,15 +95,18 @@ impl CrossDoor {
 	/// # Errors
 	/// never
 	pub fn pick_lock(&mut self) -> BehaviorResult {
-		sleep_ms(500);
-		self.pick_attempts += 1;
-		// succeed at random attempt
-		if self.pick_attempts >= self.needed_attempts {
-			self.door_locked = false;
-			self.door_open = true;
-			Ok(BehaviorState::Success)
+		if sleep_ms(500) {
+			Ok(BehaviorState::Running)
 		} else {
-			Ok(BehaviorState::Failure)
+			self.pick_attempts += 1;
+			// succeed at random attempt
+			if self.pick_attempts >= self.needed_attempts {
+				self.door_locked = false;
+				self.door_open = true;
+				Ok(BehaviorState::Success)
+			} else {
+				Ok(BehaviorState::Failure)
+			}
 		}
 	}
 

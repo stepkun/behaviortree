@@ -18,8 +18,7 @@ use core::{
 	str::FromStr,
 };
 use databoard::{
-	Databoard, DataboardPtr, EntryReadGuard, EntryWriteGuard, Remappings, check_board_pointer, is_const_assignment,
-	strip_board_pointer,
+	Databoard, EntryReadGuard, EntryWriteGuard, Remappings, check_board_pointer, is_const_assignment, strip_board_pointer,
 };
 use tinyscript::{Environment, ScriptingValue};
 
@@ -47,8 +46,8 @@ pub struct BehaviorData {
 	/// List of internal [`Remappings`] including
 	/// direct assigned values to a `Port`, e.g. default values.
 	remappings: Remappings,
-	/// Reference to the [`Blackboard`] for the element.
-	blackboard: DataboardPtr,
+	/// Reference to the [`Databoard`] for the element.
+	blackboard: Databoard,
 	/// List of pre state change callbacks with an identifier.
 	/// These callbacks can be used for observation of the [`BehaviorTreeElement`] and
 	/// for manipulation of the resulting [`BehaviorState`] of a tick.
@@ -290,7 +289,7 @@ impl BehaviorData {
 
 	/// Method to access the blackboard.
 	#[must_use]
-	pub fn blackboard(&self) -> &Databoard {
+	pub const fn blackboard(&self) -> &Databoard {
 		&self.blackboard
 	}
 
@@ -412,8 +411,30 @@ impl Environment for BehaviorData {
 
 	#[allow(clippy::too_many_lines)]
 	fn get_env(&self, name: &str) -> Result<ScriptingValue, tinyscript::environment::Error> {
+		// #[cfg(feature = "std")]
+		// extern crate std;
+
 		self.blackboard().entry(name).map_or_else(
-			|_| Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() }),
+			|err| {
+				// std::dbg!(&err);
+				match err {
+					databoard::Error::Assignment { key: _, value } => i64::from_str(&value).map_or_else(
+						|_| {
+							f64::from_str(&value).map_or_else(
+								|_| {
+									bool::from_str(&value).map_or_else(
+										|_| Ok(ScriptingValue::String(value.to_string())),
+										|b| Ok(ScriptingValue::Boolean(b)),
+									)
+								},
+								|f| Ok(ScriptingValue::Float64(f)),
+							)
+						},
+						|i| Ok(ScriptingValue::Int64(i)),
+					),
+					_ => Err(tinyscript::environment::Error::EnvVarNotDefined { name: name.into() }),
+				}
+			},
 			|entry| {
 				let entry = entry.read();
 				let type_id = (**entry).as_ref().type_id();
