@@ -247,7 +247,7 @@ impl XmlParser {
 	pub(crate) fn register_document(
 		registry: &mut BehaviorRegistry,
 		xml: &ConstString,
-		#[cfg(feature = "std")] path: ConstString,
+		#[cfg(feature = "std")] path: &ConstString,
 	) -> Result<(), Error> {
 		// general checks
 		// @TODO embedded: use same mechanism for both -> manual conversion of error!!
@@ -262,10 +262,10 @@ impl XmlParser {
 		if root.tag_name().name() != "root" {
 			return Err(Error::WrongRootName)?;
 		}
-		if let Some(format) = root.attribute("BTCPP_format") {
-			if format != "4" {
-				return Err(Error::BtCppFormat)?;
-			}
+		if let Some(format) = root.attribute("BTCPP_format")
+			&& format != "4"
+		{
+			return Err(Error::BtCppFormat)?;
 		}
 
 		// handle the attribute 'main_tree_to_execute`
@@ -279,12 +279,9 @@ impl XmlParser {
 		Ok(())
 	}
 
-	#[allow(clippy::needless_pass_by_value)]
-	#[allow(clippy::unnecessary_wraps)]
-	#[allow(clippy::needless_pass_by_ref_mut)]
-	#[allow(unused)]
-	#[allow(clippy::unwrap_used)]
-	fn register_tree_nodes_model(registry: &mut BehaviorRegistry, model: &Node, source: &ConstString) -> Result<(), Error> {
+	#[instrument(level = Level::DEBUG, skip_all)]
+	fn register_tree_nodes_model(registry: &mut BehaviorRegistry, model: &Node) -> Result<(), Error> {
+		event!(Level::TRACE, "register_tree_nodes_model");
 		for element in model.children() {
 			match element.node_type() {
 				NodeType::Root => return Err(Error::InvalidRootElement),
@@ -307,8 +304,9 @@ impl XmlParser {
 							NodeType::Root => return Err(Error::InvalidRootElement),
 							NodeType::Element => {
 								let port_type = child.tag_name().name();
-								let port_name = child.attribute(NAME).unwrap();
-								if let Some(port_default) = child.attribute(DEFAULT) {
+								if let Some(port_name) = child.attribute(NAME)
+									&& let Some(port_default) = child.attribute(DEFAULT)
+								{
 									let key = String::from(behavior_id) + port_name;
 									let Ok(port_type) = PortDirection::try_from(port_type) else {
 										return Err(Error::PortType(port_type.into()));
@@ -320,7 +318,7 @@ impl XmlParser {
 									};
 									match registry.add_tree_nodes_model_entry(key.into(), entry) {
 										Ok(()) => {}
-										Err(err) => return Err(Error::TreeNodesModel(behavior_id.into())),
+										Err(_err) => return Err(Error::TreeNodesModel(behavior_id.into())),
 									}
 								}
 							}
@@ -336,13 +334,12 @@ impl XmlParser {
 		Ok(())
 	}
 
-	#[allow(clippy::needless_pass_by_value)]
 	#[instrument(level = Level::DEBUG, skip_all)]
 	fn register_document_root(
 		registry: &mut BehaviorRegistry,
 		root: Node,
 		source: &ConstString,
-		#[cfg(feature = "std")] path: ConstString,
+		#[cfg(feature = "std")] path: &ConstString,
 	) -> Result<(), Error> {
 		event!(Level::TRACE, "register_document_root");
 		for element in root.children() {
@@ -354,7 +351,7 @@ impl XmlParser {
 					let name = element.tag_name().name();
 					match name {
 						TREENODESMODEL => {
-							Self::register_tree_nodes_model(registry, &element, source)?;
+							Self::register_tree_nodes_model(registry, &element)?;
 						}
 						BEHAVIORTREE => {
 							// check for tree ID
@@ -388,7 +385,8 @@ impl XmlParser {
 							match std::fs::read_to_string(&file_path) {
 								Ok(xml) => {
 									if let Some(cur_path) = file_path.parent() {
-										Self::register_document(registry, &xml.into(), cur_path.to_string_lossy().into())?;
+										let path = cur_path.to_string_lossy().into();
+										Self::register_document(registry, &xml.into(), &path)?;
 									} else {
 										return Err(Error::ReadFile(file_path.to_string_lossy().into(), "no parent".into()));
 									}
@@ -411,7 +409,6 @@ impl XmlParser {
 		Ok(())
 	}
 
-	#[allow(clippy::option_if_let_else)]
 	#[instrument(level = Level::DEBUG, skip_all)]
 	pub(crate) fn create_tree_from_definition(
 		&mut self,

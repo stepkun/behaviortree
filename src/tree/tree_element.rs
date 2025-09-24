@@ -56,7 +56,6 @@ pub struct BehaviorTreeElement {
 impl BehaviorTreeElement {
 	/// Construct a [`BehaviorTreeElement`].
 	/// Non public to enforce using the dedicated creation functions.
-	#[allow(clippy::too_many_arguments)]
 	fn new(
 		kind: TreeElementKind,
 		behavior: BehaviorPtr,
@@ -319,14 +318,14 @@ impl BehaviorTreeElement {
 				}
 			} else
 			// Preconditions only applied when the node state is `Running`
-			if self.data.state() == BehaviorState::Running {
-				if let Some(script) = self.pre_conditions.get(WHILE) {
-					let res = runtime.lock().run(script, &mut self.data)?;
-					// if not true halt element and return `Skipped`
-					if bool::try_from(res)? {
-						let _res = self.halt(runtime);
-						return Ok(Some(BehaviorState::Skipped));
-					}
+			if self.data.state() == BehaviorState::Running
+				&& let Some(script) = self.pre_conditions.get(WHILE)
+			{
+				let res = runtime.lock().run(script, &mut self.data)?;
+				// if not true halt element and return `Skipped`
+				if bool::try_from(res)? {
+					let _res = self.halt(runtime);
+					return Ok(Some(BehaviorState::Skipped));
 				}
 			}
 		}

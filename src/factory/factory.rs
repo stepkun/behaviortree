@@ -443,7 +443,7 @@ impl BehaviorTreeFactory {
 		#[cfg(feature = "std")]
 		{
 			let dir = std::env::current_dir()?.to_string_lossy().into();
-			match XmlParser::register_document(&mut self.registry, &xml.into(), dir) {
+			match XmlParser::register_document(&mut self.registry, &xml.into(), &dir) {
 				Ok(()) => Ok(()),
 				Err(err) => Err(Error::RegisterXml(err.to_string().into())),
 			}
@@ -477,7 +477,7 @@ impl BehaviorTreeFactory {
 			};
 			let xml: ConstString = std::fs::read_to_string(file_path)?.into();
 			//XmlParser::register_document(&mut self.registry, &xml, dir)
-			match XmlParser::register_document(&mut self.registry, &xml, dir) {
+			match XmlParser::register_document(&mut self.registry, &xml, &dir) {
 				Ok(()) => Ok(()),
 				Err(err) => Err(Error::RegisterXml(err.to_string().into())),
 			}

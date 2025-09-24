@@ -24,7 +24,6 @@ const FORBIDDEN_PORT_NAMES: &[&str] = &[
 /// Create a [`PortDefinition`]
 /// # Errors
 /// - if the name violates the conventions.
-#[allow(clippy::extra_unused_type_parameters)]
 pub fn create_port<T>(
 	direction: PortDirection,
 	type_name: &'static str,

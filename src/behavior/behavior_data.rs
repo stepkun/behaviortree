@@ -107,8 +107,6 @@ impl BehaviorData {
 	/// Get a value of type `T` from Blackboard.
 	/// # Errors
 	/// - if value is not found
-	#[allow(clippy::option_if_let_else)]
-	#[allow(clippy::single_match_else)]
 	pub fn get<T>(&self, key: &str) -> Result<T, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
@@ -123,33 +121,35 @@ impl BehaviorData {
 					Ok(entry) => {
 						let en = &*entry.read();
 						let data = en.data().as_ref();
-						if let Some(val) = data.downcast_ref::<T>() {
-							// std::dbg!("remapped1");
-							Ok(val.clone())
-						} else if let Some(val) = data.downcast_ref::<String>() {
-							// std::dbg!("remapped2");
-							match T::from_str(val) {
-								Ok(res) => Ok(res),
-								Err(_) => Err(Error::CouldNotConvert(remapped_key.into())),
-							}
-						} else {
-							// std::dbg!("remapped3");
-							// maybe it is a value set by scripting
-							self.get_env(remapped_key).map_or_else(
-								|_| Err(Error::NotFound(remapped.clone())),
-								|val| {
-									let s = match val {
-										ScriptingValue::Nil() => unreachable!(),
-										ScriptingValue::Boolean(b) => b.to_string(),
-										ScriptingValue::Float64(f) => f.to_string(),
-										ScriptingValue::Int64(i) => i.to_string(),
-										ScriptingValue::String(s) => s,
-									};
-									T::from_str(&s)
-										.map_or_else(|_| Err(Error::CouldNotConvert(remapped_key.into())), |val| Ok(val))
-								},
-							)
-						}
+						data.downcast_ref::<T>().map_or_else(
+							|| {
+								data.downcast_ref::<String>().map_or_else(
+									|| {
+										self.get_env(remapped_key).map_or_else(
+											|_| Err(Error::NotFound(remapped.clone())),
+											|val| {
+												let s = match val {
+													ScriptingValue::Nil() => unreachable!(),
+													ScriptingValue::Boolean(b) => b.to_string(),
+													ScriptingValue::Float64(f) => f.to_string(),
+													ScriptingValue::Int64(i) => i.to_string(),
+													ScriptingValue::String(s) => s,
+												};
+												T::from_str(&s).map_or_else(
+													|_| Err(Error::CouldNotConvert(remapped_key.into())),
+													|val| Ok(val),
+												)
+											},
+										)
+									},
+									|val| {
+										T::from_str(val)
+											.map_or_else(|_| Err(Error::CouldNotConvert(remapped_key.into())), |res| Ok(res))
+									},
+								)
+							},
+							|val| Ok(val.clone()),
+						)
 					}
 					Err(err) => {
 						// std::dbg!("remapped4");
@@ -176,14 +176,10 @@ impl BehaviorData {
 					Err(err) => {
 						let entry = self.blackboard.entry(key)?;
 						let en = &*entry.read();
-						if let Some(val) = en.data().downcast_ref::<String>() {
-							match T::from_str(val) {
-								Ok(res) => Ok(res),
-								Err(_) => Err(Error::CouldNotConvert(key.into())),
-							}
-						} else {
-							Err(err.into())
-						}
+						en.data().downcast_ref::<String>().map_or_else(
+							|| Err(err.into()),
+							|val| T::from_str(val).map_or_else(|_| Err(Error::CouldNotConvert(key.into())), |res| Ok(res)),
+						)
 					}
 				},
 				Err(original_key) => match self.blackboard.get::<T>(original_key) {
@@ -191,14 +187,10 @@ impl BehaviorData {
 					Err(err) => {
 						let entry = self.blackboard.entry(key)?;
 						let en = &*entry.read();
-						if let Some(val) = en.data().downcast_ref::<String>() {
-							match T::from_str(val) {
-								Ok(res) => Ok(res),
-								Err(_) => Err(Error::CouldNotConvert(key.into())),
-							}
-						} else {
-							Err(err.into())
-						}
+						en.data().downcast_ref::<String>().map_or_else(
+							|| Err(err.into()),
+							|val| T::from_str(val).map_or_else(|_| Err(Error::CouldNotConvert(key.into())), |res| Ok(res)),
+						)
 					}
 				},
 			}
@@ -208,8 +200,6 @@ impl BehaviorData {
 	/// Returns a reference to value of type `T` from Blackboard.
 	/// # Errors
 	/// - if value is not found
-	#[allow(clippy::option_if_let_else)]
-	#[allow(clippy::single_match_else)]
 	pub fn get_ref<T>(&self, key: &str) -> Result<EntryReadGuard<T>, Error>
 	where
 		T: Any + Debug + FromStr + ToString + Send + Sync,
@@ -237,8 +227,6 @@ impl BehaviorData {
 	/// Returns a mutable reference to value of type `T` from Blackboard.
 	/// # Errors
 	/// - if value is not found
-	#[allow(clippy::option_if_let_else)]
-	#[allow(clippy::single_match_else)]
 	pub fn get_mut_ref<T>(&self, key: &str) -> Result<EntryWriteGuard<T>, Error>
 	where
 		T: Any + Debug + FromStr + ToString + Send + Sync,

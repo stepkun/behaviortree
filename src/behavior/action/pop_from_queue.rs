@@ -48,7 +48,6 @@ where
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		// get a value
-		#[allow(clippy::option_if_let_else)]
 		let value = if let Some(const_queue) = &self.tmp_queue {
 			const_queue.pop_front()
 		} else {

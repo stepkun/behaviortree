@@ -237,15 +237,8 @@ impl XmlCreator {
 
 		// scan the tree
 		for item in tree.iter() {
-			#[allow(clippy::match_same_arms)]
 			match item.kind() {
-				TreeElementKind::Leaf => {
-					let desc = item.data().description();
-					if builtin_models || !desc.groot2() {
-						behaviors.insert(desc.name().clone(), desc.clone());
-					}
-				}
-				TreeElementKind::Node => {
+				TreeElementKind::Leaf | TreeElementKind::Node => {
 					let desc = item.data().description();
 					if builtin_models || !desc.groot2() {
 						behaviors.insert(desc.name().clone(), desc.clone());

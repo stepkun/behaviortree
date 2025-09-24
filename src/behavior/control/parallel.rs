@@ -68,7 +68,6 @@ impl Behavior for Parallel {
 
 	#[allow(clippy::cast_possible_truncation)]
 	#[allow(clippy::cast_possible_wrap)]
-	#[allow(clippy::match_same_arms)]
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,

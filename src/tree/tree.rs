@@ -180,9 +180,7 @@ impl BehaviorTree {
 
 	/// Handle incoming message    
 	#[cfg(feature = "std")]
-	#[allow(clippy::redundant_locals)]
 	fn handle_message(&mut self, message: BehaviorTreeMessage) {
-		let message = message;
 		match message {
 			BehaviorTreeMessage::RemoveAllGrootHooks => {
 				for element in self.iter_mut() {

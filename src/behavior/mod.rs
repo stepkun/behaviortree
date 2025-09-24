@@ -4,7 +4,6 @@
 pub mod action;
 pub mod behavior_data;
 pub mod behavior_description;
-#[allow(clippy::module_inception)]
 pub mod condition;
 pub mod control;
 pub mod decorator;

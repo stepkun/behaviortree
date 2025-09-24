@@ -2,11 +2,11 @@
 [package]
 resolver = "3"
 name = "behaviortree"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
-description = "A BehaviorTree library similar to BehaviorTree.CPP, ccompatible with #![no_std]."
+description = "A BehaviorTree library similar to BehaviorTree.CPP, compatible with #![no_std]."
 rust-version = "1.88.0"
 repository = "https://github.com/stepkun/behaviortree.git"
 homepage = "http://github.com/stepkun/behaviortree.git"

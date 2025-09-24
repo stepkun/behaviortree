@@ -37,9 +37,6 @@ impl<'a> TreeIter<'a> {
 impl<'a> Iterator for TreeIter<'a> {
 	type Item = &'a BehaviorTreeElement;
 
-	#[allow(clippy::cast_possible_truncation)]
-	#[allow(clippy::cast_sign_loss)]
-	#[allow(clippy::cast_possible_wrap)]
 	fn next(&mut self) -> Option<Self::Item> {
 		if let Some(node) = self.stack.pop() {
 			// Push children in revers order to maintain left-to-right order
