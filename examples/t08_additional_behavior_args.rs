@@ -88,9 +88,9 @@ async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
 	drop(factory);
 
 	// initialize ActionB with the help of an iterator
-	for node in tree.iter_mut() {
-		if node.data().description().name().as_ref() == ("Action_B") {
-			if let Some(action) = node
+	for behavior in tree.iter_mut() {
+		if behavior.data().description().name().as_ref() == ("Action_B") {
+			if let Some(action) = behavior
 				.behavior_mut()
 				.as_any_mut()
 				.downcast_mut::<ActionB>()
@@ -119,7 +119,7 @@ mod test {
 	use super::*;
 
 	#[tokio::test]
-	async fn t08_additional_node_args() -> Result<(), Error> {
+	async fn t08_additional_behavior_args() -> Result<(), Error> {
 		let result = example().await?;
 		assert_eq!(result.0, BehaviorState::Success);
 

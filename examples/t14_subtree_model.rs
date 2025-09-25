@@ -41,7 +41,7 @@ async fn example0() -> BehaviorTreeResult {
 	factory.register_test_behaviors()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
-	// register subtrees nodes
+	// register subtrees behaviors
 	move_robot::register_behaviors(&mut factory)?;
 
 	factory.register_behavior_tree_from_text(XML0)?;
@@ -88,7 +88,7 @@ async fn example1() -> BehaviorTreeResult {
 	factory.register_test_behaviors()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
-	// register subtrees nodes
+	// register subtrees behaviors
 	move_robot::register_behaviors(&mut factory)?;
 
 	factory.register_behavior_tree_from_text(XML1)?;
@@ -141,7 +141,7 @@ async fn example2() -> BehaviorTreeResult {
 	factory.register_test_behaviors()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
-	// register subtrees nodes
+	// register subtrees behaviors
 	move_robot::register_behaviors(&mut factory)?;
 
 	factory.register_behavior_tree_from_text(XML2)?;

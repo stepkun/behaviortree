@@ -28,9 +28,9 @@ const XML: &str = r#"
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::default();
 
-	// The recommended way to create a Behavior is through inheritance/composition.
+	// The recommended way to create a Behavior is through composition.
 	// Even if it requires more boilerplate, it allows you to use more functionalities
-	// like ports (we will discuss this in future tutorials).
+	// like ports.
 	register_behavior!(factory, ApproachObject, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
@@ -63,10 +63,73 @@ async fn example() -> BehaviorTreeResult {
 	Ok(result)
 }
 
+const XML_EXPLICITE: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Control ID="Sequence" name="root_sequence">
+			<Condition ID="CheckBattery"	name="battery_ok"/>
+			<Action ID="OpenGripper"		name="open_gripper"/>
+			<Action ID="ApproachObject"		name="approach_object"/>
+			<Action ID="CloseGripper"		name="close_gripper"/>
+		</Control>
+	</BehaviorTree>
+</root>
+"#;
+
+async fn example_explicite() -> BehaviorTreeResult {
+	let mut factory = BehaviorTreeFactory::default();
+
+	// The recommended way to create a Behavior is through composition.
+	// Even if it requires more boilerplate, it allows you to use more functionalities
+	// like ports.
+	register_behavior!(factory, ApproachObject, "ApproachObject")?;
+
+	// Registering a SimpleAction/SimpleCondition using a function pointer.
+	register_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
+
+	// You can also create SimpleAction/SimpleCondition using methods of a struct.
+	register_behavior!(
+		factory,
+		GripperInterface::default(),
+		open,
+		"OpenGripper",
+		BehaviorKind::Action,
+		close,
+		"CloseGripper",
+		BehaviorKind::Action
+	)?;
+
+	// Trees are created at run-time, but only once at the beginning.
+	// The currently supported format is XML.
+	// IMPORTANT: When the object "tree" goes out of scope, all the tree components are destroyed
+	let mut tree = factory.create_from_text(XML_EXPLICITE)?;
+	// dropping the factory to free memory
+	drop(factory);
+
+	// To "execute" a Tree you need to "tick" it.
+	// The tick is propagated to the children based on the logic of the tree.
+	// In this case, the entire sequence is executed, because all the children
+	// of the Sequence return SUCCESS.
+	let result = tree.tick_while_running().await?;
+	Ok(result)
+}
+
 #[ariel_os::task(autostart)]
 async fn main() {
 	info!("running t01_build_your_first_tree...");
+
+	info!("implicite");
 	match example().await {
+		Ok(_) => {}
+		Err(_) => {
+			error!(" ...failed!");
+			exit(ExitCode::FAILURE)
+		}
+	};
+
+	info!("explicite");
+	match example_explicite().await {
 		Ok(_) => {
 			info!("...succeeded!");
 			exit(ExitCode::SUCCESS)

@@ -52,8 +52,8 @@ async fn example() -> BehaviorTreeResult {
 
 	// Print the unique ID and the corresponding human readable path
 	// Path is also expected to be unique.
-	for node in tree.iter() {
-		println!("{} <-> {}", node.uid(), node.data().description().path());
+	for element in tree.iter() {
+		println!("{} <-> {}", element.uid(), element.data().description().path());
 	}
 	println!();
 

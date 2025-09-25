@@ -1,5 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 //! Implements the first tutorial/example from [BehaviorTree.CPP](https://www.behaviortree.dev).
+//! It contains both ways, with implicite behavior ID's and with explicite behavior ID's.
 //!
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_01_first_tree).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t01_build_your_first_tree.cpp).
@@ -9,7 +10,7 @@ mod common;
 use behaviortree::prelude::*;
 use common::test_data::{ApproachObject, GripperInterface, check_battery};
 
-/// This definition uses implicit node ID's
+/// This definition uses implicit behavior ID's
 const XML: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">
@@ -27,9 +28,9 @@ const XML: &str = r#"
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::default();
 
-	// The recommended way to create a Behavior is through inheritance/composition.
+	// The recommended way to create a Behavior is through composition.
 	// Even if it requires more boilerplate, it allows you to use more functionalities
-	// like ports (we will discuss this in future tutorials).
+	// like ports.
 	register_behavior!(factory, ApproachObject, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
@@ -62,9 +63,56 @@ async fn example() -> BehaviorTreeResult {
 	Ok(result)
 }
 
+/// This definition uses explicit behavior ID's
+const XML_EXPLICITE: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Control ID="Sequence" name="root_sequence">
+			<Condition ID="CheckBattery"	name="battery_ok"/>
+			<Action ID="OpenGripper"		name="open_gripper"/>
+			<Action ID="ApproachObject"		name="approach_object"/>
+			<Action ID="CloseGripper"		name="close_gripper"/>
+		</Control>
+	</BehaviorTree>
+</root>
+"#;
+
+async fn example_explicite() -> BehaviorTreeResult {
+	let mut factory = BehaviorTreeFactory::default();
+
+	// The recommended way to create a Behavior is through composition.
+	// Even if it requires more boilerplate, it allows you to use more functionalities
+	// like ports.
+	register_behavior!(factory, ApproachObject, "ApproachObject")?;
+
+	// Registering a SimpleAction/SimpleCondition using a function pointer.
+	register_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
+
+	// You can also create SimpleAction/SimpleCondition using methods of a struct.
+	register_behavior!(
+		factory,
+		GripperInterface::default(),
+		open,
+		"OpenGripper",
+		BehaviorKind::Action,
+		close,
+		"CloseGripper",
+		BehaviorKind::Action
+	)?;
+
+	let mut tree = factory.create_from_text(XML_EXPLICITE)?;
+	// dropping the factory to free memory
+	drop(factory);
+
+	let result = tree.tick_while_running().await?;
+	Ok(result)
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Error> {
 	example().await?;
+	example_explicite().await?;
 	Ok(())
 }
 
@@ -75,6 +123,9 @@ mod test {
 	#[tokio::test]
 	async fn t01_build_your_first_tree() -> Result<(), Error> {
 		let result = example().await?;
+		assert_eq!(result, BehaviorState::Success);
+
+		let result = example_explicite().await?;
 		assert_eq!(result, BehaviorState::Success);
 		Ok(())
 	}

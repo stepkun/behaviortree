@@ -73,10 +73,10 @@ async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
 
 	#[cfg(not(test))]
 	let crossdoor = CrossDoor::register_behaviors(&mut factory)?;
-	// Nodes registration, as usual
+	// Behavior registration, as usual
 	register_behavior!(factory, UpdatePosition, "UpdatePosition")?;
 
-	// Groot2 editor requires a model of your registered Nodes.
+	// Groot2 editor requires a model of your registered behaviors.
 	// You don't need to write that by hand, it can be automatically
 	// generated using the following command.
 	let xml_model = XmlCreator::write_tree_nodes_model(&factory, true)?;
