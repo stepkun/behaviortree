@@ -9,7 +9,7 @@ use alloc::{
 use tinyscript::SharedRuntime;
 
 use crate::{
-	self as behaviortree, Decorator, EMPTY_STR, FAILURE, IDLE, RUNNING, SKIPPED, SUCCESS,
+	self as behaviortree, Decorator, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
@@ -41,7 +41,7 @@ impl Behavior for Precondition {
 		let if_branch = behavior.get::<String>(IF)?;
 		let value = runtime.lock().run(&if_branch, behavior)?;
 
-		let new_state = /* if value.is_bool()*/ {
+		let new_state = {
 			let val = bool::try_from(value)?;
 			let child = &mut children[0];
 			if val {
@@ -50,17 +50,16 @@ impl Behavior for Precondition {
 			} else {
 				// halt eventually running child
 				child.halt_children(runtime)?;
-				let else_branch = behavior.get::<String>(ELSE)?;
+				let else_branch = behavior.get::<String>(ELSE)?.to_uppercase();
+
 				match else_branch.as_ref() {
-					FAILURE => BehaviorState::Failure,
-					IDLE => BehaviorState::Idle,
-					RUNNING => BehaviorState::Running,
-					SKIPPED => BehaviorState::Skipped,
-					SUCCESS => BehaviorState::Success,
+					"FAILURE" => BehaviorState::Failure,
+					"IDLE" => BehaviorState::Idle,
+					"RUNNING" => BehaviorState::Running,
+					"SKIPPED" => BehaviorState::Skipped,
+					"SUCCESS" => BehaviorState::Success,
 					_ => {
-						let value = runtime
-							.lock()
-							.run(&else_branch, behavior)?;
+						let value = runtime.lock().run(&else_branch, behavior)?;
 						if value.is_bool() {
 							let val = bool::try_from(value)?;
 							if val { BehaviorState::Success } else { BehaviorState::Failure }
@@ -70,8 +69,6 @@ impl Behavior for Precondition {
 					}
 				}
 			}
-		// } else {
-		// 	return Err(BehaviorError::NotABool);
 		};
 
 		Ok(new_state)

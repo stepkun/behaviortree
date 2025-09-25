@@ -1,4 +1,5 @@
 // Copyright © 2025 Stephan Kunz
+//! Test builtin `Control` behaviors.
 
 mod fallback;
 mod if_then_else;

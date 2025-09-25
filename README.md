@@ -111,81 +111,83 @@ impl Behavior for SaySomething {
 
 ### General capabilities
 
-| Capability              | With OS | Embedded |
-| ----------------------- | ------- | -------- |
-| XML                     |         |          |
-| - parsing               | ✅      | ✅       |
-| - generation            | ☑️      | ☑️       |
-|                         |         |          |
-| Ports                   |         |          |
-| - remapping             | ✅      | ✅       |
-| - access by ref         | ✅      | ✅       |
-|                         |         |          |
-| Subtrees                |         |          |
-| - structure             | ✅      | ✅       |
-| - remapping             | ✅      | ✅       |
-| - 'include' from file   | ✅      | ❌       |
-|                         |         |          |
-| Blackboard              |         |          |
-| - hierarchy             | ✅      | ✅       |
-| - remapping             | ✅      | ✅       |
-| - access by ref         | ✅      | ✅       |
-| - backup                | 🔴      | ??       |
-|                         |         |          |
-| Pre-/post-conditions    | ✅      | ✅       |
-| Scripting               | ✅      | ✅       |
-|                         |         |          |
-| Loggers/Observers       | ✅      | ??       |
-| Substitution rules      | 🔴      | ??       |
-|                         |         |          |
-| Using Groot2 for:       |         |          |
-| - XML Create/Edit       | ✅      | ✅       |
-| - Live Monitoring       | ☑️      | ??       |
-| - Pro Features          | 🔴      | ??       |
+| Capability              | With OS | Embedded | Caveats                |
+| ----------------------- | ------- | -------- | ---------------------- |
+| XML                     |         |          |                        |
+| - parsing               | ✅      | ✅       |                        |
+| - generation            | ✅      | ✅       |                        |
+|                         |         |          |                        |
+| Ports                   |         |          |                        |
+| - remapping             | ✅      | ✅       |                        |
+| - access by ref         | ✅      | ✅       |                        |
+|                         |         |          |                        |
+| Subtrees                |         |          |                        |
+| - structure             | ✅      | ✅       |                        |
+| - remapping             | ✅      | ✅       |                        |
+| - 'include' from file   | ✅      | ❌       |                        |
+|                         |         |          |                        |
+| Blackboard              |         |          |                        |
+| - hierarchy             | ✅      | ✅       |                        |
+| - remapping             | ✅      | ✅       |                        |
+| - access by ref         | ✅      | ✅       |                        |
+| - backup                | 🔴      | ??       |                        |
+|                         |         |          |                        |
+| Pre-/post-conditions    | ✅      | ✅       |                        |
+| Scripting               | ✅      | ✅       |                        |
+|                         |         |          |                        |
+| Loggers/Observers       | ✅      | ??       |                        |
+| Substitution rules      | 🔴      | ??       |                        |
+|                         |         |          |                        |
+| Using Groot2 for:       |         |          |                        |
+| - XML Create/Edit       | ☑️      | ☑️       | different type systems |
+| - Live Monitoring       | ☑️      | ??       | different type systems |
+| - Pro Features          | 🔴      | ??       |                        |
 
 ### Built-in behaviors
 
-| BehaviorTree.CPP nodes    | With OS | Embedded |
-| ------------------------- | ------- | -------- |
-| __Action__                |         |          |
-| `AlwaysFailure`           | ✅      | ✅       |
-| `AlwaysSuccess`           | ✅      | ✅       |
-| `Script`                  | ✅      | ✅       |
-| `SetBlackboard`           | ✅      | 🚦       |
-| `Sleep`                   | 🚦      | 🔴       |
-| `UnsetBlackboard`         | ✅      | 🚦       |
-| `PopFromQueue<T>` (new)   | ✅      | 🚦       |
-|                           |         |          |
-| __Condition__             |         |          |
-| `ScriptCondition`         | 🚦      | 🚦       |
-| `WasEntryUpdated`         | ✅      | 🚦       |
-|                           |         |          |
-| __Control__               |         |          |
-| `Fallback`                | ✅      | ✅       |
-| `ReactiveFallback`        | ✅      | 🚦       |
-| `Sequence`                | ✅      | ✅       |
-| `ReactiveSequence`        | ✅      | ✅       |
-| `SequenceWithMemory`      | ✅      | 🚦       |
-| `Parallel`                | ✅      | 🚦       |
-| `ParallelAll`             | ✅      | 🚦       |
-| `IfThenElse`              | ✅      | 🚦       |
-| `WhileDoElse`             | ✅      | 🚦       |
-| `Switch<u8>`              | ✅      | 🚦       |
-| `ManualSelector` (new)    | 🔴      | ??       |
-|                           |         |          |
-| __Decorator__             |         |          |
-| `ForceFailure`            | ✅      | 🚦       |
-| `ForceSuccess`            | ✅      | 🚦       |
-| `Inverter`                | ✅      | ✅       |
-| `KeepRunningUntilFailure` | ✅      | 🚦       |
-| `Repeat`                  | ✅      | 🚦       |
-| `RetryUntilSuccessful`    | ✅      | 🚦       |
-| `Delay`                   | 🚦      | 🔴       |
-| `EntryUpdated`            | ✅      | 🚦       |
-| `LoopQueue<T>`            | ✅      | ✅       |
-| `RunOnce`                 | ✅      | 🚦       |
-| `Precondition`            | ✅      | 🚦       |
-| `Timeout`                 | 🚦      | 🔴       |
+All behaviors are fully asynchronous, there are no synchronous behaviors.
+
+| Name (see BehaviorTree.CPP) | With OS | Embedded |
+| --------------------------- | ------- | -------- |
+| __Action__                  |         |          |
+| `AlwaysFailure`             | ✅      | ✅       |
+| `AlwaysSuccess`             | ✅      | ✅       |
+| `Script`                    | ✅      | ✅       |
+| `SetBlackboard`             | ✅      | 🚦       |
+| `Sleep`                     | 🚦      | 🔴       |
+| `UnsetBlackboard`           | ✅      | 🚦       |
+| `PopFromQueue<T>`           | ✅      | 🚦       |
+|                             |         |          |
+| __Condition__               |         |          |
+| `ScriptCondition`           | ✅      | 🚦       |
+| `WasEntryUpdated`           | ✅      | 🚦       |
+|                             |         |          |
+| __Control__                 |         |          |
+| `Fallback`                  | ✅      | ✅       |
+| `ReactiveFallback`          | ✅      | 🚦       |
+| `Sequence`                  | ✅      | ✅       |
+| `ReactiveSequence`          | ✅      | ✅       |
+| `SequenceWithMemory`        | ✅      | 🚦       |
+| `Parallel`                  | ✅      | 🚦       |
+| `ParallelAll`               | ✅      | 🚦       |
+| `IfThenElse`                | ✅      | 🚦       |
+| `WhileDoElse`               | ✅      | 🚦       |
+| `Switch<u8>`                | ✅      | 🚦       |
+| `ManualSelector`            | 🔴      | ??       |
+|                             |         |          |
+| __Decorator__               |         |          |
+| `ForceFailure`              | ✅      | 🚦       |
+| `ForceSuccess`              | ✅      | 🚦       |
+| `Inverter`                  | ✅      | ✅       |
+| `KeepRunningUntilFailure`   | ✅      | 🚦       |
+| `Repeat`                    | ✅      | 🚦       |
+| `RetryUntilSuccessful`      | ✅      | 🚦       |
+| `Delay`                     | 🚦      | 🔴       |
+| `EntryUpdated`              | ✅      | 🚦       |
+| `LoopQueue<T>`              | ✅      | ✅       |
+| `RunOnce`                   | ✅      | 🚦       |
+| `Precondition`              | ✅      | 🚦       |
+| `Timeout`                   | 🚦      | 🔴       |
 
 ## License
 
