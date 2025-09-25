@@ -43,5 +43,6 @@ async fn loop_over_string_queue() -> Result<(), Error> {
 	assert_eq!(res, BehaviorState::Success);
 	assert_eq!(root_blackboard.get::<String>("text")?, String::from("!"));
 	assert_eq!(root_blackboard.get::<String>("result")?, String::from("Hello World ! "));
+
 	Ok(())
 }

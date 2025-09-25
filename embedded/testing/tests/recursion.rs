@@ -4,6 +4,7 @@
 
 #![no_main]
 #![no_std]
+#![allow(clippy::unwrap_used)]
 
 extern crate alloc;
 
@@ -103,7 +104,6 @@ const XML_FAILS: &str = r#"
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-	#![allow(clippy::unwrap_used)]
 	use super::*;
 
 	#[test]
@@ -118,6 +118,7 @@ mod tests {
 	}
 
 	#[test]
+	// #[should_panic]
 	#[ignore("as it will fail")]
 	async fn recursion_fail() {
 		let mut factory = BehaviorTreeFactory::default();

@@ -153,14 +153,14 @@ All behaviors are fully asynchronous, there are no synchronous behaviors.
 | `AlwaysFailure`             | ✅      | ✅       |
 | `AlwaysSuccess`             | ✅      | ✅       |
 | `Script`                    | ✅      | ✅       |
-| `SetBlackboard`             | ✅      | 🚦       |
+| `SetBlackboard`             | ✅      | ✅       |
 | `Sleep`                     | 🚦      | 🔴       |
-| `UnsetBlackboard`           | ✅      | 🚦       |
-| `PopFromQueue<T>`           | ✅      | 🚦       |
+| `UnsetBlackboard`           | ✅      | ✅       |
+| `PopFromQueue<T>`           | ✅      | ✅       |
 |                             |         |          |
 | __Condition__               |         |          |
-| `ScriptCondition`           | ✅      | 🚦       |
-| `WasEntryUpdated`           | ✅      | 🚦       |
+| `ScriptCondition`           | ✅      | ✅       |
+| `WasEntryUpdated`           | ✅      | ✅       |
 |                             |         |          |
 | __Control__                 |         |          |
 | `Fallback`                  | ✅      | ✅       |
@@ -186,7 +186,7 @@ All behaviors are fully asynchronous, there are no synchronous behaviors.
 | `EntryUpdated`              | ✅      | 🚦       |
 | `LoopQueue<T>`              | ✅      | ✅       |
 | `RunOnce`                   | ✅      | 🚦       |
-| `Precondition`              | ✅      | 🚦       |
+| `Precondition`              | ✅      | ✅       |
 | `Timeout`                   | 🚦      | 🔴       |
 
 ## License

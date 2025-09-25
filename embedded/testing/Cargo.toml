@@ -34,10 +34,27 @@ behaviortree = { path = "../..", default-features = false }
 spin = { version = "0.10.0", default-features = false }
 
 [dev-dependencies]
-embedded-test = { version = "0.6.1", default-features = false, features = [
+embedded-test = { version = "0.6.2", default-features = false, features = [
   "ariel-os",
   "semihosting",
 ] }
+#rstest = "0.26.1"
+
+[[test]]
+name = "actions"
+harness = false
+
+[[test]]
+name = "conditions"
+harness = false
+
+[[test]]
+name = "controls"
+harness = false
+
+[[test]]
+name = "decorators"
+harness = false
 
 [[test]]
 name = "recursion"
