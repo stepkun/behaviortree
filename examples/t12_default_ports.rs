@@ -63,7 +63,7 @@ impl Behavior for BehaviorWithDefaultPoints {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let msg: String = behavior.get("input")?;

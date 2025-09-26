@@ -254,7 +254,7 @@ mod move_robot {
 		fn on_start(
 			&mut self,
 			behavior: &mut BehaviorData,
-			_children: &mut ConstBehaviorTreeElementList,
+			_children: &mut BehaviorTreeElementList,
 			_runtime: &SharedRuntime,
 		) -> Result<(), BehaviorError> {
 			let pos = behavior.get::<Pose2D>("goal")?;
@@ -270,7 +270,7 @@ mod move_robot {
 		async fn tick(
 			&mut self,
 			_behavior: &mut BehaviorData,
-			_children: &mut ConstBehaviorTreeElementList,
+			_children: &mut BehaviorTreeElementList,
 			_runtime: &SharedRuntime,
 		) -> BehaviorResult {
 			if self.counter < 5 {

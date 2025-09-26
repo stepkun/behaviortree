@@ -8,7 +8,7 @@ use tinyscript::SharedRuntime;
 use crate::{
 	self as behaviortree, Control, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -50,7 +50,7 @@ impl Behavior for Sequence {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		self.child_idx = 0;
@@ -62,7 +62,7 @@ impl Behavior for Sequence {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		while self.child_idx < children.len() {

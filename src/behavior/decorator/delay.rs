@@ -11,7 +11,7 @@ use crate::{
 	input_port,
 	port::PortList,
 	port_list,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 
 #[cfg(feature = "std")]
@@ -48,7 +48,7 @@ impl Behavior for Delay {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		let millis: u64 = behavior.get(DELAY_MSEC)?;
@@ -69,7 +69,7 @@ impl Behavior for Delay {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		#[cfg(not(feature = "std"))]

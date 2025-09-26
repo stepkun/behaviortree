@@ -14,7 +14,7 @@ use crate::{
 	input_port,
 	port::PortList,
 	port_list,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -43,7 +43,7 @@ where
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let key = behavior.get::<String>(KEY)?;

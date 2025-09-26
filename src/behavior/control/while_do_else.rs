@@ -8,7 +8,7 @@ use tinyscript::SharedRuntime;
 use crate::{
 	self as behaviortree, Control, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -22,7 +22,7 @@ impl Behavior for WhileDoElse {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		// check composition only once at start
@@ -38,7 +38,7 @@ impl Behavior for WhileDoElse {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let children_count = children.len();

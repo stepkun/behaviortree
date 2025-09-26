@@ -13,13 +13,10 @@ use alloc::{
 // region:      --- modules
 use crate::{
 	ACTION, BEHAVIORTREE, CONDITION, CONTROL, ConstString, DECORATOR, DEFAULT, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
-	behavior::{
-		BehaviorDataCollection, BehaviorKind, BehaviorPtr,
-		pre_post_conditions::{Conditions, PostConditions, PreConditions},
-	},
+	behavior::{BehaviorDataCollection, BehaviorKind, BehaviorPtr, pre_post_conditions::Conditions},
 	factory::registry::{BehaviorRegistry, TreeNodesModelEntry},
 	port::{PortDirection, is_allowed_port_name},
-	tree::{BehaviorTreeElement, BehaviorTreeElementList, ConstBehaviorTreeElementList},
+	tree::{BehaviorTreeElement, BehaviorTreeElementList},
 	xml::error::Error,
 };
 use databoard::{Databoard, Remappings, strip_board_pointer};
@@ -125,8 +122,9 @@ fn handle_attributes(
 > {
 	let mut autoremap = false;
 	let mut remappings = Remappings::default();
-	let mut preconditions = PreConditions::default();
-	let mut postconditions = PostConditions::default();
+	let mut conditions = Conditions::default();
+	// let mut preconditions = PreConditions::default();
+	// let mut postconditions = PostConditions::default();
 
 	// port list is needed twice:
 	// - for checking port names in given attributes
@@ -173,14 +171,14 @@ fn handle_attributes(
 				}
 				// preconditions
 				crate::FAILURE_IF | crate::SKIP_IF | crate::SUCCESS_IF | crate::WHILE => {
-					match preconditions.set(key, value) {
+					match conditions.pre.set(key, value) {
 						Ok(()) => {}
 						Err(err) => return Err(Error::Precondition(key.into(), err)),
 					}
 				}
 				// postconditions
 				crate::ON_FAILURE | crate::ON_HALTED | crate::ON_SUCCESS | crate::POST => {
-					match postconditions.set(key, value) {
+					match conditions.post.set(key, value) {
 						Ok(()) => {}
 						Err(err) => return Err(Error::Postcondition(key.into(), err)),
 					}
@@ -218,10 +216,6 @@ fn handle_attributes(
 		}
 	}
 	remappings.shrink();
-	let conditions = Conditions {
-		pre: preconditions,
-		post: postconditions,
-	};
 	Ok((autoremap, remappings, conditions))
 }
 // endregion:	--- helper
@@ -454,7 +448,7 @@ impl XmlParser {
 		data: &BehaviorDataCollection,
 		node: Node,
 		registry: &mut BehaviorRegistry,
-	) -> Result<ConstBehaviorTreeElementList, Error> {
+	) -> Result<BehaviorTreeElementList, Error> {
 		event!(Level::TRACE, "build_children");
 		let mut children = BehaviorTreeElementList::default();
 		for child in node.children() {
@@ -473,7 +467,7 @@ impl XmlParser {
 				}
 			}
 		}
-		Ok(children.into())
+		Ok(children)
 	}
 
 	#[instrument(level = Level::DEBUG, skip_all)]

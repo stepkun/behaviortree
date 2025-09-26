@@ -8,7 +8,7 @@ use tinyscript::SharedRuntime;
 use crate::{
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorExecution, BehaviorKind, BehaviorResult, BehaviorState},
 	port::PortList,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -45,7 +45,7 @@ impl Behavior for SubTree {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		if children.is_empty() || children.len() > 1 {
@@ -58,7 +58,7 @@ impl Behavior for SubTree {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		children[0].tick(runtime).await

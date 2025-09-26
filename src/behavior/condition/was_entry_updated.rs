@@ -14,7 +14,7 @@ use crate::{
 	input_port,
 	port::PortList,
 	port_list,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -40,7 +40,7 @@ impl Behavior for WasEntryUpdated {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		self.sequence_id = 0;
@@ -62,7 +62,7 @@ impl Behavior for WasEntryUpdated {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let sequence_id = behavior.sequence_id(&self.entry_key)?;

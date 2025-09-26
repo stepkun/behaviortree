@@ -13,7 +13,7 @@ use crate::{
 	inout_port, input_port, output_port,
 	port::PortList,
 	port_list,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -45,10 +45,10 @@ where
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		async fn inner_tick(children: &mut ConstBehaviorTreeElementList, runtime: &SharedRuntime) -> BehaviorResult {
+		async fn inner_tick(children: &mut BehaviorTreeElementList, runtime: &SharedRuntime) -> BehaviorResult {
 			let child_state = children[0].tick(runtime).await?;
 			if child_state.is_completed() {
 				children[0].halt_children(runtime)?;

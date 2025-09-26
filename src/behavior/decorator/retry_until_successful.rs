@@ -11,7 +11,7 @@ use crate::{
 	input_port,
 	port::PortList,
 	port_list,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -67,7 +67,7 @@ impl Behavior for RetryUntilSuccessful {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let max_attempts = behavior.get::<i32>(NUM_ATTEMPTS)?;

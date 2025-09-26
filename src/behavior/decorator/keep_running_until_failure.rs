@@ -8,7 +8,7 @@ use tinyscript::SharedRuntime;
 use crate::{
 	self as behaviortree, Decorator,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -31,7 +31,7 @@ impl Behavior for KeepRunningUntilFailure {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		match children[0].tick(runtime).await? {

@@ -10,6 +10,7 @@ use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_HALTED, ON_SUCCESS, POST, SK
 
 // region:      --- Conditions
 /// Helper struct to reduce amount of parameters
+#[derive(Default)]
 pub struct Conditions {
 	pub(crate) pre: PreConditions,
 	pub(crate) post: PostConditions,

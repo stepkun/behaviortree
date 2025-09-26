@@ -13,7 +13,7 @@ use crate::{
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
 	tree::{
-		tree_element_list::ConstBehaviorTreeElementList,
+		tree_element_list::BehaviorTreeElementList,
 		tree_iter::{TreeIter, TreeIterMut},
 	},
 };
@@ -46,21 +46,19 @@ pub struct BehaviorTreeElement {
 	/// Data of the Behavior.
 	data: BehaviorData,
 	/// Children of the element.
-	children: ConstBehaviorTreeElementList,
-	/// Pre conditions, checked before a tick.
-	pre_conditions: PreConditions,
-	/// Post conditions, checked after a tick.
-	post_conditions: PostConditions,
+	children: BehaviorTreeElementList,
+	/// Tuple of pre- and post-conditions, checked before and after a tick.
+	conditions: Conditions,
 }
 
 impl BehaviorTreeElement {
 	/// Construct a [`BehaviorTreeElement`].
-	/// Non public to enforce using the dedicated creation functions.
-	fn new(
+	#[must_use]
+	pub fn new(
 		kind: TreeElementKind,
 		behavior: BehaviorPtr,
 		mut data: BehaviorData,
-		children: ConstBehaviorTreeElementList,
+		children: BehaviorTreeElementList,
 		conditions: Conditions,
 	) -> Self {
 		let groot2_path = match kind {
@@ -81,8 +79,7 @@ impl BehaviorTreeElement {
 			behavior,
 			data,
 			children,
-			pre_conditions: conditions.pre,
-			post_conditions: conditions.post,
+			conditions,
 		}
 	}
 
@@ -94,21 +91,21 @@ impl BehaviorTreeElement {
 			TreeElementKind::Leaf,
 			data.bhvr,
 			bhvr_data,
-			ConstBehaviorTreeElementList::default(),
+			BehaviorTreeElementList::default(),
 			data.conditions,
 		)
 	}
 
 	/// Create a tree node.
 	#[must_use]
-	pub(crate) fn create_node(data: Box<BehaviorDataCollection>, children: ConstBehaviorTreeElementList) -> Self {
+	pub(crate) fn create_node(data: Box<BehaviorDataCollection>, children: BehaviorTreeElementList) -> Self {
 		let bhvr_data = BehaviorData::new(&data);
 		Self::new(TreeElementKind::Node, data.bhvr, bhvr_data, children, data.conditions)
 	}
 
 	/// Create a subtree.
 	#[must_use]
-	pub(crate) fn create_subtree(data: Box<BehaviorDataCollection>, children: ConstBehaviorTreeElementList) -> Self {
+	pub(crate) fn create_subtree(data: Box<BehaviorDataCollection>, children: BehaviorTreeElementList) -> Self {
 		let bhvr_data = BehaviorData::new(&data);
 		Self::new(TreeElementKind::SubTree, data.bhvr, bhvr_data, children, data.conditions)
 	}
@@ -151,26 +148,26 @@ impl BehaviorTreeElement {
 
 	/// Get the children.
 	#[must_use]
-	pub const fn children(&self) -> &ConstBehaviorTreeElementList {
+	pub const fn children(&self) -> &BehaviorTreeElementList {
 		&self.children
 	}
 
 	/// Get the children mutable.
 	#[must_use]
-	pub const fn children_mut(&mut self) -> &mut ConstBehaviorTreeElementList {
+	pub const fn children_mut(&mut self) -> &mut BehaviorTreeElementList {
 		&mut self.children
 	}
 
 	/// Get the pre conditions.
 	#[must_use]
 	pub const fn pre_conditions(&self) -> &PreConditions {
-		&self.pre_conditions
+		&self.conditions.pre
 	}
 
 	/// Get the post conditions.
 	#[must_use]
 	pub const fn post_conditions(&self) -> &PostConditions {
-		&self.post_conditions
+		&self.conditions.post
 	}
 
 	/// Halt the element and all its children considering postconditions.
@@ -181,7 +178,7 @@ impl BehaviorTreeElement {
 				.behavior
 				.halt(&mut self.data, &mut self.children, runtime)?;
 			self.data.set_state(state);
-			if let Some(script) = self.post_conditions.get("_onHalted") {
+			if let Some(script) = self.conditions.post.get("_onHalted") {
 				let _ = runtime.lock().run(script, &mut self.data)?;
 			}
 		}
@@ -289,28 +286,28 @@ impl BehaviorTreeElement {
 	}
 
 	fn check_pre_conditions(&mut self, runtime: &SharedRuntime) -> Result<Option<BehaviorState>, Error> {
-		if self.pre_conditions.is_some() {
+		if self.conditions.pre.is_some() {
 			// Preconditions only applied when the node state is `Idle` or `Skipped`
 			if self.data.state() == BehaviorState::Idle || self.data.state() == BehaviorState::Skipped {
-				if let Some(script) = self.pre_conditions.get(FAILURE_IF) {
+				if let Some(script) = self.conditions.pre.get(FAILURE_IF) {
 					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Failure));
 					}
 				}
-				if let Some(script) = self.pre_conditions.get(SUCCESS_IF) {
+				if let Some(script) = self.conditions.pre.get(SUCCESS_IF) {
 					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Success));
 					}
 				}
-				if let Some(script) = self.pre_conditions.get(SKIP_IF) {
+				if let Some(script) = self.conditions.pre.get(SKIP_IF) {
 					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Skipped));
 					}
 				}
-				if let Some(script) = self.pre_conditions.get(WHILE) {
+				if let Some(script) = self.conditions.pre.get(WHILE) {
 					let res = runtime.lock().run(script, &mut self.data)?;
 					if bool::try_from(res)? {
 						return Ok(Some(BehaviorState::Skipped));
@@ -319,7 +316,7 @@ impl BehaviorTreeElement {
 			} else
 			// Preconditions only applied when the node state is `Running`
 			if self.data.state() == BehaviorState::Running
-				&& let Some(script) = self.pre_conditions.get(WHILE)
+				&& let Some(script) = self.conditions.pre.get(WHILE)
 			{
 				let res = runtime.lock().run(script, &mut self.data)?;
 				// if not true halt element and return `Skipped`
@@ -333,23 +330,23 @@ impl BehaviorTreeElement {
 	}
 
 	fn check_post_conditions(&mut self, state: BehaviorState, runtime: &SharedRuntime) {
-		if self.post_conditions.is_some() {
+		if self.conditions.post.is_some() {
 			match state {
 				BehaviorState::Failure => {
-					if let Some(script) = self.post_conditions.get(ON_FAILURE) {
+					if let Some(script) = self.conditions.post.get(ON_FAILURE) {
 						let _: Result<tinyscript::ScriptingValue, tinyscript::Error> =
 							runtime.lock().run(script, &mut self.data);
 					}
 				}
 				BehaviorState::Success => {
-					if let Some(script) = self.post_conditions.get(ON_SUCCESS) {
+					if let Some(script) = self.conditions.post.get(ON_SUCCESS) {
 						let _ = runtime.lock().run(script, &mut self.data);
 					}
 				}
 				// rest is ignored
 				_ => {}
 			}
-			if let Some(script) = self.post_conditions.get(POST) {
+			if let Some(script) = self.conditions.post.get(POST) {
 				let _ = runtime.lock().run(script, &mut self.data);
 			}
 		}

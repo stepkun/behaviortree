@@ -2,12 +2,24 @@
 
 //! Tests the [`Fallback`] behavior
 
+#![allow(unused, clippy::unused_async, clippy::unnecessary_wraps, clippy::missing_const_for_fn)]
+
 extern crate alloc;
 
 use behaviortree::behavior::BehaviorState::*;
 use behaviortree::behavior::action::ChangeStateAfter;
-use behaviortree::prelude::*;
+use behaviortree::behavior::control::Fallback;
+use behaviortree::{BehaviorTreeElement, prelude::*};
 use rstest::rstest;
+
+// async fn fallback() -> Result<(), Error> {
+// 	fn inner_fallback() -> Result<(), Error> {
+// 		Ok(())
+// 	}
+// 	// case 1
+
+// 	Ok(())
+// }
 
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"

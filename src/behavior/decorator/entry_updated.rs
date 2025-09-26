@@ -15,7 +15,7 @@ use crate::{
 	input_port,
 	port::PortList,
 	port_list,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -71,7 +71,7 @@ impl Behavior for EntryUpdated {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		if let Some(key) = behavior.remappings().find(ENTRY) {
@@ -92,7 +92,7 @@ impl Behavior for EntryUpdated {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		if self.is_running {

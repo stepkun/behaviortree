@@ -8,7 +8,7 @@ use crate::{
 	inout_port, input_port,
 	port::PortList,
 	port_list,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 use alloc::{boxed::Box, string::String, string::ToString};
 use core::{fmt::Debug, marker::PhantomData, str::FromStr};
@@ -42,7 +42,7 @@ where
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let value = behavior.get::<T>(VALUE)?;

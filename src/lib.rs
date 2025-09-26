@@ -30,7 +30,7 @@ pub use factory::BehaviorTreeFactory;
 pub use port::PortList;
 #[cfg(feature = "std")]
 pub use tree::observer::{groot2_connector::Groot2Connector, tree_observer::BehaviorTreeObserver};
-pub use tree::{BehaviorTree, BehaviorTreeElement, BehaviorTreeElementList};
+pub use tree::{BehaviorTree, BehaviorTreeElement};
 pub use xml::creator::XmlCreator;
 
 // re-exports:
@@ -227,3 +227,14 @@ macro_rules! register_scripting_enum {
 	};
 }
 // endregion:	---macros
+
+#[cfg(test)]
+mod tests {
+	// check, that the auto traits are available
+	const fn is_normal<T: Sized + Send + Sync>() {}
+
+	#[test]
+	const fn normal_types() {
+		is_normal::<crate::error::Error>();
+	}
+}

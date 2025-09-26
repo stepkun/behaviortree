@@ -49,7 +49,7 @@ impl Behavior for PrintNumber {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let value: i64 = behavior.get("val")?;

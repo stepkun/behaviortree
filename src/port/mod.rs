@@ -191,3 +191,21 @@ macro_rules! port_list {
 	($($e:expr),* $(,)?) => {$crate::port::PortList(alloc::vec![$($e),*])};
 }
 // endregion:	--- macros
+
+#[cfg(test)]
+mod tests {
+	use crate::port::PortDirection;
+
+	use super::*;
+
+	// check, that the auto traits are available
+	const fn is_normal<T: Sized + Send + Sync>() {}
+
+	#[test]
+	const fn normal_types() {
+		is_normal::<error::Error>();
+		is_normal::<PortDefinition>();
+		is_normal::<PortDirection>();
+		is_normal::<PortList>();
+	}
+}

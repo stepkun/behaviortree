@@ -24,7 +24,7 @@ use crate::{
 	ACTION, CONDITION, CONTROL, DECORATOR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
 	behavior::{behavior_data::BehaviorData, behavior_description::BehaviorDescription, pre_post_conditions::Conditions},
 	port::PortList,
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 use alloc::{boxed::Box, string::String};
 use core::any::Any;
@@ -121,7 +121,7 @@ pub trait Behavior: Send + Sync {
 	fn on_start(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		Ok(())
@@ -136,7 +136,7 @@ pub trait Behavior: Send + Sync {
 	async fn start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		self.on_start(behavior, children, runtime)?;
@@ -148,7 +148,7 @@ pub trait Behavior: Send + Sync {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult;
 
@@ -158,7 +158,7 @@ pub trait Behavior: Send + Sync {
 	fn halt(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		children.halt(runtime)?;
@@ -292,3 +292,19 @@ impl core::str::FromStr for BehaviorState {
 	}
 }
 // endregion:   --- BehaviorState
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	// check, that the auto traits are available
+	const fn is_normal<T: Sized + Send + Sync>() {}
+
+	#[test]
+	const fn normal_types() {
+		is_normal::<error::BehaviorError>();
+		is_normal::<BehaviorData>();
+		is_normal::<BehaviorDataCollection>();
+		is_normal::<BehaviorDescription>();
+	}
+}

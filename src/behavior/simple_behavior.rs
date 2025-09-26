@@ -7,7 +7,7 @@ use core::any::Any;
 use tinyscript::SharedRuntime;
 
 use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult};
-use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::ConstBehaviorTreeElementList};
+use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::BehaviorTreeElementList};
 // endregion:   --- modules
 
 // region:      --- types
@@ -56,7 +56,7 @@ impl Behavior for SimpleBehavior {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		self.complex_tick_fn.as_ref().map_or_else(

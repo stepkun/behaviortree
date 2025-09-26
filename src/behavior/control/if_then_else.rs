@@ -8,7 +8,7 @@ use tinyscript::SharedRuntime;
 use crate::{
 	self as behaviortree, Control, IDLE,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
-	tree::ConstBehaviorTreeElementList,
+	tree::BehaviorTreeElementList,
 };
 // endregion:   --- modules
 
@@ -38,7 +38,7 @@ impl Behavior for IfThenElse {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		// check composition only once at start
@@ -54,7 +54,7 @@ impl Behavior for IfThenElse {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		children: &mut ConstBehaviorTreeElementList,
+		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		behavior.set_state(BehaviorState::Running);
