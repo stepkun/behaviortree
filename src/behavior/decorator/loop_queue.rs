@@ -88,7 +88,9 @@ where
 			inner_tick(children, runtime).await
 		} else {
 			self.tmp_queue = None;
-			let state = behavior.get::<BehaviorState>(IF_EMPTY)?;
+			let state = behavior
+				.get::<BehaviorState>(IF_EMPTY)
+				.unwrap_or(BehaviorState::Success);
 			Ok(state)
 		}
 	}

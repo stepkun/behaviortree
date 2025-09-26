@@ -146,49 +146,50 @@ impl Behavior for SaySomething {
 ### Built-in behaviors
 
 All behaviors are fully asynchronous, there are no synchronous behaviors.
+For convenience the `AsyncFallback` and `AsyncSequence` names are available.
 
-| Name (see BehaviorTree.CPP) | With OS | Embedded |
-| --------------------------- | ------- | -------- |
-| __Action__                  |         |          |
-| `AlwaysFailure`             | ✅      | ✅       |
-| `AlwaysSuccess`             | ✅      | ✅       |
-| `Script`                    | ✅      | ✅       |
-| `SetBlackboard`             | ✅      | ✅       |
-| `Sleep`                     | 🚦      | 🔴       |
-| `UnsetBlackboard`           | ✅      | ✅       |
-| `PopFromQueue<T>`           | ✅      | ✅       |
-|                             |         |          |
-| __Condition__               |         |          |
-| `ScriptCondition`           | ✅      | ✅       |
-| `WasEntryUpdated`           | ✅      | ✅       |
-|                             |         |          |
-| __Control__                 |         |          |
-| `Fallback`                  | ✅      | ✅       |
-| `ReactiveFallback`          | ✅      | ✅       |
-| `Sequence`                  | ✅      | ✅       |
-| `ReactiveSequence`          | ✅      | ✅       |
-| `SequenceWithMemory`        | ✅      | ✅       |
-| `Parallel`                  | ✅      | ✅       |
-| `ParallelAll`               | ✅      | ✅       |
-| `IfThenElse`                | ✅      | ✅       |
-| `WhileDoElse`               | ✅      | ✅       |
-| `Switch<u8>`                | ✅      | ✅       |
-| `ManualSelector`            | 🔴      | ??       |
-|                             |         |          |
-| __Decorator__               |         |          |
-| `ForceFailure`              | ✅      | 🚦       |
-| `ForceSuccess`              | ✅      | 🚦       |
-| `Inverter`                  | ✅      | ✅       |
-| `KeepRunningUntilFailure`   | ✅      | 🚦       |
-| `Repeat`                    | ✅      | 🚦       |
-| `RetryUntilSuccessful`      | ✅      | 🚦       |
-| `Delay`                     | 🚦      | 🔴       |
-| `EntryUpdated`              | ✅      | 🚦       |
-| `LoopQueue<T>`              | ✅      | ✅       |
-| `RunOnce`                   | ✅      | 🚦       |
-| `Precondition`              | ✅      | ✅       |
-| `Timeout`                   | 🚦      | 🔴       |
-
+| Names as in BehaviorTree.CPP | With OS | Embedded |
+| ---------------------------- | ------- | -------- |
+| __Action__                   |         |          |
+| `AlwaysFailure`              | ✅      | ✅       |
+| `AlwaysSuccess`              | ✅      | ✅       |
+| `Script`                     | ✅      | ✅       |
+| `SetBlackboard`              | ✅      | ✅       |
+| `Sleep`                      | 🚦      | 🔴       |
+| `UnsetBlackboard`            | ✅      | ✅       |
+| `PopFromQueue<T>`            | ✅      | ✅       |
+|                              |         |          |
+| __Condition__                |         |          |
+| `ScriptCondition`            | ✅      | ✅       |
+| `WasEntryUpdated`            | ✅      | ✅       |
+|                              |         |          |
+| __Control__                  |         |          |
+| `Fallback`, `AsyncFallback`  | ✅      | ✅       |
+| `ReactiveFallback`           | ✅      | ✅       |
+| `Sequence`, `AsyncSequence`  | ✅      | ✅       |
+| `ReactiveSequence`           | ✅      | ✅       |
+| `SequenceWithMemory`         | ✅      | ✅       |
+| `Parallel`                   | ✅      | ✅       |
+| `ParallelAll`                | ✅      | ✅       |
+| `IfThenElse`                 | ✅      | ✅       |
+| `WhileDoElse`                | ✅      | ✅       |
+| `Switch<u8>`                 | ✅      | ✅       |
+| `ManualSelector`             | 🔴      | ??       |
+|                              |         |          |
+| __Decorator__                |         |          |
+| `ForceFailure`               | ✅      | ✅       |
+| `ForceSuccess`               | ✅      | ✅       |
+| `Inverter`                   | ✅      | ✅       |
+| `KeepRunningUntilFailure`    | ✅      | ✅       |
+| `Repeat`                     | ✅      | ✅       |
+| `RetryUntilSuccessful`       | ✅      | ✅       |
+| `Delay`                      | 🚦      | 🔴       |
+| `EntryUpdated`               | ✅      | ✅       |
+| `LoopQueue<T>`               | ✅      | ✅       |
+| `RunOnce`                    | ✅      | ✅       |
+| `Precondition`               | ✅      | ✅       |
+| `Timeout`                    | 🚦      | 🔴       |
+ 
 ## License
 
 Licensed with the fair use "NGMC" license, see [license file](https://github.com/stepkun/behaviortree/blob/main/LICENSE)

@@ -50,7 +50,7 @@ impl Behavior for Repeat {
 		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		let num_cycles = behavior.get::<i32>(NUM_CYCLES)?;
+		let num_cycles = behavior.get::<i32>(NUM_CYCLES).unwrap_or(-1);
 		if self.repeat_count < num_cycles || num_cycles == -1 {
 			let child = &mut children[0];
 			let new_state = child.tick(runtime).await?;
@@ -70,6 +70,9 @@ impl Behavior for Repeat {
 				BehaviorState::Success => {
 					self.repeat_count += 1;
 					children.halt(runtime)?;
+					if self.repeat_count == num_cycles {
+						return Ok(BehaviorState::Success);
+					}
 					Ok(BehaviorState::Running)
 				}
 			}

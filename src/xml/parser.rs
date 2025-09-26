@@ -195,11 +195,20 @@ fn handle_attributes(
 					Some(_port) => {
 						match strip_board_pointer(value) {
 							Some(stripped) => {
-								// check if 'value' contains a valid BB pointer
-								if is_allowed_port_name(stripped) {
-									remappings.overwrite(key, value);
+								if stripped == "=" {
+									if is_allowed_port_name(key) {
+										let bb_pointer = String::from("{") + key + "}";
+										remappings.overwrite(key, bb_pointer);
+									} else {
+										return Err(Error::NameNotAllowed(key.into()));
+									}
 								} else {
-									return Err(Error::NameNotAllowed(key.into()));
+									// check if 'value' contains a valid BB pointer
+									if is_allowed_port_name(stripped) {
+										remappings.overwrite(key, value);
+									} else {
+										return Err(Error::NameNotAllowed(key.into()));
+									}
 								}
 							}
 							// Normal string, representing a const assignment

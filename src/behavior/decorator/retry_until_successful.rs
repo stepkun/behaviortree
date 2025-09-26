@@ -38,49 +38,31 @@ const NUM_ATTEMPTS: &str = "num_attempts";
 ///     <OpenDoor/>
 /// </RetryUntilSuccessful>
 /// ```
-#[derive(Decorator, Debug)]
-pub struct RetryUntilSuccessful {
-	/// Defaults to `0`
-	try_count: i32,
-	/// Defaults to `true`
-	all_skipped: bool,
-}
-
-impl Default for RetryUntilSuccessful {
-	fn default() -> Self {
-		Self {
-			try_count: 0,
-			all_skipped: true,
-		}
-	}
-}
+#[derive(Decorator, Debug, Default)]
+pub struct RetryUntilSuccessful;
 
 #[async_trait::async_trait]
 impl Behavior for RetryUntilSuccessful {
-	#[inline]
-	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.try_count = 0;
-		self.all_skipped = true;
-		Ok(())
-	}
-
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
 		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		let max_attempts = behavior.get::<i32>(NUM_ATTEMPTS)?;
-		while self.try_count < max_attempts || max_attempts == -1 {
+		let max_attempts = behavior.get::<i32>(NUM_ATTEMPTS).unwrap_or(-1);
+		let mut try_count = 0;
+		let mut all_skipped = true;
+
+		while try_count < max_attempts || max_attempts == -1 {
 			// A `Decorator` has only 1 child
 			let child = &mut children[0];
 			let new_state = child.tick(runtime).await?;
 
-			self.all_skipped &= new_state == BehaviorState::Skipped;
+			all_skipped &= new_state == BehaviorState::Skipped;
 
 			match new_state {
 				BehaviorState::Failure => {
-					self.try_count += 1;
+					try_count += 1;
 					children.halt(runtime)?;
 				}
 				BehaviorState::Idle => {
@@ -93,13 +75,12 @@ impl Behavior for RetryUntilSuccessful {
 				}
 				BehaviorState::Success => {
 					children.halt(runtime)?;
-					self.try_count = 0;
 					return Ok(BehaviorState::Success);
 				}
 			}
 		}
 
-		if self.all_skipped {
+		if all_skipped {
 			Ok(BehaviorState::Skipped)
 		} else {
 			Ok(BehaviorState::Failure)

@@ -80,7 +80,7 @@ mod tests {
 		set_values(&mut tree, BehaviorState::Failure, BehaviorState::Success);
 		result = tree.tick_once().await?;
 		assert_eq!(result, BehaviorState::Success);
-		// case 3
+		// case 4
 		set_values(&mut tree, BehaviorState::Success, BehaviorState::Success);
 		result = tree.tick_once().await?;
 		assert_eq!(result, BehaviorState::Success);
@@ -994,7 +994,7 @@ mod tests {
 		assert_eq!(result, BehaviorState::Success);
 		result = tree.tick_once().await?;
 		assert_eq!(result, BehaviorState::Success);
-		// case 4
+		// case 5
 		set_values(&mut tree, BehaviorState::Success, BehaviorState::Success, BehaviorState::Idle);
 		result = tree.tick_once().await?;
 		assert_eq!(result, BehaviorState::Success);

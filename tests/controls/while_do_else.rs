@@ -105,7 +105,7 @@ async fn while_do_else_raw() -> Result<(), Error> {
 	assert_eq!(result, BehaviorState::Success);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
-	// case 4
+	// case 5
 	set_values(&mut tree, BehaviorState::Success, BehaviorState::Success, BehaviorState::Idle);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);

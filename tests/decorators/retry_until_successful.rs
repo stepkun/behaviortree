@@ -10,6 +10,64 @@ use behaviortree::prelude::*;
 
 use rstest::rstest;
 
+const RETRY_UNTIL_SUCCESSFUL: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<RetryUntilSuccessful name="root_retry_until_successful" num_attempts="{num_attempts}">
+			<Action	ID="Action" name="action"/>
+		</RetryUntilSuccessful>
+	</BehaviorTree>
+</root>
+"#;
+
+#[tokio::test]
+async fn retry_until_successful_raw() -> Result<(), Error> {
+	fn set_values(tree: &mut BehaviorTree, action_state: BehaviorState) {
+		for behavior in tree.iter_mut() {
+			if behavior.name().as_ref() == "action" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_state1(action_state);
+					behavior.set_final_state(action_state);
+				}
+			}
+		}
+	}
+	let mut factory = BehaviorTreeFactory::new()?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Action",
+		BehaviorState::Failure,
+		BehaviorState::Failure,
+		1
+	)?;
+	register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
+
+	let mut tree = factory.create_from_text(RETRY_UNTIL_SUCCESSFUL)?;
+	drop(factory);
+
+	tree.blackboard().set("num_attempts", 3)?;
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+
+	tree.reset()?;
+	tree.blackboard().set("num_attempts", 2)?;
+	set_values(&mut tree, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+
+	Ok(())
+}
+
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">

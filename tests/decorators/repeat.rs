@@ -10,6 +10,44 @@ use behaviortree::prelude::*;
 
 use rstest::rstest;
 
+const REPEAT: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Repeat name="root_repeat" num_cycles="{=}">
+			<Action	ID="Action" name="action"/>
+		</Repeat>
+	</BehaviorTree>
+</root>
+"#;
+
+#[tokio::test]
+async fn repeat_raw() -> Result<(), Error> {
+	let mut factory = BehaviorTreeFactory::new()?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Action",
+		BehaviorState::Running,
+		BehaviorState::Success,
+		0
+	)?;
+	register_behavior!(factory, Repeat, "Repeat")?;
+
+	let mut tree = factory.create_from_text(REPEAT)?;
+	drop(factory);
+
+	tree.blackboard().set("num_cycles", 3)?;
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Running);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Running);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+
+	Ok(())
+}
+
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">
@@ -42,16 +80,12 @@ async fn repeat(
 	let mut result = tree.tick_once().await?;
 	assert_eq!(result, expected);
 	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
-	result = tree.tick_once().await?;
 	assert_eq!(result, finally);
 	result = tree.tick_once().await?;
 	assert_eq!(result, finally);
 
 	tree.reset()?;
 
-	result = tree.tick_once().await?;
-	assert_eq!(result, expected);
 	result = tree.tick_once().await?;
 	assert_eq!(result, expected);
 	result = tree.tick_once().await?;

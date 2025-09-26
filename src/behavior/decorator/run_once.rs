@@ -45,7 +45,7 @@ impl Behavior for RunOnce {
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		if self.already_ticked {
-			if behavior.get::<bool>(THEN_SKIP)? {
+			if behavior.get::<bool>(THEN_SKIP).unwrap_or(true) {
 				Ok(BehaviorState::Skipped)
 			} else {
 				Ok(self.state)

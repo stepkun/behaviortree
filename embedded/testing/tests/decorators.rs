@@ -13,29 +13,292 @@ mod tests {
 	use behaviortree::{
 		behavior::{
 			SharedQueue,
-			action::Script,
-			decorator::{Loop, Precondition},
+			action::{ChangeStateAfter, Script},
+			decorator::{
+				EntryUpdated, ForceState, Inverter, KeepRunningUntilFailure, Loop, Precondition, Repeat,
+				RetryUntilSuccessful, RunOnce,
+			},
 		},
 		prelude::*,
 	};
 
+	const ENTRY_UPDATED: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<EntryUpdated name="entry_updated" entry="test">
+			<Action	ID="Action" name="action"/>
+		</EntryUpdated>
+	</BehaviorTree>
+</root>
+"#;
+
 	#[test]
 	async fn entry_updated() -> Result<(), Error> {
+		let mut factory = BehaviorTreeFactory::new()?;
+		register_behavior!(factory, EntryUpdated, "EntryUpdated")?;
+		register_behavior!(
+			factory,
+			ChangeStateAfter,
+			"Action",
+			BehaviorState::Running,
+			BehaviorState::Success,
+			0
+		)?;
+
+		let mut tree = factory.create_from_text(ENTRY_UPDATED)?;
+		drop(factory);
+
+		tree.blackboard().set("test", 1)?;
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Idle);
+		tree.blackboard().set("test", 2)?;
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Idle);
+		for behavior in tree.iter_mut() {
+			if behavior.name().as_ref() == "entry_updated" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<EntryUpdated>()
+				{
+					behavior.initialize(BehaviorState::Failure);
+				}
+			}
+		}
+		tree.blackboard().set("test", 1)?;
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+		tree.blackboard().set("test", 2)?;
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+
 		Ok(())
 	}
+
+	const FORCE_STATE: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<ForceState name="force_state">
+			<Action	ID="Action" name="action"/>
+		</ForceState>
+	</BehaviorTree>
+</root>
+"#;
 
 	#[test]
 	async fn force_state() -> Result<(), Error> {
+		fn set_values(tree: &mut BehaviorTree, force_state: BehaviorState, action_state: BehaviorState) {
+			for behavior in tree.iter_mut() {
+				if behavior.name().as_ref() == "force_state" {
+					if let Some(behavior) = behavior
+						.behavior_mut()
+						.as_any_mut()
+						.downcast_mut::<ForceState>()
+					{
+						behavior.initialize(force_state);
+					}
+				}
+				if behavior.name().as_ref() == "action" {
+					if let Some(behavior) = behavior
+						.behavior_mut()
+						.as_any_mut()
+						.downcast_mut::<ChangeStateAfter>()
+					{
+						behavior.set_final_state(action_state);
+					}
+				}
+			}
+		}
+
+		let mut factory = BehaviorTreeFactory::new()?;
+		let bhvr_desc = BehaviorDescription::new(
+			"ForceState",
+			"ForceState",
+			ForceState::kind(),
+			true,
+			ForceState::provided_ports(),
+		);
+		let bhvr_creation_fn =
+			Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Skipped)) });
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+		register_behavior!(
+			factory,
+			ChangeStateAfter,
+			"Action",
+			BehaviorState::Running,
+			BehaviorState::Failure,
+			1
+		)?;
+		let mut tree = factory.create_from_text(FORCE_STATE)?;
+		drop(factory);
+
+		// case 1
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Skipped);
+		// case 2
+		set_values(&mut tree, BehaviorState::Success, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		// case 2
+		set_values(&mut tree, BehaviorState::Success, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		// case 3
+		set_values(&mut tree, BehaviorState::Failure, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+		// case 4
+		set_values(&mut tree, BehaviorState::Failure, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+
 		Ok(())
 	}
+
+	const INVERTER: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Inverter name="root_inverter">
+			<Action	ID="Action" name="action"/>
+		</Inverter>
+	</BehaviorTree>
+</root>
+"#;
 
 	#[test]
 	async fn inverter() -> Result<(), Error> {
+		fn set_values(tree: &mut BehaviorTree, action_state: BehaviorState) {
+			for behavior in tree.iter_mut() {
+				if behavior.name().as_ref() == "action" {
+					if let Some(behavior) = behavior
+						.behavior_mut()
+						.as_any_mut()
+						.downcast_mut::<ChangeStateAfter>()
+					{
+						behavior.set_final_state(action_state);
+					}
+				}
+			}
+		}
+
+		let mut factory = BehaviorTreeFactory::new()?;
+		register_behavior!(
+			factory,
+			ChangeStateAfter,
+			"Action",
+			BehaviorState::Running,
+			BehaviorState::Failure,
+			0
+		)?;
+		register_behavior!(factory, Inverter, "Inverter")?;
+
+		let mut tree = factory.create_from_text(INVERTER)?;
+		drop(factory);
+
+		// case 1
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		// case 2
+		set_values(&mut tree, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+		// case 3
+		set_values(&mut tree, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		// case 4
+		set_values(&mut tree, BehaviorState::Skipped);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Skipped);
+
 		Ok(())
 	}
 
+	const KEEP_RUNNING_UNTIL_FAILURE: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<KeepRunningUntilFailure name="keep_running_until_failure">
+			<Action	ID="Action" name="action"/>
+		</KeepRunningUntilFailure>
+	</BehaviorTree>
+</root>
+"#;
+
 	#[test]
 	async fn keep_running_until_failure() -> Result<(), Error> {
+		fn set_values(tree: &mut BehaviorTree, action_state: BehaviorState) {
+			for behavior in tree.iter_mut() {
+				if behavior.name().as_ref() == "action" {
+					if let Some(behavior) = behavior
+						.behavior_mut()
+						.as_any_mut()
+						.downcast_mut::<ChangeStateAfter>()
+					{
+						behavior.set_state1(action_state);
+						behavior.set_final_state(action_state);
+					}
+				}
+			}
+		}
+		let mut factory = BehaviorTreeFactory::new()?;
+		register_behavior!(
+			factory,
+			ChangeStateAfter,
+			"Action",
+			BehaviorState::Success,
+			BehaviorState::Success,
+			3
+		)?;
+		register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
+
+		let mut tree = factory.create_from_text(KEEP_RUNNING_UNTIL_FAILURE)?;
+		drop(factory);
+
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		tree.reset()?;
+		set_values(&mut tree, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+
 		Ok(())
 	}
 
@@ -120,18 +383,170 @@ mod tests {
 		Ok(())
 	}
 
+	const REPEAT: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Repeat name="root_repeat" num_cycles="{=}">
+			<Action	ID="Action" name="action"/>
+		</Repeat>
+	</BehaviorTree>
+</root>
+"#;
+
 	#[test]
 	async fn repeat() -> Result<(), Error> {
+		let mut factory = BehaviorTreeFactory::new()?;
+		register_behavior!(
+			factory,
+			ChangeStateAfter,
+			"Action",
+			BehaviorState::Running,
+			BehaviorState::Success,
+			0
+		)?;
+		register_behavior!(factory, Repeat, "Repeat")?;
+
+		let mut tree = factory.create_from_text(REPEAT)?;
+		drop(factory);
+
+		tree.blackboard().set("num_cycles", 3)?;
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Running);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+
 		Ok(())
 	}
+
+	const RETRY_UNTIL_SUCCESSFUL: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<RetryUntilSuccessful name="root_retry_until_successful" num_attempts="{num_attempts}">
+			<Action	ID="Action" name="action"/>
+		</RetryUntilSuccessful>
+	</BehaviorTree>
+</root>
+"#;
 
 	#[test]
 	async fn retry_until_successful() -> Result<(), Error> {
+		fn set_values(tree: &mut BehaviorTree, action_state: BehaviorState) {
+			for behavior in tree.iter_mut() {
+				if behavior.name().as_ref() == "action" {
+					if let Some(behavior) = behavior
+						.behavior_mut()
+						.as_any_mut()
+						.downcast_mut::<ChangeStateAfter>()
+					{
+						behavior.set_state1(action_state);
+						behavior.set_final_state(action_state);
+					}
+				}
+			}
+		}
+		let mut factory = BehaviorTreeFactory::new()?;
+		register_behavior!(
+			factory,
+			ChangeStateAfter,
+			"Action",
+			BehaviorState::Failure,
+			BehaviorState::Failure,
+			1
+		)?;
+		register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
+
+		let mut tree = factory.create_from_text(RETRY_UNTIL_SUCCESSFUL)?;
+		drop(factory);
+
+		tree.blackboard().set("num_attempts", 3)?;
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+
+		tree.reset()?;
+		tree.blackboard().set("num_attempts", 2)?;
+		set_values(&mut tree, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+
 		Ok(())
 	}
 
+	const RUN_ONCE: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<RunOnce name="root_run_once" then_skip="{=}">
+			<Action	ID="Action" name="action"/>
+		</RunOnce>
+	</BehaviorTree>
+</root>
+"#;
+
 	#[test]
 	async fn run_once() -> Result<(), Error> {
+		fn set_values(tree: &mut BehaviorTree, action_state: BehaviorState) {
+			for behavior in tree.iter_mut() {
+				if behavior.name().as_ref() == "action" {
+					if let Some(behavior) = behavior
+						.behavior_mut()
+						.as_any_mut()
+						.downcast_mut::<ChangeStateAfter>()
+					{
+						behavior.set_final_state(action_state);
+					}
+				}
+			}
+		}
+
+		let mut factory = BehaviorTreeFactory::new()?;
+		register_behavior!(
+			factory,
+			ChangeStateAfter,
+			"Action",
+			BehaviorState::Running,
+			BehaviorState::Failure,
+			0
+		)?;
+		register_behavior!(factory, RunOnce, "RunOnce")?;
+
+		let mut tree = factory.create_from_text(RUN_ONCE)?;
+		drop(factory);
+
+		// case 1
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Skipped);
+		// case 2
+		tree.reset()?;
+		set_values(&mut tree, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Skipped);
+		// case 3
+		tree.blackboard().set("then_skip", false)?;
+		tree.reset()?;
+		let mut result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Success);
+		// case 4
+		tree.reset()?;
+		set_values(&mut tree, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+		result = tree.tick_once().await?;
+		assert_eq!(result, BehaviorState::Failure);
+
 		Ok(())
 	}
 }

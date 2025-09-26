@@ -10,6 +10,66 @@ use behaviortree::prelude::*;
 
 use rstest::rstest;
 
+const INVERTER: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Inverter name="root_inverter">
+			<Action	ID="Action" name="action"/>
+		</Inverter>
+	</BehaviorTree>
+</root>
+"#;
+
+#[tokio::test]
+async fn inverter_raw() -> Result<(), Error> {
+	fn set_values(tree: &mut BehaviorTree, action_state: BehaviorState) {
+		for behavior in tree.iter_mut() {
+			if behavior.name().as_ref() == "action" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action_state);
+				}
+			}
+		}
+	}
+
+	let mut factory = BehaviorTreeFactory::new()?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Action",
+		BehaviorState::Running,
+		BehaviorState::Failure,
+		0
+	)?;
+	register_behavior!(factory, Inverter, "Inverter")?;
+
+	let mut tree = factory.create_from_text(INVERTER)?;
+	drop(factory);
+
+	// case 1
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	// case 2
+	set_values(&mut tree, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	// case 3
+	set_values(&mut tree, BehaviorState::Running);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Running);
+	// case 4
+	set_values(&mut tree, BehaviorState::Skipped);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Skipped);
+
+	Ok(())
+}
+
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">

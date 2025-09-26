@@ -10,6 +10,68 @@ use behaviortree::prelude::*;
 
 use rstest::rstest;
 
+const ENTRY_UPDATED: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<EntryUpdated name="entry_updated" entry="test">
+			<Action	ID="Action" name="action"/>
+		</EntryUpdated>
+	</BehaviorTree>
+</root>
+"#;
+
+#[tokio::test]
+async fn entry_updated_raw() -> Result<(), Error> {
+	let mut factory = BehaviorTreeFactory::new()?;
+	register_behavior!(factory, EntryUpdated, "EntryUpdated")?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Action",
+		BehaviorState::Running,
+		BehaviorState::Success,
+		0
+	)?;
+
+	let mut tree = factory.create_from_text(ENTRY_UPDATED)?;
+	drop(factory);
+
+	tree.blackboard().set("test", 1)?;
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Idle);
+	tree.blackboard().set("test", 2)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Idle);
+	for behavior in tree.iter_mut() {
+		if behavior.name().as_ref() == "entry_updated" {
+			if let Some(behavior) = behavior
+				.behavior_mut()
+				.as_any_mut()
+				.downcast_mut::<EntryUpdated>()
+			{
+				behavior.initialize(BehaviorState::Failure);
+			}
+		}
+	}
+	tree.blackboard().set("test", 1)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	tree.blackboard().set("test", 2)?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+
+	Ok(())
+}
+
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">

@@ -57,6 +57,11 @@ impl EntryUpdated {
 			entry_key: Arc::default(),
 		}
 	}
+
+	/// Initialization function.
+	pub const fn initialize(&mut self, state: BehaviorState) {
+		self.state_if_not = state;
+	}
 }
 
 #[async_trait::async_trait]
@@ -76,10 +81,6 @@ impl Behavior for EntryUpdated {
 	) -> Result<(), BehaviorError> {
 		if let Some(key) = behavior.remappings().find(ENTRY) {
 			self.entry_key = key;
-			// match strip_bb_pointer(&key) {
-			// 	Some(stripped) => self.entry_key = behavior.get::<String>(&stripped)?.into(),
-			// 	None => self.entry_key = key,
-			// }
 			Ok(())
 		} else {
 			Err(BehaviorError::PortNotDeclared(
