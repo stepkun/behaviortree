@@ -26,6 +26,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Fixed
 - behavior `Precondition`s else branch is now case independant
+- `Parallel` & `ParallelAll` edge cases
 
 ### Removed
 

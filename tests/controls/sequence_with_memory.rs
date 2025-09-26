@@ -10,6 +10,103 @@ use behaviortree::prelude::*;
 
 use rstest::rstest;
 
+const SEQUENCE_WITH_MEMORY: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<SequenceWithMemory name="root_sequence">
+			<Action ID="Action" name="action1"/>
+			<Action ID="Action" name="action2"/>
+			<Action	ID="Action" name="action3"/>
+		</SequenceWithMemory>
+	</BehaviorTree>
+</root>
+"#;
+
+#[tokio::test]
+async fn sequence_with_memory_raw() -> Result<(), Error> {
+	fn set_values(
+		tree: &mut BehaviorTree,
+		action1_state: BehaviorState,
+		action2_state: BehaviorState,
+		action3_state: BehaviorState,
+	) {
+		for behavior in tree.iter_mut() {
+			if behavior.name().as_ref() == "action1" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action1_state);
+				}
+			}
+			if behavior.name().as_ref() == "action2" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action2_state);
+				}
+			}
+			if behavior.name().as_ref() == "action3" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action3_state);
+				}
+			}
+		}
+	}
+
+	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Action",
+		BehaviorState::Running,
+		BehaviorState::Failure,
+		0
+	)?;
+	let mut tree = factory.create_from_text(SEQUENCE_WITH_MEMORY)?;
+	drop(factory);
+
+	// case 1
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	// case 2
+	set_values(
+		&mut tree,
+		BehaviorState::Success,
+		BehaviorState::Failure,
+		BehaviorState::Success,
+	);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	// case 3
+	set_values(
+		&mut tree,
+		BehaviorState::Success,
+		BehaviorState::Success,
+		BehaviorState::Running,
+	);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Running);
+	set_values(
+		&mut tree,
+		BehaviorState::Failure,
+		BehaviorState::Success,
+		BehaviorState::Success,
+	);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+
+	Ok(())
+}
+
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">

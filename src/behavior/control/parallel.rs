@@ -23,14 +23,8 @@ use crate::{
 /// These are configured using the ports `success_count` and `failure_count`.
 /// If any of the thresholds is reached, still running children will be halted.
 /// This differs from the [`ParallelAll`](crate::behavior::control::parallel_all::ParallelAll) behavior.
-#[derive(Control, Debug)]
+#[derive(Control, Debug, Default)]
 pub struct Parallel {
-	/// The minimum needed Successes to return a Success.
-	/// "-1" signals any number.
-	success_threshold: i32,
-	/// The maximum allowed failures.
-	/// "-1" signals any number.
-	failure_threshold: i32,
 	/// The amount of completed sub behaviors that succeeded.
 	success_count: i32,
 	/// The amount of completed sub behaviors that failed.
@@ -43,23 +37,9 @@ pub struct Parallel {
 const SUCCESS_COUNT: &str = "success_count";
 const FAILURE_COUNT: &str = "failure_count";
 
-impl Default for Parallel {
-	fn default() -> Self {
-		Self {
-			success_threshold: -1,
-			failure_threshold: -1,
-			success_count: 0,
-			failure_count: 0,
-			completed_list: BTreeSet::default(),
-		}
-	}
-}
-
 #[async_trait::async_trait]
 impl Behavior for Parallel {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.success_threshold = -1;
-		self.failure_threshold = -1;
 		self.completed_list.clear();
 		self.success_count = 0;
 		self.failure_count = 0;
@@ -75,18 +55,22 @@ impl Behavior for Parallel {
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		// check composition only once at start
-		self.success_threshold = behavior.get(SUCCESS_COUNT).unwrap_or(-1);
-		self.failure_threshold = behavior.get(FAILURE_COUNT).unwrap_or(-1);
+		// The minimum needed Successes to return a Success.
+		// "-1" signals any number.
+		let success_threshold = behavior.get(SUCCESS_COUNT).unwrap_or(-1);
+		// The maximum allowed failures.
+		// "-1" signals any number.
+		let failure_threshold = behavior.get(FAILURE_COUNT).unwrap_or(-1);
 
 		let children_count = children.len();
 
-		if (children_count as i32) < self.success_threshold {
+		if (children_count as i32) < success_threshold {
 			return Err(BehaviorError::Composition(
 				"Number of children is less than the threshold. Can never succeed.".into(),
 			));
 		}
 
-		if (children_count as i32) < self.failure_threshold {
+		if (children_count as i32) < failure_threshold {
 			return Err(BehaviorError::Composition(
 				"Number of children is less than the threshold. Can never fail.".into(),
 			));
@@ -100,10 +84,16 @@ impl Behavior for Parallel {
 	#[allow(clippy::set_contains_or_insert)]
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		// The minimum needed Successes to return a Success.
+		// "-1" signals any number.
+		let success_threshold = behavior.get(SUCCESS_COUNT).unwrap_or(-1);
+		// The maximum allowed failures.
+		// "-1" signals any number.
+		let failure_threshold = behavior.get(FAILURE_COUNT).unwrap_or(-1);
 		let children_count = children.len();
 
 		let mut skipped_count = 0;
@@ -134,15 +124,15 @@ impl Behavior for Parallel {
 			if sum >= children_count as i32 {
 				let state = if skipped_count == children_count as i32 {
 					BehaviorState::Skipped
-				} else if self.failure_threshold <= 0 && self.success_threshold <= 0 {
+				} else if failure_threshold <= 0 && success_threshold <= 0 {
 					BehaviorState::Success
-				} else if self.failure_threshold <= 0 {
-					if self.success_count >= self.success_threshold {
+				} else if failure_threshold <= 0 {
+					if self.success_count >= success_threshold {
 						BehaviorState::Success
 					} else {
 						BehaviorState::Failure
 					}
-				} else if self.failure_count >= self.failure_threshold {
+				} else if (self.failure_count > failure_threshold) || (self.success_count < success_threshold) {
 					BehaviorState::Failure
 				} else {
 					BehaviorState::Success

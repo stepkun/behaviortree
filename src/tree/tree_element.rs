@@ -116,6 +116,12 @@ impl BehaviorTreeElement {
 		self.data.uid()
 	}
 
+	/// Returns the name of the behavior.
+	#[must_use]
+	pub const fn name(&self) -> &ConstString {
+		self.data.description().name()
+	}
+
 	/// Get a reference to the [`BehaviorData`].
 	#[must_use]
 	pub const fn data(&self) -> &BehaviorData {

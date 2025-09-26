@@ -12,14 +12,81 @@ use behaviortree::behavior::control::Fallback;
 use behaviortree::{BehaviorTreeElement, prelude::*};
 use rstest::rstest;
 
-// async fn fallback() -> Result<(), Error> {
-// 	fn inner_fallback() -> Result<(), Error> {
-// 		Ok(())
-// 	}
-// 	// case 1
+const FALLBACK: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Fallback name="root_fallback">
+			<Condition ID="Condition" name="condition"/>
+			<Action	ID="Action" name="action"/>
+		</Fallback>
+	</BehaviorTree>
+</root>
+"#;
 
-// 	Ok(())
-// }
+#[tokio::test]
+async fn simple_fallback_raw() -> Result<(), Error> {
+	fn set_values(tree: &mut BehaviorTree, condition_state: BehaviorState, action_state: BehaviorState) {
+		for behavior in tree.iter_mut() {
+			if behavior.name().as_ref() == "condition" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(condition_state);
+				}
+			}
+			if behavior.name().as_ref() == "action" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action_state);
+				}
+			}
+		}
+	}
+
+	let mut factory = BehaviorTreeFactory::new()?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Condition",
+		BehaviorState::Running,
+		BehaviorState::Failure,
+		0
+	)?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Action",
+		BehaviorState::Running,
+		BehaviorState::Failure,
+		0
+	)?;
+	let mut tree = factory.create_from_text(FALLBACK)?;
+	drop(factory);
+
+	// case 1
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	// case 2
+	set_values(&mut tree, BehaviorState::Success, BehaviorState::Failure);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	// case 3
+	set_values(&mut tree, BehaviorState::Failure, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	// case 3
+	set_values(&mut tree, BehaviorState::Success, BehaviorState::Success);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+
+	Ok(())
+}
 
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
@@ -49,13 +116,13 @@ const TREE_DEFINITION: &str = r#"
 #[case(Skipped, Skipped, Running, Running)]
 #[case(Skipped, Skipped, Failure, Failure)]
 #[case(Success, Failure, Failure, Success)]
-async fn simple_fallback(
+async fn simple_fallback_variants(
 	#[case] input1: BehaviorState,
 	#[case] input2: BehaviorState,
 	#[case] input3: BehaviorState,
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
@@ -91,7 +158,7 @@ async fn simple_fallback_errors(
 	#[case] input2: BehaviorState,
 	#[case] input3: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
@@ -116,7 +183,7 @@ async fn simple_fallback_reactiveness1(
 	#[case] expected3: BehaviorState,
 	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
@@ -159,7 +226,7 @@ async fn simple_fallback_reactiveness2(
 	#[case] expected3: BehaviorState,
 	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;

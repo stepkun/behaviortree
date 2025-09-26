@@ -89,7 +89,7 @@ async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
 
 	// initialize ActionB with the help of an iterator
 	for behavior in tree.iter_mut() {
-		if behavior.data().description().name().as_ref() == ("Action_B") {
+		if behavior.name().as_ref() == "Action_B" {
 			if let Some(action) = behavior
 				.behavior_mut()
 				.as_any_mut()

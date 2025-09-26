@@ -26,33 +26,19 @@ const MAX_FAILURES: &str = "max_failures";
 ///
 /// In difference to the [`Parallel`](crate::behavior::control::parallel::Parallel) behavior,
 /// the [`ParallelAll`] finishes the execution of all its children before deciding whether its a Success or a Failure.
-#[derive(Control, Debug)]
+#[derive(Control, Debug, Default)]
 pub struct ParallelAll {
-	/// The maximum allowed failures.
-	/// "-1" signals any number.
-	failure_threshold: i32,
 	/// The amount of completed sub behaviors that failed.
 	failure_count: i32,
 	/// The list of completed sub behaviors
 	completed_list: BTreeSet<usize>,
 }
 
-impl Default for ParallelAll {
-	fn default() -> Self {
-		Self {
-			failure_threshold: -1,
-			failure_count: 0,
-			completed_list: BTreeSet::default(),
-		}
-	}
-}
-
 #[async_trait::async_trait]
 impl Behavior for ParallelAll {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
-		self.failure_threshold = -1;
-		self.completed_list.clear();
 		self.failure_count = 0;
+		self.completed_list.clear();
 		Ok(())
 	}
 
@@ -65,9 +51,12 @@ impl Behavior for ParallelAll {
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		// check composition only once at start
-		self.failure_threshold = behavior.get(MAX_FAILURES).unwrap_or(-1);
+		// The maximum allowed failures.
+		// "-1" signals any number.
+		let failure_threshold = behavior.get(MAX_FAILURES).unwrap_or(-1);
+		self.failure_count = 0;
 
-		if (children.len() as i32) < self.failure_threshold {
+		if (children.len() as i32) < failure_threshold {
 			return Err(BehaviorError::Composition(
 				"Number of children is less than the threshold. Can never fail.".into(),
 			));
@@ -80,16 +69,17 @@ impl Behavior for ParallelAll {
 	#[allow(clippy::cast_possible_wrap)]
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		let failure_threshold = behavior.get(MAX_FAILURES).unwrap_or(-1);
 		let children_count = children.len();
 
 		let mut skipped_count = 0;
 
 		for i in 0..children_count {
-			// Skip completed node
+			// Skip completed behaviors
 			if self.completed_list.contains(&i) {
 				continue;
 			}
@@ -118,7 +108,7 @@ impl Behavior for ParallelAll {
 
 		let sum = skipped_count + self.completed_list.len();
 		if sum >= children_count {
-			let state = if (self.failure_threshold >= 0) && (self.failure_threshold <= self.failure_count) {
+			let state = if (failure_threshold >= 0) && (self.failure_count > failure_threshold) {
 				BehaviorState::Failure
 			} else {
 				BehaviorState::Success

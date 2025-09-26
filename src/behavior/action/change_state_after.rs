@@ -22,20 +22,10 @@ use crate::{
 /// certain amount of ticks like `AlwaysFailure` and `AlwaysSuccess`.
 /// The behavior is also used to create test behaviors.
 ///
-/// The registration is not possible via the provided functions or macros,
-/// but must be done manually using its new(...) method like:
+/// The registration is possible via the provided macro,
 /// ```no-test
-/// let bhvr_desc = BehaviorDescription::new(
-///     "AlwaysSkipped",
-///     "AlwaysSkipped",
-///     ChangeStateAfter::kind(),
-///     false,                         // true, if it is a builtin behavior available in Groot2
-///     ChangeStateAfter::provided_ports(),
-/// );
-/// let bhvr_creation_fn =
-///     Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Skipped, 0)) });
-/// self.registry_mut()
-///     add_behavior(bhvr_desc, bhvr_creation_fn)?;
+/// register_behavior!(factory, ChangeStateAfter, "AlwaysSkipped",
+///                        BehaviorState::Running, BehaviorState::Skipped, 0)?;
 /// ```
 #[derive(Action, Debug)]
 pub struct ChangeStateAfter {

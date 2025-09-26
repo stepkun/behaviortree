@@ -11,6 +11,113 @@ use behaviortree::prelude::*;
 
 use rstest::rstest;
 
+const SWITCH: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="MainTree">
+	<BehaviorTree ID="MainTree">
+		<Switch3 name="root_switch" variable="{var}"  case_1="1" case_2="2" case_3="3">
+			<Action ID="Action" name="case1"/>
+			<Action ID="Action" name="case2"/>
+			<Action	ID="Action" name="case3"/>
+			<Action	ID="Action" name="default"/>
+		</Switch3>
+	</BehaviorTree>
+</root>
+"#;
+
+#[tokio::test]
+async fn switch_raw() -> Result<(), Error> {
+	fn set_values(
+		tree: &mut BehaviorTree,
+		action1_state: BehaviorState,
+		action2_state: BehaviorState,
+		action3_state: BehaviorState,
+		default_state: BehaviorState,
+	) {
+		for behavior in tree.iter_mut() {
+			if behavior.name().as_ref() == "case1" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action1_state);
+				}
+			}
+			if behavior.name().as_ref() == "case2" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action2_state);
+				}
+			}
+			if behavior.name().as_ref() == "case3" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(action3_state);
+				}
+			}
+			if behavior.name().as_ref() == "default" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<ChangeStateAfter>()
+				{
+					behavior.set_final_state(default_state);
+				}
+			}
+		}
+	}
+
+	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	register_behavior!(
+		factory,
+		ChangeStateAfter,
+		"Action",
+		BehaviorState::Running,
+		BehaviorState::Failure,
+		0
+	)?;
+	factory.register_behavior_tree_from_text(SWITCH)?;
+
+	let blackboard = Databoard::new();
+	let mut tree = factory.create_tree_with("MainTree", blackboard.clone())?;
+	drop(factory);
+
+	// preparation
+	blackboard.set("var", String::from("1"))?;
+	set_values(
+		&mut tree,
+		BehaviorState::Success,
+		BehaviorState::Failure,
+		BehaviorState::Running,
+		BehaviorState::Skipped,
+	);
+	// case 1
+	// blackboard.set("var", 1)?;
+	let mut result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Success);
+	// case 2
+	blackboard.set("var", String::from("2"))?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
+	// case 3
+	blackboard.set("var", String::from("3"))?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Running);
+	// default
+	blackboard.set("var", String::from("42"))?;
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Skipped);
+
+	Ok(())
+}
+
 const SWITCH2_TREE: &str = r#"
 <root BTCPP_format="4"
 		main_tree_to_execute="MainTree">

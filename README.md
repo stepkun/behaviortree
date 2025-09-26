@@ -164,15 +164,15 @@ All behaviors are fully asynchronous, there are no synchronous behaviors.
 |                             |         |          |
 | __Control__                 |         |          |
 | `Fallback`                  | ✅      | ✅       |
-| `ReactiveFallback`          | ✅      | 🚦       |
+| `ReactiveFallback`          | ✅      | ✅       |
 | `Sequence`                  | ✅      | ✅       |
 | `ReactiveSequence`          | ✅      | ✅       |
-| `SequenceWithMemory`        | ✅      | 🚦       |
-| `Parallel`                  | ✅      | 🚦       |
-| `ParallelAll`               | ✅      | 🚦       |
-| `IfThenElse`                | ✅      | 🚦       |
-| `WhileDoElse`               | ✅      | 🚦       |
-| `Switch<u8>`                | ✅      | 🚦       |
+| `SequenceWithMemory`        | ✅      | ✅       |
+| `Parallel`                  | ✅      | ✅       |
+| `ParallelAll`               | ✅      | ✅       |
+| `IfThenElse`                | ✅      | ✅       |
+| `WhileDoElse`               | ✅      | ✅       |
+| `Switch<u8>`                | ✅      | ✅       |
 | `ManualSelector`            | 🔴      | ??       |
 |                             |         |          |
 | __Decorator__               |         |          |

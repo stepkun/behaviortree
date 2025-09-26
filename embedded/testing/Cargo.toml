@@ -36,11 +36,7 @@ behaviortree = { path = "../..", default-features = false }
 embedded-test = { version = "0.6.0", features = ["ariel-os"] }
 
 [[test]]
-name = "actions"
-harness = false
-
-[[test]]
-name = "conditions"
+name = "actions_conditions"
 harness = false
 
 [[test]]
