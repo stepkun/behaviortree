@@ -10,11 +10,6 @@ extern crate alloc;
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-	// use ariel_os::{
-	// 	debug::{ExitCode, exit, log::*},
-	// 	time::Timer,
-	// };
-
 	use behaviortree::{
 		behavior::{
 			SharedQueue,
@@ -49,7 +44,7 @@ mod tests {
 
 	#[test]
 	async fn blackboard() -> Result<(), Error> {
-		let mut factory = BehaviorTreeFactory::default();
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(factory, SetBlackboard<String>, "SetBlackboard")?;
 		register_behavior!(factory, UnsetBlackboard<String>, "UnsetBlackboard")?;
 
@@ -89,7 +84,7 @@ mod tests {
 
 	#[test]
 	async fn pop_from_queue() -> Result<(), Error> {
-		let mut factory = BehaviorTreeFactory::default();
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(factory, PopFromQueue<i32>, "PopFromQueue")?;
 
 		factory.register_behavior_tree_from_text(POP_FROM_QUEUE_TREE_DEFINITION)?;
@@ -137,7 +132,7 @@ mod tests {
 
 	#[test]
 	async fn script() -> Result<(), Error> {
-		let mut factory = BehaviorTreeFactory::default();
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(factory, Script, "Script")?;
 
 		factory.register_behavior_tree_from_text(SCRIPT_XML)?;

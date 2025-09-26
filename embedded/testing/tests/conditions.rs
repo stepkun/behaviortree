@@ -10,15 +10,8 @@ extern crate alloc;
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-	// use ariel_os::{
-	// 	debug::{ExitCode, exit, log::*},
-	// 	time::Timer,
-	// };
 	use behaviortree::{
-		behavior::{
-			action::ChangeStateAfter,
-			condition::{ScriptCondition, WasEntryUpdated},
-		},
+		behavior::condition::{ScriptCondition, WasEntryUpdated},
 		prelude::*,
 	};
 
@@ -49,20 +42,8 @@ mod tests {
 
 	#[test]
 	async fn script_conditions() -> Result<(), Error> {
-		let mut factory = BehaviorTreeFactory::default();
-		let bhvr_desc = BehaviorDescription::new(
-			"AlwaysFailure",
-			"AlwaysFailure",
-			ChangeStateAfter::kind(),
-			true,
-			ChangeStateAfter::provided_ports(),
-		);
-		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Failure, 0))
-		});
-		factory
-			.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+		let mut factory = BehaviorTreeFactory::new()?;
+		factory.register_test_behaviors()?;
 		register_behavior!(factory, ScriptCondition, "ScriptCondition")?;
 
 		factory.register_behavior_tree_from_text(SCRIPT_CONDITION_XML)?;
@@ -91,7 +72,7 @@ mod tests {
 
 	#[test]
 	async fn was_entry_updated() -> Result<(), Error> {
-		let mut factory = BehaviorTreeFactory::default();
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 
 		let mut tree = factory.create_from_text(WAS_ENTRY_UPDATED_XML)?;

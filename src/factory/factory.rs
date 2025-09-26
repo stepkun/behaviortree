@@ -58,22 +58,7 @@ pub struct BehaviorTreeFactory {
 impl Default for BehaviorTreeFactory {
 	#[allow(clippy::expect_used)]
 	fn default() -> Self {
-		let mut f = Self {
-			registry: Box::new(BehaviorRegistry::default()),
-		};
-		// minimum required behaviors for the factory to work
-		// controls
-		f.register_groot2_behavior_type::<Fallback>("Fallback")
-			.expect("creating factory failed due to registration of [Fallback]");
-		f.register_groot2_behavior_type::<Parallel>("Parallel")
-			.expect("creating factory failed due to registration of [Parallel]");
-		f.register_groot2_behavior_type::<Sequence>("Sequence")
-			.expect("creating factory failed due to registration of [Sequence]");
-		// subtree
-		f.register_groot2_behavior_type::<SubTree>("SubTree")
-			.expect("creating default factory failed due to registration of [SubTree]");
-
-		f
+		Self::new().expect("creating default factory failed")
 	}
 }
 
@@ -88,6 +73,34 @@ impl BehaviorTreeFactory {
 	#[must_use]
 	pub const fn registry_mut(&mut self) -> &mut BehaviorRegistry {
 		&mut self.registry
+	}
+
+	/// Create a factory with default set of behaviors:
+	/// - [`Fallback`]: the standard fallback control
+	/// - [`Sequence`]: the standard sequence control
+	/// - [`Parallel`]: the standard parallel contol with the ports
+	///   - `success_count`: the minimum of child successes to return Success
+	///   - `failure_count`: the maximum of child failures to return Success
+	///     (equivalent to the minimum of child failures to return Failure)
+	///
+	/// Internally necessary are also
+	/// - [`SubTree`]: to enable sub trees including the root tree
+	///
+	/// # Errors
+	/// - if registration of any of the behaviors fails.
+	pub fn new() -> Result<Self, Error> {
+		let mut f = Self {
+			registry: Box::new(BehaviorRegistry::default()),
+		};
+		// minimum required behaviors for the factory to work
+		// controls
+		f.register_groot2_behavior_type::<Fallback>("Fallback")?;
+		f.register_groot2_behavior_type::<Parallel>("Parallel")?;
+		f.register_groot2_behavior_type::<Sequence>("Sequence")?;
+		// subtree
+		f.register_groot2_behavior_type::<SubTree>("SubTree")?;
+
+		Ok(f)
 	}
 
 	/// Create a factory with core set of behaviors which adds to the default behaviors:

@@ -10,14 +10,10 @@ extern crate alloc;
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-	// use ariel_os::{
-	// 	debug::{ExitCode, exit, log::*},
-	// 	time::Timer,
-	// };
 	use behaviortree::{
 		behavior::{
 			SharedQueue,
-			action::{ChangeStateAfter, Script},
+			action::Script,
 			decorator::{Loop, Precondition},
 		},
 		prelude::*,
@@ -58,7 +54,7 @@ mod tests {
 
 	#[test]
 	async fn loop_queue() -> Result<(), Error> {
-		let mut factory = BehaviorTreeFactory::default();
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(factory, Loop<String>, "LoopString")?;
 		register_behavior!(factory, Script, "Script")?;
 
@@ -105,36 +101,8 @@ mod tests {
 
 	#[test]
 	async fn precondition() -> Result<(), Error> {
-		let mut factory = BehaviorTreeFactory::default();
-
-		let bhvr_desc = BehaviorDescription::new(
-			"AlwaysFailure",
-			"AlwaysFailure",
-			ChangeStateAfter::kind(),
-			true,
-			ChangeStateAfter::provided_ports(),
-		);
-		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Failure, 0))
-		});
-		factory
-			.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
-		let bhvr_desc = BehaviorDescription::new(
-			"AlwaysSuccess",
-			"AlwaysSuccess",
-			ChangeStateAfter::kind(),
-			true,
-			ChangeStateAfter::provided_ports(),
-		);
-		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Success, 0))
-		});
-		factory
-			.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
+		let mut factory = BehaviorTreeFactory::new()?;
+		factory.register_test_behaviors()?;
 		register_behavior!(factory, Precondition, "Precondition")?;
 
 		factory.register_behavior_tree_from_text(PRECONDITION_XML)?;

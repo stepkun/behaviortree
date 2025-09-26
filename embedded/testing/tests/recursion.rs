@@ -107,26 +107,28 @@ mod tests {
 	use super::*;
 
 	#[test]
-	async fn recursion() {
-		let mut factory = BehaviorTreeFactory::default();
-		factory.register_test_behaviors().unwrap();
+	async fn recursion() -> Result<(), Error> {
+		let mut factory = BehaviorTreeFactory::new()?;
+		factory.register_test_behaviors()?;
 
-		let mut tree = factory.create_from_text(XML).unwrap();
+		let mut tree = factory.create_from_text(XML)?;
 		drop(factory);
 
-		tree.tick_while_running().await.unwrap();
+		tree.tick_while_running().await?;
+		Ok(())
 	}
 
 	#[test]
 	// #[should_panic]
 	#[ignore("as it will fail")]
-	async fn recursion_fail() {
-		let mut factory = BehaviorTreeFactory::default();
-		factory.register_test_behaviors().unwrap();
+	async fn recursion_fail() -> Result<(), Error> {
+		let mut factory = BehaviorTreeFactory::new()?;
+		factory.register_test_behaviors()?;
 
-		let mut tree = factory.create_from_text(XML_FAILS).unwrap();
+		let mut tree = factory.create_from_text(XML_FAILS)?;
 		drop(factory);
 
-		tree.tick_while_running().await.unwrap();
+		tree.tick_while_running().await?;
+		Ok(())
 	}
 }

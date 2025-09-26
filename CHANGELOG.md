@@ -19,6 +19,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ## [0.5.2] - 2025-??-??
 
 ### Added
+- constructor `BehaviorTreeFactory::new()` returning a `Result` to use instead of `BehaviorTreeFactory::default()`
 
 ### Changed
 

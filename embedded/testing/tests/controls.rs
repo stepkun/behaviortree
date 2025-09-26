@@ -10,14 +10,12 @@ extern crate alloc;
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-	// use ariel_os::{
-	// 	debug::{ExitCode, exit, log::*},
-	// 	time::Timer,
-	// };
 	use behaviortree::prelude::*;
 
 	#[test]
 	async fn fallback() -> Result<(), Error> {
+		// case 1
+
 		Ok(())
 	}
 
