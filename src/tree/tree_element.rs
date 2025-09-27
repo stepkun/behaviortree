@@ -9,7 +9,7 @@ use crate::{
 	behavior::{
 		BehaviorPtr, BehaviorResult, BehaviorState,
 		behavior_data::BehaviorData,
-		error::BehaviorError,
+		error::Error as BehaviorError,
 		pre_post_conditions::{Conditions, PostConditions, PreConditions},
 	},
 	tree::{

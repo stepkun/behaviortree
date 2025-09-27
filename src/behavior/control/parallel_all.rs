@@ -2,18 +2,17 @@
 //! [`ParallelAll`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use alloc::collections::btree_set::BTreeSet;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use alloc::collections::btree_set::BTreeSet;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -57,9 +56,9 @@ impl Behavior for ParallelAll {
 		self.failure_count = 0;
 
 		if (children.len() as i32) < failure_threshold {
-			return Err(BehaviorError::Composition(
-				"Number of children is less than the threshold. Can never fail.".into(),
-			));
+			return Err(BehaviorError::Composition {
+				txt: "Number of children is less than the threshold. Can never fail.".into(),
+			});
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
@@ -97,7 +96,10 @@ impl Behavior for ParallelAll {
 				BehaviorState::Running => {}
 				// Throw error, should never happen
 				BehaviorState::Idle => {
-					return Err(BehaviorError::State("ParallelAll".into(), IDLE.into()));
+					return Err(BehaviorError::State {
+						behavior: "ParallelAll".into(),
+						state,
+					});
 				}
 			}
 		}

@@ -3,10 +3,7 @@
 //! [`behaviortree`](crate) [`PortList`] implementation.
 
 // region:      --- modules
-use alloc::{
-	string::{String, ToString},
-	vec::Vec,
-};
+use alloc::{string::String, vec::Vec};
 use core::ops::{Deref, DerefMut};
 
 use crate::ConstString;
@@ -43,7 +40,9 @@ impl PortList {
 	pub fn add(&mut self, port_definition: PortDefinition) -> Result<(), Error> {
 		for entry in &self.0 {
 			if entry.name() == port_definition.name() {
-				return Err(Error::AlreadyInPortList(entry.name().to_string().into()));
+				return Err(Error::AlreadyInPortList {
+					key: entry.name().into(),
+				});
 			}
 		}
 		self.0.push(port_definition);

@@ -2,14 +2,13 @@
 //! [`Inverter`] [`Decorator`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Decorator, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Decorator,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- Inverter
@@ -36,7 +35,10 @@ impl Behavior for Inverter {
 				children.halt(runtime)?;
 				Ok(BehaviorState::Success)
 			}
-			BehaviorState::Idle => Err(BehaviorError::State("Inverter".into(), IDLE.into())),
+			BehaviorState::Idle => Err(BehaviorError::State {
+				behavior: "Inverter".into(),
+				state: new_state,
+			}),
 			state @ (BehaviorState::Running | BehaviorState::Skipped) => Ok(state),
 			BehaviorState::Success => {
 				children.halt(runtime)?;

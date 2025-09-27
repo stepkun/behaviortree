@@ -2,12 +2,6 @@
 //! [`WasEntryUpdated`] [`Condition`] implementation.
 
 // region:      --- modules
-use alloc::{
-	boxed::Box,
-	string::{String, ToString},
-};
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Condition, ConstString, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
@@ -16,6 +10,11 @@ use crate::{
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::{
+	boxed::Box,
+	string::{String, ToString},
+};
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -52,10 +51,10 @@ impl Behavior for WasEntryUpdated {
 			// }
 			Ok(())
 		} else {
-			Err(BehaviorError::PortNotDeclared(
-				"entry".into(),
-				behavior.description().name().clone(),
-			))
+			Err(BehaviorError::PortNotDeclared {
+				port: "entry".into(),
+				behavior: behavior.description().name().clone(),
+			})
 		}
 	}
 

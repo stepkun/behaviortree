@@ -34,7 +34,7 @@ pub fn create_port<T>(
 	if is_allowed_port_name(name) {
 		Ok(PortDefinition::new(direction, type_name, name, default, description)?)
 	} else {
-		Err(Error::NameNotAllowed(name.into()))
+		Err(Error::NameNotAllowed { port: name.into() })
 	}
 }
 

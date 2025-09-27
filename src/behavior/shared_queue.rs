@@ -4,14 +4,13 @@
 #![allow(dead_code)]
 
 // region:      --- modules
+use crate::{self as behaviortree, behavior::error::Error as BehaviorError};
 use alloc::collections::vec_deque::VecDeque;
 use alloc::string::ToString;
 use alloc::sync::Arc;
 use core::fmt::{Debug, Display, Formatter};
 use core::str::FromStr;
 use spin::Mutex;
-
-use crate::{self as behaviortree, behavior::error::BehaviorError};
 // endregion:   --- modules
 
 // region:		--- SharedQueue
@@ -51,7 +50,12 @@ where
 		for val in vals {
 			let item = match T::from_str(val) {
 				Ok(item) => item,
-				Err(_err) => return Err(BehaviorError::ParseError(val.into(), s.into())),
+				Err(_err) => {
+					return Err(BehaviorError::ParseError {
+						value: val.into(),
+						src: s.into(),
+					});
+				}
 			};
 			queue.push_back(item);
 		}

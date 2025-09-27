@@ -2,10 +2,9 @@
 //! [`PreConditions`] and [`PostConditions`] implementation.
 
 // region		--- modules
-use core::ops::{Deref, DerefMut};
-
-use super::error::BehaviorError;
+use super::error::Error as BehaviorError;
 use crate::{ConstString, FAILURE_IF, ON_FAILURE, ON_HALTED, ON_SUCCESS, POST, SKIP_IF, SUCCESS_IF, WHILE};
+use core::ops::{Deref, DerefMut};
 // endregion:	--- modules
 
 // region:      --- Conditions
@@ -67,14 +66,14 @@ impl PreConditions {
 		let op = (0..PRE_CONDITIONS.len()).find(|&i| PRE_CONDITIONS[i] == name);
 		if let Some(index) = op {
 			self.0.as_mut().map_or_else(
-				|| Err(BehaviorError::UnableToSetPreCondition(name.into())),
+				|| Err(BehaviorError::UnableToSetCondition { value: name.into() }),
 				|array| {
 					array[index] = Some(script.into());
 					Ok(())
 				},
 			)
 		} else {
-			Err(BehaviorError::NoPreCondition(name.into()))
+			Err(BehaviorError::NoCondition { value: name.into() })
 		}
 	}
 }
@@ -130,14 +129,14 @@ impl PostConditions {
 		let op = (0..POST_CONDITIONS.len()).find(|&i| POST_CONDITIONS[i] == name);
 		if let Some(index) = op {
 			self.0.as_mut().map_or_else(
-				|| Err(BehaviorError::UnableToSetPostCondition(name.into())),
+				|| Err(BehaviorError::UnableToSetCondition { value: name.into() }),
 				|array| {
 					array[index] = Some(script.into());
 					Ok(())
 				},
 			)
 		} else {
-			Err(BehaviorError::NoPostCondition(name.into()))
+			Err(BehaviorError::NoCondition { value: name.into() })
 		}
 	}
 }

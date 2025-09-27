@@ -2,14 +2,13 @@
 //! [`ReactiveFallback`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- ReactiveFallback
@@ -78,7 +77,10 @@ impl Behavior for ReactiveFallback {
 					self.running_child_idx = -1;
 				}
 				BehaviorState::Idle => {
-					return Err(BehaviorError::State("ReactiveFallback".into(), IDLE.into()));
+					return Err(BehaviorError::State {
+						behavior: "ReactiveFallback".into(),
+						state: new_state,
+					});
 				}
 				BehaviorState::Running => {
 					// halt previously running child
@@ -90,9 +92,9 @@ impl Behavior for ReactiveFallback {
 						self.running_child_idx = child_idx as i32;
 					} else if self.running_child_idx != (child_idx as i32) {
 						// Multiple children running at the same time
-						return Err(BehaviorError::Composition(
-							"[ReactiveFallback]: Only a single child can return Running.".into(),
-						));
+						return Err(BehaviorError::Composition {
+							txt: "[ReactiveFallback]: Only a single child can return Running.".into(),
+						});
 					}
 					return Ok(BehaviorState::Running);
 				}

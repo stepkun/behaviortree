@@ -15,74 +15,95 @@ pub enum Error {
 	BtCppFormat,
 	/// The behavior does not allow children
 	ChildrenNotAllowed {
+		/// The affected behavior
 		behavior: ConstString,
 	},
 	/// A wrong pre- or post-condition
 	Condition {
+		/// The affected condition
 		key: ConstString,
+		/// original error
 		source: crate::BehaviorError,
 	},
 	/// Pass through errors from databoard
 	Databoard {
+		/// The requested entry key
 		key: ConstString,
+		/// original error
 		source: databoard::Error,
 	},
 	// A behavior definition cannot be found
 	DefinitionNotFound {
+		/// Id of the wanted behavior
 		id: ConstString,
 	},
 	/// Pass through errors from factory/registry
 	Factory {
+		/// The affected behavior
 		behavior: ConstString,
+		/// Original error
 		source: crate::factory::error::Error,
 	},
 	/// A root element at an invalid position
 	InvalidRootElement,
 	/// Attribute 'ID' is missing
 	MissingId {
+		/// The affected tag
 		tag: ConstString,
 	},
 	/// Attribute 'path' is missing
 	#[cfg(feature = "std")]
 	MissingPath {
+		/// The affected tag
 		tag: ConstString,
 	},
 	/// The name for the key is not allowed
 	NameNotAllowed {
+		/// The invalid name
 		key: ConstString,
 	},
 	/// Behavior is not registered
 	NotRegistered {
+		/// The affected behavior
 		behavior: ConstString,
 	},
 	/// The behavior does only allow and must have 1 child
 	OneChild {
+		/// The affected behavior
 		behavior: ConstString,
 	},
 	/// Pass through errors from xml parser
 	Parser {
+		/// Original error
 		source: roxmltree::Error,
 	},
 	/// Port not in defined port list of a behavior
 	PortInvalid {
+		/// Name of the port
 		port: ConstString,
+		/// The affected behavior
 		behavior: ConstString,
 	},
 	/// Invalid port type
 	PortType {
+		/// The `PortType` literal that is not known
 		value: ConstString,
 	},
 	#[cfg(feature = "std")]
 	ReadFile {
+		/// Filename
 		name: ConstString,
+		/// Stringified original error
 		cause: ConstString,
 	},
 	/// Unknown attribute
 	UnknownAttribute {
+		/// The attributes name
 		key: ConstString,
 	},
 	/// Unsupported element
 	UnsupportedElement {
+		/// Th unsupproted tag name
 		tag: ConstString,
 	},
 	/// Value for auroremap is wrong
@@ -126,7 +147,7 @@ impl core::fmt::Debug for Error {
 			Self::NameNotAllowed { key } => write!(f, "NameNotAllowed(key: {key})"),
 			Self::NotRegistered { behavior } => write!(f, "NotRegistered(behavior: {behavior})"),
 			Self::OneChild { behavior } => write!(f, "OneChild(behavior: {behavior})"),
-			Self::Parser { source } => write!(f, "Parser(err: {source})"),
+			Self::Parser { source } => write!(f, "Parser({source})"),
 			Self::PortInvalid { port, behavior } => {
 				write!(f, "PortInvalid(port: {port}, behavior: {behavior})")
 			}

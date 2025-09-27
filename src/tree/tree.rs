@@ -19,10 +19,7 @@ use crate::{
 };
 #[cfg(feature = "std")]
 use alloc::vec::Vec;
-use alloc::{
-	string::{String, ToString},
-	sync::Arc,
-};
+use alloc::{string::String, sync::Arc};
 use databoard::Databoard;
 #[cfg(feature = "std")]
 use libloading::Library;
@@ -42,7 +39,9 @@ use super::{error::Error, tree_element::BehaviorTreeElement};
 /// - if limit of 127 for tree depth is exceeded
 fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error> {
 	if level == i8::MAX {
-		return Err(Error::RecursionLimit(node.data().description().name().clone()));
+		return Err(Error::RecursionLimit {
+			behavior: node.data().description().name().clone(),
+		});
 	}
 
 	let next_level = level + 1;
@@ -138,7 +137,7 @@ impl BehaviorTree {
 
 	/// Get a (sub)tree where index 0 is root tree.
 	/// # Errors
-	/// - if index is out of bounds.
+	/// - if subtree is not found.
 	pub fn subtree(&self, index: usize) -> Result<&BehaviorTreeElement, Error> {
 		let mut i = 0_usize;
 		for element in self.iter() {
@@ -149,7 +148,7 @@ impl BehaviorTree {
 				i += 1;
 			}
 		}
-		Err(Error::SubtreeNotFound(index.to_string().into()))
+		Err(Error::SubtreeNotFound { index })
 	}
 
 	/// Get the trees uuid.

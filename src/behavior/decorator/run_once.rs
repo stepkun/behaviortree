@@ -2,17 +2,16 @@
 //! [`RunOnce`] [`Decorator`] implementation.
 
 // region:      --- modules
-use alloc::{boxed::Box, string::ToString};
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Decorator, IDLE,
+	self as behaviortree, Decorator,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::{boxed::Box, string::ToString};
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -56,7 +55,10 @@ impl Behavior for RunOnce {
 				self.already_ticked = true;
 				self.state = state;
 			} else if state == BehaviorState::Idle {
-				Err(BehaviorError::State("RunOnce".into(), IDLE.into()))?;
+				return Err(BehaviorError::State {
+					behavior: "RunOnce".into(),
+					state,
+				});
 			}
 			Ok(state)
 		}

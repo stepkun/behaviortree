@@ -3,13 +3,11 @@
 //! [`BehaviorTree`](crate::tree::tree::BehaviorTree) element list implementation.
 
 // region:      --- modules
+use super::tree_element::BehaviorTreeElement;
+use crate::behavior::error::Error as BehaviorError;
 use alloc::{format, vec::Vec};
 use core::ops::{Deref, DerefMut};
 use tinyscript::SharedRuntime;
-
-use crate::behavior::error::BehaviorError;
-
-use super::tree_element::BehaviorTreeElement;
 // endregion:   --- modules
 
 // region:		--- ConstBehaviorTreeElementList
@@ -63,7 +61,7 @@ impl BehaviorTreeElementList {
 			return Ok(());
 		} else if index >= self.0.len() {
 			let txt = format!("behavior tries to halt a non-existent child at index [{index}]");
-			return Err(BehaviorError::Composition(txt.into()));
+			return Err(BehaviorError::Composition { txt: txt.into() });
 		}
 		self.0[index].halt(runtime)
 	}

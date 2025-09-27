@@ -23,7 +23,7 @@ pub type BehaviorTreeResult<Output = crate::behavior::BehaviorState> = Result<Ou
 pub enum Error {
 	/// Pass through from `crate::behavior::BehaviorError`
 	#[error("{0}")]
-	Behavior(#[from] crate::behavior::error::BehaviorError),
+	Behavior(#[from] crate::behavior::error::Error),
 	/// Pass through from `crate::blackboard::Error`
 	#[error("{0}")]
 	Blackboard(#[from] databoard::Error),

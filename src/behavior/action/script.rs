@@ -2,12 +2,6 @@
 //! [`Script`] [`Action`] implementation.
 
 // region:      --- modules
-use alloc::{
-	boxed::Box,
-	string::{String, ToString},
-};
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Action, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
@@ -16,6 +10,11 @@ use crate::{
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::{
+	boxed::Box,
+	string::{String, ToString},
+};
+use tinyscript::SharedRuntime;
 //endregion:    --- modules
 
 // region:		--- globals

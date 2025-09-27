@@ -2,13 +2,6 @@
 //! [`EntryUpdated`] [`Decorator`] implementation.
 
 // region:      --- modules
-use alloc::sync::Arc;
-use alloc::{
-	boxed::Box,
-	string::{String, ToString},
-};
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, ConstString, Decorator, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
@@ -17,6 +10,12 @@ use crate::{
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::sync::Arc;
+use alloc::{
+	boxed::Box,
+	string::{String, ToString},
+};
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -83,10 +82,10 @@ impl Behavior for EntryUpdated {
 			self.entry_key = key;
 			Ok(())
 		} else {
-			Err(BehaviorError::PortNotDeclared(
-				"entry".into(),
-				behavior.description().name().clone(),
-			))
+			Err(BehaviorError::PortNotDeclared {
+				port: "entry".into(),
+				behavior: behavior.description().name().clone(),
+			})
 		}
 	}
 

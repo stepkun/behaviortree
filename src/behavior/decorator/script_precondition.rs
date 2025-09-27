@@ -2,12 +2,6 @@
 //! [`Precondition`] [`Decorator`] implementation.
 
 // region:      --- modules
-use alloc::{
-	boxed::Box,
-	string::{String, ToString},
-};
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Decorator, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
@@ -16,6 +10,11 @@ use crate::{
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::{
+	boxed::Box,
+	string::{String, ToString},
+};
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -64,7 +63,9 @@ impl Behavior for Precondition {
 							let val = bool::try_from(value)?;
 							if val { BehaviorState::Success } else { BehaviorState::Failure }
 						} else {
-							return Err(BehaviorError::NotABool);
+							return Err(BehaviorError::NotABool {
+								value: value.to_string().into(),
+							});
 						}
 					}
 				}

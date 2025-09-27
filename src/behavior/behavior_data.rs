@@ -126,7 +126,7 @@ impl BehaviorData {
 								data.downcast_ref::<String>().map_or_else(
 									|| {
 										self.get_env(remapped_key).map_or_else(
-											|_| Err(Error::NotFound(remapped.clone())),
+											|_| Err(Error::NotFound { key: remapped.clone() }),
 											|val| {
 												let s = match val {
 													ScriptingValue::Nil() => unreachable!(),
@@ -136,15 +136,25 @@ impl BehaviorData {
 													ScriptingValue::String(s) => s,
 												};
 												T::from_str(&s).map_or_else(
-													|_| Err(Error::CouldNotConvert(remapped_key.into())),
+													|_| {
+														Err(Error::CouldNotConvert {
+															value: remapped_key.into(),
+														})
+													},
 													|val| Ok(val),
 												)
 											},
 										)
 									},
 									|val| {
-										T::from_str(val)
-											.map_or_else(|_| Err(Error::CouldNotConvert(remapped_key.into())), |res| Ok(res))
+										T::from_str(val).map_or_else(
+											|_| {
+												Err(Error::CouldNotConvert {
+													value: remapped_key.into(),
+												})
+											},
+											|res| Ok(res),
+										)
 									},
 								)
 							},
@@ -154,8 +164,14 @@ impl BehaviorData {
 					Err(err) => {
 						// std::dbg!("remapped4");
 						match err {
-							databoard::Error::Assignment { key: _, value } => T::from_str(&value)
-								.map_or_else(|_| Err(Error::CouldNotConvert(remapped_key.into())), |val| Ok(val)),
+							databoard::Error::Assignment { key: _, value } => T::from_str(&value).map_or_else(
+								|_| {
+									Err(Error::CouldNotConvert {
+										value: remapped_key.into(),
+									})
+								},
+								|val| Ok(val),
+							),
 							_ => Err(err.into()),
 						}
 					}
@@ -164,7 +180,7 @@ impl BehaviorData {
 					// std::dbg!("remapped5");
 					match T::from_str(&remapped) {
 						Ok(res) => Ok(res),
-						Err(_err) => Err(Error::CouldNotConvert(remapped)),
+						Err(_err) => Err(Error::CouldNotConvert { value: remapped }),
 					}
 				}
 			}
@@ -178,7 +194,10 @@ impl BehaviorData {
 						let en = &*entry.read();
 						en.data().downcast_ref::<String>().map_or_else(
 							|| Err(err.into()),
-							|val| T::from_str(val).map_or_else(|_| Err(Error::CouldNotConvert(key.into())), |res| Ok(res)),
+							|val| {
+								T::from_str(val)
+									.map_or_else(|_| Err(Error::CouldNotConvert { value: key.into() }), |res| Ok(res))
+							},
 						)
 					}
 				},
@@ -189,7 +208,10 @@ impl BehaviorData {
 						let en = &*entry.read();
 						en.data().downcast_ref::<String>().map_or_else(
 							|| Err(err.into()),
-							|val| T::from_str(val).map_or_else(|_| Err(Error::CouldNotConvert(key.into())), |res| Ok(res)),
+							|val| {
+								T::from_str(val)
+									.map_or_else(|_| Err(Error::CouldNotConvert { value: key.into() }), |res| Ok(res))
+							},
 						)
 					}
 				},

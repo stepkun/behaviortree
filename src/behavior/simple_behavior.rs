@@ -2,12 +2,11 @@
 //! [`SimpleBehavior`]  implementation for registering functions as behavior.
 
 // region:      --- modules
+use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult};
+use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::BehaviorTreeElementList};
 use alloc::{boxed::Box, sync::Arc};
 use core::any::Any;
 use tinyscript::SharedRuntime;
-
-use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult};
-use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::BehaviorTreeElementList};
 // endregion:   --- modules
 
 // region:      --- types
@@ -63,9 +62,9 @@ impl Behavior for SimpleBehavior {
 			|| {
 				self.simple_tick_fn.as_ref().map_or_else(
 					|| {
-						Err(super::BehaviorError::Composition(
-							"SimpleBehavior without tick function".into(),
-						))
+						Err(super::BehaviorError::Composition {
+							txt: "SimpleBehavior without tick function".into(),
+						})
 					},
 					|func| func(),
 				)

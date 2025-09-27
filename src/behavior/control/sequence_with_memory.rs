@@ -2,14 +2,13 @@
 //! [`SequenceWithMemory`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- SequenceWithMemory
@@ -78,7 +77,10 @@ impl Behavior for SequenceWithMemory {
 					return Ok(BehaviorState::Failure);
 				}
 				BehaviorState::Idle => {
-					return Err(BehaviorError::State("SequenceWithMemory".into(), IDLE.into()));
+					return Err(BehaviorError::State {
+						behavior: "SequenceWithMemory".into(),
+						state: new_state,
+					});
 				}
 				BehaviorState::Running => return Ok(BehaviorState::Running),
 				BehaviorState::Skipped | BehaviorState::Success => {

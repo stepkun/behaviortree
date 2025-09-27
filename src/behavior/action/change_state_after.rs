@@ -2,14 +2,13 @@
 //! [`ChangeStateAfter`] [`Action`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Action,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 //endregion:    --- modules
 
 // region:		--- ChangeStateAfter

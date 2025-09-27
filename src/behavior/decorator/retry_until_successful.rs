@@ -2,17 +2,16 @@
 //! [`RetryUntilSuccessful`] [`Decorator`] implementation.
 
 // region:      --- modules
-use alloc::{boxed::Box, string::ToString};
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Decorator, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Decorator,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::{boxed::Box, string::ToString};
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -66,7 +65,10 @@ impl Behavior for RetryUntilSuccessful {
 					children.halt(runtime)?;
 				}
 				BehaviorState::Idle => {
-					return Err(BehaviorError::State("RetryUntilSuccessful".into(), IDLE.into()));
+					return Err(BehaviorError::State {
+						behavior: "RetryUntilSuccessful".into(),
+						state: new_state,
+					});
 				}
 				BehaviorState::Running => return Ok(BehaviorState::Running),
 				BehaviorState::Skipped => {

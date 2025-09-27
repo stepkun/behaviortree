@@ -2,14 +2,13 @@
 //! [`Fallback`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- Fallback
@@ -71,7 +70,10 @@ impl Behavior for Fallback {
 					self.child_idx += 1;
 				}
 				BehaviorState::Idle => {
-					return Err(BehaviorError::State("Fallback".into(), IDLE.into()));
+					return Err(BehaviorError::State {
+						behavior: "Fallback".into(),
+						state: new_state,
+					});
 				}
 				BehaviorState::Running => return Ok(BehaviorState::Running),
 				BehaviorState::Success => {

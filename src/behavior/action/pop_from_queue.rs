@@ -2,11 +2,6 @@
 //! [`PopFromQueue`] [`Action`] implementation.
 
 // region:      --- modules
-use alloc::{boxed::Box, string::ToString};
-use core::fmt::Debug;
-use core::str::FromStr;
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Action,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, shared_queue::SharedQueue},
@@ -15,6 +10,10 @@ use crate::{
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::{boxed::Box, string::ToString};
+use core::fmt::Debug;
+use core::str::FromStr;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
@@ -53,15 +52,16 @@ where
 		} else {
 			match behavior.get_mut_ref::<SharedQueue<T>>(QUEUE) {
 				Ok(q) => q.pop_front(),
-				Err(err) => match err {
-					crate::port::error::Error::Blackboard(error) => match error {
+				#[allow(clippy::collapsible_match)]
+				Err(err) => match &err {
+					crate::port::error::Error::Databoard { source } => match source {
 						databoard::Error::Assignment { key: _, value } => {
-							let q = SharedQueue::from_str(&value)?;
+							let q = SharedQueue::from_str(value)?;
 							let first = q.pop_front();
 							self.tmp_queue = Some(q);
 							first
 						}
-						_ => return Err(error.into()),
+						_ => return Err(err.into()),
 					},
 					_ => return Err(err.into()),
 				},

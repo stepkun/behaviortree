@@ -65,7 +65,7 @@ impl TryFrom<&str> for PortDirection {
 			INPUT_TYPE | INPUT => Ok(Self::In),
 			OUTPUT_TYPE | OUTPUT => Ok(Self::Out),
 			INOUT_TYPE | INOUT => Ok(Self::InOut),
-			_ => Err(crate::port::Error::CouldNotConvert(value.into())),
+			_ => Err(crate::port::Error::CouldNotConvert { value: value.into() }),
 		}
 	}
 }

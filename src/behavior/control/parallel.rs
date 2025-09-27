@@ -2,18 +2,17 @@
 //! [`Parallel`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use alloc::collections::btree_set::BTreeSet;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
+	self as behaviortree, Control,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use alloc::collections::btree_set::BTreeSet;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- Parallel
@@ -65,15 +64,15 @@ impl Behavior for Parallel {
 		let children_count = children.len();
 
 		if (children_count as i32) < success_threshold {
-			return Err(BehaviorError::Composition(
-				"Number of children is less than the threshold. Can never succeed.".into(),
-			));
+			return Err(BehaviorError::Composition {
+				txt: "Number of children is less than the threshold. Can never succeed.".into(),
+			});
 		}
 
 		if (children_count as i32) < failure_threshold {
-			return Err(BehaviorError::Composition(
-				"Number of children is less than the threshold. Can never fail.".into(),
-			));
+			return Err(BehaviorError::Composition {
+				txt: "Number of children is less than the threshold. Can never fail.".into(),
+			});
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
@@ -115,7 +114,10 @@ impl Behavior for Parallel {
 					BehaviorState::Running => {}
 					// Throw error, should never happen
 					BehaviorState::Idle => {
-						return Err(BehaviorError::State("Parallel".into(), IDLE.into()));
+						return Err(BehaviorError::State {
+							behavior: "Parallel".into(),
+							state: BehaviorState::Idle,
+						});
 					}
 				}
 			}

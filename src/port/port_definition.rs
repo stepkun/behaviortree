@@ -47,7 +47,7 @@ impl PortDefinition {
 				description,
 			})
 		} else {
-			Err(Error::NameNotAllowed(name.into()))
+			Err(Error::NameNotAllowed { port: name.into() })
 		}
 	}
 

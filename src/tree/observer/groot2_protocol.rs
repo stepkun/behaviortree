@@ -114,7 +114,7 @@ impl TryFrom<u8> for Groot2RequestType {
 			b'N' => Ok(Self::BreakpointReached),
 			b'U' => Ok(Self::BreakpointUnlock),
 			b'r' => Ok(Self::ToggleRecording),
-			_ => Err(Self::Error::InvalidRequestType(value)),
+			_ => Err(Self::Error::InvalidRequestType { value }),
 		}
 	}
 }

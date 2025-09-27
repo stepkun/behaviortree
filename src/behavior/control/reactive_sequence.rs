@@ -2,14 +2,13 @@
 //! [`ReactiveSequence`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- ReactiveSequence
@@ -78,7 +77,10 @@ impl Behavior for ReactiveSequence {
 					return Ok(BehaviorState::Failure);
 				}
 				BehaviorState::Idle => {
-					return Err(BehaviorError::State("ReactiveSequence".into(), IDLE.into()));
+					return Err(BehaviorError::State {
+						behavior: "ReactiveSequence".into(),
+						state: new_state,
+					});
 				}
 				BehaviorState::Running => {
 					// halt previously running child
@@ -90,9 +92,9 @@ impl Behavior for ReactiveSequence {
 						self.running_child_idx = child_idx as i32;
 					} else if self.running_child_idx != (child_idx as i32) {
 						// Multiple children running at the same time
-						return Err(BehaviorError::Composition(
-							"[ReactiveSequence]: Only a single child can return Running.".into(),
-						));
+						return Err(BehaviorError::Composition {
+							txt: "[ReactiveSequence]: Only a single child can return Running.".into(),
+						});
 					}
 					return Ok(BehaviorState::Running);
 				}

@@ -34,8 +34,8 @@ pub use crate::{register_behavior, register_scripting_enum};
 pub use crate::{inout_port, input_port, output_port, port_list};
 // behavior
 pub use crate::behavior::{
-	BehaviorError, BehaviorKind, BehaviorResult, BehaviorState, behavior_data::BehaviorData,
-	behavior_description::BehaviorDescription,
+	BehaviorKind, BehaviorResult, BehaviorState, behavior_data::BehaviorData, behavior_description::BehaviorDescription,
+	error::Error as BehaviorError,
 };
 // behavior traits
 pub use crate::behavior::{Behavior, BehaviorExecution};

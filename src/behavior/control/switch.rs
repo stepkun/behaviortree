@@ -2,19 +2,18 @@
 //! [`Switch<T>`] [`Control`] implementation.
 
 // region:      --- modules
+use crate::{
+	self as behaviortree, ConstString, Control, EMPTY_STR,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
+	input_port,
+	port::PortList,
+	tree::BehaviorTreeElementList,
+};
 use alloc::boxed::Box;
 use alloc::string::String;
 use alloc::vec::Vec;
 use databoard::is_board_pointer;
 use tinyscript::SharedRuntime;
-
-use crate::{
-	self as behaviortree, ConstString, Control, EMPTY_STR, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
-	input_port,
-	port::PortList,
-	tree::BehaviorTreeElementList,
-};
 // endregion:   --- modules
 
 // region:		--- globals
@@ -82,9 +81,9 @@ impl<const T: u8> Behavior for Switch<T> {
 
 		// check composition
 		if children.len() != (self.cases + 1) as usize {
-			return Err(BehaviorError::Composition(
-				"Wrong number of children in Switch behavior: must be (num_cases + 1)!".into(),
-			));
+			return Err(BehaviorError::Composition {
+				txt: "Wrong number of children in Switch behavior: must be (num_cases + 1)!".into(),
+			});
 		}
 		if let Some(var) = behavior.remappings().find(VARIABLE) {
 			if is_board_pointer(&var) {
@@ -97,12 +96,14 @@ impl<const T: u8> Behavior for Switch<T> {
 				// 	));
 				// }
 			} else {
-				return Err(BehaviorError::Composition(
-					"port [variable] must be a Blackboard pointer".into(),
-				));
+				return Err(BehaviorError::Composition {
+					txt: "port [variable] must be a Blackboard pointer".into(),
+				});
 			}
 		} else {
-			return Err(BehaviorError::Composition("port [variable] must be defined".into()));
+			return Err(BehaviorError::Composition {
+				txt: "port [variable] must be defined".into(),
+			});
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
@@ -191,7 +192,10 @@ impl<const T: u8> Behavior for Switch<T> {
 			// return just Skipped? Going with the latter for now.
 			self.running_child_index = -1;
 		} else if state == BehaviorState::Idle {
-			return Err(BehaviorError::State("Switch".into(), IDLE.into()));
+			return Err(BehaviorError::State {
+				behavior: "Switch".into(),
+				state,
+			});
 		} else if state == BehaviorState::Running {
 			self.running_child_index = match_index;
 		} else {

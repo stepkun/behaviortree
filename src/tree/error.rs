@@ -5,33 +5,59 @@
 #[doc(hidden)]
 extern crate alloc;
 
-// region		--- modules
 use crate::ConstString;
-use thiserror::Error;
-// endregion:	--- modules
 
-// region:		--- Error
-/// `tree` error type
+/// Tree errors
 #[non_exhaustive]
-#[derive(Error, Debug)]
 pub enum Error {
-	/// Pass through behavior error
-	#[error("{0}")]
-	Behavior(#[from] crate::behavior::error::BehaviorError),
-	/// The index of a behavior is out of bounds
-	#[error("index [{0}] out of bounds")]
-	IndexOutOfBounds(usize),
-	/// The request type is invalid
-	#[error("invalid groot request type [{0}]")]
-	InvalidRequestType(u8),
-	/// The tree depth limit is exceeded
-	#[error("recursion limit exceeded in tree element [{0}]")]
-	RecursionLimit(ConstString),
-	/// The root of the tree is not properly created
-	#[error("root tree [{0}] not found in behavior tree")]
-	RootNotFound(ConstString),
-	/// The tree is not properly created
-	#[error("(sub)tree [{0}] not found in behavior tree")]
-	SubtreeNotFound(ConstString),
+	/// element with index is not found
+	SubtreeNotFound {
+		/// The affected index
+		index: usize,
+	},
+	/// Invalid Groot request type
+	InvalidRequestType {
+		/// The request type value
+		value: u8,
+	},
+	/// Recursion limit  of 127 is reached
+	RecursionLimit {
+		/// The affected behavior
+		behavior: ConstString,
+	},
 }
-// region:		--- Error
+
+/// Only default implementation needed.
+impl core::error::Error for Error {
+	// fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
+	// 		None
+	// }
+
+	// fn cause(&self) -> Option<&dyn core::error::Error> {
+	// 	self.source()
+	// }
+
+	// fn provide<'a>(&'a self, request: &mut core::error::Request<'a>) {}
+}
+
+impl core::fmt::Debug for Error {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			// Self::Behavior { source } => write!(f, "Behavior(source: {source}"),
+			Self::SubtreeNotFound { index } => write!(f, "IndexNotFound({index})"),
+			Self::InvalidRequestType { value } => write!(f, "InvalidRequestType({value})"),
+			Self::RecursionLimit { behavior } => write!(f, "RecursionLimit({behavior})"),
+		}
+	}
+}
+
+impl core::fmt::Display for Error {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			// Self::Behavior { source } => write!(f, "Behavior(source: {source}"),
+			Self::SubtreeNotFound { index } => write!(f, "the subtree with the index {index} cannot be found"),
+			Self::InvalidRequestType { value } => write!(f, "an invalid request type {value} was sent from Groot2"),
+			Self::RecursionLimit { behavior } => write!(f, "recursion limit of '127' is reached for behavior {behavior}"),
+		}
+	}
+}

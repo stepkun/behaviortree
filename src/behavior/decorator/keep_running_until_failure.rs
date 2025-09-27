@@ -2,14 +2,13 @@
 //! [`KeepRunningUntilFailure`] [`Decorator`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Decorator,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- KeepRunningUntilFailure
@@ -39,13 +38,13 @@ impl Behavior for KeepRunningUntilFailure {
 				children.halt(runtime)?;
 				Ok(BehaviorState::Failure)
 			}
-			BehaviorState::Idle => Err(BehaviorError::Composition(
-				"KeepRunningUntilFailure should never return 'Idle'".into(),
-			)),
+			BehaviorState::Idle => Err(BehaviorError::Composition {
+				txt: "KeepRunningUntilFailure should never return 'Idle'".into(),
+			}),
 			BehaviorState::Running => Ok(BehaviorState::Running),
-			BehaviorState::Skipped => Err(BehaviorError::Composition(
-				"KeepRunningUntilFailure should never return 'Skipped'".into(),
-			)),
+			BehaviorState::Skipped => Err(BehaviorError::Composition {
+				txt: "KeepRunningUntilFailure should never return 'Skipped'".into(),
+			}),
 			BehaviorState::Success => {
 				children.halt(runtime)?;
 				Ok(BehaviorState::Running)

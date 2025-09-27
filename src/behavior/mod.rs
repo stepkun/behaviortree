@@ -14,7 +14,7 @@ mod simple_behavior;
 mod sub_tree;
 
 // flatten
-pub use error::BehaviorError;
+pub use error::Error as BehaviorError;
 pub use shared_queue::SharedQueue;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 pub use sub_tree::SubTree;
@@ -285,7 +285,10 @@ impl core::str::FromStr for BehaviorState {
 			"failure" => Self::Failure,
 			"skipped" => Self::Skipped,
 			_ => {
-				return Err(BehaviorError::ParseError(s.into(), "BehaviorState::from_str()".into()));
+				return Err(BehaviorError::ParseError {
+					value: s.into(),
+					src: "BehaviorState::from_str()".into(),
+				});
 			}
 		};
 		Ok(res)
@@ -302,7 +305,7 @@ mod tests {
 
 	#[test]
 	const fn normal_types() {
-		is_normal::<error::BehaviorError>();
+		is_normal::<error::Error>();
 		is_normal::<BehaviorData>();
 		is_normal::<BehaviorDataCollection>();
 		is_normal::<BehaviorDescription>();

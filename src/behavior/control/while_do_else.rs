@@ -2,14 +2,13 @@
 //! [`WhileDoElse`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- WhileDoElse
@@ -27,9 +26,9 @@ impl Behavior for WhileDoElse {
 	) -> Result<(), BehaviorError> {
 		// check composition only once at start
 		if !(2..=3).contains(&children.len()) {
-			return Err(BehaviorError::Composition(
-				"WhileDoElse must have either 2 or 3 children.".into(),
-			));
+			return Err(BehaviorError::Composition {
+				txt: "WhileDoElse must have either 2 or 3 children.".into(),
+			});
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
@@ -57,11 +56,16 @@ impl Behavior for WhileDoElse {
 				}
 				2 => BehaviorState::Failure,
 				_ => {
-					return Err(BehaviorError::Composition("Should not happen in 'WhileDoElse'".into()));
+					return Err(BehaviorError::Composition {
+						txt: "Should not happen in 'WhileDoElse'".into(),
+					});
 				}
 			},
 			BehaviorState::Idle => {
-				return Err(BehaviorError::State("WhileDoElse".into(), IDLE.into()));
+				return Err(BehaviorError::State {
+					behavior: "WhileDoElse".into(),
+					state: condition_status,
+				});
 			}
 			BehaviorState::Running => {
 				return Ok(BehaviorState::Running);

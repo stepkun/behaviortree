@@ -2,14 +2,13 @@
 //! [`IfThenElse`] [`Control`] implementation.
 
 // region:      --- modules
-use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-
 use crate::{
-	self as behaviortree, Control, IDLE,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, error::BehaviorError},
+	self as behaviortree, Control,
+	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
+use alloc::boxed::Box;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- IfThenElse
@@ -43,9 +42,9 @@ impl Behavior for IfThenElse {
 	) -> Result<(), BehaviorError> {
 		// check composition only once at start
 		if !(2..=3).contains(&children.len()) {
-			return Err(BehaviorError::Composition(
-				"IfThenElse must have either 2 or 3 children.".into(),
-			));
+			return Err(BehaviorError::Composition {
+				txt: "IfThenElse must have either 2 or 3 children.".into(),
+			});
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
@@ -72,11 +71,16 @@ impl Behavior for IfThenElse {
 						return Ok(condition_state);
 					}
 					_ => {
-						return Err(BehaviorError::Composition("Should not happen in 'IfThenElse'".into()));
+						return Err(BehaviorError::Composition {
+							txt: "Should not happen in 'IfThenElse'".into(),
+						});
 					}
 				},
 				BehaviorState::Idle => {
-					return Err(BehaviorError::State("IfThenElse".into(), IDLE.into()));
+					return Err(BehaviorError::State {
+						behavior: "IfThenElse".into(),
+						state: condition_state,
+					});
 				}
 				BehaviorState::Running => {
 					return Ok(BehaviorState::Running);
@@ -99,9 +103,9 @@ impl Behavior for IfThenElse {
 			}
 			Ok(state)
 		} else {
-			Err(BehaviorError::Composition(
-				"Something unexpected happened in IfThenElse".into(),
-			))
+			Err(BehaviorError::Composition {
+				txt: "Something unexpected happened in IfThenElse".into(),
+			})
 		}
 	}
 }

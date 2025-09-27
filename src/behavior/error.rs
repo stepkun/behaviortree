@@ -5,85 +5,170 @@
 extern crate alloc;
 
 // region		--- modules
-#[cfg(doc)]
 use super::BehaviorState;
 use crate::ConstString;
-use thiserror::Error;
 // endregion:	--- modules
 
-// region:		--- BehaviorError
-/// `behavior` error type
+/// Behavior errors.
 #[non_exhaustive]
-#[derive(Error, Debug)]
-pub enum BehaviorError {
-	/// Pass through from `nanoserde::DeJsonErr`
-	#[error("{0}")]
-	Nanoserde(#[from] nanoserde::DeJsonErr),
-	/// Pass through from `core::num::ParseIntError`
-	#[error("{0}")]
-	ParseInt(#[from] core::num::ParseIntError),
-	/// Passthrough for [`Databoard`](databoard) errors
-	#[error("{0}")]
-	Blackboard(#[from] databoard::Error),
-	/// Pass through port error
-	#[error("{0}")]
-	Port(#[from] crate::port::error::Error),
+pub enum Error {
 	/// Error in structural composition of a behaviors children
-	#[error("{0}")]
-	Composition(ConstString),
-	/// Pass through float parsing error
-	#[error("{0}")]
-	FloatParse(#[from] core::num::ParseFloatError),
-	/// The index of a behavior is out of bounds
-	#[error("index [{0}] out of bounds")]
-	IndexOutOfBounds(usize),
-	/// Error in internal composition of a behavior
-	#[error("{0}")]
-	Internal(ConstString),
-	/// Pass through join error
-	#[error("{0}")]
-	JoinError(ConstString),
-	/// Attribute is not a post condition
-	#[error("attribute [{0}] is not a post condition")]
-	NoPostCondition(ConstString),
-	/// Attribute is not a pre condition
-	#[error("attribute [{0}] is not a pre condition")]
-	NoPreCondition(ConstString),
-	/// Attribute is not a pre condition
-	#[error("tree has no root element")]
-	NoRoot,
-	/// VM result is not a boolean value
-	#[error("result of VM computation is not a boolean value")]
-	NotABool,
-	/// Variable/Port is not in Blackboard
-	#[error("could not find entry [{0}] in blackboard")]
-	NotInBlackboard(ConstString),
-	/// Parsing error duriong type conversion
-	#[error("could not parse value [{0}] in [{1}]")]
-	ParseError(ConstString, ConstString),
+	Composition {
+		/// The textual error message.
+		txt: ConstString,
+	},
+	/// Pass through errors from databoard
+	Databoard {
+		/// The source error
+		source: databoard::Error,
+	},
+	/// Pass through errors from nanoserde
+	Nanoserde {
+		/// The source error
+		source: nanoserde::DeJsonErr,
+	},
+	/// Attribute is not a pre or post condition
+	NoCondition {
+		/// The attribute
+		value: ConstString,
+	},
+	/// Value is not a boolean type
+	NotABool {
+		/// The non boolean value
+		value: ConstString,
+	},
+	/// Parsing error during type conversion
+	ParseError {
+		/// The non parseable value
+		value: ConstString,
+		/// The source of this value
+		src: ConstString,
+	},
+	/// Pass through errors from `core::num`
+	ParseInt {
+		/// The source error
+		source: core::num::ParseIntError,
+	},
 	/// Type mismatch between port definiton and found value
-	#[error("could not parse value for port [{0}] into specified type [{1}]")]
-	ParsePortValue(ConstString, ConstString),
-	/// Pass through parsing error
-	#[error("{0}")]
-	Scripting(#[from] tinyscript::Error),
+	ParsePortValue {
+		/// The ports name
+		port: ConstString,
+		/// The wanted data type
+		typ: ConstString,
+	},
+	/// Pass through errors from `crate::port`
+	Port {
+		/// The port error
+		source: crate::port::error::Error,
+	},
 	/// Port has not been defined in behavior
-	#[error("port [{0}] is not declared in behavior [{1}]")]
-	PortNotDeclared(ConstString, ConstString),
-	/// The root of the tree is not properly created
-	#[error("tree root [{0}] not found")]
-	RootNotFound(ConstString),
+	PortNotDeclared {
+		/// Name of the port
+		port: ConstString,
+		/// Affected behavior
+		behavior: ConstString,
+	},
+	/// Pass through errors from tinyscript
+	Scripting {
+		/// The scripting eror
+		source: tinyscript::Error,
+	},
 	/// An invalid [`BehaviorState`] is reached
-	#[error("child node of [{0}] returned state [{1}] when not allowed")]
-	State(ConstString, ConstString),
-	/// The tree is not properly created
-	#[error("(sub)tree [{0}] not found in behavior tree")]
-	SubtreeNotFound(ConstString),
-	/// Unable to set the post condition
-	#[error("unable to set the post condition [{0}]")]
-	UnableToSetPostCondition(ConstString),
-	/// Unable to set the pre condition
-	#[error("unable to set the pre condition [{0}]")]
-	UnableToSetPreCondition(ConstString),
+	State {
+		/// The affected behavior
+		behavior: ConstString,
+		/// The invalid state
+		state: BehaviorState,
+	},
+	/// Unable to set the pre or post condition
+	UnableToSetCondition {
+		/// Te condition thatcannot be set
+		value: ConstString,
+	},
 }
-// region:		--- BehaviorError
+
+/// Only default implementation needed.
+impl core::error::Error for Error {
+	// fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
+	// 		None
+	// }
+
+	// fn cause(&self) -> Option<&dyn core::error::Error> {
+	// 	self.source()
+	// }
+
+	// fn provide<'a>(&'a self, request: &mut core::error::Request<'a>) {}
+}
+
+impl core::fmt::Debug for Error {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			Self::Composition { txt } => write!(f, "Composition({txt})"),
+			Self::Databoard { source } => write!(f, "Databoard({source})"),
+			Self::Nanoserde { source } => write!(f, "Nanoserde({source})"),
+			Self::NoCondition { value } => write!(f, "NoCondition(value: {value})"),
+			Self::NotABool { value } => write!(f, "NotABool(value: {value})"),
+			Self::ParseError { value, src } => write!(f, "ParseError(value: {value}, src: {src})"),
+			Self::ParseInt { source } => write!(f, "ParseInt({source})"),
+			Self::ParsePortValue { port, typ } => write!(f, "ParsePort(port: {port}, type: {typ})"),
+			Self::Port { source } => write!(f, "Port({source})"),
+			Self::PortNotDeclared { port, behavior } => write!(f, "PortNotDeclared(port: {port}, behavior: {behavior})"),
+			Self::Scripting { source } => write!(f, "Scripting({source})"),
+			Self::State { behavior, state } => write!(f, "State(behavior: {behavior}, state: {state})"),
+			Self::UnableToSetCondition { value } => write!(f, "UnableToSetCondition(value: {value})"),
+		}
+	}
+}
+
+impl core::fmt::Display for Error {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			Self::Composition { txt } => write!(f, "behavior composition error: {txt}"),
+			Self::Databoard { source } => write!(f, "a blackboard error occured: {source}"),
+			Self::Nanoserde { source } => write!(f, "a deserialization error occured: {source}"),
+			Self::NoCondition { value } => write!(f, "the attribute '{value}' is no pre or post condition"),
+			Self::NotABool { value } => write!(f, "value {value} is not a boolean type"),
+			Self::ParseError { value, src } => write!(f, "could not parse value '{value}' in {src}"),
+			Self::ParseInt { source } => write!(f, "could not parse int value: {source}"),
+			Self::ParsePortValue { port, typ } => {
+				write!(f, "could not parse value for port {port} into specified type {typ}")
+			}
+			Self::Port { source } => write!(f, "a port error occured: {source}"),
+			Self::PortNotDeclared { port, behavior } => write!(f, "port {port} is not declared in behavior {behavior}"),
+			Self::Scripting { source } => write!(f, "a scripting error occured: {source}"),
+			Self::State { behavior, state } => {
+				write!(f, "child node of  {behavior} returned state {state} when not allowed")
+			}
+			Self::UnableToSetCondition { value } => write!(f, "unable to set the pre or post condition {value})"),
+		}
+	}
+}
+
+impl From<crate::port::error::Error> for Error {
+	fn from(source: crate::port::error::Error) -> Self {
+		Self::Port { source }
+	}
+}
+
+impl From<core::num::ParseIntError> for Error {
+	fn from(source: core::num::ParseIntError) -> Self {
+		Self::ParseInt { source }
+	}
+}
+impl From<databoard::Error> for Error {
+	fn from(source: databoard::Error) -> Self {
+		Self::Databoard { source }
+	}
+}
+
+impl From<tinyscript::Error> for Error {
+	fn from(source: tinyscript::Error) -> Self {
+		Self::Scripting { source }
+	}
+}
+
+impl From<nanoserde::DeJsonErr> for Error {
+	fn from(source: nanoserde::DeJsonErr) -> Self {
+		Self::Nanoserde { source }
+	}
+}

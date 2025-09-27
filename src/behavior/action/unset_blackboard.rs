@@ -2,12 +2,6 @@
 //! [`UnsetBlackboard`] [`Action`] implementation.
 
 // region:      --- modules
-use alloc::string::String;
-use alloc::{boxed::Box, string::ToString};
-use core::marker::PhantomData;
-use core::str::FromStr;
-use tinyscript::SharedRuntime;
-
 use crate::{
 	self as behaviortree, Action, EMPTY_STR,
 	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState},
@@ -16,6 +10,11 @@ use crate::{
 	port_list,
 	tree::BehaviorTreeElementList,
 };
+use alloc::string::String;
+use alloc::{boxed::Box, string::ToString};
+use core::marker::PhantomData;
+use core::str::FromStr;
+use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:		--- globals
