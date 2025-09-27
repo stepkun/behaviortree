@@ -183,11 +183,13 @@ impl BehaviorTree {
 	fn handle_message(&mut self, message: BehaviorTreeMessage) {
 		match message {
 			BehaviorTreeMessage::RemoveAllGrootHooks => {
+				// std::dbg!("removing all Groot hooks");
 				for element in self.iter_mut() {
 					element.remove_pre_state_change_callback(&GROOT_STATE.into());
 				}
 			}
 			BehaviorTreeMessage::AddGrootCallback(data) => {
+				// std::dbg!("adding Groot callback");
 				attach_groot_callback(self, data);
 			}
 		}

@@ -4,6 +4,8 @@
 
 extern crate std;
 
+use core::time::Duration;
+
 use alloc::collections::vec_deque::VecDeque;
 // region:      --- modules
 use crate::{
@@ -18,7 +20,7 @@ use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use bytes::{Bytes, BytesMut};
 use spin::Mutex;
-use tokio::{sync::mpsc, task::JoinHandle};
+use tokio::{sync::mpsc, task::JoinHandle, time::Instant};
 use zeromq::{Socket, SocketRecv, SocketSend, ZmqMessage};
 // endregion:   --- modules
 
@@ -97,18 +99,24 @@ pub struct Groot2Connector {
 	shared: Arc<Mutex<Groot2ConnectorData>>,
 	/// Response server
 	server_handle: JoinHandle<Result<(), zeromq::ZmqError>>,
+	/// watchdog for connection
+	watchdog_handle: JoinHandle<()>,
 }
 
 /// The shared data among multiple [`BehaviorTreeElement`]s.
 pub struct Groot2ConnectorData {
-	/// The state buffer for Groot communication
-	state_buffer: BytesMut,
+	/// Connection indicator
+	connected: bool,
 	/// Flag for recording transitions, accessible from multiple tasks
 	recording: bool,
 	/// Current size of the transition buffer
 	transitions: u32,
+	/// The state buffer for Groot communication
+	state_buffer: BytesMut,
 	/// The transitions buffer for Groot communication
 	transitions_buffer: VecDeque<Groot2TransitionInfo>,
+	/// Timestamp of the last communication
+	last_communication: Instant,
 }
 
 impl Groot2Connector {
@@ -131,11 +139,40 @@ impl Groot2Connector {
 		}
 
 		let shared = Arc::new(Mutex::new(Groot2ConnectorData {
-			state_buffer,
+			connected: false,
 			recording: false,
 			transitions: 0,
+			state_buffer,
 			transitions_buffer,
+			last_communication: Instant::now(),
 		}));
+
+		let shared_clone = shared.clone();
+		let sender = tree.sender();
+
+		let watchdog_handle = tokio::spawn(async move {
+			loop {
+				// std::dbg!("watchdog");
+				if let Some(mut data) = shared_clone.try_lock() {
+					// std::dbg!("checking connection");
+					#[allow(clippy::expect_used)]
+					if data.connected
+						&& Instant::now()
+							.checked_duration_since(data.last_communication)
+							.expect("time went backwards")
+							> Duration::from_secs(5)
+					{
+						// std::dbg!("removing connection");
+						let _ = sender
+							.send(BehaviorTreeMessage::RemoveAllGrootHooks)
+							.await;
+						data.connected = false;
+					}
+				}
+
+				tokio::time::sleep(Duration::from_secs(1)).await;
+			}
+		});
 
 		// @TODO: proper error handling
 		let shared_clone = shared.clone();
@@ -145,12 +182,15 @@ impl Groot2Connector {
 		let sender = tree.sender();
 
 		let server_handle = tokio::spawn(async move {
+			// @TODO: replace zeromq with something #![no_std] compatible
 			let server_address = String::from("tcp://0.0.0.0:") + &port.to_string();
 			let mut server_socket = zeromq::RepSocket::new();
 			server_socket.bind(&server_address).await?;
 
 			loop {
+				// std::dbg!("server");
 				let request = server_socket.recv().await?;
+				shared_clone.lock().last_communication = Instant::now();
 				// std::dbg!(&request);
 				if let Some(bytes) = request.get(0) {
 					// std::dbg!(bytes);
@@ -165,6 +205,7 @@ impl Groot2Connector {
 								reply.push_back(shared_clone.lock().state_buffer.clone().into());
 							}
 							Groot2RequestType::FullTree => {
+								shared_clone.lock().connected = true;
 								let _ = sender
 									.send(BehaviorTreeMessage::AddGrootCallback(shared_clone.clone()))
 									.await;
@@ -187,6 +228,7 @@ impl Groot2Connector {
 								todo!()
 							}
 							Groot2RequestType::RemoveAllHooks => {
+								shared_clone.lock().connected = false;
 								let _ = sender
 									.send(BehaviorTreeMessage::RemoveAllGrootHooks)
 									.await;
@@ -273,6 +315,7 @@ impl Groot2Connector {
 			tx: tree.sender(),
 			shared,
 			server_handle,
+			watchdog_handle,
 		}
 	}
 }

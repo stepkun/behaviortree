@@ -41,7 +41,7 @@ use super::{error::Error, registry::BehaviorRegistry};
 
 // region:      --- BehaviorTreeFactory
 /// Factory for creation and modification of [`BehaviorTree`]s
-/// The default factory contains the elementary control behaviors:
+/// The minimal factory contains the elementary control behaviors:
 /// - [`Fallback`]: the standard fallback control
 /// - [`Sequence`]: the standard sequence control
 /// - [`Parallel`]: the standard parallel contol with the ports
