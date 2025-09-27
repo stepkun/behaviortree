@@ -42,14 +42,14 @@ fn create_data_collection_from_xml(
 				if let Some(id) = node.attribute(ID) {
 					(id, SUBTREE)
 				} else {
-					return Err(Error::MissingId(node.tag_name().name().into()));
+					return Err(Error::MissingId { tag: tag_name.into() });
 				}
 			}
 			ACTION | CONDITION | CONTROL | DECORATOR | SUBTREE => {
 				if let Some(id) = node.attribute(ID) {
 					(id, tag_name)
 				} else {
-					return Err(Error::MissingId(node.tag_name().name().into()));
+					return Err(Error::MissingId { tag: tag_name.into() });
 				}
 			}
 			_ => (tag_name, EMPTY_STR),
@@ -75,7 +75,9 @@ fn create_data_collection_from_xml(
 		registry.fetch(behavior_id)
 	};
 	let Ok((mut bhvr_desc, bhvr_creation_fn)) = res else {
-		return Err(Error::BehaviorNotRegistered(behavior_id.into()));
+		return Err(Error::NotRegistered {
+			behavior: behavior_id.into(),
+		});
 	};
 	bhvr_desc.set_name(&behavior_name);
 	bhvr_desc.set_path(&path);
@@ -106,6 +108,7 @@ fn create_data_collection_from_xml(
 	}))
 }
 
+#[allow(clippy::too_many_lines)]
 fn handle_attributes(
 	registry: &BehaviorRegistry,
 	behavior_id: &str,
@@ -137,7 +140,12 @@ fn handle_attributes(
 		if let Some(default_value) = port_definition.default_value() {
 			match remappings.add(port_definition.name(), default_value.clone()) {
 				Ok(()) => {}
-				Err(err) => return Err(Error::Remapping(err)),
+				Err(err) => {
+					return Err(Error::Databoard {
+						key: port_definition.name().into(),
+						source: err,
+					});
+				}
 			}
 		}
 	}
@@ -147,7 +155,12 @@ fn handle_attributes(
 		if entry.0.contains(behavior_id) {
 			match remappings.add(entry.1.key.clone(), entry.1.remapping.clone()) {
 				Ok(()) => {}
-				Err(err) => return Err(Error::TreeNodesModelToRemapping(entry.1.key.clone(), err)),
+				Err(err) => {
+					return Err(Error::Databoard {
+						key: entry.1.key.clone(),
+						source: err,
+					});
+				}
 			}
 		}
 	}
@@ -166,24 +179,34 @@ fn handle_attributes(
 				crate::AUTOREMAP => {
 					autoremap = match attribute.value().parse::<bool>() {
 						Ok(val) => val,
-						Err(_) => return Err(Error::WrongAutoremap)?,
+						Err(_) => return Err(Error::WrongAutoremap),
 					};
 				}
 				// preconditions
 				crate::FAILURE_IF | crate::SKIP_IF | crate::SUCCESS_IF | crate::WHILE => {
 					match conditions.pre.set(key, value) {
 						Ok(()) => {}
-						Err(err) => return Err(Error::Precondition(key.into(), err)),
+						Err(err) => {
+							return Err(Error::Condition {
+								key: key.into(),
+								source: err,
+							});
+						}
 					}
 				}
 				// postconditions
 				crate::ON_FAILURE | crate::ON_HALTED | crate::ON_SUCCESS | crate::POST => {
 					match conditions.post.set(key, value) {
 						Ok(()) => {}
-						Err(err) => return Err(Error::Postcondition(key.into(), err)),
+						Err(err) => {
+							return Err(Error::Condition {
+								key: key.into(),
+								source: err,
+							});
+						}
 					}
 				}
-				_ => return Err(Error::UnknownSpecialAttribute(key.into()))?,
+				_ => return Err(Error::UnknownAttribute { key: key.into() }),
 			}
 		} else {
 			// for a subtree we cannot check against a port list
@@ -200,14 +223,14 @@ fn handle_attributes(
 										let bb_pointer = String::from("{") + key + "}";
 										remappings.overwrite(key, bb_pointer);
 									} else {
-										return Err(Error::NameNotAllowed(key.into()));
+										return Err(Error::NameNotAllowed { key: key.into() });
 									}
 								} else {
 									// check if 'value' contains a valid BB pointer
 									if is_allowed_port_name(stripped) {
 										remappings.overwrite(key, value);
 									} else {
-										return Err(Error::NameNotAllowed(key.into()));
+										return Err(Error::NameNotAllowed { key: key.into() });
 									}
 								}
 							}
@@ -218,7 +241,10 @@ fn handle_attributes(
 						}
 					}
 					None => {
-						return Err(Error::PortInvalid(key.into(), behavior_id.into(), port_list.entries()));
+						return Err(Error::PortInvalid {
+							port: key.into(),
+							behavior: behavior_id.into(),
+						});
 					}
 				}
 			}
@@ -253,22 +279,15 @@ impl XmlParser {
 		#[cfg(feature = "std")] path: &ConstString,
 	) -> Result<(), Error> {
 		// general checks
-		// @TODO embedded: use same mechanism for both -> manual conversion of error!!
-		#[cfg(feature = "std")]
 		let doc = Document::parse(xml)?;
-		#[cfg(not(feature = "std"))]
-		let doc = match Document::parse(xml) {
-			Ok(doc) => doc,
-			Err(_err) => return Err(Error::XmlParser),
-		};
 		let root = doc.root_element();
 		if root.tag_name().name() != "root" {
-			return Err(Error::WrongRootName)?;
+			return Err(Error::WrongRootName);
 		}
 		if let Some(format) = root.attribute("BTCPP_format")
 			&& format != "4"
 		{
-			return Err(Error::BtCppFormat)?;
+			return Err(Error::BtCppFormat);
 		}
 
 		// handle the attribute 'main_tree_to_execute`
@@ -298,7 +317,7 @@ impl XmlParser {
 								behavior_id = attribute.value();
 							}
 							value => {
-								return Err(Error::UnknownSpecialAttribute(value.into()));
+								return Err(Error::UnknownAttribute { key: value.into() });
 							}
 						}
 					}
@@ -312,7 +331,7 @@ impl XmlParser {
 								{
 									let key = String::from(behavior_id) + port_name;
 									let Ok(port_type) = PortDirection::try_from(port_type) else {
-										return Err(Error::PortType(port_type.into()));
+										return Err(Error::PortType { value: port_type.into() });
 									};
 									let entry = TreeNodesModelEntry {
 										_port_type: port_type,
@@ -321,16 +340,29 @@ impl XmlParser {
 									};
 									match registry.add_tree_nodes_model_entry(key.into(), entry) {
 										Ok(()) => {}
-										Err(_err) => return Err(Error::TreeNodesModel(behavior_id.into())),
+										Err(err) => {
+											return Err(Error::Factory {
+												behavior: behavior_id.into(),
+												source: err,
+											});
+										}
 									}
 								}
 							}
-							NodeType::PI => return Err(Error::ProcessingInstruction(element.tag_name().name().into())),
+							NodeType::PI => {
+								return Err(Error::UnsupportedElement {
+									tag: element.tag_name().name().into(),
+								});
+							}
 							NodeType::Comment | NodeType::Text => {}
 						}
 					}
 				}
-				NodeType::PI => return Err(Error::ProcessingInstruction(element.tag_name().name().into())),
+				NodeType::PI => {
+					return Err(Error::UnsupportedElement {
+						tag: element.tag_name().name().into(),
+					});
+				}
 				NodeType::Comment | NodeType::Text => {}
 			}
 		}
@@ -366,10 +398,17 @@ impl XmlParser {
 								// let source: ConstString = element.document().input_text()[element.range()].into();
 								match registry.add_tree_defintion(id, source.clone(), element.range()) {
 									Ok(()) => {}
-									Err(err) => return Err(Error::Registration(id.into(), err)),
+									Err(err) => {
+										return Err(Error::Factory {
+											behavior: id.into(),
+											source: err,
+										});
+									}
 								}
 							} else {
-								return Err(Error::MissingId(element.tag_name().name().into()))?;
+								return Err(Error::MissingId {
+									tag: element.tag_name().name().into(),
+								});
 							}
 						}
 						#[cfg(feature = "std")]
@@ -383,7 +422,9 @@ impl XmlParser {
 									file_path.push(path_attr);
 								}
 							} else {
-								return Err(Error::MissingPath(element.tag_name().name().into()))?;
+								return Err(Error::MissingPath {
+									tag: element.tag_name().name().into(),
+								});
 							}
 							match std::fs::read_to_string(&file_path) {
 								Ok(xml) => {
@@ -391,21 +432,31 @@ impl XmlParser {
 										let path = cur_path.to_string_lossy().into();
 										Self::register_document(registry, &xml.into(), &path)?;
 									} else {
-										return Err(Error::ReadFile(file_path.to_string_lossy().into(), "no parent".into()));
+										return Err(Error::ReadFile {
+											name: file_path.to_string_lossy().into(),
+											cause: "no parent".into(),
+										});
 									}
 								}
 								Err(err) => {
-									return Err(Error::ReadFile(file_path.to_string_lossy().into(), err.to_string().into()));
+									return Err(Error::ReadFile {
+										name: file_path.to_string_lossy().into(),
+										cause: err.to_string().into(),
+									});
 								}
 							}
 						}
 						_ => {
-							return Err(Error::ElementNotSupported(element.tag_name().name().into()))?;
+							return Err(Error::UnsupportedElement {
+								tag: element.tag_name().name().into(),
+							});
 						}
 					}
 				}
 				NodeType::PI => {
-					Err(Error::ProcessingInstruction(element.tag_name().name().into()))?;
+					return Err(Error::UnsupportedElement {
+						tag: element.tag_name().name().into(),
+					});
 				}
 			}
 		}
@@ -422,16 +473,9 @@ impl XmlParser {
 		event!(Level::TRACE, "create_tree_from_definition");
 
 		registry.find_tree_definition(name).map_or_else(
-			|| Err(Error::SubtreeNotFound(name.into())),
+			|| Err(Error::DefinitionNotFound { id: name.into() }),
 			|(definition, range)| {
-				// @TODO embedded: use same mechanism for both -> manual conversion of error!!
-				#[cfg(feature = "std")]
 				let doc = Document::parse(&definition[range])?;
-				#[cfg(not(feature = "std"))]
-				let doc = match Document::parse(&definition[range]) {
-					Ok(doc) => doc,
-					Err(_err) => return Err(Error::XmlParser).into(),
-				};
 				let data = create_data_collection_from_xml(
 					registry,
 					EMPTY_STR,
@@ -443,7 +487,7 @@ impl XmlParser {
 				// for tree root "path" is empty
 				let children = self.build_children(&data, doc.root_element(), registry)?;
 				if children.len() > 1 {
-					return Err(Error::SubtreeOneChild(name.into()));
+					return Err(Error::OneChild { behavior: name.into() });
 				}
 				let behaviortree = BehaviorTreeElement::create_subtree(data, children);
 				Ok(behaviortree)
@@ -455,24 +499,26 @@ impl XmlParser {
 	fn build_children(
 		&mut self,
 		data: &BehaviorDataCollection,
-		node: Node,
+		element: Node,
 		registry: &mut BehaviorRegistry,
 	) -> Result<BehaviorTreeElementList, Error> {
 		event!(Level::TRACE, "build_children");
 		let mut children = BehaviorTreeElementList::default();
-		for child in node.children() {
+		for child in element.children() {
 			match child.node_type() {
 				NodeType::Comment | NodeType::Text => {} // ignore
 				NodeType::Root => {
 					// this should not happen
-					return Err(Error::InvalidRootElement)?;
+					return Err(Error::InvalidRootElement);
 				}
 				NodeType::Element => {
 					let element = self.build_child(data, child, registry)?;
 					children.push(element);
 				}
 				NodeType::PI => {
-					return Err(Error::ProcessingInstruction(node.tag_name().name().into()))?;
+					return Err(Error::UnsupportedElement {
+						tag: element.tag_name().name().into(),
+					});
 				}
 			}
 		}
@@ -499,7 +545,9 @@ impl XmlParser {
 			BehaviorKind::Action | BehaviorKind::Condition => {
 				// A leaf uses a cloned Blackboard
 				if node.has_children() {
-					return Err(Error::ChildrenNotAllowed(data.node_name.into()))?;
+					return Err(Error::ChildrenNotAllowed {
+						behavior: data.node_name.into(),
+					});
 				}
 				BehaviorTreeElement::create_leaf(data)
 			}
@@ -508,7 +556,9 @@ impl XmlParser {
 				let children = self.build_children(&data, node, registry)?;
 
 				if data.bhvr_desc.kind() == BehaviorKind::Decorator && children.len() != 1 {
-					return Err(Error::DecoratorOneChild(node.tag_name().name().into()))?;
+					return Err(Error::OneChild {
+						behavior: node.tag_name().name().into(),
+					});
 				}
 				BehaviorTreeElement::create_node(data, children)
 			}
@@ -516,26 +566,23 @@ impl XmlParser {
 				if let Some(id) = node.attribute(ID) {
 					match registry.find_tree_definition(id) {
 						Some((definition, range)) => {
-							// @TODO embedded: use same mechanism for both -> manual conversion of error!!
-							#[cfg(feature = "std")]
 							let doc = Document::parse(&definition[range])?;
-							#[cfg(not(feature = "std"))]
-							let doc = match Document::parse(&definition[range]) {
-								Ok(doc) => doc,
-								Err(_err) => return Err(Error::XmlParser),
-							};
 							let children = self.build_children(&data, doc.root_element(), registry)?;
 							if children.len() > 1 {
-								return Err(Error::SubtreeOneChild(id.into()));
+								return Err(Error::OneChild { behavior: id.into() });
 							}
 							BehaviorTreeElement::create_subtree(data, children)
 						}
 						None => {
-							return Err(Error::SubtreeNotFound(data.node_name.into()));
+							return Err(Error::DefinitionNotFound {
+								id: data.node_name.into(),
+							});
 						}
 					}
 				} else {
-					return Err(Error::MissingId(node.tag_name().name().into()));
+					return Err(Error::MissingId {
+						tag: node.tag_name().name().into(),
+					});
 				}
 			}
 		};

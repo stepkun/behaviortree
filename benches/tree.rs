@@ -172,6 +172,7 @@ fn create_factory() -> Result<BehaviorTreeFactory, Error> {
 fn trees(c: &mut Criterion) {
 	let runtime = tokio::runtime::Builder::new_multi_thread()
 		.enable_io()
+		.enable_time()
 		.build()
 		.unwrap();
 

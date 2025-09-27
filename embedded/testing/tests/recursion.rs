@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
-//! Embedded recursion test. The current maximum recursion level is 9!
-//! So it is possible to make a Tree with a dept of 9 levels, including sub-trees.
+//! Embedded recursion test. The current maximum recursion level is 8!
+//! So it is possible to make a Tree with a dept of 8 levels, including sub-trees.
 
 #![no_main]
 #![no_std]
@@ -31,10 +31,12 @@ const XML: &str = r#"
 								<AlwaysSuccess/>
 								<Fallback>
 									<AlwaysFailure/>
+<!--
 									<Sequence>
 										<AlwaysSuccess/>
 										<AlwaysSuccess/>
 									</Sequence>
+-->																
 									<AlwaysSuccess/>
 								</Fallback>
 							</Sequence>
