@@ -143,7 +143,7 @@ const SUBTREE: &str = r#"
 "#;
 
 fn create_factory() -> Result<BehaviorTreeFactory, Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5)?;
 	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5)?;
 	register_behavior!(factory, ParallelAll, "ParallelAll")?;

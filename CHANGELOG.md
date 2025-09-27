@@ -31,6 +31,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 - port default values in several behaviors
 
 ### Removed
+- method `BehaviorTreeFactory::default()`
 
 ## [0.5.1] - 2025-09-24
 

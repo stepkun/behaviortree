@@ -92,7 +92,7 @@ const TREE_DEFINITION: &str = r#"
 #[case(Failure, Failure)]
 #[case(Success, Running)]
 async fn keep_runnning_until_failure(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
 	register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 
@@ -119,7 +119,7 @@ async fn keep_runnning_until_failure(#[case] input: BehaviorState, #[case] expec
 #[case(Idle)]
 #[case(Skipped)]
 async fn keep_runnning_until_failure_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
 	register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 

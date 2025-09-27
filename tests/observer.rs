@@ -24,7 +24,7 @@ const TREE: &str = r#"
 
 #[tokio::test]
 async fn tree_observer() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(
 		factory,
 		ChangeStateAfter,

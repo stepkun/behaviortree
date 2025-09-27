@@ -18,7 +18,7 @@ const TREE_DEFINITION: &str = r#"
 
 #[tokio::test]
 async fn pop_from_int_queue() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, PopFromQueue<i32>, "PopFromQueue")?;
 
 	factory.register_behavior_tree_from_text(TREE_DEFINITION)?;
@@ -55,7 +55,7 @@ async fn pop_from_int_queue() -> Result<(), Error> {
 #[tokio::test]
 #[allow(clippy::float_cmp)]
 async fn pop_from_double_queue() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, PopFromQueue<f64>, "PopFromQueue")?;
 
 	factory.register_behavior_tree_from_text(TREE_DEFINITION)?;
@@ -91,7 +91,7 @@ async fn pop_from_double_queue() -> Result<(), Error> {
 
 #[tokio::test]
 async fn pop_from_string_queue() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, PopFromQueue<String>, "PopFromQueue")?;
 
 	factory.register_behavior_tree_from_text(TREE_DEFINITION)?;
@@ -135,7 +135,7 @@ const TREE_DEFINITION2: &str = r#"
 
 #[tokio::test]
 async fn pop_from_default_queue() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, PopFromQueue<i32>, "PopFromQueue")?;
 
 	factory.register_behavior_tree_from_text(TREE_DEFINITION2)?;

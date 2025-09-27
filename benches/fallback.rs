@@ -68,7 +68,7 @@ fn fallback(c: &mut Criterion) {
 		.measurement_time(DURATION)
 		.sample_size(SAMPLES);
 
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new().unwrap();
 	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5).unwrap();
 	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
 	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").unwrap();

@@ -144,7 +144,7 @@ async fn parallel_all(
 	#[case] input3: BehaviorState,
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
@@ -185,7 +185,7 @@ async fn parallel_all_errors(
 	#[case] input2: BehaviorState,
 	#[case] input3: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
@@ -211,7 +211,7 @@ async fn parallel_all_reactiveness1(
 	#[case] expected3: BehaviorState,
 	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
@@ -255,7 +255,7 @@ async fn parallel_all_reactiveness2(
 	#[case] expected3: BehaviorState,
 	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;

@@ -35,7 +35,7 @@ const XML: &str = r#"
 
 #[tokio::test]
 async fn script_condition() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	let bhvr_desc = BehaviorDescription::new(
 		"AlwaysFailure",
 		"AlwaysFailure",

@@ -19,7 +19,7 @@ const XML: &str = r#"
 
 #[tokio::test]
 async fn script() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, Script, "Script")?;
 
 	factory.register_behavior_tree_from_text(XML)?;

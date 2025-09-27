@@ -70,7 +70,7 @@ async fn repeat(
 	#[case] expected: BehaviorState,
 	#[case] finally: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
 	register_behavior!(factory, Repeat, "Repeat")?;
 
@@ -100,7 +100,7 @@ async fn repeat(
 #[rstest]
 #[case(Idle)]
 async fn repeat_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
 	register_behavior!(factory, Repeat, "Repeat")?;
 

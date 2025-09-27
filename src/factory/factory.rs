@@ -55,13 +55,6 @@ pub struct BehaviorTreeFactory {
 	registry: Box<BehaviorRegistry>,
 }
 
-impl Default for BehaviorTreeFactory {
-	#[allow(clippy::expect_used)]
-	fn default() -> Self {
-		Self::new().expect("creating default factory failed")
-	}
-}
-
 impl BehaviorTreeFactory {
 	/// Access the registry.
 	#[must_use]
@@ -111,7 +104,7 @@ impl BehaviorTreeFactory {
 	/// # Errors
 	/// - if behaviors cannot be registered
 	pub fn with_core_behaviors() -> Result<Self, Error> {
-		let mut factory = Self::default();
+		let mut factory = Self::new()?;
 		factory.register_core_behaviors()?;
 		Ok(factory)
 	}

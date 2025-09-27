@@ -124,7 +124,7 @@ const TREE_DEFINITION: &str = r#"
 #[case(Failure, Success)]
 #[case(Success, Success)]
 async fn force_state(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
 	let bhvr_desc = BehaviorDescription::new(
 		"ForceState",
@@ -160,7 +160,7 @@ async fn force_state(#[case] input: BehaviorState, #[case] expected: BehaviorSta
 #[rstest]
 #[case(Idle)]
 async fn force_state_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
 	let bhvr_desc = BehaviorDescription::new(
 		"ForceState",

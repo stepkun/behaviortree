@@ -23,7 +23,7 @@ const TREE_DEFINITION: &str = r#"
 
 #[tokio::test]
 async fn loop_over_string_queue() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, Loop<String>, "LoopString")?;
 	register_behavior!(factory, Script, "Script")?;
 

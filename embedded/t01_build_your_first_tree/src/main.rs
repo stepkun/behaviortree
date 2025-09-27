@@ -26,7 +26,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	// The recommended way to create a Behavior is through composition.
 	// Even if it requires more boilerplate, it allows you to use more functionalities
@@ -78,7 +78,7 @@ const XML_EXPLICITE: &str = r#"
 "#;
 
 async fn example_explicite() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	// The recommended way to create a Behavior is through composition.
 	// Even if it requires more boilerplate, it allows you to use more functionalities

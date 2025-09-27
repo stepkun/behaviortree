@@ -90,7 +90,7 @@ const TREE_DEFINITION: &str = r#"
 #[case(Failure)]
 #[case(Success)]
 async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(
 		factory,
 		ChangeStateAfter,
@@ -146,7 +146,7 @@ async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
 #[case(Skipped)]
 #[case(Success)]
 async fn entry_updated_errors(#[case] input: BehaviorState) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(
 		factory,
 		ChangeStateAfter,

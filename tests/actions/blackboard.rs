@@ -34,7 +34,7 @@ const UNSET_TREE_DEFINITION: &str = r#"
 
 #[tokio::test]
 async fn set_unset_blackboard() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, SetBlackboard<String>, "SetBlackboard")?;
 	register_behavior!(factory, UnsetBlackboard<String>, "UnsetBlackboard")?;
 

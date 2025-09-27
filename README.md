@@ -50,7 +50,7 @@ fn action_2() -> BehaviorResult {
 #[tokio::main]
 async fn main() {
     // create a behavior factory
-    let mut factory = BehaviorTreeFactory::default();
+    let mut factory = BehaviorTreeFactory::new().unwrap();
 
     // register your behaviors
     register_behavior!(factory, action_1, "MyAction1", BehaviorKind::Action).unwrap();

@@ -31,7 +31,7 @@ const XML: &str = r#"
 
 #[tokio::test]
 async fn precondition() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	let bhvr_desc = BehaviorDescription::new(
 		"AlwaysFailure",

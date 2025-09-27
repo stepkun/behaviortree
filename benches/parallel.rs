@@ -78,7 +78,7 @@ fn parallel(c: &mut Criterion) {
 		.measurement_time(DURATION)
 		.sample_size(SAMPLES);
 
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new().unwrap();
 	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
 	register_behavior!(factory, ParallelAll, "ParallelAll").unwrap();
 	factory

@@ -144,7 +144,7 @@ async fn switch2(
 	#[case] case: &str,
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
@@ -172,7 +172,7 @@ async fn switch2(
 
 #[tokio::test]
 async fn switch_state_errors() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Idle, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Idle, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Default", Running, Idle, 0)?;
@@ -226,7 +226,7 @@ async fn switch5(
 	#[case] case: &str,
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", Running, input3, 0)?;
@@ -277,7 +277,7 @@ const WRONG_TREE: &str = r#"
 
 #[tokio::test]
 async fn switch_wrong_variable_definition() -> Result<(), Error> {
-	let mut factory = BehaviorTreeFactory::default();
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Success, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Success, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Default", Running, Success, 0)?;
