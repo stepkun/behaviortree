@@ -31,9 +31,11 @@ use crate::{
 	tree::BehaviorTree,
 	xml::parser::XmlParser,
 };
-#[cfg(feature = "std")]
-use alloc::string::ToString;
-use alloc::{boxed::Box, string::String, vec::Vec};
+use alloc::{
+	boxed::Box,
+	string::{String, ToString},
+	vec::Vec,
+};
 use databoard::Databoard;
 
 use super::{error::Error, registry::BehaviorRegistry};
@@ -413,10 +415,10 @@ impl BehaviorTreeFactory {
 		let mut parser = XmlParser::default();
 		match parser.create_tree_from_definition(name, &mut self.registry, None) {
 			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),
-			#[cfg(feature = "std")]
-			Err(err) => Err(Error::Create(name.into(), err.to_string().into())),
-			#[cfg(not(feature = "std"))]
-			Err(_) => Err(Error::Create(name.into())),
+			Err(err) => Err(Error::Create {
+				name: name.into(),
+				error: err.to_string().into(),
+			}),
 		}
 	}
 
@@ -428,10 +430,10 @@ impl BehaviorTreeFactory {
 		let mut parser = XmlParser::default();
 		match parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard)) {
 			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),
-			#[cfg(feature = "std")]
-			Err(err) => Err(Error::Create(name.into(), err.to_string().into())),
-			#[cfg(not(feature = "std"))]
-			Err(_) => Err(Error::Create(name.into())),
+			Err(err) => Err(Error::Create {
+				name: name.into(),
+				error: err.to_string().into(),
+			}),
 		}
 	}
 
@@ -451,14 +453,20 @@ impl BehaviorTreeFactory {
 			let dir = std::env::current_dir()?.to_string_lossy().into();
 			match XmlParser::register_document(&mut self.registry, &xml.into(), &dir) {
 				Ok(()) => Ok(()),
-				Err(err) => Err(Error::RegisterXml(err.to_string().into())),
+				Err(err) => Err(Error::RegisterXml {
+					name: dir,
+					error: err.to_string().into(),
+				}),
 			}
 		}
 		#[cfg(not(feature = "std"))]
 		{
 			match XmlParser::register_document(&mut self.registry, &xml.into()) {
 				Ok(()) => Ok(()),
-				Err(_) => Err(Error::RegisterXml),
+				Err(err) => Err(Error::RegisterXml {
+					name: "inline xml".into(),
+					error: err.to_string().into(),
+				}),
 			}
 		}
 	}
@@ -485,10 +493,16 @@ impl BehaviorTreeFactory {
 			//XmlParser::register_document(&mut self.registry, &xml, dir)
 			match XmlParser::register_document(&mut self.registry, &xml, &dir) {
 				Ok(()) => Ok(()),
-				Err(err) => Err(Error::RegisterXml(err.to_string().into())),
+				Err(err) => Err(Error::RegisterXml {
+					name: dir,
+					error: err.to_string().into(),
+				}),
 			}
 		} else {
-			Err(Error::RegisterXml("filepath without parent".into()))
+			Err(Error::RegisterXml {
+				name: file_path.to_string_lossy().into(),
+				error: "filepath without parent".into(),
+			})
 		}
 	}
 
@@ -530,7 +544,10 @@ impl BehaviorTreeFactory {
 						lib.get(b"register")?;
 					let res = registration_fn(&mut *self);
 					if res != 0 {
-						return Err(Error::RegisterLib(name.into(), res));
+						return Err(Error::RegisterLib {
+							path: name.into(),
+							code: res,
+						});
 					}
 					lib
 				};

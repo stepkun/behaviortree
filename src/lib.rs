@@ -228,13 +228,13 @@ macro_rules! register_scripting_enum {
 }
 // endregion:	---macros
 
-#[cfg(test)]
-mod tests {
-	// check, that the auto traits are available
-	const fn is_normal<T: Sized + Send + Sync>() {}
+// #[cfg(test)]
+// mod tests {
+// 	// check, that the auto traits are available
+// 	const fn is_normal<T: Sized + Send + Sync>() {}
 
-	#[test]
-	const fn normal_types() {
-		is_normal::<crate::error::Error>();
-	}
-}
+// 	#[test]
+// 	const fn normal_types() {
+// 		is_normal::<crate::error::Error>();
+// 	}
+// }

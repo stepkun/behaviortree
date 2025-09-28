@@ -37,6 +37,9 @@ pub enum Error {
 		/// Id of the wanted behavior
 		id: ConstString,
 	},
+	// @TODO: This breaks the control flow!!
+	// Factory -> XmlParser -> Factory
+	// maybe I should mov registry into own module.
 	/// Pass through errors from factory/registry
 	Factory {
 		/// The affected behavior

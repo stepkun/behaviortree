@@ -69,7 +69,9 @@ impl BehaviorRegistry {
 			.behaviors
 			.contains_key(bhvr_description.name())
 		{
-			return Err(Error::BehaviorAlreadyRegistered(bhvr_description.name().clone()));
+			return Err(Error::AlreadyRegistered {
+				name: bhvr_description.name().clone(),
+			});
 		}
 		self.behaviors.insert(
 			bhvr_description.name().clone(),
@@ -95,7 +97,7 @@ impl BehaviorRegistry {
 	/// - if an entry with that key already exists.
 	pub(crate) fn add_tree_nodes_model_entry(&mut self, key: ConstString, entry: TreeNodesModelEntry) -> Result<(), Error> {
 		if self.tree_nodes_models.contains_key(&key) {
-			return Err(Error::EntryAlreadyRegistered(key));
+			return Err(Error::AlreadyRegistered { name: key });
 		}
 		self.tree_nodes_models.insert(key, entry);
 		Ok(())
@@ -142,7 +144,7 @@ impl BehaviorRegistry {
 			e.insert((tree_definition, range));
 			Ok(())
 		} else {
-			Err(Error::SubtreeAlreadyRegistered(id.into()))
+			Err(Error::AlreadyRegistered { name: id.into() })
 		}
 	}
 
@@ -152,7 +154,7 @@ impl BehaviorRegistry {
 	pub(crate) fn fetch(&self, id: &str) -> Result<(BehaviorDescription, Arc<BehaviorCreationFn>), Error> {
 		self.behaviors
 			.get(id)
-			.map_or_else(|| Err(Error::BehaviorNotRegistered(id.into())), |value| Ok(value.clone()))
+			.map_or_else(|| Err(Error::NotRegistered { name: id.into() }), |value| Ok(value.clone()))
 	}
 
 	#[must_use]

@@ -6,73 +6,144 @@
 #[cfg(feature = "std")]
 extern crate std;
 
-// region		--- modules
 use crate::ConstString;
-use thiserror::Error;
-// endregion:	--- modules
 
-// region:		--- Error
 /// `factory` error type
 #[non_exhaustive]
-#[derive(Error, Debug)]
 pub enum Error {
-	/// Passthrough for `std::io::Error`s
+	/// Item is already registered
+	AlreadyRegistered {
+		/// Name of the item
+		name: ConstString,
+	},
+	/// Tree creation failed
+	Create {
+		/// Name of the tree to create
+		name: ConstString,
+		/// The error from xml module
+		error: ConstString,
+	},
+	/// Invalid file path
 	#[cfg(feature = "std")]
-	#[error("{0}")]
-	Env(#[from] std::io::Error),
-	#[cfg(feature = "std")]
-	/// Passthrough for libloading Errors
-	#[error("{0}")]
-	Libloading(#[from] libloading::Error),
-	/// Passthrough for scripting Errors
-	#[error("{0}")]
-	Scripting(#[from] tinyscript::Error),
-	/// Behavior is already registered
-	#[error("behavior [{0}] is already registered")]
-	BehaviorAlreadyRegistered(ConstString),
-	/// Behavior is not registered
-	#[error("behavior [{0}] is not registered")]
-	BehaviorNotRegistered(ConstString),
-	/// Creation of tree failed
-	#[cfg(feature = "std")]
-	#[error("creation of (sub)tree [{0}] failed: {1}")]
-	Create(ConstString, ConstString),
-	/// Creation of tree failed
-	#[cfg(not(feature = "std"))]
-	#[error("creation of (sub)tree [{0}] failed")]
-	Create(ConstString),
-	/// `TreeNodesModel` entry already registered
-	#[error("a 'TreeNodesModel' registration with [{0}] already exists")]
-	EntryAlreadyRegistered(ConstString),
-	/// Invalid plugin path
-	#[cfg(feature = "std")]
-	#[error("invalid plugin path [{path}]")]
 	InvalidPath {
-		/// The given path to plugin
+		/// The given path to file
 		path: ConstString,
 	},
-	/// The main tree information is missing
-	#[error("no 'main_tree_to_execute' name provided")]
-	NoMainTreeName,
-	/// The main tree information is missing
-	#[error("no 'main_tree_to_execute' with name {0} provided")]
-	NoMainTree(ConstString),
-	/// The main tree information is missing
-	#[error("no 'main_tree_to_execute' provided")]
-	NoTreeToExecute,
-	/// Register XML failed
 	#[cfg(feature = "std")]
-	#[error("registering xml failed due to {0}")]
-	RegisterXml(ConstString),
-	/// Register XML failed
-	#[cfg(not(feature = "std"))]
-	#[error("registering xml failed")]
-	RegisterXml,
+	/// Pass through errors from libloading
+	LibLoading {
+		/// Original error
+		source: libloading::Error,
+	},
+	/// Item is not registered
+	NotRegistered {
+		/// Name of the item
+		name: ConstString,
+	},
 	/// Loading a library failed
-	#[error("registering library [{0}] failed with [{1}]")]
-	RegisterLib(ConstString, u32),
-	/// Subtree already registered
-	#[error("subtree with id [{0}] is already registered")]
-	SubtreeAlreadyRegistered(ConstString),
+	#[cfg(feature = "std")]
+	RegisterLib {
+		/// Location of the library
+		path: ConstString,
+		/// Returned result code
+		code: u32,
+	},
+	/// Registration of an XML failed
+	RegisterXml {
+		/// Name of the tree to create
+		name: ConstString,
+		/// The error from xml module
+		error: ConstString,
+	},
+	/// Passthrough for scripting Errors
+	Scripting {
+		/// Original error
+		source: tinyscript::Error,
+	},
+	#[cfg(feature = "std")]
+	/// Pass through errors from `std::io`
+	StdIo {
+		/// Original error
+		source: std::io::Error,
+	},
 }
-// region:		--- Error
+
+/// Only a source implementation needed.
+impl core::error::Error for Error {
+	fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
+		match self {
+			#[cfg(feature = "std")]
+			Self::LibLoading { source } => Some(source),
+			Self::Scripting { source } => Some(source),
+			#[cfg(feature = "std")]
+			Self::StdIo { source } => Some(source),
+			_ => None,
+		}
+	}
+
+	// fn cause(&self) -> Option<&dyn core::error::Error> {
+	// 	self.source()
+	// }
+
+	// fn provide<'a>(&'a self, request: &mut core::error::Request<'a>) {}
+}
+
+impl core::fmt::Debug for Error {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			Self::AlreadyRegistered { name } => write!(f, "AlreadyRegistered(name: {name})"),
+			Self::Create { name, error } => write!(f, "Create(name: {name}, error: {error})"),
+			#[cfg(feature = "std")]
+			Self::InvalidPath { path } => write!(f, "InvalidPath(path: {path})"),
+			#[cfg(feature = "std")]
+			Self::LibLoading { source } => write!(f, "LibLoading({source})"),
+			Self::NotRegistered { name } => write!(f, "NotRegistered(name: {name})"),
+			#[cfg(feature = "std")]
+			Self::RegisterLib { path, code } => write!(f, "RegisterLib(path: {path}, code: {code})"),
+			Self::RegisterXml { name, error } => write!(f, "RegisterXml(name: {name}, error: {error})"),
+			Self::Scripting { source } => write!(f, "Scripting({source})"),
+			#[cfg(feature = "std")]
+			Self::StdIo { source } => write!(f, "StdIo({source})"),
+		}
+	}
+}
+
+impl core::fmt::Display for Error {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			Self::AlreadyRegistered { name } => write!(f, "the item {name} is already registered"),
+			Self::Create { name, error } => write!(f, "creation of tree {name} failed with: {error}"),
+			#[cfg(feature = "std")]
+			Self::InvalidPath { path } => write!(f, "the file path {path} is invalid"),
+			#[cfg(feature = "std")]
+			Self::LibLoading { source } => write!(f, "accessing library failed with: {source}"),
+			Self::NotRegistered { name } => write!(f, "the item {name} is not registered"),
+			#[cfg(feature = "std")]
+			Self::RegisterLib { path, code } => write!(f, "registration of the library {path} failed with: {code}"),
+			Self::RegisterXml { name, error } => write!(f, "registration of XML {name} failed with: {error}"),
+			Self::Scripting { source } => write!(f, "accessing scripting failed with: {source}"),
+			#[cfg(feature = "std")]
+			Self::StdIo { source } => write!(f, "accessing file failed with: {source}"),
+		}
+	}
+}
+
+#[cfg(feature = "std")]
+impl From<libloading::Error> for Error {
+	fn from(source: libloading::Error) -> Self {
+		Self::LibLoading { source }
+	}
+}
+
+impl From<tinyscript::Error> for Error {
+	fn from(source: tinyscript::Error) -> Self {
+		Self::Scripting { source }
+	}
+}
+
+#[cfg(feature = "std")]
+impl From<std::io::Error> for Error {
+	fn from(source: std::io::Error) -> Self {
+		Self::StdIo { source }
+	}
+}
