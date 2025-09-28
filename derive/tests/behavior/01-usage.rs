@@ -12,7 +12,7 @@ impl Behavior for TestAction {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		Ok(BehaviorState::Success)
@@ -27,7 +27,7 @@ impl Behavior for TestCondition {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		Ok(BehaviorState::Success)
@@ -42,7 +42,7 @@ impl Behavior for TestControl {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		Ok(BehaviorState::Success)
@@ -57,7 +57,7 @@ impl Behavior for TestDecorator {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		Ok(BehaviorState::Success)

@@ -64,11 +64,14 @@ impl Behavior for BehaviorWithDefaultPoints {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let msg: String = behavior.get("input")?;
-		let point = Point2D::from_str(&msg).map_err(|_| BehaviorError::ParsePortValue("input".into(), msg.into()))?;
+		let point = Point2D::from_str(&msg).map_err(|_| BehaviorError::ParsePortValue {
+			port: "input".into(),
+			typ: msg.into(),
+		})?;
 		assert_eq!(point, Point2D { x: -1, y: -2 });
 		info!("input:  [{},{}]", point.x, point.y);
 
@@ -81,7 +84,10 @@ impl Behavior for BehaviorWithDefaultPoints {
 		info!("pointB:  [{},{}]", point.x, point.y);
 
 		let msg: String = behavior.get("pointC")?;
-		let point = Point2D::from_str(&msg).map_err(|_| BehaviorError::ParsePortValue("pointC".into(), msg.into()))?;
+		let point = Point2D::from_str(&msg).map_err(|_| BehaviorError::ParsePortValue {
+			port: "pointC".into(),
+			typ: msg.into(),
+		})?;
 		assert_eq!(point, Point2D { x: 5, y: 6 });
 		info!("pointC:  [{},{}]", point.x, point.y);
 

@@ -2,15 +2,12 @@
 
 //! [`BehaviorTree`](crate::tree::tree::BehaviorTree) element list implementation.
 
-// region:      --- modules
 use super::tree_element::BehaviorTreeElement;
 use crate::behavior::error::Error as BehaviorError;
 use alloc::{format, vec::Vec};
 use core::ops::{Deref, DerefMut};
 use tinyscript::SharedRuntime;
-// endregion:   --- modules
 
-// region:		--- ConstBehaviorTreeElementList
 /// An immutable list of tree components.
 #[derive(Default)]
 #[repr(transparent)]
@@ -66,4 +63,3 @@ impl BehaviorTreeElementList {
 		self.0[index].halt(runtime)
 	}
 }
-// endregion:   --- ConstBehaviorTreeElementList

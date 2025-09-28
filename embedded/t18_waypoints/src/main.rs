@@ -42,7 +42,7 @@ impl Behavior for GenerateWaypoints {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let shared_queue = SharedQueue::default();
@@ -72,7 +72,7 @@ impl Behavior for PrintNumber {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let value: f64 = behavior.get("value")?;
@@ -94,7 +94,7 @@ impl Behavior for UseWaypoint {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		if let Ok(wp) = behavior.get::<Pose2D>("waypoint") {

@@ -22,7 +22,7 @@ impl Behavior for ApproachObject {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		info!("ApproachObject: approach_object");
@@ -73,7 +73,7 @@ impl Behavior for SaySomething {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let msg = behavior.get::<String>("message")?;
@@ -95,7 +95,7 @@ impl Behavior for ThinkWhatToSay {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		behavior.set("text", String::from("The answer is 42"))?;
@@ -157,7 +157,7 @@ impl Behavior for CalculateGoal {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let mygoal = Position2D { x: 1.1, y: 2.3 };
@@ -179,7 +179,7 @@ impl Behavior for PrintTarget {
 	async fn tick(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let pos = behavior.get::<Position2D>("target")?;
@@ -249,7 +249,7 @@ impl Behavior for MoveBaseAction {
 	fn on_start(
 		&mut self,
 		behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
 		let pose = behavior.get::<Pose2D>("goal")?;
@@ -265,7 +265,7 @@ impl Behavior for MoveBaseAction {
 	async fn tick(
 		&mut self,
 		_behavior: &mut BehaviorData,
-		_children: &mut ConstBehaviorTreeElementList,
+		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		if Instant::now().duration_since(self.start_time) >= self.completion_time {
