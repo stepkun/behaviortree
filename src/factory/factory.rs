@@ -14,8 +14,7 @@ use crate::{
 	behavior::{
 		Behavior, BehaviorExecution, BehaviorKind, BehaviorState, ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn,
 		SubTree,
-		action::PopFromQueue,
-		action::{ChangeStateAfter, Script, SetBlackboard, Sleep, UnsetBlackboard},
+		action::{ChangeStateAfter, PopFromQueue, Script, SetBlackboard, Sleep, UnsetBlackboard},
 		behavior_description::BehaviorDescription,
 		condition::{ScriptCondition, WasEntryUpdated},
 		control::{
@@ -245,8 +244,28 @@ impl BehaviorTreeFactory {
 		self.register_groot2_behavior_type::<UnsetBlackboard<String>>("UnsetBlackboard")?;
 
 		// controls
-		self.register_groot2_behavior_type::<Fallback>("AsyncFallback")?;
-		self.register_groot2_behavior_type::<Sequence>("AsyncSequence")?;
+		let bhvr_desc = BehaviorDescription::new(
+			"AsyncFallback",
+			"AsynchFallback",
+			Fallback::kind(),
+			true,
+			Fallback::provided_ports(),
+		);
+		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(Fallback::new(true)) });
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
+		let bhvr_desc = BehaviorDescription::new(
+			"AsyncSequence",
+			"AsynchSequence",
+			Sequence::kind(),
+			true,
+			Sequence::provided_ports(),
+		);
+		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(Sequence::new(true)) });
+		self.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
 		self.register_groot2_behavior_type::<Switch<2>>("Switch2")?;
 		self.register_groot2_behavior_type::<Switch<3>>("Switch3")?;
 		self.register_groot2_behavior_type::<Switch<4>>("Switch4")?;

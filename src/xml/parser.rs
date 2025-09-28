@@ -11,8 +11,10 @@ use alloc::{
 	string::{String, ToString},
 };
 // region:      --- modules
+#[cfg(feature = "std")]
+use crate::ConstString;
 use crate::{
-	ACTION, BEHAVIORTREE, CONDITION, CONTROL, ConstString, DECORATOR, DEFAULT, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
+	ACTION, BEHAVIORTREE, CONDITION, CONTROL, DECORATOR, DEFAULT, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
 	behavior::{BehaviorDataCollection, BehaviorKind, BehaviorPtr, pre_post_conditions::Conditions},
 	factory::registry::{BehaviorRegistry, TreeNodesModelEntry},
 	port::{PortDirection, is_allowed_port_name},

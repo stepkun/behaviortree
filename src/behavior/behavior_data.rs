@@ -315,6 +315,12 @@ impl BehaviorData {
 		&mut self.description
 	}
 
+	/// Returns whether a behavior is active.
+	#[must_use]
+	pub fn is_active(&self) -> bool {
+		self.state != BehaviorState::Idle && self.state != BehaviorState::Skipped
+	}
+
 	/// Method to get the uid.
 	#[must_use]
 	pub const fn uid(&self) -> u16 {

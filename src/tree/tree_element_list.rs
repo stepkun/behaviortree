@@ -28,7 +28,7 @@ impl DerefMut for BehaviorTreeElementList {
 }
 
 impl BehaviorTreeElementList {
-	/// Reset all children
+	/// Halt all children
 	/// # Errors
 	/// - if a child errors on `halt()`
 	pub fn halt(&mut self, runtime: &SharedRuntime) -> Result<(), BehaviorError> {
@@ -61,5 +61,16 @@ impl BehaviorTreeElementList {
 			return Err(BehaviorError::Composition { txt: txt.into() });
 		}
 		self.0[index].halt(runtime)
+	}
+
+	/// Reset all children
+	/// # Errors
+	/// - if a child errors on `halt()`
+	pub fn reset(&mut self, runtime: &SharedRuntime) -> Result<(), BehaviorError> {
+		for child in &mut self.0 {
+			child.halt(runtime)?;
+			child.reset_state();
+		}
+		Ok(())
 	}
 }

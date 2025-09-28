@@ -244,6 +244,16 @@ impl BehaviorTreeElement {
 		self.children.halt(runtime)
 	}
 
+	/// Reset state of element.
+	pub fn reset_state(&mut self) {
+		// let prev_state = self.data.state();
+		self.data.set_state(BehaviorState::Idle);
+		// if prev_state != BehaviorState::Idle {
+		// 	// @TODO: tree_node.cpp TreNode::resetStatus()
+		// 	todo!()
+		// }
+	}
+
 	/// Add a pre state change callback with the given name.
 	/// The name is not unique, which is important when removing callback.
 	#[inline]

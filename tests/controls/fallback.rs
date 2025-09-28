@@ -1,15 +1,12 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Tests the [`Fallback`] behavior
-
-#![allow(unused, clippy::unused_async, clippy::unnecessary_wraps, clippy::missing_const_for_fn)]
+//! Tests the [`Fallback`](behaviortree::behavior::control::Fallback) behavior
 
 extern crate alloc;
 
 use behaviortree::behavior::BehaviorState::*;
 use behaviortree::behavior::action::ChangeStateAfter;
-use behaviortree::behavior::control::Fallback;
-use behaviortree::{BehaviorTreeElement, prelude::*};
+use behaviortree::prelude::*;
 use rstest::rstest;
 
 const FALLBACK: &str = r#"

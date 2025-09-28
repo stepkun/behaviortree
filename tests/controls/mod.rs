@@ -1,6 +1,8 @@
 // Copyright © 2025 Stephan Kunz
 //! Test builtin `Control` behaviors.
 
+mod async_fallback;
+mod async_sequence;
 mod fallback;
 mod if_then_else;
 mod parallel;

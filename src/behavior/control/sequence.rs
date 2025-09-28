@@ -1,7 +1,6 @@
 // Copyright © 2025 Stephan Kunz
-//! [`Sequence`] [`Control`] implementation.
+//! [`Sequence`] & `AsyncSequence` [`Control`] implementations.
 
-// region:      --- modules
 use crate::{
 	self as behaviortree, Control,
 	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
@@ -9,31 +8,28 @@ use crate::{
 };
 use alloc::boxed::Box;
 use tinyscript::SharedRuntime;
-// endregion:   --- modules
 
-// region:      --- Sequence
 /// A `Sequence` ticks its children in an ordered sequence from first to last.
+/// If any child returns [`BehaviorState::Running`], previous children will NOT be ticked again.
 /// - If any child returns [`BehaviorState::Failure`] the sequence returns [`BehaviorState::Failure`].
 /// - If all children return [`BehaviorState::Success`] the sequence returns [`BehaviorState::Success`].
 /// - While any child returns [`BehaviorState::Running`] the sequence returns [`BehaviorState::Running`].
 ///
+/// It implements 2 modes, which differ in how they handle a childs success:
+/// - The synchronous mode will tick all children within one tick from its parent.
+/// - The asynchronous mode will return the flow contol after a childs success to its parent
+///   returning [`BehaviorState::Running`] and continue with the next child at the next tick from parent.
+///
 /// While running, the loop is not restarted, first the running child will be ticked again.
 /// If that tick succeeds the sequence continues, children that already succeeded will not be ticked again.
-#[derive(Control, Debug)]
+#[derive(Control, Debug, Default)]
 pub struct Sequence {
 	/// Defaults to '0'
 	child_idx: usize,
-	/// Defaults to 'true'
-	all_skipped: bool,
-}
-
-impl Default for Sequence {
-	fn default() -> Self {
-		Self {
-			child_idx: 0,
-			all_skipped: true,
-		}
-	}
+	/// Defaults to '0'
+	skipped: usize,
+	/// Asynchronous mode flag
+	asynch: bool,
 }
 
 #[async_trait::async_trait]
@@ -41,66 +37,76 @@ impl Behavior for Sequence {
 	#[inline]
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		self.child_idx = 0;
-		self.all_skipped = true;
-		Ok(())
-	}
-
-	#[inline]
-	fn on_start(
-		&mut self,
-		behavior: &mut BehaviorData,
-		_children: &mut BehaviorTreeElementList,
-		_runtime: &SharedRuntime,
-	) -> Result<(), BehaviorError> {
-		self.child_idx = 0;
-		self.all_skipped = true;
-		behavior.set_state(BehaviorState::Running);
+		self.skipped = 0;
 		Ok(())
 	}
 
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		while self.child_idx < children.len() {
+		if !behavior.is_active() {
+			self.skipped = 0;
+		}
+		behavior.set_state(BehaviorState::Running);
+
+		let children_count = children.len();
+		while self.child_idx < children_count {
 			let child = &mut children[self.child_idx];
-			let new_state = child.tick(runtime).await?;
+			let prev_state = child.data().state();
+			let child_state = child.tick(runtime).await?;
 
-			self.all_skipped &= new_state == BehaviorState::Skipped;
-
-			match new_state {
+			match child_state {
 				BehaviorState::Failure => {
-					children.halt(runtime)?;
+					children.reset(runtime)?;
 					self.child_idx = 0;
-					return Ok(BehaviorState::Failure);
+					return Ok(child_state);
 				}
 				BehaviorState::Idle => {
 					return Err(BehaviorError::State {
 						behavior: "Sequence".into(),
-						state: new_state,
+						state: child_state,
 					});
 				}
-				BehaviorState::Running => return Ok(BehaviorState::Running),
-				BehaviorState::Skipped | BehaviorState::Success => {
+				BehaviorState::Running => return Ok(child_state),
+				BehaviorState::Skipped => {
 					self.child_idx += 1;
+					self.skipped += 1;
+				}
+				BehaviorState::Success => {
+					self.child_idx += 1;
+					if self.asynch && (prev_state == BehaviorState::Idle) && (self.child_idx < children_count) {
+						return Ok(BehaviorState::Running);
+					}
 				}
 			}
 		}
 
-		// All children returned Success
-		if self.child_idx >= children.len() {
-			// Reset children
-			children.halt(runtime)?;
+		// All children returned Success or were skipped
+		let all_skipped = self.skipped == children_count;
+		if self.child_idx >= children_count {
+			children.reset(runtime)?;
 			self.child_idx = 0;
+			self.skipped = 0;
 		}
-
-		if self.all_skipped {
+		if all_skipped {
 			Ok(BehaviorState::Skipped)
 		} else {
 			Ok(BehaviorState::Success)
 		}
 	}
 }
-// endregion:   --- Sequence
+
+impl Sequence {
+	/// Returns a Sequence behavior with the given asynchronouisity.
+	#[must_use]
+	pub const fn new(asynch: bool) -> Self {
+		Self {
+			child_idx: 0,
+			skipped: 0,
+			asynch,
+		}
+	}
+}

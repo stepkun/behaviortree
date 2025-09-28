@@ -1,6 +1,6 @@
 // Copyright © 2025 Stephan Kunz
 
-//! Tests the [`Sequence`] behavior
+//! Tests the [`Sequence`](behaviortree::behavior::control::Sequence) behavior
 
 extern crate alloc;
 
