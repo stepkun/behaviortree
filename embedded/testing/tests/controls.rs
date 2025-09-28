@@ -867,7 +867,7 @@ mod tests {
 		factory.register_behavior_tree_from_text(SWITCH)?;
 
 		let blackboard = Databoard::new();
-		let mut tree = factory.create_tree_with("MainTree", blackboard.clone())?;
+		let mut tree = factory.create_tree_with("MainTree", &blackboard)?;
 		drop(factory);
 
 		// preparation

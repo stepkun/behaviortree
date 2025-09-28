@@ -8,10 +8,6 @@
 
 extern crate alloc;
 
-// use ariel_os::{
-// 	debug::{ExitCode, exit, log::*},
-// 	time::Timer,
-// };
 use behaviortree::prelude::*;
 
 const XML: &str = r#"

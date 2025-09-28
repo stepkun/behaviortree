@@ -54,9 +54,9 @@ mod tests {
 		factory.register_behavior_tree_from_text(UNSET_TREE_DEFINITION)?;
 
 		let root_blackboard = Databoard::new();
-		let mut tree1 = factory.create_tree_with("SetMainTree1", root_blackboard.clone())?;
-		let mut tree2 = factory.create_tree_with("SetMainTree2", root_blackboard.clone())?;
-		let mut tree3 = factory.create_tree_with("UnsetMainTree", root_blackboard.clone())?;
+		let mut tree1 = factory.create_tree_with("SetMainTree1", &root_blackboard)?;
+		let mut tree2 = factory.create_tree_with("SetMainTree2", &root_blackboard)?;
+		let mut tree3 = factory.create_tree_with("UnsetMainTree", &root_blackboard)?;
 		drop(factory);
 
 		let val1 = String::from("value1");
@@ -98,7 +98,7 @@ mod tests {
 
 		let root_blackboard = Databoard::new();
 		root_blackboard.set("queue", queue)?;
-		let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+		let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 		drop(factory);
 
 		let mut res = tree.tick_once().await?;
@@ -139,7 +139,7 @@ mod tests {
 		factory.register_behavior_tree_from_text(SCRIPT_XML)?;
 
 		let root_blackboard = Databoard::new();
-		let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+		let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 		drop(factory);
 
 		tree.blackboard().set::<i32>("value", 24)?;
@@ -187,7 +187,7 @@ mod tests {
 		factory.register_behavior_tree_from_text(SCRIPT_CONDITION_XML)?;
 
 		let root_blackboard = Databoard::new();
-		let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+		let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 		drop(factory);
 
 		tree.blackboard().set::<i32>("value", 42)?;

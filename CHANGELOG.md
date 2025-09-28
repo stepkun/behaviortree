@@ -25,6 +25,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Changed
 - renamed `ConstBehaviorTreeElementList` to `BehaviorTreeElementList`
 - reworked error handling
+- API: method parameter as references
 
 ### Fixed
 - behavior `Precondition`s else branch value is now case independant

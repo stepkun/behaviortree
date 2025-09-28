@@ -76,7 +76,7 @@ async fn example() -> BehaviorTreeResult {
 
 	factory.register_behavior_tree_from_text(XML)?;
 
-	let mut tree = factory.create_tree_with("MainTree", root_blackboard)?;
+	let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 	drop(factory);
 
 	// direct interaction with the global blackboard

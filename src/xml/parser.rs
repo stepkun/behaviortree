@@ -30,23 +30,23 @@ use tracing::{Level, event, instrument};
 fn create_data_collection_from_xml(
 	registry: &BehaviorRegistry,
 	path: &str,
-	node: &Node,
+	element: &Node,
 	uid: u16,
-	blackboard: Option<Databoard>,
+	blackboard: Option<&Databoard>,
 	is_root: bool,
 ) -> Result<Box<BehaviorDataCollection>, Error> {
 	let (behavior_id, behavior_kind) = {
-		let tag_name = node.tag_name().name();
+		let tag_name = element.tag_name().name();
 		match tag_name {
 			BEHAVIORTREE => {
-				if let Some(id) = node.attribute(ID) {
+				if let Some(id) = element.attribute(ID) {
 					(id, SUBTREE)
 				} else {
 					return Err(Error::MissingId { tag: tag_name.into() });
 				}
 			}
 			ACTION | CONDITION | CONTROL | DECORATOR | SUBTREE => {
-				if let Some(id) = node.attribute(ID) {
+				if let Some(id) = element.attribute(ID) {
 					(id, tag_name)
 				} else {
 					return Err(Error::MissingId { tag: tag_name.into() });
@@ -58,12 +58,12 @@ fn create_data_collection_from_xml(
 	let is_subtree = behavior_kind == SUBTREE;
 
 	// if behavior has no assigned name, use beavior id
-	let behavior_name = node
+	let behavior_name = element
 		.attribute(NAME)
 		.map_or_else(|| behavior_id.to_string(), ToString::to_string);
 	let mut path = String::from(path) + "/" + &behavior_name;
 	// in case no explicit name was given, we extend the node_name with the uid
-	if node.attribute(NAME).is_none() {
+	if element.attribute(NAME).is_none() {
 		path.push_str("::");
 		path.push_str(&uid.to_string());
 	}
@@ -83,24 +83,24 @@ fn create_data_collection_from_xml(
 	bhvr_desc.set_path(&path);
 
 	let bhvr = bhvr_creation_fn();
-	let (autoremap, mut remappings, conditions) = handle_attributes(registry, behavior_id, behavior_kind, &bhvr, node)?;
+	let (autoremap, mut remappings, conditions) = handle_attributes(registry, behavior_id, behavior_kind, &bhvr, element)?;
 
-	let new_blackboard = blackboard.map_or_else(Databoard::new, |blackboard| {
+	let blackboard = blackboard.map_or_else(Databoard::new, |blackboard| {
 		if is_subtree && !is_root {
 			// A SubTree gets a new Blackboard with parent and remappings.
 			let mut new_remappings = Remappings::default();
 			core::mem::swap(&mut new_remappings, &mut remappings);
-			Databoard::with(Some(blackboard), Some(new_remappings), autoremap)
+			Databoard::with(Some(blackboard.clone()), Some(new_remappings), autoremap)
 		} else {
-			blackboard
+			blackboard.clone()
 		}
 	});
 
 	Ok(Box::new(BehaviorDataCollection {
-		node_name: behavior_name,
+		behavior_name,
 		path,
 		bhvr_desc,
-		blackboard: new_blackboard,
+		blackboard,
 		bhvr,
 		remappings,
 		conditions,
@@ -275,7 +275,7 @@ impl XmlParser {
 	#[instrument(level = Level::DEBUG, skip_all)]
 	pub(crate) fn register_document(
 		registry: &mut BehaviorRegistry,
-		xml: &ConstString,
+		xml: &str,
 		#[cfg(feature = "std")] path: &ConstString,
 	) -> Result<(), Error> {
 		// general checks
@@ -295,9 +295,9 @@ impl XmlParser {
 			registry.set_main_tree_id(name);
 		}
 		#[cfg(feature = "std")]
-		Self::register_document_root(registry, root, xml, path)?;
+		Self::register_document_root(registry, &root, xml, path)?;
 		#[cfg(not(feature = "std"))]
-		Self::register_document_root(registry, root, xml)?;
+		Self::register_document_root(registry, &root, xml)?;
 		Ok(())
 	}
 
@@ -372,8 +372,8 @@ impl XmlParser {
 	#[instrument(level = Level::DEBUG, skip_all)]
 	fn register_document_root(
 		registry: &mut BehaviorRegistry,
-		root: Node,
-		source: &ConstString,
+		root: &Node,
+		source: &str,
 		#[cfg(feature = "std")] path: &ConstString,
 	) -> Result<(), Error> {
 		event!(Level::TRACE, "register_document_root");
@@ -396,7 +396,7 @@ impl XmlParser {
 									registry.set_main_tree_id(id);
 								}
 								// let source: ConstString = element.document().input_text()[element.range()].into();
-								match registry.add_tree_defintion(id, source.clone(), element.range()) {
+								match registry.add_tree_defintion(id, source.into(), element.range()) {
 									Ok(()) => {}
 									Err(err) => {
 										return Err(Error::Factory {
@@ -430,7 +430,7 @@ impl XmlParser {
 								Ok(xml) => {
 									if let Some(cur_path) = file_path.parent() {
 										let path = cur_path.to_string_lossy().into();
-										Self::register_document(registry, &xml.into(), &path)?;
+										Self::register_document(registry, &xml, &path)?;
 									} else {
 										return Err(Error::ReadFile {
 											name: file_path.to_string_lossy().into(),
@@ -468,7 +468,7 @@ impl XmlParser {
 		&mut self,
 		name: &str,
 		registry: &mut BehaviorRegistry,
-		external_blackboard: Option<Databoard>,
+		external_blackboard: Option<&Databoard>,
 	) -> Result<BehaviorTreeElement, Error> {
 		event!(Level::TRACE, "create_tree_from_definition");
 
@@ -485,7 +485,7 @@ impl XmlParser {
 					true,
 				)?;
 				// for tree root "path" is empty
-				let children = self.build_children(&data, doc.root_element(), registry)?;
+				let children = self.build_children(&data, &doc.root_element(), registry)?;
 				if children.len() > 1 {
 					return Err(Error::OneChild { behavior: name.into() });
 				}
@@ -499,7 +499,7 @@ impl XmlParser {
 	fn build_children(
 		&mut self,
 		data: &BehaviorDataCollection,
-		element: Node,
+		element: &Node,
 		registry: &mut BehaviorRegistry,
 	) -> Result<BehaviorTreeElementList, Error> {
 		event!(Level::TRACE, "build_children");
@@ -512,7 +512,7 @@ impl XmlParser {
 					return Err(Error::InvalidRootElement);
 				}
 				NodeType::Element => {
-					let element = self.build_child(data, child, registry)?;
+					let element = self.build_child(data, &child, registry)?;
 					children.push(element);
 				}
 				NodeType::PI => {
@@ -529,24 +529,18 @@ impl XmlParser {
 	fn build_child(
 		&mut self,
 		data: &BehaviorDataCollection,
-		node: Node,
+		node: &Node,
 		registry: &mut BehaviorRegistry,
 	) -> Result<BehaviorTreeElement, Error> {
 		event!(Level::TRACE, "build_child");
-		let data = create_data_collection_from_xml(
-			registry,
-			&data.path,
-			&node,
-			self.next_uid(),
-			Some(data.blackboard.clone()),
-			false,
-		)?;
+		let data =
+			create_data_collection_from_xml(registry, &data.path, node, self.next_uid(), Some(&data.blackboard), false)?;
 		let tree_node = match data.bhvr_desc.kind() {
 			BehaviorKind::Action | BehaviorKind::Condition => {
 				// A leaf uses a cloned Blackboard
 				if node.has_children() {
 					return Err(Error::ChildrenNotAllowed {
-						behavior: data.node_name.into(),
+						behavior: data.behavior_name.into(),
 					});
 				}
 				BehaviorTreeElement::create_leaf(data)
@@ -567,7 +561,7 @@ impl XmlParser {
 					match registry.find_tree_definition(id) {
 						Some((definition, range)) => {
 							let doc = Document::parse(&definition[range])?;
-							let children = self.build_children(&data, doc.root_element(), registry)?;
+							let children = self.build_children(&data, &doc.root_element(), registry)?;
 							if children.len() > 1 {
 								return Err(Error::OneChild { behavior: id.into() });
 							}
@@ -575,7 +569,7 @@ impl XmlParser {
 						}
 						None => {
 							return Err(Error::DefinitionNotFound {
-								id: data.node_name.into(),
+								id: data.behavior_name.into(),
 							});
 						}
 					}

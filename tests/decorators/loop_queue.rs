@@ -36,7 +36,7 @@ async fn loop_over_string_queue() -> Result<(), Error> {
 
 	let root_blackboard = Databoard::new();
 	root_blackboard.set("queue", queue)?;
-	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+	let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 	drop(factory);
 
 	let res = tree.tick_while_running().await?;

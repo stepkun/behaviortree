@@ -52,7 +52,7 @@ pub type BehaviorTickCallback = dyn Fn(&BehaviorData, &mut BehaviorState) + Send
 /// This is used to minimize the stack consumption during recursion of tree creation
 /// and to transport the data collection between function calls.
 pub(crate) struct BehaviorDataCollection {
-	pub node_name: String,
+	pub behavior_name: String,
 	pub path: String,
 	pub bhvr_desc: BehaviorDescription,
 	pub blackboard: Databoard,

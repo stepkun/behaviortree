@@ -426,7 +426,7 @@ impl BehaviorTreeFactory {
 	/// # Errors
 	/// - if no tree with `name` can be found
 	/// - if behaviors or subtrees are missing
-	pub fn create_tree_with(&mut self, name: &str, blackboard: Databoard) -> Result<BehaviorTree, Error> {
+	pub fn create_tree_with(&mut self, name: &str, blackboard: &Databoard) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
 		match parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard)) {
 			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),
@@ -447,11 +447,11 @@ impl BehaviorTreeFactory {
 	/// - on incorrect XML
 	/// - if tree description is not in BTCPP v4
 	/// - if tree is already registered
-	pub fn register_behavior_tree_from_text(&mut self, xml: impl Into<ConstString>) -> Result<(), Error> {
+	pub fn register_behavior_tree_from_text(&mut self, xml: &str) -> Result<(), Error> {
 		#[cfg(feature = "std")]
 		{
 			let dir = std::env::current_dir()?.to_string_lossy().into();
-			match XmlParser::register_document(&mut self.registry, &xml.into(), &dir) {
+			match XmlParser::register_document(&mut self.registry, xml, &dir) {
 				Ok(()) => Ok(()),
 				Err(err) => Err(Error::RegisterXml {
 					name: dir,
@@ -461,7 +461,7 @@ impl BehaviorTreeFactory {
 		}
 		#[cfg(not(feature = "std"))]
 		{
-			match XmlParser::register_document(&mut self.registry, &xml.into()) {
+			match XmlParser::register_document(&mut self.registry, xml) {
 				Ok(()) => Ok(()),
 				Err(err) => Err(Error::RegisterXml {
 					name: "inline xml".into(),

@@ -31,7 +31,7 @@ async fn pop_from_int_queue() -> Result<(), Error> {
 
 	let root_blackboard = Databoard::new();
 	root_blackboard.set("queue", queue)?;
-	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+	let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 	drop(factory);
 
 	let mut res = tree.tick_once().await?;
@@ -68,7 +68,7 @@ async fn pop_from_double_queue() -> Result<(), Error> {
 
 	let root_blackboard = Databoard::new();
 	root_blackboard.set("queue", queue)?;
-	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+	let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 	drop(factory);
 
 	let mut res = tree.tick_once().await?;
@@ -104,7 +104,7 @@ async fn pop_from_string_queue() -> Result<(), Error> {
 
 	let root_blackboard = Databoard::new();
 	root_blackboard.set("queue", queue)?;
-	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+	let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 	drop(factory);
 
 	let mut res = tree.tick_once().await?;
@@ -141,7 +141,7 @@ async fn pop_from_default_queue() -> Result<(), Error> {
 	factory.register_behavior_tree_from_text(TREE_DEFINITION2)?;
 
 	let root_blackboard = Databoard::new();
-	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+	let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 	drop(factory);
 
 	let mut res = tree.tick_once().await?;

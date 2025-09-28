@@ -54,7 +54,7 @@ async fn script_condition() -> Result<(), Error> {
 	factory.register_behavior_tree_from_text(XML)?;
 
 	let root_blackboard = Databoard::new();
-	let mut tree = factory.create_tree_with("MainTree", root_blackboard.clone())?;
+	let mut tree = factory.create_tree_with("MainTree", &root_blackboard)?;
 	drop(factory);
 
 	tree.blackboard().set::<i32>("value", 42)?;

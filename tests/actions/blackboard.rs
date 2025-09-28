@@ -43,9 +43,9 @@ async fn set_unset_blackboard() -> Result<(), Error> {
 	factory.register_behavior_tree_from_text(UNSET_TREE_DEFINITION)?;
 
 	let root_blackboard = Databoard::new();
-	let mut tree1 = factory.create_tree_with("SetMainTree1", root_blackboard.clone())?;
-	let mut tree2 = factory.create_tree_with("SetMainTree2", root_blackboard.clone())?;
-	let mut tree3 = factory.create_tree_with("UnsetMainTree", root_blackboard.clone())?;
+	let mut tree1 = factory.create_tree_with("SetMainTree1", &root_blackboard)?;
+	let mut tree2 = factory.create_tree_with("SetMainTree2", &root_blackboard)?;
+	let mut tree3 = factory.create_tree_with("UnsetMainTree", &root_blackboard)?;
 	drop(factory);
 
 	let val1 = String::from("value1");
