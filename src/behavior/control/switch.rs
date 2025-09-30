@@ -30,6 +30,7 @@ const VARIABLE: &str = "variable";
 ///
 /// Example:
 ///
+/// Requires a factory at least `with_groot2_behaviors` (Switch2 to Switch6) or manual registration
 /// <Switch3 variable="{var}"  case_1="1" case_2="42" case_3="666" >
 ///    <ActionA name="action_when_var_eq_1" />
 ///    <ActionB name="action_when_var_eq_42" />

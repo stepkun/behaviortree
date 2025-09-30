@@ -12,17 +12,26 @@ use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- ReactiveFallback
-/// The `ReactiveFallback` behavior is used to try different strategies until one succeeds,
+/// The [`ReactiveFallback`] behavior is used to try different strategies until one succeeds,
 /// but every strategy is re-evaluated on each tick.
 /// All the children are ticked from first to last:
-/// - If a child returns RUNNING, continue to the next sibling.
-/// - If a child returns FAILURE, continue to the next sibling.
-/// - If a child returns SUCCESS, stop and return SUCCESS.
+/// - If a child returns [`BehaviorState::Running`], continue to the next sibling.
+/// - If a child returns [`BehaviorState::Failure`], continue to the next sibling.
+/// - If a child returns [`BehaviorState::Success`], stop and return [`BehaviorState::Success`].
 ///
-/// If all the children fail, than this node returns FAILURE.
+/// If all the children fail, than this node returns [`BehaviorState::Failure`].
 ///
-/// IMPORTANT: to work properly, this node should not have more than
-///            a single asynchronous child.
+/// IMPORTANT: Having asynchronous children (aka children that return [`BehaviorState::Running`]) makes
+/// this behavior difficult to predict. Avoid having more than one asynchronous children!
+///
+/// Example:
+///
+/// Requires a factory at least `with_core_behaviors` or manual registration
+/// <ReacitveFallback>
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </ReactiveFallback>
 #[derive(Control, Debug)]
 pub struct ReactiveFallback {
 	/// Defaults to '-1'

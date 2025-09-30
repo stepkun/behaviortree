@@ -12,15 +12,26 @@ use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- ReactiveSequence
-/// A `ReactiveSequence` ticks its children in an ordered sequence from first to last.
-/// - If any child returns [`BehaviorState::Failure`] the sequence returns [`BehaviorState::Failure`].
+/// A [`ReactiveSequence`] ticks its children in an ordered sequence from first to last at every tick.
+/// - If a child returns [`BehaviorState::Failure`] the sequence returns [`BehaviorState::Failure`].
+/// - If a child returns [`BehaviorState::Running`] halt the remaining siblings in the sequence
+///   and return [`BehaviorState::Running`].
+/// - If a child returns [`BehaviorState::Success`], tick the next child.
 /// - If all children return [`BehaviorState::Success`] the sequence returns [`BehaviorState::Success`].
-/// - While any child returns [`BehaviorState::Running`] the sequence returns [`BehaviorState::Running`].
 ///
-/// If all the children return SUCCESS, this node returns SUCCESS.
+/// If all the children return [`BehaviorState::Success`], this node returns [`BehaviorState::Success`].
 ///
-/// IMPORTANT: to work properly, this node should not have more than a single
-///            asynchronous child.
+/// IMPORTANT: Having asynchronous children (aka children that return [`BehaviorState::Running`]) makes
+/// this behavior difficult to predict. Avoid having more than one asynchronous children!
+///
+/// Example:
+///
+/// Requires a factory at least `with_core_behaviors` or manual registration
+/// <ReacitveSequence>
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </ReactiveSequence>
 #[derive(Control, Debug)]
 pub struct ReactiveSequence {
 	/// Defaults to '-1'

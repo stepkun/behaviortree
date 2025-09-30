@@ -24,9 +24,9 @@ use databoard::Databoard;
 #[cfg(feature = "std")]
 use libloading::Library;
 use spin::Mutex;
-use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
-use tokio::sync::mpsc;
+use thingbuf::mpsc;
+use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use uuid::Uuid;
 
@@ -61,7 +61,10 @@ fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error>
 
 // region:      --- BehaviorTreeMessage
 #[cfg(feature = "std")]
+#[derive(Clone, Default)]
 pub enum BehaviorTreeMessage {
+	#[default]
+	NothingToDo,
 	AddGrootCallback(Arc<Mutex<Groot2ConnectorData>>),
 	RemoveAllGrootHooks,
 }
@@ -106,7 +109,7 @@ impl BehaviorTree {
 		}
 
 		#[cfg(feature = "std")]
-		let (tx, rx) = mpsc::channel::<BehaviorTreeMessage>(10);
+		let (tx, rx) = mpsc::channel::<BehaviorTreeMessage>(5);
 		Self {
 			#[cfg(feature = "std")]
 			uuid: Uuid::new_v4(),
@@ -191,6 +194,7 @@ impl BehaviorTree {
 				// std::dbg!("adding Groot callback");
 				attach_groot_callback(self, data);
 			}
+			BehaviorTreeMessage::NothingToDo => {}
 		}
 	}
 

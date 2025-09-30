@@ -22,6 +22,20 @@ use tinyscript::SharedRuntime;
 ///
 /// While running, the loop is not restarted, first the running child will be ticked again.
 /// If that tick succeeds the sequence continues, children that already succeeded will not be ticked again.
+///
+/// Examples:
+/// <Sequence>
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </Sequence>
+///
+/// Requires a factory at least `with_core_behaviors` or manual registration
+/// <AsyncSequence>
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </AsyncSequence>
 #[derive(Control, Debug, Default)]
 pub struct Sequence {
 	/// Defaults to '0'

@@ -20,7 +20,8 @@ use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use bytes::{Bytes, BytesMut};
 use spin::Mutex;
-use tokio::{sync::mpsc, task::JoinHandle, time::Instant};
+use thingbuf::mpsc;
+use tokio::{task::JoinHandle, time::Instant};
 use zeromq::{Socket, SocketRecv, SocketSend, ZmqMessage};
 // endregion:   --- modules
 

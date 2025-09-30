@@ -10,7 +10,7 @@ use behaviortree::{
 	behavior::{
 		BehaviorState::{Failure, Running, Success},
 		action::ChangeStateAfter,
-		control::ReactiveFallback,
+		control::{Fallback, ReactiveFallback},
 	},
 	prelude::*,
 };
@@ -35,6 +35,25 @@ const STANDARD: &str = r#"
 			<AlwaysFailure/>
 			<AlwaysSuccess	name="step5"/>
 		</Fallback>
+	</BehaviorTree>
+</root>
+"#;
+
+const ASYNC: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="Async">
+	<BehaviorTree ID="Async">
+		<AsyncFallback name="root_fallback">
+			<AlwaysFailure	name="step1"/>
+			<AlwaysFailure/>
+			<AlwaysFailure	name="step2"/>
+			<AlwaysFailure/>
+			<AlwaysFailure	name="step3"/>
+			<AlwaysFailure/>
+			<AlwaysFailure	name="step4"/>
+			<AlwaysFailure/>
+			<AlwaysSuccess	name="step5"/>
+		</AsyncFallback>
 	</BehaviorTree>
 </root>
 "#;
@@ -72,9 +91,34 @@ fn fallback(c: &mut Criterion) {
 	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5).unwrap();
 	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
 	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").unwrap();
+	let bhvr_desc = BehaviorDescription::new(
+		"AsyncFallback",
+		"AsynchFallback",
+		Fallback::kind(),
+		true,
+		Fallback::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(Fallback::new(true)) });
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)
+		.unwrap();
 
 	let mut tree = factory.create_from_text(STANDARD).unwrap();
 	group.bench_function("standard", |b| {
+		b.iter(|| {
+			runtime.block_on(async {
+				for _ in 1..=ITERATIONS {
+					tree.reset().unwrap();
+					let _result = tree.tick_while_running().await.unwrap();
+				}
+				std::hint::black_box(());
+			});
+		});
+	});
+
+	let mut tree = factory.create_from_text(ASYNC).unwrap();
+	group.bench_function("async", |b| {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {

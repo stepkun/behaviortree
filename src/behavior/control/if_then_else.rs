@@ -12,15 +12,26 @@ use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- IfThenElse
-/// The `IfThenElse` behavior must have exactly 2 or 3 children. This behavior is NOT reactive.
+/// The `IfThenElse` behavior must have exactly 2 or 3 children. This behavior is __not__ reactive.
+/// A reactive variant is the [`WhileDoElse`](crate::behavior::control::WhileDoElse) behavior.
 ///
-/// The first child is the "statement" of the if.
-/// - If that return Success, then the second child is executed.
-/// - Instead, if it returned Failure, the third child is executed.
+/// The first child is the 'statement' of the if.
+/// - If that returns [`BehaviorState::Success`], then the second child is executed.
+/// - Instead, if it returns [`BehaviorState::Failure`], the third child is executed.
 ///
-/// If you have only 2 children, this node will return Failure whenever the
-/// statement returns Failure.
+/// If you have only 2 children, this node will return [`BehaviorState::Failure`] whenever the
+/// statement returns [`BehaviorState::Failure`].
 /// This is equivalent to adding [`AlwaysFailure`](crate::behavior::action::ChangeStateAfter) as 3rd child.
+///
+/// Example:
+///
+/// Requires a factory at least `with_extended_behaviors` or manual registration
+/// <IfThenElse>
+///    <Condition/>
+///    <ThenBehavior/>
+///    <ElseBehavior/>
+/// </IfThenElse>
+
 #[derive(Control, Debug, Default)]
 pub struct IfThenElse {
 	child_index: usize,
@@ -98,7 +109,7 @@ impl Behavior for IfThenElse {
 		if self.child_index > 0 {
 			let state = children[self.child_index].tick(runtime).await?;
 			if state != BehaviorState::Running {
-				children.halt(runtime)?;
+				children.reset(runtime)?;
 				self.child_index = 0;
 			}
 			Ok(state)

@@ -6,7 +6,7 @@ version = "0.6.0"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
-description = "A BehaviorTree library similar to BehaviorTree.CPP, compatible with #![no_std]."
+description = "A #![no_std] compatible behavior tree library similar to 'BehaviorTree.CPP'."
 rust-version = "1.88.0"
 repository = "https://github.com/stepkun/behaviortree.git"
 homepage = "http://github.com/stepkun/behaviortree.git"
@@ -79,12 +79,12 @@ spin = { version = "0.10.0", default-features = false, features = [
     "rwlock",
     "use_ticket_mutex",
 ] }
+thingbuf = { version = "0.1", default-features = false, features = ["alloc"] }
 #tinyscript = { path = "../tinyscript", version = "0.4", default-features = false }
 tinyscript = { version = "0.4", default-features = false }
 tokio = { version = "1.47.1", features = [
     "rt-multi-thread",
     "macros",
-    "sync",
     "time",
 ], optional = true }
 tracing = { version = "0.1.41", default-features = false, features = [

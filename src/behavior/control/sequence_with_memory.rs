@@ -12,14 +12,21 @@ use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
 // region:      --- SequenceWithMemory
-/// A `SequenceWithMemory` ticks its children in an ordered sequence from first to last.
-/// If any child returns RUNNING, previous children are not ticked again.
-/// - If all the children return SUCCESS, this node returns SUCCESS.
-/// - If a child returns RUNNING, this node returns RUNNING.
-///   Loop is NOT restarted, the same running child will be ticked again.
-/// - If a child returns FAILURE, stop the loop and return FAILURE.
+/// A [`SequenceWithMemory`] ticks its children in an ordered sequence from first to last.
+/// If any child returns [`BehaviorState::Running`], previous children are not ticked again.
+/// - If all the children return [`BehaviorState::Success`], this behavior returns [`BehaviorState::Success`].
+/// - If a child returns [`BehaviorState::Running`], this behavior returns [`BehaviorState::Running`].
+///   The loop is NOT restarted, the same running child will be ticked again.
+/// - If a child returns [`BehaviorState::Failure`], the loop stops and the behavior returns [`BehaviorState::Failure`].
 ///
-///   Loop is NOT restarted, the same running child will be ticked again.
+/// Example:
+///
+/// Requires a factory at least `with_core_behaviors` or manual registration
+/// <SequenceWithMemory>
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </SequenceWithMemory>
 #[derive(Control, Debug)]
 pub struct SequenceWithMemory {
 	/// Defaults to '0'

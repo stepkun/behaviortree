@@ -23,8 +23,20 @@ use tinyscript::SharedRuntime;
 /// While running, the loop is not restarted, first the running child will be ticked again.
 /// If that tick fails the sequence continues, children that already failed will not be ticked again.
 ///
-/// # Examples
+/// Examples:
 ///
+/// <Fallback>
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </Fallback>
+///
+/// Requires a factory at least `with_core_behaviors` or manual registration
+/// <AsyncFallback>
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </AsyncFallback>
 #[derive(Control, Debug, Default)]
 pub struct Fallback {
 	/// Defaults to '0'

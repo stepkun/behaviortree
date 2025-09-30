@@ -10,7 +10,7 @@ use behaviortree::{
 	behavior::{
 		BehaviorState::{Failure, Running, Success},
 		action::ChangeStateAfter,
-		control::{ReactiveSequence, SequenceWithMemory},
+		control::{ReactiveSequence, Sequence, SequenceWithMemory},
 	},
 	prelude::*,
 };
@@ -35,6 +35,25 @@ const STANDARD: &str = r#"
 			<AlwaysSuccess/>
 			<AlwaysSuccess	name="step5"/>
 		</Sequence>
+	</BehaviorTree>
+</root>
+"#;
+
+const ASYNC: &str = r#"
+<root BTCPP_format="4"
+		main_tree_to_execute="Async">
+	<BehaviorTree ID="Async">
+		<AsyncSequence name="root_sequence">
+			<AlwaysSuccess	name="step1"/>
+			<AlwaysSuccess/>
+			<AlwaysSuccess	name="step2"/>
+			<AlwaysSuccess/>
+			<AlwaysSuccess	name="step3"/>
+			<AlwaysSuccess/>
+			<AlwaysSuccess	name="step4"/>
+			<AlwaysSuccess/>
+			<AlwaysSuccess	name="step5"/>
+		</AsyncSequence>
 	</BehaviorTree>
 </root>
 "#;
@@ -92,9 +111,34 @@ fn sequence(c: &mut Criterion) {
 	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
 	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").unwrap();
 	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").unwrap();
+	let bhvr_desc = BehaviorDescription::new(
+		"AsyncSequence",
+		"AsynchSequence",
+		Sequence::kind(),
+		true,
+		Sequence::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(Sequence::new(true)) });
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)
+		.unwrap();
 
 	let mut tree = factory.create_from_text(STANDARD).unwrap();
 	group.bench_function("standard", |b| {
+		b.iter(|| {
+			runtime.block_on(async {
+				for _ in 1..=ITERATIONS {
+					tree.reset().unwrap();
+					let _result = tree.tick_while_running().await.unwrap();
+				}
+				std::hint::black_box(());
+			});
+		});
+	});
+
+	let mut tree = factory.create_from_text(ASYNC).unwrap();
+	group.bench_function("async", |b| {
 		b.iter(|| {
 			runtime.block_on(async {
 				for _ in 1..=ITERATIONS {

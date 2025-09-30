@@ -24,7 +24,21 @@ const MAX_FAILURES: &str = "max_failures";
 /// A [`ParallelAll`] executes its children __concurrently__ in one thread.
 ///
 /// In difference to the [`Parallel`](crate::behavior::control::parallel::Parallel) behavior,
-/// the [`ParallelAll`] finishes the execution of all its children before deciding whether its a Success or a Failure.
+/// the [`ParallelAll`] finishes the execution of all its children before deciding
+/// whether its a [`BehaviorState::Success`] or a [`BehaviorState::Failure`].
+///
+/// The optional port `max_failures` gives the number of children that may fail without
+/// the [`ParallelAll`] becoming a [`BehaviorState::Failure`]. it defaults to `-1`
+/// which means any number or don't care.
+///
+/// Example:
+///
+/// Requires a factory at least `with_core_behaviors` or manual registration
+/// <ParallelAll max_failures="0">
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </ParallelAll>
 #[derive(Control, Debug, Default)]
 pub struct ParallelAll {
 	/// The amount of completed sub behaviors that failed.

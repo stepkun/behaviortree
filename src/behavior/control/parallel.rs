@@ -22,6 +22,15 @@ use tinyscript::SharedRuntime;
 /// These are configured using the ports `success_count` and `failure_count`.
 /// If any of the thresholds is reached, still running children will be halted.
 /// This differs from the [`ParallelAll`](crate::behavior::control::parallel_all::ParallelAll) behavior.
+/// Both ports default to `-1` which means any number or don't care.
+///
+/// Example:
+///
+/// <Parallel success_count="2" failure_count="1">
+///    <Behavior1/>
+///    <Behavior2/>
+///    <Behavior3/>
+/// </Parallel>
 #[derive(Control, Debug, Default)]
 pub struct Parallel {
 	/// The amount of completed sub behaviors that succeeded.
