@@ -107,8 +107,8 @@ impl XmlCreator {
 	) -> Result<(), woxml::Error> {
 		for subtree in subtrees {
 			writer.begin_elem("BehaviorTree")?;
-			writer.attr(ID, subtree.data().description().name())?;
-			writer.attr("_fullpath", subtree.data().description().groot2_path())?;
+			writer.attr(ID, subtree.name())?;
+			writer.attr("_fullpath", subtree.groot2_path())?;
 
 			// recursive dive into children
 			for element in subtree.children().iter() {
@@ -127,33 +127,33 @@ impl XmlCreator {
 	) -> Result<(), woxml::Error> {
 		let is_subtree = match element.kind() {
 			TreeElementKind::Leaf | TreeElementKind::Node => {
-				writer.begin_elem(element.data().description().id())?;
-				writer.attr(NAME, element.data().description().name())?;
+				writer.begin_elem(element.id())?;
+				writer.attr(NAME, element.name())?;
 				false
 			}
 			TreeElementKind::SubTree => {
 				writer.begin_elem(SUBTREE)?;
-				writer.attr(ID, element.data().description().name())?;
+				writer.attr(ID, element.name())?;
 				if metadata {
-					writer.attr("_fullpath", element.data().description().groot2_path())?;
+					writer.attr("_fullpath", element.groot2_path())?;
 				}
 				true
 			}
 		};
 		if metadata {
-			writer.attr("_uid", &element.data().uid().to_string())?;
+			writer.attr("_uid", &element.uid().to_string())?;
 		}
 
 		if is_subtree {
 			// subtree port mappings/values are in blackboard
-			if let Some(remappings) = element.data().blackboard().remappings() {
+			if let Some(remappings) = element.blackboard().remappings() {
 				for remapping in remappings.iter() {
 					writer.attr(&remapping.0, &remapping.1)?;
 				}
 			}
 		} else {
 			// behavior port mappings/values
-			for remapping in element.data().remappings().iter() {
+			for remapping in element.remappings().iter() {
 				writer.attr(&remapping.0, &remapping.1)?;
 			}
 		}

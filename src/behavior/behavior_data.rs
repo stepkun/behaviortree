@@ -273,7 +273,7 @@ impl BehaviorData {
 		}
 	}
 
-	/// Set a value of type `T` into Blackboard.
+	/// Sets a value of type `T` into Blackboard.
 	/// Returns old value if any.
 	/// # Errors
 	/// - if value can not be set
@@ -289,7 +289,7 @@ impl BehaviorData {
 		Ok(self.blackboard.set::<T>(board_key, value)?)
 	}
 
-	/// Get the sequence ID of a Blackboard entry.
+	/// Returns the sequence ID of a Blackboard entry.
 	/// # Errors
 	/// - if key is not found in blackboard
 	#[inline]
@@ -297,19 +297,19 @@ impl BehaviorData {
 		self.blackboard.sequence_id(key)
 	}
 
-	/// Method to access the blackboard.
+	/// returns a reference to the blackboard.
 	#[must_use]
 	pub const fn blackboard(&self) -> &Databoard {
 		&self.blackboard
 	}
 
-	/// Method to get the desription.
+	/// Returns a reference to the desription.
 	#[must_use]
 	pub const fn description(&self) -> &BehaviorDescription {
 		&self.description
 	}
 
-	/// Method to get the desription mutable.
+	/// Returns a mutable reference to the desription.
 	#[must_use]
 	pub const fn description_mut(&mut self) -> &mut BehaviorDescription {
 		&mut self.description
@@ -321,7 +321,13 @@ impl BehaviorData {
 		self.state != BehaviorState::Idle && self.state != BehaviorState::Skipped
 	}
 
-	/// Method to get the uid.
+	/// Returns the name.
+	#[must_use]
+	pub const fn name(&self) -> &ConstString {
+		self.description.name()
+	}
+
+	/// Returns the uid.
 	#[must_use]
 	pub const fn uid(&self) -> u16 {
 		self.uid

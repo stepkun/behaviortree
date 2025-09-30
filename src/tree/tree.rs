@@ -37,10 +37,10 @@ use super::{error::Error, tree_element::BehaviorTreeElement};
 /// Recursion function to print a (sub)tree recursively, limit is a tree-depth of 127
 /// # Errors
 /// - if limit of 127 for tree depth is exceeded
-fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error> {
+fn print_recursively(level: i8, behavior: &BehaviorTreeElement) -> Result<(), Error> {
 	if level == i8::MAX {
 		return Err(Error::RecursionLimit {
-			behavior: node.data().description().name().clone(),
+			behavior: behavior.name().clone(),
 		});
 	}
 
@@ -51,8 +51,8 @@ fn print_recursively(level: i8, node: &BehaviorTreeElement) -> Result<(), Error>
 	}
 
 	#[cfg(feature = "std")]
-	std::println!("{indentation}{}", node.data().description().name());
-	for child in &**node.children() {
+	std::println!("{indentation}{}", behavior.name());
+	for child in &**behavior.children() {
 		print_recursively(next_level, child)?;
 	}
 	Ok(())

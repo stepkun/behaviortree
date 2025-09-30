@@ -18,7 +18,7 @@ use crate::{
 	},
 };
 use alloc::{boxed::Box, string::ToString};
-use databoard::Databoard;
+use databoard::{Databoard, Remappings};
 use tinyscript::{Error, SharedRuntime};
 // endregion:   --- modules
 
@@ -116,67 +116,79 @@ impl BehaviorTreeElement {
 		self.data.uid()
 	}
 
+	/// Get the id.
+	#[must_use]
+	pub const fn id(&self) -> &ConstString {
+		self.data.description().id()
+	}
+
 	/// Returns the name of the behavior.
 	#[must_use]
 	pub const fn name(&self) -> &ConstString {
 		self.data.description().name()
 	}
 
-	/// Get a reference to the [`BehaviorData`].
+	/// Returns a reference to the [`BehaviorData`].
 	#[must_use]
 	pub const fn data(&self) -> &BehaviorData {
 		&self.data
 	}
 
-	/// Get a mutable reference to the [`BehaviorData`].
+	/// Returns a mutable reference to the [`BehaviorData`].
 	#[must_use]
 	pub const fn data_mut(&mut self) -> &mut BehaviorData {
 		&mut self.data
 	}
 
-	/// Get a reference to the behavior.
+	/// Returns a reference to the behavior.
 	#[must_use]
 	pub const fn behavior(&self) -> &BehaviorPtr {
 		&self.behavior
 	}
 
-	/// Get a mutable reference to the behavior.
+	/// Returns a mutable reference to the behavior.
 	#[must_use]
 	pub const fn behavior_mut(&mut self) -> &mut BehaviorPtr {
 		&mut self.behavior
 	}
 
-	/// Get a reference to the blackboard.
+	/// Returns a reference to the blackboard.
 	#[must_use]
 	pub const fn blackboard(&self) -> &Databoard {
 		self.data().blackboard()
 	}
 
-	/// Get the children.
+	/// Returns the children.
 	#[must_use]
 	pub const fn children(&self) -> &BehaviorTreeElementList {
 		&self.children
 	}
 
-	/// Get the children mutable.
+	/// Returns the children mutable.
 	#[must_use]
 	pub const fn children_mut(&mut self) -> &mut BehaviorTreeElementList {
 		&mut self.children
 	}
 
-	/// Get the pre conditions.
+	/// Returns the pre conditions.
 	#[must_use]
 	pub const fn pre_conditions(&self) -> &PreConditions {
 		&self.conditions.pre
 	}
 
-	/// Get the post conditions.
+	/// Returns the post conditions.
 	#[must_use]
 	pub const fn post_conditions(&self) -> &PostConditions {
 		&self.conditions.post
 	}
 
-	/// Halt the element and all its children considering postconditions.
+	/// Returns the remappings.
+	#[must_use]
+	pub const fn remappings(&self) -> &Remappings {
+		self.data.remappings()
+	}
+
+	/// Halts the element and all its children considering postconditions.
 	/// # Errors
 	pub fn halt(&mut self, runtime: &SharedRuntime) -> Result<(), BehaviorError> {
 		if self.data.state() != BehaviorState::Idle {
@@ -191,7 +203,7 @@ impl BehaviorTreeElement {
 		Ok(())
 	}
 
-	/// Tick the element considering pre- and postconditions.
+	/// Ticks the element considering pre- and postconditions.
 	/// # Errors
 	pub async fn tick(&mut self, runtime: &SharedRuntime) -> BehaviorResult {
 		// A pre-condition may return the next state which will override the current tick().
@@ -220,7 +232,7 @@ impl BehaviorTreeElement {
 		Ok(state)
 	}
 
-	/// Halt child at `index`.
+	/// Halts child at `index`.
 	/// # Errors
 	/// - if index is out of childrens bounds.
 	#[inline]
@@ -366,6 +378,24 @@ impl BehaviorTreeElement {
 				let _ = runtime.lock().run(script, &mut self.data);
 			}
 		}
+	}
+
+	/// Returns the full 'path' of the element.
+	#[must_use]
+	pub const fn full_path(&self) -> &ConstString {
+		self.data.description().path()
+	}
+
+	/// Returns the Groot2 style 'path' of the element.
+	#[must_use]
+	pub const fn groot2_path(&self) -> &ConstString {
+		self.data.description().groot2_path()
+	}
+
+	/// Returns the current state of the element.
+	#[must_use]
+	pub const fn state(&self) -> BehaviorState {
+		self.data.state()
 	}
 }
 // endregion:	--- BehaviorTreeElement

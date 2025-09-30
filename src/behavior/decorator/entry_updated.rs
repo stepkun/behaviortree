@@ -84,7 +84,7 @@ impl Behavior for EntryUpdated {
 		} else {
 			Err(BehaviorError::PortNotDeclared {
 				port: "entry".into(),
-				behavior: behavior.description().name().clone(),
+				behavior: behavior.name().clone(),
 			})
 		}
 	}

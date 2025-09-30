@@ -53,7 +53,7 @@ impl Behavior for WasEntryUpdated {
 		} else {
 			Err(BehaviorError::PortNotDeclared {
 				port: "entry".into(),
-				behavior: behavior.description().name().clone(),
+				behavior: behavior.name().clone(),
 			})
 		}
 	}

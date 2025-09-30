@@ -35,7 +35,7 @@ impl Behavior for ActionA {
 		assert_eq!(self.arg1, 42);
 
 		assert_eq!(self.arg2, String::from("hello world"));
-		println!("{}: {}, {}", behavior.description().name(), &self.arg1, &self.arg2);
+		println!("{}: {}, {}", behavior.name(), &self.arg1, &self.arg2);
 		Ok(BehaviorState::Success)
 	}
 }
@@ -65,7 +65,7 @@ impl Behavior for ActionB {
 	) -> BehaviorResult {
 		assert_eq!(self.arg1, 69);
 		assert_eq!(self.arg2, String::from("interesting value"));
-		println!("{}: {}, {}", behavior.description().name(), &self.arg1, &self.arg2);
+		println!("{}: {}, {}", behavior.name(), &self.arg1, &self.arg2);
 		Ok(BehaviorState::Success)
 	}
 }

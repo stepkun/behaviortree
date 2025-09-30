@@ -53,7 +53,7 @@ impl Behavior for PrintNumber {
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		let value: i64 = behavior.get("val")?;
-		println!("PrintNumber [{}] has val: {value}", behavior.description().name());
+		println!("PrintNumber [{}] has val: {value}", behavior.name());
 
 		Ok(BehaviorState::Success)
 	}

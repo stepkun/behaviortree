@@ -69,7 +69,7 @@ impl Behavior for Sequence {
 		let children_count = children.len();
 		while self.child_idx < children_count {
 			let child = &mut children[self.child_idx];
-			let prev_state = child.data().state();
+			let prev_state = child.state();
 			let child_state = child.tick(runtime).await?;
 
 			match child_state {

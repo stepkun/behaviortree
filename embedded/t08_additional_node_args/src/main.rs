@@ -36,12 +36,7 @@ impl Behavior for ActionA {
 		assert_eq!(self.arg1, 42);
 
 		assert_eq!(self.arg2, String::from("hello world"));
-		info!(
-			"{}: {}, {}",
-			behavior.description().name().as_ref(),
-			self.arg1,
-			self.arg2.as_str()
-		);
+		info!("{}: {}, {}", behavior.name().as_ref(), self.arg1, self.arg2.as_str());
 		Ok(BehaviorState::Success)
 	}
 }
@@ -71,12 +66,7 @@ impl Behavior for ActionB {
 	) -> BehaviorResult {
 		assert_eq!(self.arg1, 69);
 		assert_eq!(self.arg2, String::from("interesting value"));
-		info!(
-			"{}: {}, {}",
-			behavior.description().name().as_ref(),
-			self.arg1,
-			self.arg2.as_str()
-		);
+		info!("{}: {}, {}", behavior.name().as_ref(), self.arg1, self.arg2.as_str());
 		Ok(BehaviorState::Success)
 	}
 }
@@ -99,9 +89,9 @@ async fn example() -> BehaviorTreeResult {
 	drop(factory);
 
 	// initialize ActionB with the help of an iterator
-	for node in tree.iter_mut() {
-		if node.data().description().name().as_ref() == ("Action_B") {
-			if let Some(action) = node
+	for behavior in tree.iter_mut() {
+		if behavior.name().as_ref() == ("Action_B") {
+			if let Some(action) = behavior
 				.behavior_mut()
 				.as_any_mut()
 				.downcast_mut::<ActionB>()
