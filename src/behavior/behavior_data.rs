@@ -376,8 +376,16 @@ impl BehaviorData {
 		}
 	}
 
-	pub(crate) const fn remappings(&self) -> &Remappings {
+	/// Returns a reference to the remappings
+	#[must_use]
+	pub const fn remappings(&self) -> &Remappings {
 		&self.remappings
+	}
+
+	/// Returns a reference to the full path
+	#[must_use]
+	pub const fn full_path(&self) -> &ConstString {
+		self.description.groot2_path()
 	}
 }
 // endregion:	--- BehaviorData

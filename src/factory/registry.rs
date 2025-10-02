@@ -16,8 +16,10 @@ use libloading::Library;
 use tinyscript::Runtime;
 
 use crate::{
-	ConstString,
-	behavior::{BehaviorCreationFn, BehaviorPtr, behavior_description::BehaviorDescription},
+	BehaviorExecution, ConstString,
+	behavior::{
+		BehaviorCreationFn, BehaviorPtr, TestBehavior, TestBehaviorConfig, behavior_description::BehaviorDescription,
+	},
 	port::PortDirection,
 };
 
@@ -27,7 +29,19 @@ use super::error::Error;
 use super::BehaviorTreeFactory;
 // endregion:   --- modules
 
-// region:     --- BehaviorRegistry
+// region:		--- SubstitutionRule
+/// Variants of substitution rules
+#[derive(Clone, Debug)]
+pub enum SubstitutionRule {
+	/// Rule is a String type, replacing a behavior with some other behavior
+	/// using the behavior ID for finding the other behavior.
+	StringRule(ConstString),
+	/// Rule creates a [`TestBehavior`] with the given configuration.
+	ConfigRule(TestBehaviorConfig),
+}
+// endregion:	--- SubstitutionRule
+
+// region:     --- TreeNodesModelEntry
 /// A `TreeNodesModel` entry.
 #[derive(Debug)]
 pub(crate) struct TreeNodesModelEntry {
@@ -35,7 +49,9 @@ pub(crate) struct TreeNodesModelEntry {
 	pub(crate) key: ConstString,
 	pub(crate) remapping: ConstString,
 }
+// endregion:	--- TreeNodesModelEntry
 
+// region:     --- BehaviorRegistry
 /// A registry for behaviors used by the [`BehaviorTreeFactory`](crate::factory::BehaviorTreeFactory) for creation of behavior trees.
 #[derive(Default)]
 pub struct BehaviorRegistry {
@@ -46,6 +62,8 @@ pub struct BehaviorRegistry {
 	tree_definitions: BTreeMap<ConstString, (ConstString, Range<usize>)>,
 	/// `TreNodesModel` remappings. The key is combined from behaviors type and ID.
 	tree_nodes_models: BTreeMap<ConstString, TreeNodesModelEntry>,
+	/// Substitution rules
+	substitution_rules: BTreeMap<ConstString, SubstitutionRule>,
 	/// Main tree ID
 	main_tree_id: Option<ConstString>,
 	/// Scripting runtime
@@ -90,6 +108,23 @@ impl BehaviorRegistry {
 	#[cfg(feature = "std")]
 	pub fn add_library(&mut self, library: Library) {
 		self.libraries.push(Arc::new(library));
+	}
+
+	/// Registers a substitution rule for a pattern.
+	/// # Errors
+	/// - if
+	pub fn add_substitution_rule(&mut self, pattern: &str, rule: SubstitutionRule) -> Result<(), Error> {
+		self.substitution_rules
+			.insert(pattern.into(), rule);
+		Ok(())
+	}
+
+	/// Deletes all registered a substitution rules.
+	/// # Errors
+	/// - if
+	#[inline]
+	pub fn clear_substitution_rules(&mut self) {
+		self.substitution_rules.clear();
 	}
 
 	/// Adds a `TreeNodesModelEntry` to the registy.
@@ -151,10 +186,74 @@ impl BehaviorRegistry {
 	/// Fetch a behavior creation function from the registry.
 	/// # Errors
 	/// - if the behavior is not found in the registry
-	pub(crate) fn fetch(&self, id: &str) -> Result<(BehaviorDescription, Arc<BehaviorCreationFn>), Error> {
-		self.behaviors
-			.get(id)
-			.map_or_else(|| Err(Error::NotRegistered { name: id.into() }), |value| Ok(value.clone()))
+	#[allow(clippy::option_if_let_else)]
+	pub(crate) fn fetch_behavior(
+		&self,
+		id: &str,
+		path: &str,
+	) -> Result<(BehaviorDescription, Box<dyn BehaviorExecution>), Error> {
+		// look for a substitution rule
+		// the first matching rule will be used
+		let mut result: Option<SubstitutionRule> = None;
+		for (pattern, rule) in &self.substitution_rules {
+			// #[cfg(feature = "std")]
+			// std::dbg!(pattern, path);
+			let sub_patterns = pattern.split('*');
+			// find each sub pattern in the right sequence
+			let mut pos = 0_usize;
+			let mut found = true;
+			for p in sub_patterns {
+				// #[cfg(feature = "std")]
+				// std::dbg!(p);
+				if let Some(pattern_pos) = path[pos..].find(p) {
+					pos = pattern_pos;
+				} else {
+					found = false;
+					break;
+				}
+			}
+			if found {
+				result = Some(rule.clone());
+				break;
+			}
+		}
+
+		if let Some(substitution) = result {
+			match substitution {
+				SubstitutionRule::StringRule(id) => {
+					// fetch from registry
+					self.behaviors.get(&id).map_or_else(
+						|| Err(Error::NotRegistered { name: id }),
+						|(desc, creation_fn)| {
+							let bhvr = creation_fn();
+							Ok((desc.clone(), bhvr))
+						},
+					)
+				}
+				SubstitutionRule::ConfigRule(test_behavior_config) => {
+					// find original entry for description info
+					self.behaviors.get(id).map_or_else(
+						|| Err(Error::NotRegistered { name: id.into() }),
+						|(desc, creation_fn)| {
+							let old_behavior = creation_fn();
+							let port_list = old_behavior.static_provided_ports();
+							// create a TestBehavior instead of original behavior
+							let bhvr_fn = TestBehavior::creation_fn(test_behavior_config.clone(), port_list);
+							Ok((desc.clone(), bhvr_fn()))
+						},
+					)
+				}
+			}
+		} else {
+			// fetch from registry
+			self.behaviors.get(id).map_or_else(
+				|| Err(Error::NotRegistered { name: id.into() }),
+				|(desc, creation_fn)| {
+					let bhvr = creation_fn();
+					Ok((desc.clone(), bhvr))
+				},
+			)
+		}
 	}
 
 	#[must_use]
@@ -163,14 +262,12 @@ impl BehaviorRegistry {
 	}
 
 	/// Prints out the list of registered behaviors
+	#[cfg(feature = "std")]
 	pub fn list_behaviors(&self) {
-		#[cfg(feature = "std")]
 		let iter = self.behaviors.iter();
-		#[cfg(feature = "std")]
 		for (key, _) in iter {
 			std::println!("{key}");
 		}
-		#[cfg(feature = "std")]
 		std::println!();
 	}
 

@@ -2,6 +2,7 @@
 
 //! [`BehaviorTreeObserver`] implementation.
 
+#[cfg(feature = "std")]
 extern crate std;
 
 // region:      --- modules
@@ -13,7 +14,7 @@ use crate::{
 use alloc::{sync::Arc, vec::Vec};
 use spin::Mutex;
 #[cfg(feature = "std")]
-use tokio::time::Instant;
+use std::time::Instant;
 // endregion:   --- modules
 
 // region:      --- Statistics

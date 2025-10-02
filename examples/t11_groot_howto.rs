@@ -104,6 +104,11 @@ async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
 	let _publisher = Groot2Connector::new(&mut tree, 5555);
 
 	#[cfg(test)]
+	for _i in 0..3 {
+		tree.tick_while_running().await?;
+		tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+	}
+	#[cfg(test)]
 	let result = tree.tick_while_running().await?;
 
 	#[cfg(not(test))]

@@ -6,7 +6,7 @@ Examples implementing the BehaviorTree.CPP [tutorials](https://www.behaviortree.
 can be found [here](https://github.com/stepkun/behaviortree/tree/main/examples).
 For __embedded__ devices similar examples are available [here](https://github.com/stepkun/behaviortree/tree/main/embedded)
 
-⚠️ WARNING ⚠️
+⚠️ INFO ⚠️
 This crate is still in development.
 
 ## Usage
@@ -104,7 +104,7 @@ impl Behavior for SaySomething {
 
  ✅: Supported<br>
  ☑️: Supported with some caveats<br>
- 🚦: Needs testing but should work<br>
+ 🚦: Needs testing but basically works<br>
  🔴: Not yet supported<br>
  ??: Unclear if it can be supported<br>
  ❌: Will not be supported
@@ -136,7 +136,7 @@ impl Behavior for SaySomething {
 | Scripting               | ✅      | ✅       |                        |
 |                         |         |          |                        |
 | Loggers/Observers       | ✅      | ??       |                        |
-| Substitution rules      | 🔴      | ??       |                        |
+| Substitution rules      | 🚦      | 🚦       | no delay in embedded   |
 |                         |         |          |                        |
 | Using Groot2 for:       |         |          |                        |
 | - XML Create/Edit       | ☑️      | ☑️       | different type systems |

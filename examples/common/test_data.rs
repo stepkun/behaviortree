@@ -63,7 +63,7 @@ impl GripperInterface {
 /// Action `SaySomething`
 /// Example of custom `Action` with an input port.
 #[derive(Action, Debug, Default)]
-pub struct SaySomething {}
+pub struct SaySomething;
 
 #[async_trait::async_trait]
 impl Behavior for SaySomething {

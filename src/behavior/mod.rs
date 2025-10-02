@@ -12,12 +12,15 @@ pub mod pre_post_conditions;
 mod shared_queue;
 mod simple_behavior;
 mod sub_tree;
+pub mod test_behavior;
 
 // flatten
 pub use error::Error as BehaviorError;
+use nanoserde::DeJson;
 pub use shared_queue::SharedQueue;
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 pub use sub_tree::SubTree;
+pub use test_behavior::{TestBehavior, TestBehaviorConfig};
 
 // region:      --- modules
 use crate::{
@@ -225,7 +228,7 @@ impl BehaviorKind {
 /// Implementation is as in BehaviorTree.CPP to be able to
 /// cooperate with Groot2.
 /// IMPORTANT: Behaviors should NEVER return IDLE from a tick.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, DeJson, PartialEq, Eq)]
 #[repr(u8)]
 pub enum BehaviorState {
 	/// Behavior is not executing.

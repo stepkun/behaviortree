@@ -220,7 +220,7 @@ impl BehaviorTreeElement {
 				.await?
 		};
 
-		self.check_post_conditions(state, runtime);
+		self.check_post_conditions(state, runtime)?;
 
 		// Preserve the last state if skipped, but communicate `Skipped` to parent
 		if state != BehaviorState::Skipped {
@@ -357,27 +357,27 @@ impl BehaviorTreeElement {
 		Ok(None)
 	}
 
-	fn check_post_conditions(&mut self, state: BehaviorState, runtime: &SharedRuntime) {
+	fn check_post_conditions(&mut self, state: BehaviorState, runtime: &SharedRuntime) -> Result<(), Error> {
 		if self.conditions.post.is_some() {
 			match state {
 				BehaviorState::Failure => {
 					if let Some(script) = self.conditions.post.get(ON_FAILURE) {
-						let _: Result<tinyscript::ScriptingValue, tinyscript::Error> =
-							runtime.lock().run(script, &mut self.data);
+						let _ = runtime.lock().run(script, &mut self.data)?;
 					}
 				}
 				BehaviorState::Success => {
 					if let Some(script) = self.conditions.post.get(ON_SUCCESS) {
-						let _ = runtime.lock().run(script, &mut self.data);
+						let _ = runtime.lock().run(script, &mut self.data)?;
 					}
 				}
 				// rest is ignored
 				_ => {}
 			}
 			if let Some(script) = self.conditions.post.get(POST) {
-				let _ = runtime.lock().run(script, &mut self.data);
+				let _ = runtime.lock().run(script, &mut self.data)?;
 			}
 		}
+		Ok(())
 	}
 
 	/// Returns the full 'path' of the element.

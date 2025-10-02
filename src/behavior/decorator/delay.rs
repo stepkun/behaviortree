@@ -1,6 +1,9 @@
 // Copyright © 2025 Stephan Kunz
 //! [`Delay`] [`Decorator`] implementation.
 
+#[cfg(feature = "std")]
+extern crate std;
+
 // region:      --- modules
 use crate::{
 	self as behaviortree, Decorator, EMPTY_STR,
@@ -16,7 +19,7 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use core::time::Duration;
 #[cfg(feature = "std")]
-use tokio::task::JoinHandle;
+use std::time::Instant;
 //endregion:    --- modules
 
 // region:		--- globals
@@ -30,7 +33,7 @@ const DELAY_MSEC: &str = "delay_msec";
 #[derive(Decorator, Debug, Default)]
 pub struct Delay {
 	#[cfg(feature = "std")]
-	handle: Option<JoinHandle<()>>,
+	start_time: Option<Instant>,
 }
 
 #[async_trait::async_trait]
@@ -39,7 +42,7 @@ impl Behavior for Delay {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		#[cfg(feature = "std")]
 		{
-			self.handle = None;
+			self.start_time = None;
 		}
 		Ok(())
 	}
@@ -50,16 +53,9 @@ impl Behavior for Delay {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
-		let millis: u64 = behavior.get(DELAY_MSEC)?;
-		#[cfg(not(feature = "std"))]
-		{
-			let _ = millis;
-		}
 		#[cfg(feature = "std")]
 		{
-			self.handle = Some(tokio::task::spawn(async move {
-				tokio::time::sleep(Duration::from_millis(millis)).await;
-			}));
+			self.start_time = Some(Instant::now());
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
@@ -67,19 +63,22 @@ impl Behavior for Delay {
 
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		let millis: u64 = behavior.get(DELAY_MSEC)?;
+
 		#[cfg(not(feature = "std"))]
 		{
 			let _ = children;
 			let _ = runtime;
-			Ok(BehaviorState::Failure)
+			let _ = millis;
+			Ok(BehaviorState::Success)
 		}
 		#[cfg(feature = "std")]
-		if let Some(handle) = self.handle.as_ref() {
-			if handle.is_finished() {
+		if let Some(start) = &self.start_time {
+			if Instant::now().duration_since(*start) > Duration::from_millis(millis) {
 				let state = children[0].tick(runtime).await?;
 				if state.is_completed() {
 					children.halt(runtime)?;
@@ -91,7 +90,9 @@ impl Behavior for Delay {
 				Ok(BehaviorState::Running)
 			}
 		} else {
-			Ok(BehaviorState::Failure)
+			Err(BehaviorError::Composition {
+				txt: "Delay has no start_time set".into(),
+			})
 		}
 	}
 

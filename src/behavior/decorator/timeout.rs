@@ -1,6 +1,9 @@
 // Copyright © 2025 Stephan Kunz
 //! [`Timeout`] [`Decorator`] implementation.
 
+#[cfg(feature = "std")]
+extern crate std;
+
 // region:      --- modules
 use crate::{
 	self as behaviortree, Decorator, EMPTY_STR,
@@ -16,7 +19,7 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use core::time::Duration;
 #[cfg(feature = "std")]
-use tokio::task::JoinHandle;
+use std::time::Instant;
 //endregion:    --- modules
 
 // region:		--- globals
@@ -29,7 +32,7 @@ const MSEC: &str = "msec";
 #[derive(Decorator, Debug, Default)]
 pub struct Timeout {
 	#[cfg(feature = "std")]
-	handle: Option<JoinHandle<()>>,
+	start_time: Option<Instant>,
 }
 
 #[async_trait::async_trait]
@@ -38,7 +41,7 @@ impl Behavior for Timeout {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		#[cfg(feature = "std")]
 		{
-			self.handle = None;
+			self.start_time = None;
 		}
 		Ok(())
 	}
@@ -49,16 +52,9 @@ impl Behavior for Timeout {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
-		let millis: u64 = behavior.get(MSEC)?;
-		#[cfg(not(feature = "std"))]
-		{
-			let _ = millis;
-		}
 		#[cfg(feature = "std")]
 		{
-			self.handle = Some(tokio::task::spawn(async move {
-				tokio::time::sleep(Duration::from_millis(millis)).await;
-			}));
+			self.start_time = Some(Instant::now());
 		}
 
 		behavior.set_state(BehaviorState::Running);
@@ -67,31 +63,36 @@ impl Behavior for Timeout {
 
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		children: &mut BehaviorTreeElementList,
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		let millis: u64 = behavior.get(MSEC)?;
 		#[cfg(not(feature = "std"))]
 		{
+			let _ = millis;
 			let _ = children;
 			let _ = runtime;
 			Ok(BehaviorState::Failure)
 		}
 		#[cfg(feature = "std")]
-		if let Some(handle) = self.handle.as_ref() {
+		if let Some(start) = &self.start_time {
 			let state = children[0].tick(runtime).await?;
 			if state.is_completed() {
+				self.start_time = None;
 				children.halt(runtime)?;
 				Ok(state)
-			} else if handle.is_finished() {
-				self.handle = None;
+			} else if Instant::now().duration_since(*start) > Duration::from_millis(millis) {
 				children[0].halt_children(runtime)?;
+				self.start_time = None;
 				Ok(BehaviorState::Failure)
 			} else {
 				Ok(BehaviorState::Running)
 			}
 		} else {
-			Ok(BehaviorState::Failure)
+			Err(BehaviorError::Composition {
+				txt: "Timeout has no start_time set".into(),
+			})
 		}
 	}
 

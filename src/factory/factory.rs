@@ -9,6 +9,7 @@
 extern crate std;
 
 // region:      --- modules
+use super::{error::Error, registry::BehaviorRegistry};
 use crate::{
 	ConstString,
 	behavior::{
@@ -26,6 +27,7 @@ use crate::{
 			RetryUntilSuccessful, RunOnce, Timeout,
 		},
 	},
+	factory::registry::SubstitutionRule,
 	port::PortList,
 	tree::BehaviorTree,
 	xml::parser::XmlParser,
@@ -36,8 +38,7 @@ use alloc::{
 	vec::Vec,
 };
 use databoard::Databoard;
-
-use super::{error::Error, registry::BehaviorRegistry};
+use nanoserde::DeJson;
 // endregion:   --- modules
 
 // region:      --- BehaviorTreeFactory
@@ -100,7 +101,8 @@ impl BehaviorTreeFactory {
 	/// Creates a factory with core set of behaviors which adds to the default behaviors:
 	/// - Actions: [`Script`]
 	/// - Conditions: [`ScriptCondition`], [`WasEntryUpdated`]
-	/// - Controls: `AsyncFallback`, `AsyncSequence`, [`ParallelAll`],
+	/// - Controls: [`AsyncFallback`](crate::behavior::control::Fallback),
+	///   [`AsyncSequence`](crate::behavior::control::Sequence), [`ParallelAll`],
 	///   [`ReactiveFallback`], [`ReactiveSequence`], [`SequenceWithMemory`]
 	/// - Decorators: [`Inverter`], [`Precondition`], [`RetryUntilSuccessful`],
 	///
@@ -116,7 +118,8 @@ impl BehaviorTreeFactory {
 	/// - Actions: [`Sleep`]
 	/// - Controls: [`IfThenElse`], [`WhileDoElse`]
 	/// - Decorators: [`Delay`], [`KeepRunningUntilFailure`], [`Repeat`], [`RunOnce`], [`Timeout`],
-	///   `SkipUnlessUpdated`, `WaitValueUpdated`
+	///   [`SkipUnlessUpdated`](crate::behavior::decorator::EntryUpdated),
+	///   [`WaitValueUpdated`](crate::behavior::decorator::EntryUpdated)
 	///
 	/// # Errors
 	/// - if behaviors cannot be registered
@@ -128,8 +131,10 @@ impl BehaviorTreeFactory {
 
 	/// Creates a factory with groot2 builtin behaviors which adds to the extended behaviors:
 	/// - Actions: [`SetBlackboard`], [`UnsetBlackboard`]
-	/// - Controls: `Switch2`, `Switch3`, `Switch4`, `Switch5`, `Switch6`,
-	/// - Decorators: `LoopDouble`, `LoopString`
+	/// - Controls: [`Switch2`](crate::behavior::control::Switch), [`Switch3`](crate::behavior::control::Switch),
+	///   [`Switch4`](crate::behavior::control::Switch), [`Switch5`](crate::behavior::control::Switch),
+	///   [`Switch6`](crate::behavior::control::Switch),
+	/// - Decorators: [`LoopDouble`](crate::behavior::decorator::Loop), [`LoopString`](crate::behavior::decorator::Loop)
 	///
 	/// Note: It does not include the test behaviors `AlwaysFailure`, `AlwaysSuccess`, `ForceFailure` and `ForceSuccess`!
 	///       These have to be registered separately with `factory.register_test_behaviors()`!
@@ -157,7 +162,8 @@ impl BehaviorTreeFactory {
 	/// Registers core behaviors:
 	/// - Actions: [`Script`]
 	/// - Conditions: [`ScriptCondition`], [`WasEntryUpdated`]
-	/// - Controls: `AsyncFallback`, `AsyncSequence`, [`ParallelAll`],
+	/// - Controls: [`AsyncFallback`](crate::behavior::control::Fallback),
+	///   [`AsyncSequence`](crate::behavior::control::Sequence), [`ParallelAll`],
 	///   [`ReactiveFallback`], [`ReactiveSequence`], [`SequenceWithMemory`]
 	/// - Decorators: [`Inverter`], [`Precondition`], [`RetryUntilSuccessful`],
 	///
@@ -211,7 +217,8 @@ impl BehaviorTreeFactory {
 	/// - Actions: [`Sleep`]
 	/// - Controls: [`IfThenElse`], [`WhileDoElse`]
 	/// - Decorators: [`Delay`], [`KeepRunningUntilFailure`], [`Repeat`], [`RunOnce`], [`Timeout`],
-	///   `SkipUnlessUpdated`, `WaitValueUpdated`
+	///   [`SkipUnlessUpdated`](crate::behavior::decorator::EntryUpdated),
+	///   [`WaitValueUpdated`](crate::behavior::decorator::EntryUpdated)
 	///
 	/// # Errors
 	/// - if any registration fails
@@ -261,8 +268,10 @@ impl BehaviorTreeFactory {
 
 	/// Registers additional groot2 builtin behaviors which includes:
 	/// - Actions: [`SetBlackboard`], [`UnsetBlackboard`]
-	/// - Controls: `Switch2`, `Switch3`, `Switch4`, `Switch5`, `Switch6`,
-	/// - Decorators: `LoopDouble`, `LoopString`
+	/// - Controls: [`Switch2`](crate::behavior::control::Switch), [`Switch3`](crate::behavior::control::Switch),
+	///   [`Switch4`](crate::behavior::control::Switch), [`Switch5`](crate::behavior::control::Switch),
+	///   [`Switch6`](crate::behavior::control::Switch),
+	/// - Decorators: [`LoopDouble`](crate::behavior::decorator::Loop), [`LoopString`](crate::behavior::decorator::Loop)
 	///
 	/// Note: It does not include the test behaviors `AlwaysFailure`, `AlwaysSuccess`, `ForceFailure` and `ForceSuccess`!
 	///       These have to be registered separately with `factory.register_test_behaviors()`!
@@ -468,6 +477,7 @@ impl BehaviorTreeFactory {
 	}
 
 	/// Prints out the list of registered behaviors.
+	#[cfg(feature = "std")]
 	pub fn list_behaviors(&self) {
 		self.registry.list_behaviors();
 	}
@@ -635,7 +645,7 @@ impl BehaviorTreeFactory {
 			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 
-	/// Register a function as [`BehaviorKind::Action`] or [`BehaviorKind::Condition`] which is using ports.
+	/// Registers a function as [`BehaviorKind::Action`] or [`BehaviorKind::Condition`] which is using ports.
 	/// # Errors
 	/// - if a behavior with that `name` is already registered
 	pub fn register_simple_function_with_ports(
@@ -649,6 +659,34 @@ impl BehaviorTreeFactory {
 		let bhvr_creation_fn = SimpleBehavior::new_create_with_ports(tick_fn, port_list);
 		self.registry
 			.add_behavior(bhvr_desc, bhvr_creation_fn)
+	}
+
+	/// Registers a substitution rule for a pattern.
+	/// # Errors
+	/// - if
+	#[inline]
+	pub fn add_substitution_rule(&mut self, pattern: &str, rule: SubstitutionRule) -> Result<(), Error> {
+		self.registry.add_substitution_rule(pattern, rule)
+	}
+
+	/// Registers substitution rules using a configuration.
+	/// # Errors
+	/// - if
+	pub fn load_substitution_rules_from_json(&mut self, json: &str) -> Result<(), Error> {
+		let json: super::json_config::JsonConfig = DeJson::deserialize_json(json)?;
+		// std::dbg!(&json);
+		for (pattern, rule) in json.substitution_rules {
+			self.add_substitution_rule(&pattern, rule)?;
+		}
+		Ok(())
+	}
+
+	/// Deletes all registered a substitution rules.
+	/// # Errors
+	/// - if
+	#[inline]
+	pub fn clear_substitution_rules(&mut self) {
+		self.registry.clear_substitution_rules();
 	}
 }
 // endregion:   --- BehaviorTreeFactory

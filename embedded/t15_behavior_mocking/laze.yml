@@ -1,0 +1,4 @@
+apps:
+  - name: t15_behavior_mocking
+    selects:
+      - alloc

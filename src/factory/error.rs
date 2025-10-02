@@ -35,6 +35,11 @@ pub enum Error {
 		/// Original error
 		source: libloading::Error,
 	},
+	/// Pass through errors from nanoserde
+	Nanoserde {
+		/// The source error
+		source: nanoserde::DeJsonErr,
+	},
 	/// Item is not registered
 	NotRegistered {
 		/// Name of the item
@@ -97,6 +102,7 @@ impl core::fmt::Debug for Error {
 			Self::InvalidPath { path } => write!(f, "InvalidPath(path: {path})"),
 			#[cfg(feature = "std")]
 			Self::LibLoading { source } => write!(f, "LibLoading({source})"),
+			Self::Nanoserde { source } => write!(f, "Nanoserde({source})"),
 			Self::NotRegistered { name } => write!(f, "NotRegistered(name: {name})"),
 			#[cfg(feature = "std")]
 			Self::RegisterLib { path, code } => write!(f, "RegisterLib(path: {path}, code: {code})"),
@@ -117,6 +123,7 @@ impl core::fmt::Display for Error {
 			Self::InvalidPath { path } => write!(f, "the file path {path} is invalid"),
 			#[cfg(feature = "std")]
 			Self::LibLoading { source } => write!(f, "accessing library failed with: {source}"),
+			Self::Nanoserde { source } => write!(f, "a deserialization error occured: {source}"),
 			Self::NotRegistered { name } => write!(f, "the item {name} is not registered"),
 			#[cfg(feature = "std")]
 			Self::RegisterLib { path, code } => write!(f, "registration of the library {path} failed with: {code}"),
@@ -132,6 +139,12 @@ impl core::fmt::Display for Error {
 impl From<libloading::Error> for Error {
 	fn from(source: libloading::Error) -> Self {
 		Self::LibLoading { source }
+	}
+}
+
+impl From<nanoserde::DeJsonErr> for Error {
+	fn from(source: nanoserde::DeJsonErr) -> Self {
+		Self::Nanoserde { source }
 	}
 }
 

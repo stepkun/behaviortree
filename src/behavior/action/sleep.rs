@@ -1,6 +1,9 @@
 // Copyright © 2025 Stephan Kunz
 //! [`Sleep`] [`Action`] implementation.
 
+#[cfg(feature = "std")]
+extern crate std;
+
 // region:      --- modules
 use crate::{
 	self as behaviortree, Action, EMPTY_STR,
@@ -16,7 +19,7 @@ use tinyscript::SharedRuntime;
 #[cfg(feature = "std")]
 use core::time::Duration;
 #[cfg(feature = "std")]
-use tokio::task::JoinHandle;
+use std::time::Instant;
 //endregion:    --- modules
 
 // region:		--- globals
@@ -30,7 +33,7 @@ const MSEC: &str = "msec";
 #[derive(Action, Debug, Default)]
 pub struct Sleep {
 	#[cfg(feature = "std")]
-	handle: Option<JoinHandle<()>>,
+	start_time: Option<Instant>,
 }
 
 #[async_trait::async_trait]
@@ -39,7 +42,7 @@ impl Behavior for Sleep {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		#[cfg(feature = "std")]
 		{
-			self.handle = None;
+			self.start_time = None;
 		}
 		Ok(())
 	}
@@ -50,16 +53,9 @@ impl Behavior for Sleep {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> Result<(), BehaviorError> {
-		let millis: u64 = behavior.get(MSEC)?;
-		#[cfg(not(feature = "std"))]
-		{
-			let _ = millis;
-		}
 		#[cfg(feature = "std")]
 		{
-			self.handle = Some(tokio::task::spawn(async move {
-				tokio::time::sleep(Duration::from_millis(millis)).await;
-			}));
+			self.start_time = Some(Instant::now());
 		}
 		behavior.set_state(BehaviorState::Running);
 		Ok(())
@@ -67,24 +63,30 @@ impl Behavior for Sleep {
 
 	async fn tick(
 		&mut self,
-		_behavior: &mut BehaviorData,
+		behavior: &mut BehaviorData,
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		let millis: u64 = behavior.get(MSEC)?;
 		#[cfg(feature = "std")]
-		if let Some(handle) = self.handle.as_ref() {
-			if handle.is_finished() {
-				self.handle = None;
+		if let Some(start) = &self.start_time {
+			if Instant::now().duration_since(*start) > Duration::from_millis(millis) {
+				self.start_time = None;
 				Ok(BehaviorState::Success)
 			} else {
 				Ok(BehaviorState::Running)
 			}
 		} else {
-			Ok(BehaviorState::Failure)
+			Err(BehaviorError::Composition {
+				txt: "Sleep has no start_time set".into(),
+			})
 		}
 
 		#[cfg(not(feature = "std"))]
-		Ok(BehaviorState::Failure)
+		{
+			let _ = millis;
+			Ok(BehaviorState::Success)
+		}
 	}
 
 	fn provided_ports() -> PortList {

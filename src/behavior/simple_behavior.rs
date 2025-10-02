@@ -1,23 +1,18 @@
 // Copyright © 2025 Stephan Kunz
 //! [`SimpleBehavior`]  implementation for registering functions as behavior.
 
-// region:      --- modules
 use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult};
 use crate::{BehaviorKind, behavior::BehaviorData, port::PortList, tree::BehaviorTreeElementList};
 use alloc::{boxed::Box, sync::Arc};
 use core::any::Any;
 use tinyscript::SharedRuntime;
-// endregion:   --- modules
 
-// region:      --- types
 /// Signature of a simple registered behavior function called by `SimpleBehavior`'s tick
 pub type SimpleBhvrTickFn = Arc<dyn Fn() -> BehaviorResult + Send + Sync>;
 
 /// Signature of a registered behavior function called by `SimpleBehavior`'s tick
 pub type ComplexBhvrTickFn = Arc<dyn Fn(&mut BehaviorData) -> BehaviorResult + Send + Sync>;
-// endregion:   --- types
 
-// region:      --- BehaviorFunction
 /// A simple behavior
 #[derive(Default)]
 pub struct SimpleBehavior {
@@ -98,4 +93,3 @@ impl SimpleBehavior {
 		})
 	}
 }
-// endregion:   --- BehaviorFunction

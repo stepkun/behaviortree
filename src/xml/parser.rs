@@ -72,11 +72,11 @@ fn create_data_collection_from_xml(
 
 	// look for the behavior in the `BehaviorRegistry`
 	let res = if is_subtree {
-		registry.fetch(SUBTREE)
+		registry.fetch_behavior(SUBTREE, &path)
 	} else {
-		registry.fetch(behavior_id)
+		registry.fetch_behavior(behavior_id, &path)
 	};
-	let Ok((mut bhvr_desc, bhvr_creation_fn)) = res else {
+	let Ok((mut bhvr_desc, bhvr)) = res else {
 		return Err(Error::NotRegistered {
 			behavior: behavior_id.into(),
 		});
@@ -84,7 +84,6 @@ fn create_data_collection_from_xml(
 	bhvr_desc.set_name(&behavior_name);
 	bhvr_desc.set_path(&path);
 
-	let bhvr = bhvr_creation_fn();
 	let (autoremap, mut remappings, conditions) = handle_attributes(registry, behavior_id, behavior_kind, &bhvr, element)?;
 
 	let blackboard = blackboard.map_or_else(Databoard::new, |blackboard| {

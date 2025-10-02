@@ -17,6 +17,7 @@ subdirs:
   - t12_default_ports
   - t13_access_by_ref
   - t14_subtree_model
+  - t15_behavior_mocking
   - t16_global_blackboard
   - t18_waypoints
   - testing

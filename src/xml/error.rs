@@ -183,9 +183,9 @@ impl core::fmt::Display for Error {
 			Self::NotRegistered { behavior } => write!(f, "the behavior {behavior} is not registered"),
 			Self::Parser { source } => write!(f, "parsing xml failed with: {source}"),
 			Self::PortInvalid { port, behavior } => {
-				write!(f, "the port {port}is not in {behavior}'s  portlist")
+				write!(f, "the port {port} is not in {behavior}'s  portlist")
 			}
-			Self::PortType { value } => write!(f, "the value {value} is not valis as PortType"),
+			Self::PortType { value } => write!(f, "the value {value} is not valid as PortType"),
 			#[cfg(feature = "std")]
 			Self::ReadFile { name, cause } => write!(f, "file {name} could not be read: {cause}"),
 			Self::UnknownAttribute { key } => write!(f, "the attribute with key {key} is unknown"),
