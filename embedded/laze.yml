@@ -5,6 +5,7 @@ defaults:
       - ariel-os
 
 subdirs:
+  - garage_door_opener
   - t01_build_your_first_tree
   - t02_basic_ports
   - t03_generic_ports

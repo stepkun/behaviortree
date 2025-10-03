@@ -1,0 +1,9 @@
+apps:
+  - name: garage_door_opener
+    selects:
+      - alloc
+    context:
+      - rpi-pico
+      - rpi-pico-w
+      - rpi-pico2
+      - rpi-pico2-w
