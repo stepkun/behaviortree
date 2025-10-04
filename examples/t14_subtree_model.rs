@@ -114,7 +114,7 @@ const XML2: &str = r#"
   	</BehaviorTree>
 
 	<TreeNodesModel>
-		<SubTree ID="MoveRobot">
+		<SubTree ID="MoveRobot"  editable="true">
 			<input_port  name="move_goal"  default="{target}"/>
 			<input_port  name="frame"   default="world"/>
 			<output_port name="result"  default="{error_code}"/>

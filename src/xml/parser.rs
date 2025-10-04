@@ -317,6 +317,7 @@ impl XmlParser {
 							"ID" => {
 								behavior_id = attribute.value();
 							}
+							"editable" => { /* ignore */ }
 							value => {
 								return Err(Error::UnknownAttribute { key: value.into() });
 							}

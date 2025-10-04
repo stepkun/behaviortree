@@ -16,6 +16,11 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
+## [0.6.1] - 2025-??-??
+
+### Fixed
+- ignore TreeNodesModel attribute `editable`
+
 ## [0.6.0] - 2025-10-02
 
 ### Added

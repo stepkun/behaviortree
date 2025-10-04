@@ -16,7 +16,7 @@
           <ReadEndContacts name="EndContacts"
                            active_button=""
                            lower_end=""
-                           uppper_end=""
+                           upper_end=""
                            command="{motor_command}"/>
           <Preparation command="{motor_command}"/>
           <DoorMotorDriver name="DoorMovement"
@@ -57,7 +57,7 @@
             editable="true">
       <input_port name="active_button"/>
       <input_port name="lower_end"/>
-      <input_port name="uppper_end"/>
+      <input_port name="upper_end"/>
       <output_port name="command">command for the motor</output_port>
     </Action>
   </TreeNodesModel>

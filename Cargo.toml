@@ -2,7 +2,7 @@
 [package]
 resolver = "3"
 name = "behaviortree"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
