@@ -7,14 +7,8 @@
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;
 
-const XML: &str = r#"
-<root BTCPP_format="4"
-		main_tree_to_execute="MainTree">
-	<BehaviorTree ID="MainTree">
-		<AlwaysTrue />
-	</BehaviorTree>
-</root>
-"#;
+// include the Groot2 behavior file
+const XML: &str = include_str!("GarageDoorOpener.xml");
 
 #[derive(Action, Debug, Default)]
 struct DoorMotorDriver {}
@@ -109,9 +103,9 @@ impl Behavior for ReadControlButtons {
 
 	fn provided_ports() -> PortList {
 		port_list! {
-			input_port!(bool, "stop"),
-			input_port!(bool, "up"),
-			input_port!(bool, "down"),
+			input_port!(bool, "stop_button"),
+			input_port!(bool, "up_button"),
+			input_port!(bool, "down_button"),
 			output_port!(String, "active_button"),
 		}
 	}
@@ -162,7 +156,7 @@ impl Behavior for ReadEndContacts {
 }
 
 async fn behavior() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::new()?;
+	let mut factory = BehaviorTreeFactory::with_extended_behaviors()?;
 
 	register_behavior!(factory, DoorMotorDriver, "DoorMotorDriver")?;
 	register_behavior!(factory, EmergencyOffActive, "EmergencyOffActive")?;
@@ -186,8 +180,9 @@ async fn main() {
 			info!("...succeeded!");
 			exit(ExitCode::SUCCESS)
 		}
-		Err(_) => {
+		Err(err) => {
 			error!("...failed!");
+			error!("{}", err.to_string().as_str());
 			exit(ExitCode::FAILURE)
 		}
 	};

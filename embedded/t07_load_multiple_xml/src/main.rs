@@ -78,8 +78,9 @@ async fn main() {
 			info!("...succeeded!");
 			exit(ExitCode::SUCCESS)
 		}
-		Err(_) => {
+		Err(err) => {
 			error!("...failed!");
+			error!("{}", err.to_string().as_str());
 			exit(ExitCode::FAILURE)
 		}
 	};

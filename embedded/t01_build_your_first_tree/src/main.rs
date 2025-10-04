@@ -122,8 +122,9 @@ async fn main() {
 	info!("implicite");
 	match example().await {
 		Ok(_) => {}
-		Err(_) => {
-			error!(" ...failed!");
+		Err(err) => {
+			error!("...failed!");
+			error!("{}", err.to_string().as_str());
 			exit(ExitCode::FAILURE)
 		}
 	};
@@ -134,8 +135,9 @@ async fn main() {
 			info!("...succeeded!");
 			exit(ExitCode::SUCCESS)
 		}
-		Err(_) => {
+		Err(err) => {
 			error!("...failed!");
+			error!("{}", err.to_string().as_str());
 			exit(ExitCode::FAILURE)
 		}
 	};
