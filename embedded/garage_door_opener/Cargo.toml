@@ -27,9 +27,12 @@ unwrap_used = "deny"
 
 [dependencies]
 ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [
+  "external-interrupts",
   "time",
 ] }
 ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
 async-trait = { version = "0.1.89", default-features = false }
 behaviortree = { path = "../..", default-features = false }
+embassy-futures = { version = "0.1.1", default-features = false }
+#embassy-rp = { version = "0.4", default-features = false }
 spin = { version = "0.10.0", default-features = false }

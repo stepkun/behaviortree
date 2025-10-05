@@ -25,18 +25,22 @@ use tinyscript::SharedRuntime;
 ///
 /// Examples:
 ///
+/// ```xml
 /// <Fallback>
 ///    <Behavior1/>
 ///    <Behavior2/>
 ///    <Behavior3/>
 /// </Fallback>
+/// ```
 ///
 /// Requires a factory at least `with_core_behaviors` or manual registration
+/// ```xml
 /// <AsyncFallback>
 ///    <Behavior1/>
 ///    <Behavior2/>
 ///    <Behavior3/>
 /// </AsyncFallback>
+/// ```
 #[derive(Control, Debug, Default)]
 pub struct Fallback {
 	/// Defaults to '0'

@@ -16,8 +16,8 @@ use tinyscript::SharedRuntime;
 /// A reactive variant is the [`WhileDoElse`](crate::behavior::control::WhileDoElse) behavior.
 ///
 /// The first child is the 'statement' of the if.
-/// - If that returns [`BehaviorState::Success`], then the second child is executed.
-/// - Instead, if it returns [`BehaviorState::Failure`], the third child is executed.
+/// - If that returns [`BehaviorState::Success`], then the second child is executed until it succeeds or fails.
+/// - Instead, if it returns [`BehaviorState::Failure`], the third child is executed until it succeeds or fails.
 ///
 /// If you have only 2 children, this node will return [`BehaviorState::Failure`] whenever the
 /// statement returns [`BehaviorState::Failure`].
@@ -26,12 +26,13 @@ use tinyscript::SharedRuntime;
 /// Example:
 ///
 /// Requires a factory at least `with_extended_behaviors` or manual registration
+/// ```xml
 /// <IfThenElse>
 ///    <Condition/>
 ///    <ThenBehavior/>
 ///    <ElseBehavior/>
 /// </IfThenElse>
-
+/// ```
 #[derive(Control, Debug, Default)]
 pub struct IfThenElse {
 	child_index: usize,

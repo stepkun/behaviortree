@@ -7,7 +7,7 @@
             <input_port name="command" default="stop">control the door motor</input_port>
         </Action>
         <Condition ID="EmergencyOffActive" editable="true">
-            <input_port name="emergency" default="true">checks emergency</input_port>
+            <input_port name="emergency" default="false">checks emergency</input_port>
         </Condition>
         <Action ID="Preparation" editable="true">
             <input_port name="command">command</input_port>
@@ -21,7 +21,7 @@
         <Action ID="ReadEndContacts" editable="true">
             <input_port name="active_button"/>
             <input_port name="lower_end"/>
-            <input_port name="uppper_end"/>
+            <input_port name="upper_end"/>
             <output_port name="command">command for the motor</output_port>
         </Action>
     </TreeNodesModel>

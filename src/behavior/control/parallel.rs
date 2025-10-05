@@ -26,11 +26,13 @@ use tinyscript::SharedRuntime;
 ///
 /// Example:
 ///
+/// ```xml
 /// <Parallel success_count="2" failure_count="1">
 ///    <Behavior1/>
 ///    <Behavior2/>
 ///    <Behavior3/>
 /// </Parallel>
+/// ```
 #[derive(Control, Debug, Default)]
 pub struct Parallel {
 	/// The amount of completed sub behaviors that succeeded.

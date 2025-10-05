@@ -34,11 +34,13 @@ const MAX_FAILURES: &str = "max_failures";
 /// Example:
 ///
 /// Requires a factory at least `with_core_behaviors` or manual registration
+/// ```xml
 /// <ParallelAll max_failures="0">
 ///    <Behavior1/>
 ///    <Behavior2/>
 ///    <Behavior3/>
 /// </ParallelAll>
+/// ```
 #[derive(Control, Debug, Default)]
 pub struct ParallelAll {
 	/// The amount of completed sub behaviors that failed.

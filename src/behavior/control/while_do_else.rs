@@ -15,9 +15,9 @@ use tinyscript::SharedRuntime;
 /// The `WhileDoElse` behavior must have exactly 2 or 3 children.
 /// It is a reactive variant of the [`IfThenElse`](crate::behavior::control::IfThenElse).
 ///
-/// The first child is the 'statement' of the while loop.
-/// - While that returns [`BehaviorState::Success`], then the second child is executed.
-/// - Instead, if it returns [`BehaviorState::Failure`], the third child is executed.
+/// The first child is the 'statement' of the while.
+/// - While that returns [`BehaviorState::Success`], then the second child is executed until it succeeds or fails.
+/// - Instead, if it returns [`BehaviorState::Failure`], the third child is executed until it succeeds or fails.
 ///
 /// If the second or third child is running and the 'statement' changes its value,
 /// the running child is stopped before the sibling is started.
@@ -29,11 +29,16 @@ use tinyscript::SharedRuntime;
 /// Example:
 ///
 /// Requires a factory at least `with_extended_behaviors` or manual registration
+/// ```xml
 /// <WhileDoElse>
 ///    <Condition/>
 ///    <DoBehavior/>
 ///    <ElseBehavior/>
 /// </WhileDoElse>
+/// ```
+///
+/// Note: This behavior is not a Loop by itself. Use [`Repeat`](crate::behavior::decorator::Repeat) with `-1`
+/// for `num_cycles` above the `WhileDoElse` or above the two branches to create individual loopnig behavior.
 #[derive(Control, Default)]
 pub struct WhileDoElse;
 

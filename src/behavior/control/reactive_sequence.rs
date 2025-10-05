@@ -27,11 +27,13 @@ use tinyscript::SharedRuntime;
 /// Example:
 ///
 /// Requires a factory at least `with_core_behaviors` or manual registration
+/// ```xml
 /// <ReacitveSequence>
 ///    <Behavior1/>
 ///    <Behavior2/>
 ///    <Behavior3/>
 /// </ReactiveSequence>
+/// ```
 #[derive(Control, Debug)]
 pub struct ReactiveSequence {
 	/// Defaults to '-1'

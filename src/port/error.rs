@@ -16,6 +16,8 @@ pub enum Error {
 	CouldNotConvert {
 		/// The value that cannot be converted
 		value: ConstString,
+		/// Name of the port
+		port: ConstString,
 	},
 	/// Pass through errors from databoard
 	Databoard {
@@ -51,7 +53,7 @@ impl core::fmt::Debug for Error {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		match self {
 			Self::AlreadyInPortList { key } => write!(f, "AlreadyInPortList(key: {key})"),
-			Self::CouldNotConvert { value } => write!(f, "CouldNotConvert(value: {value})"),
+			Self::CouldNotConvert { value, port } => write!(f, "CouldNotConvert(value: {value}, value: {port})"),
 			Self::Databoard { source } => write!(f, "Databoard({source})"),
 			Self::NameNotAllowed { port } => write!(f, "NameNotAllowed(port: {port})"),
 			Self::NotFound { key } => write!(f, "NotFound(key: {key})"),
@@ -63,7 +65,7 @@ impl core::fmt::Display for Error {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
 		match self {
 			Self::AlreadyInPortList { key } => write!(f, "the port {key} is already in the list of defined ports"),
-			Self::CouldNotConvert { value } => write!(f, "could not convert '{value}' into wanted type"),
+			Self::CouldNotConvert { value, port } => write!(f, "could not convert '{value}' into wanted type for {port}"),
 			Self::Databoard { source } => write!(f, "accessing blackboard failed with: {source}"),
 			Self::NameNotAllowed { port } => write!(f, "the name {port} is not allowed for a port"),
 			Self::NotFound { key } => write!(f, "key {key} could not be found"),

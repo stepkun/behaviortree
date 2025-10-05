@@ -107,6 +107,7 @@ impl BehaviorData {
 	/// Get a value of type `T` from Blackboard.
 	/// # Errors
 	/// - if value is not found
+	#[allow(clippy::too_many_lines)]
 	pub fn get<T>(&self, key: &str) -> Result<T, Error>
 	where
 		T: Any + Clone + Debug + FromStr + ToString + Send + Sync,
@@ -139,6 +140,7 @@ impl BehaviorData {
 													|_| {
 														Err(Error::CouldNotConvert {
 															value: remapped_key.into(),
+															port: key.into(),
 														})
 													},
 													|val| Ok(val),
@@ -151,6 +153,7 @@ impl BehaviorData {
 											|_| {
 												Err(Error::CouldNotConvert {
 													value: remapped_key.into(),
+													port: key.into(),
 												})
 											},
 											|res| Ok(res),
@@ -168,6 +171,7 @@ impl BehaviorData {
 								|_| {
 									Err(Error::CouldNotConvert {
 										value: remapped_key.into(),
+										port: key.into(),
 									})
 								},
 								|val| Ok(val),
@@ -180,7 +184,10 @@ impl BehaviorData {
 					// std::dbg!("remapped5");
 					match T::from_str(&remapped) {
 						Ok(res) => Ok(res),
-						Err(_err) => Err(Error::CouldNotConvert { value: remapped }),
+						Err(_err) => Err(Error::CouldNotConvert {
+							value: remapped,
+							port: key.into(),
+						}),
 					}
 				}
 			}
@@ -195,8 +202,15 @@ impl BehaviorData {
 						en.data().downcast_ref::<String>().map_or_else(
 							|| Err(err.into()),
 							|val| {
-								T::from_str(val)
-									.map_or_else(|_| Err(Error::CouldNotConvert { value: key.into() }), |res| Ok(res))
+								T::from_str(val).map_or_else(
+									|_| {
+										Err(Error::CouldNotConvert {
+											value: key.into(),
+											port: key.into(),
+										})
+									},
+									|res| Ok(res),
+								)
 							},
 						)
 					}
@@ -209,8 +223,15 @@ impl BehaviorData {
 						en.data().downcast_ref::<String>().map_or_else(
 							|| Err(err.into()),
 							|val| {
-								T::from_str(val)
-									.map_or_else(|_| Err(Error::CouldNotConvert { value: key.into() }), |res| Ok(res))
+								T::from_str(val).map_or_else(
+									|_| {
+										Err(Error::CouldNotConvert {
+											value: key.into(),
+											port: key.into(),
+										})
+									},
+									|res| Ok(res),
+								)
 							},
 						)
 					}

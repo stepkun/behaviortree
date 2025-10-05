@@ -5,23 +5,26 @@
       <WhileDoElse name="StopOnEmergency">
         <Inverter>
           <EmergencyOffActive name="EmergencySwitch"
-                              emergency="true"/>
+                              emergency="{=}"/>
         </Inverter>
-        <ReactiveSequence name="MotorControlSequence">
-          <ReadControlButtons name="ControlButtonPanel"
-                              stop_button=""
-                              up_button=""
-                              down_button=""
-                              active_button=""/>
-          <ReadEndContacts name="EndContacts"
-                           active_button=""
-                           lower_end=""
-                           upper_end=""
-                           command="{motor_command}"/>
-          <Preparation command="{motor_command}"/>
-          <DoorMotorDriver name="DoorMovement"
-                           command="{motor_command}"/>
-        </ReactiveSequence>
+        <Repeat name="Forever"
+                num_cycles="-1">
+          <ReactiveSequence name="MotorControlSequence">
+            <ReadControlButtons name="ControlButtonPanel"
+                                stop_button="{=}"
+                                up_button="{=}"
+                                down_button="{=}"
+                                active_button="{=}"/>
+            <ReadEndContacts name="EndContacts"
+                             active_button="{=}"
+                             lower_end="{=}"
+                             upper_end="{=}"
+                             command="{motor_command}"/>
+            <Preparation command="{motor_command}"/>
+            <DoorMotorDriver name="DoorMovement"
+                             command="{motor_command}"/>
+          </ReactiveSequence>
+        </Repeat>
         <DoorMotorDriver name="EmergencyStop"
                          command="stop"/>
       </WhileDoElse>
@@ -40,7 +43,7 @@
     <Condition ID="EmergencyOffActive"
                editable="true">
       <input_port name="emergency"
-                  default="true">checks emergency</input_port>
+                  default="false">checks emergency</input_port>
     </Condition>
     <Action ID="Preparation"
             editable="true">

@@ -31,19 +31,21 @@ const VARIABLE: &str = "variable";
 /// Example:
 ///
 /// Requires a factory at least `with_groot2_behaviors` (Switch2 to Switch6) or manual registration
+/// ```xml
 /// <Switch3 variable="{var}"  case_1="1" case_2="42" case_3="666" >
 ///    <ActionA name="action_when_var_eq_1" />
 ///    <ActionB name="action_when_var_eq_42" />
 ///    <ActionC name="action_when_var_eq_666" />
 ///    <ActionD name="default_action" />
 /// </Switch3>
+/// ```
 ///
 /// When the Switch behavior is executed (Switch3 is a behavior with 3 cases)
 /// the "variable" will be compared to the cases and execute the correct child
 /// or the default one (last).
 ///
 /// Note: The same behaviour can be achieved with multiple `Sequences`, `Fallbacks` and `Conditions`,
-/// but switch is shorter and therefor more readable.
+/// but switch is shorter and hence more readable.
 #[derive(Control, Debug)]
 pub struct Switch<const T: u8> {
 	/// Defaults to T
