@@ -4,7 +4,8 @@
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
         <Action ID="DoorMotorDriver" editable="true">
-            <input_port name="command" default="stop">control the door motor</input_port>
+            <input_port name="request" default="stop">door motor request</input_port>
+            <output_port name="command" default="stop">control the door motor</output_port>
         </Action>
         <Condition ID="EmergencyOffActive" editable="true">
             <input_port name="emergency" default="false">checks emergency</input_port>
