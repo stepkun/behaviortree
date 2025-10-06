@@ -18,6 +18,7 @@ use embedded_hal::digital::StatefulOutputPin;
 
 // some configuration constants
 const TOGGLE_DELAY: u64 = 1500; // how long to wait in millisecs on direct switching between the directions.
+const PREPARATION_TIME: u64 = 500; // preparation timer value
 
 // include the Groot2 behavior file
 const XML: &str = include_str!("GarageDoorOpener.xml");
@@ -25,10 +26,11 @@ const XML: &str = include_str!("GarageDoorOpener.xml");
 // a truly global blackboard
 static mut GLOBAL_BLACKBOARD: Option<Databoard> = None;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 #[repr(u8)]
 enum MotorCommand {
 	Down,
+	#[default]
 	Stop,
 	Up,
 }
@@ -111,7 +113,9 @@ impl Behavior for EmergencyOffActive {
 }
 
 #[derive(Action, Default)]
-struct Preparation;
+struct Preparation {
+	last_command: MotorCommand,
+}
 
 #[async_trait::async_trait]
 impl Behavior for Preparation {
@@ -121,13 +125,23 @@ impl Behavior for Preparation {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		let _command = behavior.get::<MotorCommand>("command")?;
+		let command = behavior.get::<MotorCommand>("command")?;
+		if command != self.last_command {
+			self.last_command = command;
+			if command != MotorCommand::Stop {
+				if !behavior.get::<bool>("emergency")? {
+					behavior.set("preparation", true)?;
+					Timer::after_millis(PREPARATION_TIME).await;
+					behavior.set("preparation", false)?;
+				}
+			}
+		}
 		// info!("Preparation for: {}", command.as_str());
 		Ok(BehaviorState::Success)
 	}
 
 	fn provided_ports() -> PortList {
-		port_list! {input_port!(bool, "emergency"), input_port!(MotorCommand, "command")}
+		port_list! {input_port!(bool, "emergency"), input_port!(MotorCommand, "command"), output_port!(bool, "preparation")}
 	}
 }
 
@@ -281,6 +295,7 @@ async fn behavior() -> BehaviorTreeResult {
 	blackboard.set::<bool>("stop_button", true)?;
 	blackboard.set::<bool>("up_button", false)?;
 	blackboard.set::<bool>("down_button", false)?;
+	blackboard.set::<bool>("preparation", false)?;
 	// create the tree with the global blackboard
 	let mut tree = factory.create_tree_with("GarageDoorOpener", &blackboard)?;
 
@@ -341,6 +356,38 @@ async fn handle_motor(peripherals: pins::MotorPeripherals) {
 			}
 		};
 		Timer::after_millis(10).await;
+	}
+}
+
+#[ariel_os::task(autostart, peripherals)]
+#[allow(unsafe_code)]
+async fn handle_addons(peripherals: pins::AddonPeripherals) {
+	Timer::after_millis(25).await;
+	// @TODO: replace with lazy lock
+	let blackboard = unsafe {
+		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
+			blackboard.clone()
+		} else {
+			let blackboard = Databoard::new();
+			GLOBAL_BLACKBOARD = Some(blackboard.clone());
+			blackboard
+		}
+	};
+
+	info!("   initializing addons");
+	let mut load = Output::new(peripherals.io_preparation, Level::Low);
+
+	info!("   running addons loop");
+	loop {
+		let preparation = blackboard
+			.get::<bool>("preparation")
+			.expect("snh");
+		if preparation {
+			load.set_high();
+		} else {
+			load.set_low();
+		}
+		Timer::after_millis(100).await;
 	}
 }
 

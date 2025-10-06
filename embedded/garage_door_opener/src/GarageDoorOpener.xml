@@ -61,6 +61,7 @@
             editable="true">
       <input_port name="command">command</input_port>
       <input_port name="emergency">signals emergency</input_port>
+      <output_port name="preparation">preparation signal</output_port>
     </Action>
     <Action ID="ReadControlButtons"
             editable="true">
