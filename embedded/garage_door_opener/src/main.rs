@@ -16,8 +16,8 @@ use behaviortree::prelude::*;
 use embassy_futures::select::{Either3, select3};
 use embedded_hal::digital::StatefulOutputPin;
 
-// some constants
-const TOGGLE_DELAY: u64 = 1500; // how long to wait on direct switching between the directions.
+// some configuration constants
+const TOGGLE_DELAY: u64 = 1500; // how long to wait in millisecs on direct switching between the directions.
 
 // include the Groot2 behavior file
 const XML: &str = include_str!("GarageDoorOpener.xml");
@@ -25,8 +25,43 @@ const XML: &str = include_str!("GarageDoorOpener.xml");
 // a truly global blackboard
 static mut GLOBAL_BLACKBOARD: Option<Databoard> = None;
 
-#[derive(Action, Debug, Default)]
-struct DoorMotorDriver {}
+#[derive(Clone, Copy, Debug)]
+#[repr(u8)]
+enum MotorCommand {
+	Down,
+	Stop,
+	Up,
+}
+
+impl FromStr for MotorCommand {
+	type Err = core::convert::Infallible;
+
+	fn from_str(value: &str) -> Result<Self, Self::Err> {
+		// info!("Converting string: \"{}\"", value.as_str());
+		match value {
+			"stop" => Ok(MotorCommand::Stop),
+			"down" => Ok(MotorCommand::Down),
+			"up" => Ok(MotorCommand::Up),
+			_ => {
+				info!("weird motor command");
+				Ok(MotorCommand::Stop)
+			}
+		}
+	}
+}
+
+impl core::fmt::Display for MotorCommand {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			MotorCommand::Stop => write!(f, "stop"),
+			MotorCommand::Down => write!(f, "down"),
+			MotorCommand::Up => write!(f, "up"),
+		}
+	}
+}
+
+#[derive(Action, Default)]
+struct DoorMotorDriver;
 
 #[async_trait::async_trait]
 impl Behavior for DoorMotorDriver {
@@ -36,19 +71,23 @@ impl Behavior for DoorMotorDriver {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		let request = behavior.get::<String>("request")?;
-		// info!("DoorMotorDriver: {}", request.as_str());
-		let _request = behavior.set::<String>("command", request)?;
+		if behavior.get::<bool>("emergency")? {
+			behavior.set::<MotorCommand>("command", MotorCommand::Stop)?;
+		} else {
+			let request = behavior.get::<MotorCommand>("request")?;
+			// info!("DoorMotorDriver: {}", request.as_str());
+			behavior.set::<MotorCommand>("command", request)?;
+		}
 		Ok(BehaviorState::Success)
 	}
 
 	fn provided_ports() -> PortList {
-		port_list! {input_port!(String, "request"), output_port!(String, "command")}
+		port_list! {input_port!(bool, "emergency"), input_port!(MotorCommand, "request"), output_port!(MotorCommand, "command")}
 	}
 }
 
-#[derive(Condition, Debug, Default)]
-struct EmergencyOffActive {}
+#[derive(Condition, Default)]
+struct EmergencyOffActive;
 
 #[async_trait::async_trait]
 impl Behavior for EmergencyOffActive {
@@ -58,9 +97,8 @@ impl Behavior for EmergencyOffActive {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		let emergency = behavior.get::<bool>("emergency")?;
-		if emergency {
-			info!("Emergency Active");
+		if behavior.get::<bool>("emergency")? {
+			// info!("Emergency Active");
 			Ok(BehaviorState::Success)
 		} else {
 			Ok(BehaviorState::Failure)
@@ -72,8 +110,8 @@ impl Behavior for EmergencyOffActive {
 	}
 }
 
-#[derive(Action, Debug, Default)]
-struct Preparation {}
+#[derive(Action, Default)]
+struct Preparation;
 
 #[async_trait::async_trait]
 impl Behavior for Preparation {
@@ -83,18 +121,53 @@ impl Behavior for Preparation {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		let _command = behavior.get::<String>("command")?;
+		let _command = behavior.get::<MotorCommand>("command")?;
 		// info!("Preparation for: {}", command.as_str());
 		Ok(BehaviorState::Success)
 	}
 
 	fn provided_ports() -> PortList {
-		port_list! {input_port!(String, "command")}
+		port_list! {input_port!(bool, "emergency"), input_port!(MotorCommand, "command")}
 	}
 }
 
-#[derive(Action, Debug, Default)]
-struct ReadControlButtons {}
+#[derive(Clone, Copy, Debug)]
+#[repr(u8)]
+enum ControlButton {
+	Down,
+	Stop,
+	Up,
+}
+
+impl FromStr for ControlButton {
+	type Err = core::convert::Infallible;
+
+	fn from_str(value: &str) -> Result<Self, Self::Err> {
+		// info!("Converting string: \"{}\"", value.as_str());
+		match value {
+			"stop" => Ok(ControlButton::Stop),
+			"down" => Ok(ControlButton::Down),
+			"up" => Ok(ControlButton::Up),
+			_ => {
+				info!("weird button");
+				Ok(ControlButton::Stop)
+			}
+		}
+	}
+}
+
+impl core::fmt::Display for ControlButton {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		match self {
+			ControlButton::Stop => write!(f, "stop"),
+			ControlButton::Down => write!(f, "down"),
+			ControlButton::Up => write!(f, "up"),
+		}
+	}
+}
+
+#[derive(Action, Default)]
+struct ReadControlButtons;
 
 #[async_trait::async_trait]
 impl Behavior for ReadControlButtons {
@@ -107,16 +180,16 @@ impl Behavior for ReadControlButtons {
 		// info!("ReadControlButtons: tick()");
 		if behavior.get::<bool>("stop_button")? {
 			// info!("ReadControlButtons: Stop button is active");
-			behavior.set("active_button", String::from("stop"))?
+			behavior.set("active_button", ControlButton::Stop)?
 		} else if behavior.get::<bool>("up_button")? {
 			// info!("ReadControlButtons: Up button is active");
-			behavior.set("active_button", String::from("up"))?
+			behavior.set("active_button", ControlButton::Up)?
 		} else if behavior.get::<bool>("down_button")? {
 			// info!("ReadControlButtons: Down button is active");
-			behavior.set("active_button", String::from("down"))?
+			behavior.set("active_button", ControlButton::Down)?
 		} else {
 			// info!("ReadControlButtons: No button is active");
-			behavior.set("active_button", String::from("stop"))?
+			behavior.set("active_button", ControlButton::Stop)?
 		};
 		Ok(BehaviorState::Success)
 	}
@@ -126,13 +199,13 @@ impl Behavior for ReadControlButtons {
 			input_port!(bool, "stop_button", true),
 			input_port!(bool, "up_button", false),
 			input_port!(bool, "down_button", false),
-			output_port!(String, "active_button", "stop"),
+			output_port!(ControlButton, "active_button", ControlButton::Stop),
 		}
 	}
 }
 
-#[derive(Action, Debug, Default)]
-struct ReadEndContacts {}
+#[derive(Action, Default)]
+struct ReadEndContacts;
 
 #[async_trait::async_trait]
 impl Behavior for ReadEndContacts {
@@ -143,27 +216,27 @@ impl Behavior for ReadEndContacts {
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		// info!("ReadEndContacts: tick()");
-		let button = behavior.get::<String>("active_button")?;
-		match button.as_ref() {
-			"up" => {
+		let button = behavior.get::<ControlButton>("active_button")?;
+		match button {
+			ControlButton::Stop => {
+				// info!("ReadEndContacts: _");
+				behavior.set("command", MotorCommand::Stop)?;
+			}
+			ControlButton::Up => {
 				// info!("ReadEndContacts: up");
 				if behavior.get::<bool>("upper_end")? {
-					behavior.set("command", String::from("stop"))?;
+					behavior.set("command", MotorCommand::Stop)?;
 				} else {
-					behavior.set("command", String::from("up"))?;
+					behavior.set("command", MotorCommand::Up)?;
 				}
 			}
-			"down" => {
+			ControlButton::Down => {
 				// info!("ReadEndContacts: down");
 				if behavior.get::<bool>("lower_end")? {
-					behavior.set("command", String::from("stop"))?;
+					behavior.set("command", MotorCommand::Stop)?;
 				} else {
-					behavior.set("command", String::from("down"))?;
+					behavior.set("command", MotorCommand::Down)?;
 				}
-			}
-			_ => {
-				// info!("ReadEndContacts: _");
-				behavior.set("command", String::from("stop"))?;
 			}
 		}
 		Ok(BehaviorState::Success)
@@ -171,10 +244,10 @@ impl Behavior for ReadEndContacts {
 
 	fn provided_ports() -> PortList {
 		port_list! {
-			input_port!(String, "active_button", "stop"),
+			input_port!(ControlButton, "active_button", ControlButton::Stop),
 			input_port!(bool, "lower_end", true),
 			input_port!(bool, "upper_end", true),
-			output_port!(String, "command", "stop"),
+			output_port!(MotorCommand, "command", MotorCommand::Stop),
 		}
 	}
 }
@@ -203,9 +276,6 @@ async fn behavior() -> BehaviorTreeResult {
 
 	// pre set blackboard variables
 	blackboard.set::<bool>("emergency", false)?;
-	// blackboard.set("active_button", String::from("stop"))?;
-	// blackboard.set("command", String::from("stop"))?;
-	// blackboard.set("motor_command", String::from("stop"))?;
 	blackboard.set::<bool>("lower_end", true)?;
 	blackboard.set::<bool>("upper_end", true)?;
 	blackboard.set::<bool>("stop_button", true)?;
@@ -245,34 +315,29 @@ async fn handle_motor(peripherals: pins::MotorPeripherals) {
 
 	loop {
 		let command = blackboard
-			.get::<String>("command")
-			.unwrap_or_else(|_| alloc::string::String::from("stop"));
-		match command.as_str() {
-			"stop" => {
+			.get::<MotorCommand>("command")
+			.unwrap_or_else(|_| MotorCommand::Stop);
+		match command {
+			MotorCommand::Stop => {
 				// info!("motor stop");
 				motor_up.set_low();
 				motor_down.set_low();
 			}
-			"up" => {
+			MotorCommand::Up => {
 				// info!("motor up");
-				if motor_down.is_set_high().expect("snh") {
+				if motor_down.is_set_high().unwrap_or_else(|_| true) {
 					motor_down.set_low();
 					Timer::after_millis(TOGGLE_DELAY).await;
 				}
 				motor_up.set_high();
 			}
-			"down" => {
+			MotorCommand::Down => {
 				// info!("motor down");
-				if motor_up.is_set_high().expect("snh") {
+				if motor_up.is_set_high().unwrap_or_else(|_| true) {
 					motor_up.set_low();
 					Timer::after_millis(TOGGLE_DELAY).await;
 				}
 				motor_down.set_high();
-			}
-			_ => {
-				info!("motor weird command: {}", command.as_str());
-				motor_up.set_low();
-				motor_down.set_low();
 			}
 		};
 		Timer::after_millis(10).await;
@@ -394,7 +459,7 @@ async fn handle_security(peripherals: pins::SecurityPeripherals) {
 				led_upper_end.set_low();
 			}
 			Either3::Third(_) => {
-				// info!("tineout");
+				// info!("timeout");
 				blackboard.set("lower_end", false).expect("snh");
 				led_lower_end.set_low();
 				blackboard.set("upper_end", false).expect("snh");
@@ -404,11 +469,43 @@ async fn handle_security(peripherals: pins::SecurityPeripherals) {
 	}
 }
 
+#[ariel_os::task(autostart, peripherals)]
+#[allow(unsafe_code)]
+async fn handle_emergency(peripherals: pins::EmergencyPeripherals) {
+	Timer::after_millis(5).await;
+	// @TODO: replace with lazy lock
+	let blackboard = unsafe {
+		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
+			blackboard.clone()
+		} else {
+			let blackboard = Databoard::new();
+			GLOBAL_BLACKBOARD = Some(blackboard.clone());
+			blackboard
+		}
+	};
+
+	info!("   initializing emergency");
+	let mut btn_emergency = Input::builder(peripherals.btn_emergency, Pull::Down)
+		.build_with_interrupt()
+		.unwrap();
+
+	info!("   running emergency loop");
+	blackboard.set("emergency", false).expect("snh");
+	loop {
+		// Wait for emergency button.
+		btn_emergency.wait_for_high().await;
+		blackboard.set("emergency", true).expect("snh");
+		btn_emergency.wait_for_low().await;
+		blackboard.set("emergency", false).expect("snh");
+	}
+}
+
 #[ariel_os::task(autostart)]
 async fn main() {
 	info!("running garage_door_opener...");
 	match behavior().await {
 		Ok(_) => {
+			Timer::after_millis(100).await;
 			info!("...succeeded!");
 			exit(ExitCode::SUCCESS)
 		}

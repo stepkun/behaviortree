@@ -24,4 +24,7 @@ ariel_os::hal::define_peripherals!(PanelPeripherals {
 });
 
 #[cfg(context = "rp")]
-ariel_os::hal::define_peripherals!(AddonPeripherals { io_preparation: PIN_22 });
+ariel_os::hal::define_peripherals!(AddonPeripherals { io_preparation: PIN_9 });
+
+#[cfg(context = "rp")]
+ariel_os::hal::define_peripherals!(EmergencyPeripherals { btn_emergency: PIN_21 });

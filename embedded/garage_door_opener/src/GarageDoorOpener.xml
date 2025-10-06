@@ -20,19 +20,26 @@
                              lower_end="{=}"
                              upper_end="{=}"
                              command="{motor_command}"/>
-            <Preparation command="{motor_command}"/>
+            <Preparation command="{motor_command}"
+                         emergency="{=}"/>
             <DoorMotorDriver name="DoorMovement"
+                             emergency="{=}"
                              request="{motor_command}"
                              command="{=}"/>
           </ReactiveSequence>
         </Repeat>
-        <DoorMotorDriver name="EmergencyStop"
-                         request="stop"
-                         command="stop"/>
+        <Repeat name="Forever"
+                num_cycles="-1">
+          <DoorMotorDriver name="EmergencyStop"
+                           emergency="{=}"
+                           request="stop"
+                           command="{=}"/>
+        </Repeat>
       </WhileDoElse>
       <DoorMotorDriver name="FailureStop"
+                       emergency="{=}"
                        request="stop"
-                       command="stop"/>
+                       command="{=}"/>
     </Fallback>
   </BehaviorTree>
 
@@ -40,6 +47,7 @@
   <TreeNodesModel>
     <Action ID="DoorMotorDriver"
             editable="true">
+      <input_port name="emergency">signals emergency</input_port>
       <input_port name="request"
                   default="stop">door motor request</input_port>
       <output_port name="command"
@@ -47,12 +55,12 @@
     </Action>
     <Condition ID="EmergencyOffActive"
                editable="true">
-      <input_port name="emergency"
-                  default="false">checks emergency</input_port>
+      <input_port name="emergency">signals emergency</input_port>
     </Condition>
     <Action ID="Preparation"
             editable="true">
       <input_port name="command">command</input_port>
+      <input_port name="emergency">signals emergency</input_port>
     </Action>
     <Action ID="ReadControlButtons"
             editable="true">
