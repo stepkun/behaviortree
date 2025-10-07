@@ -10,7 +10,7 @@ extern crate alloc;
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-	use behaviortree::{behavior::action::ChangeStateAfter, prelude::*};
+	use behaviortree::{behavior::ChangeStateAfter, prelude::*};
 
 	const ASYNC_FALLBACK: &str = r#"
 <root BTCPP_format="4"
@@ -64,7 +64,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -176,7 +176,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -360,7 +360,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_extended_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -466,7 +466,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -567,7 +567,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -668,7 +668,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -773,7 +773,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -870,7 +870,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -1075,7 +1075,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,
@@ -1171,7 +1171,7 @@ mod tests {
 			}
 		}
 
-		let mut factory = BehaviorTreeFactory::with_extended_behaviors()?;
+		let mut factory = BehaviorTreeFactory::new()?;
 		register_behavior!(
 			factory,
 			ChangeStateAfter,

@@ -3,10 +3,7 @@
 
 extern crate alloc;
 
-use behaviortree::{
-	behavior::{action::ChangeStateAfter, condition::ScriptCondition},
-	prelude::*,
-};
+use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -36,20 +33,6 @@ const XML: &str = r#"
 #[tokio::test]
 async fn script_condition() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	let bhvr_desc = BehaviorDescription::new(
-		"AlwaysFailure",
-		"AlwaysFailure",
-		ChangeStateAfter::kind(),
-		true,
-		ChangeStateAfter::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-		Box::new(ChangeStateAfter::new(BehaviorState::Running, BehaviorState::Failure, 0))
-	});
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-	register_behavior!(factory, ScriptCondition, "ScriptCondition")?;
 
 	factory.register_behavior_tree_from_text(XML)?;
 

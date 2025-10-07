@@ -5,10 +5,11 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_01_first_tree).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t01_build_your_first_tree.cpp).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::prelude::*;
-use common::test_data::{ApproachObject, GripperInterface, check_battery};
+use test_data::{ApproachObject, GripperInterface, check_battery};
 
 /// This definition uses implicit behavior ID's
 const XML: &str = r#"
@@ -34,10 +35,10 @@ async fn example() -> BehaviorTreeResult {
 	register_behavior!(factory, ApproachObject, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
-	register_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
+	register_simple_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
 
 	// You can also create SimpleAction/SimpleCondition using methods of a struct.
-	register_behavior!(
+	register_simple_behavior!(
 		factory,
 		GripperInterface::default(),
 		open,
@@ -87,10 +88,10 @@ async fn example_explicite() -> BehaviorTreeResult {
 	register_behavior!(factory, ApproachObject, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
-	register_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
+	register_simple_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
 
 	// You can also create SimpleAction/SimpleCondition using methods of a struct.
-	register_behavior!(
+	register_simple_behavior!(
 		factory,
 		GripperInterface::default(),
 		open,

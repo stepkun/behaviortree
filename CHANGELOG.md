@@ -16,10 +16,19 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.6.1] - 2025-??-??
+## [0.7.0] - 2025-??-??
+
+### Changed
+- improved error handling especially in embedded examples
+- gated the built-in behaviors behind features
 
 ### Fixed
 - ignore TreeNodesModel attribute `editable`
+
+### Removed
+- factory methods for creation of factories with sets of behaviors: `with_core_behaviors()`, `with_extended_behaviors()`. `with_groot2_behaviors()`, `with_all_behaviors`
+- factory methods for registering sets of behaviors: `register_core_behaviors()`, `reister_extended_behaviors()`. `groot2_behaviors()`, `additional_behaviors`, `register_test_behaviors`
+  
 
 ## [0.6.0] - 2025-10-02
 

@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::action::ChangeStateAfter;
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const SEQUENCE: &str = r#"

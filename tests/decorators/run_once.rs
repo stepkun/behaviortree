@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, decorator::RunOnce};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const RUN_ONCE: &str = r#"
@@ -46,7 +46,6 @@ async fn run_once_raw() -> Result<(), Error> {
 		BehaviorState::Failure,
 		0
 	)?;
-	register_behavior!(factory, RunOnce, "RunOnce")?;
 
 	let mut tree = factory.create_from_text(RUN_ONCE)?;
 	drop(factory);
@@ -100,7 +99,6 @@ const TREE_DEFINITION: &str = r#"
 async fn run_once(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, RunOnce, "RunOnce")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -139,7 +137,6 @@ const TREE_DEFINITION2: &str = r#"
 async fn run_once_no_skip(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, RunOnce, "RunOnce")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION2)?;
 	drop(factory);
@@ -165,7 +162,6 @@ async fn run_once_no_skip(#[case] input: BehaviorState) -> Result<(), Error> {
 async fn run_once_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, RunOnce, "RunOnce")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

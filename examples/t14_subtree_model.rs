@@ -4,10 +4,11 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_14_subtree_model).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t14_subtree_model.cpp).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::prelude::*;
-use common::test_data::SaySomething;
+use test_data::SaySomething;
 
 // region:		--- Example0
 /// A completely manual remapping.
@@ -37,8 +38,7 @@ const XML0: &str = r#"
 "#;
 
 async fn example0() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
-	factory.register_test_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	// register subtrees behaviors
@@ -84,8 +84,7 @@ const XML1: &str = r#"
 "#;
 
 async fn example1() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
-	factory.register_test_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	// register subtrees behaviors
@@ -137,8 +136,7 @@ const XML2: &str = r#"
 "#;
 
 async fn example2() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
-	factory.register_test_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	// register subtrees behaviors
@@ -192,7 +190,7 @@ const XML3_SUBTREE: &str = r#"
 "#;
 
 async fn example3() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	factory.register_behavior_tree_from_text(XML3_SUBTREE)?;
 	factory.register_behavior_tree_from_text(XML3)?;
@@ -241,7 +239,7 @@ mod move_robot {
 	#[allow(clippy::wildcard_imports)]
 	use super::*;
 
-	use common::test_data::Pose2D;
+	use test_data::Pose2D;
 
 	/// Action `MoveBase`
 	#[derive(Action, Debug, Default)]

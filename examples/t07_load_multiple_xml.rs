@@ -8,10 +8,11 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_07_multiple_xml).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t07_load_multiple_xml.cpp).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::prelude::*;
-use common::test_data::SaySomething;
+use test_data::SaySomething;
 
 const XML_MAIN: &str = r#"
 <root BTCPP_format="4">
@@ -42,7 +43,7 @@ const XML_SUB_B: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 
@@ -73,7 +74,7 @@ async fn example() -> BehaviorTreeResult {
 }
 
 async fn example_from_file() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 
@@ -122,7 +123,7 @@ async fn example_with_include() -> BehaviorTreeResult {
 	dir.push("examples");
 	std::env::set_current_dir(dir)?;
 
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 

@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, decorator::KeepRunningUntilFailure};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const KEEP_RUNNING_UNTIL_FAILURE: &str = r#"
@@ -46,7 +46,6 @@ async fn keep_running_until_failure_raw() -> Result<(), Error> {
 		BehaviorState::Success,
 		3
 	)?;
-	register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 
 	let mut tree = factory.create_from_text(KEEP_RUNNING_UNTIL_FAILURE)?;
 	drop(factory);
@@ -94,7 +93,6 @@ const TREE_DEFINITION: &str = r#"
 async fn keep_runnning_until_failure(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -121,7 +119,6 @@ async fn keep_runnning_until_failure(#[case] input: BehaviorState, #[case] expec
 async fn keep_runnning_until_failure_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

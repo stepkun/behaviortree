@@ -53,8 +53,8 @@ async fn main() {
     let mut factory = BehaviorTreeFactory::new().unwrap();
 
     // register your behaviors
-    register_behavior!(factory, action_1, "MyAction1", BehaviorKind::Action).unwrap();
-    register_behavior!(factory, action_2, "MyAction2", BehaviorKind::Action).unwrap();
+    register_simple_behavior!(factory, action_1, "MyAction1", BehaviorKind::Action).unwrap();
+    register_simple_behavior!(factory, action_2, "MyAction2", BehaviorKind::Action).unwrap();
 
     // create the tree
     let mut tree = factory.create_from_text(XML).unwrap();

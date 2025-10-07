@@ -4,11 +4,12 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_15_replace_rules).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t15_nodes_mocking.cpp).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
-use crate::common::test_data::SaySomething;
 use behaviortree::{behavior::test_behavior::TestBehaviorConfig, factory::registry::SubstitutionRule, prelude::*};
 use core::time::Duration;
+use test_data::SaySomething;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -74,8 +75,8 @@ fn mock_say_something(behavior: &mut BehaviorData) -> BehaviorResult {
 }
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
-	factory.register_test_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
+
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 
 	factory.register_behavior_tree_from_text(XML)?;
@@ -94,8 +95,8 @@ async fn example() -> BehaviorTreeResult {
 	// During the construction phase of the tree, the substitution
 	// rules will be used to instantiate the test behaviors, instead of the
 	// original ones, so these behaviors must be registered beforehand.
-	register_behavior!(factory, mock_action, "MockAction", PortList::default(), BehaviorKind::Action)?;
-	register_behavior!(
+	register_simple_behavior!(factory, mock_action, "MockAction", PortList::default(), BehaviorKind::Action)?;
+	register_simple_behavior!(
 		factory,
 		mock_say_something,
 		"MockSaySomething",

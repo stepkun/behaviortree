@@ -4,11 +4,12 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_04_sequence).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t04_reactive_sequence.cpp).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::prelude::*;
-use common::test_data::{MoveBaseAction, SaySomething, check_battery};
 use std::time::Duration;
+use test_data::{MoveBaseAction, SaySomething, check_battery};
 
 const XML: &str = r#"
 <root BTCPP_format="4"
@@ -41,9 +42,9 @@ const XML_REACTIVE: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, check_battery, "BatteryOK", BehaviorKind::Condition)?;
+	register_simple_behavior!(factory, check_battery, "BatteryOK", BehaviorKind::Condition)?;
 	register_behavior!(factory, MoveBaseAction, "MoveBase")?;
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 

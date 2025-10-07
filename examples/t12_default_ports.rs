@@ -119,7 +119,7 @@ impl Behavior for BehaviorWithDefaultPoints {
 }
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, BehaviorWithDefaultPoints, "NodeWithDefaultPoints")?;
 

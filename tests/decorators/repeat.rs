@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, decorator::Repeat};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const REPEAT: &str = r#"
@@ -32,7 +32,6 @@ async fn repeat_raw() -> Result<(), Error> {
 		BehaviorState::Success,
 		0
 	)?;
-	register_behavior!(factory, Repeat, "Repeat")?;
 
 	let mut tree = factory.create_from_text(REPEAT)?;
 	drop(factory);
@@ -72,7 +71,6 @@ async fn repeat(
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, Repeat, "Repeat")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -102,7 +100,6 @@ async fn repeat(
 async fn repeat_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, Repeat, "Repeat")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

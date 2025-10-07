@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, control::WhileDoElse};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const WHILE_DO_ELSE: &str = r#"
@@ -62,7 +62,7 @@ async fn while_do_else_raw() -> Result<(), Error> {
 		}
 	}
 
-	let mut factory = BehaviorTreeFactory::with_extended_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(
 		factory,
 		ChangeStateAfter,
@@ -161,7 +161,6 @@ async fn while_do_else(
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
-	register_behavior!(factory, WhileDoElse, "WhileDoElse")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -197,7 +196,6 @@ async fn while_do_else_2_children(
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, WhileDoElse, "WhileDoElse")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION_2_CHILDREN)?;
 	drop(factory);
@@ -233,7 +231,6 @@ async fn while_do_else_errors(
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
-	register_behavior!(factory, WhileDoElse, "WhileDoElse")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

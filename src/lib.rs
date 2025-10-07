@@ -111,6 +111,37 @@ const POST: &str = "_post";
 /// register_behavior!(<mutable (reference to) behavior factory>, <behavior to register>, <"identifying name">, <arg1>, <arg2>, ...)
 /// ```
 ///
+/// # Example:
+///
+/// ```no-test
+/// let mut factory = BehaviorTreeFactory::new()?;
+/// // register derived behaviors:
+/// register_behavior!(factory, ActionA, "Action_A")?;
+/// register_behavior!(factory, ActionB, "Action_B", 42, "hello world".into())?;
+/// register_behavior!(factory, Loop<Pose2D>, "LoopPose")?;
+/// ```
+#[macro_export]
+macro_rules! register_behavior {
+	// behavior type struct
+	($factory:ident, $tp:ty, $name:literal $(,)?) => {{
+		$factory.register_behavior_type::<$tp>($name)
+	}};
+	// behavior type struct with arguments for construction
+	($factory:ident, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
+		let bhvr_desc = $crate::behavior::behavior_description::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), false, <$tp>::provided_ports());
+		let bhvr_creation_fn = alloc::boxed::Box::new(move || -> alloc::boxed::Box<dyn $crate::behavior::BehaviorExecution> {
+			alloc::boxed::Box::new(<$tp>::new($($arg),*))
+		});
+		$factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
+	}};
+}
+
+/// Macro to register different kinds of behaviors.
+///
+/// # Usage:
+///
 /// Register a simple function as Behavior:
 /// ```no-test
 /// register_behavior!(<mutable (reference to) behavior factory>, <function to register>, <"identifying name">, BehaviorKind::<kind>)
@@ -129,41 +160,14 @@ const POST: &str = "_post";
 ///         <second_func>, "NameForSecondFunc", BehaviorKind::<kind of second func>,
 ///         ...
 /// )?;
-/// /// ```
-///
-/// # Example:
-///
-/// ```no-test
-/// let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
-/// // register derived behaviors:
-/// register_behavior!(factory, ActionA, "Action_A")?;
-/// register_behavior!(factory, ActionB, "Action_B", 42, "hello world".into())?;
-/// register_behavior!(factory, Loop<Pose2D>, "LoopPose")?;
 /// ```
+#[cfg(feature = "simple_behavior")]
 #[macro_export]
-macro_rules! register_behavior {
+macro_rules! register_simple_behavior {
 	// function
-	($factory:ident, $fn:path, $name:literal, $kind:path $(,)?) => {{
-		$factory.register_simple_function($name, alloc::sync::Arc::new($fn), $kind)
-	}};
+	($factory:ident, $fn:path, $name:literal, $kind:path $(,)?) => {{ $factory.register_simple_function($name, alloc::sync::Arc::new($fn), $kind) }};
 	// function with ports
-	($factory:ident, $fn:path, $name:literal, $ports:expr, $kind:path $(,)?) => {{
-		$factory.register_simple_function_with_ports($name, alloc::sync::Arc::new($fn), $kind, $ports)
-	}};
-	// behavior type struct
-	($factory:ident, $tp:ty, $name:literal $(,)?) => {{
-		$factory.register_behavior_type::<$tp>($name)
-	}};
-	// behavior type struct with arguments for construction
-	($factory:ident, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
-		let bhvr_desc = $crate::behavior::behavior_description::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), false, <$tp>::provided_ports());
-		let bhvr_creation_fn = alloc::boxed::Box::new(move || -> alloc::boxed::Box<dyn $crate::behavior::BehaviorExecution> {
-			alloc::boxed::Box::new(<$tp>::new($($arg),*))
-		});
-		$factory
-			.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)
-	}};
+	($factory:ident, $fn:path, $name:literal, $ports:expr, $kind:path $(,)?) => {{ $factory.register_simple_function_with_ports($name, alloc::sync::Arc::new($fn), $kind, $ports) }};
 	// multiple methods of a struct - will indicate only the last error if any
 	// this needs to be last becaus the second argument beiing an expression covers most other kinds!!
 	// returns an Arc-Mutex-wrapped item of the given struct

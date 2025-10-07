@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, decorator::Inverter};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const INVERTER: &str = r#"
@@ -46,7 +46,6 @@ async fn inverter_raw() -> Result<(), Error> {
 		BehaviorState::Failure,
 		0
 	)?;
-	register_behavior!(factory, Inverter, "Inverter")?;
 
 	let mut tree = factory.create_from_text(INVERTER)?;
 	drop(factory);
@@ -90,7 +89,6 @@ const TREE_DEFINITION: &str = r#"
 async fn inverter(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, Inverter, "Inverter")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -116,7 +114,6 @@ async fn inverter(#[case] input: BehaviorState, #[case] expected: BehaviorState)
 async fn inverter_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, Inverter, "Inverter")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

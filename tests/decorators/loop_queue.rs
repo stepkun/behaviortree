@@ -3,10 +3,7 @@
 
 extern crate alloc;
 
-use behaviortree::{
-	behavior::{SharedQueue, action::Script, decorator::Loop},
-	prelude::*,
-};
+use behaviortree::{behavior::SharedQueue, prelude::*};
 
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4">
@@ -24,8 +21,6 @@ const TREE_DEFINITION: &str = r#"
 #[tokio::test]
 async fn loop_over_string_queue() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, Loop<String>, "LoopString")?;
-	register_behavior!(factory, Script, "Script")?;
 
 	factory.register_behavior_tree_from_text(TREE_DEFINITION)?;
 

@@ -5,14 +5,15 @@
 
 // //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-advanced/tutorial_18_XXX).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::{
 	behavior::{SharedQueue, decorator::Loop},
 	prelude::*,
 };
-use common::test_data::Pose2D;
 use std::time::Duration;
+use test_data::Pose2D;
 
 #[derive(Action, Debug, Default)]
 struct GenerateWaypoints;
@@ -109,7 +110,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, Loop<Pose2D>, "LoopPose")?;
 	register_behavior!(factory, UseWaypoint, "UseWaypoint")?;

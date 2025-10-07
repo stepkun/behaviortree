@@ -3,10 +3,7 @@
 
 extern crate alloc;
 
-use behaviortree::{
-	behavior::action::{SetBlackboard, UnsetBlackboard},
-	prelude::*,
-};
+use behaviortree::prelude::*;
 
 const SET_TREE_DEFINITION1: &str = r#"
 <root BTCPP_format="4">
@@ -35,8 +32,6 @@ const UNSET_TREE_DEFINITION: &str = r#"
 #[tokio::test]
 async fn set_unset_blackboard() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, SetBlackboard<String>, "SetBlackboard")?;
-	register_behavior!(factory, UnsetBlackboard<String>, "UnsetBlackboard")?;
 
 	factory.register_behavior_tree_from_text(SET_TREE_DEFINITION1)?;
 	factory.register_behavior_tree_from_text(SET_TREE_DEFINITION2)?;

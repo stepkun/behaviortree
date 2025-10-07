@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, decorator::RetryUntilSuccessful};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const RETRY_UNTIL_SUCCESSFUL: &str = r#"
@@ -46,7 +46,6 @@ async fn retry_until_successful_raw() -> Result<(), Error> {
 		BehaviorState::Failure,
 		1
 	)?;
-	register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
 
 	let mut tree = factory.create_from_text(RETRY_UNTIL_SUCCESSFUL)?;
 	drop(factory);
@@ -88,7 +87,6 @@ const TREE_DEFINITION: &str = r#"
 async fn retry_until_successful(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Failure, input, 0)?;
-	register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -116,7 +114,6 @@ async fn retry_until_successful(#[case] input: BehaviorState, #[case] expected: 
 async fn retry_until_successful_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

@@ -4,17 +4,9 @@
 #![allow(missing_docs)]
 #![allow(clippy::unwrap_used)]
 
-use std::time::Duration;
-
-use behaviortree::{
-	behavior::{
-		BehaviorState::{Failure, Running, Success},
-		action::ChangeStateAfter,
-		control::{ReactiveSequence, Sequence, SequenceWithMemory},
-	},
-	prelude::*,
-};
+use behaviortree::prelude::*;
 use criterion::{Criterion, criterion_group, criterion_main};
+use std::time::Duration;
 
 const SAMPLES: usize = 10;
 const ITERATIONS: usize = 10;
@@ -107,22 +99,6 @@ fn sequence(c: &mut Criterion) {
 		.sample_size(SAMPLES);
 
 	let mut factory = BehaviorTreeFactory::new().unwrap();
-	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5).unwrap();
-	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").unwrap();
-	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").unwrap();
-	let bhvr_desc = BehaviorDescription::new(
-		"AsyncSequence",
-		"AsynchSequence",
-		Sequence::kind(),
-		true,
-		Sequence::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(Sequence::new(true)) });
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)
-		.unwrap();
 
 	let mut tree = factory.create_from_text(STANDARD).unwrap();
 	group.bench_function("standard", |b| {
@@ -131,8 +107,8 @@ fn sequence(c: &mut Criterion) {
 				for _ in 1..=ITERATIONS {
 					tree.reset().unwrap();
 					let _result = tree.tick_while_running().await.unwrap();
+					std::hint::black_box(());
 				}
-				std::hint::black_box(());
 			});
 		});
 	});
@@ -144,8 +120,8 @@ fn sequence(c: &mut Criterion) {
 				for _ in 1..=ITERATIONS {
 					tree.reset().unwrap();
 					let _result = tree.tick_while_running().await.unwrap();
+					std::hint::black_box(());
 				}
-				std::hint::black_box(());
 			});
 		});
 	});
@@ -157,8 +133,8 @@ fn sequence(c: &mut Criterion) {
 				for _ in 1..=ITERATIONS {
 					tree.reset().unwrap();
 					let _result = tree.tick_while_running().await.unwrap();
+					std::hint::black_box(());
 				}
-				std::hint::black_box(());
 			});
 		});
 	});

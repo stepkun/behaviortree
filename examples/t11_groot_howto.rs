@@ -4,11 +4,14 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_11_groot2).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t11_groot_howto.cpp).
 
-mod common;
+#[path = "./common/cross_door.rs"]
+mod cross_door;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::{Groot2Connector, XmlCreator, prelude::*};
-use common::cross_door::CrossDoor;
-use common::test_data::Position2D;
+use cross_door::CrossDoor;
+use test_data::Position2D;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -65,7 +68,7 @@ impl Behavior for UpdatePosition {
 
 // @TODO: groot publishing missing
 async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	// special creation/registration of multiple methods of a struct
 	#[cfg(test)]

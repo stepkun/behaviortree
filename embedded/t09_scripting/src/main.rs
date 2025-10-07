@@ -4,13 +4,13 @@
 #![no_main]
 #![no_std]
 
-#[path = "../../common/mod.rs"]
-mod common;
+#[path = "../../common/test_data.rs"]
+mod test_data;
 
 use alloc::vec;
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;
-use common::test_data::SaySomething;
+use test_data::SaySomething;
 
 const XML: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
@@ -41,7 +41,7 @@ enum Color {
 }
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_scripting_enum!(factory, Color);
 	register_scripting_enum!(factory, "THE_ANSWER", 42, "OTHER", 43);

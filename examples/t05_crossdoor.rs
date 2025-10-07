@@ -4,10 +4,11 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_05_subtrees).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t01_build_your_first_tree.cpp).
 
-mod common;
+#[path = "./common/cross_door.rs"]
+mod cross_door;
 
 use behaviortree::prelude::*;
-use common::cross_door::CrossDoor;
+use cross_door::CrossDoor;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -36,7 +37,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	CrossDoor::register_behaviors(&mut factory)?;
 

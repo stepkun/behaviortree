@@ -12,12 +12,8 @@ extern crate alloc;
 mod tests {
 	use behaviortree::{
 		behavior::{
-			SharedQueue,
-			action::{ChangeStateAfter, Script},
-			decorator::{
-				EntryUpdated, ForceState, Inverter, KeepRunningUntilFailure, Loop, Precondition, Repeat,
-				RetryUntilSuccessful, RunOnce,
-			},
+			ChangeStateAfter, SharedQueue,
+			decorator::{EntryUpdated, ForceState},
 		},
 		prelude::*,
 	};
@@ -213,7 +209,6 @@ mod tests {
 			BehaviorState::Failure,
 			0
 		)?;
-		register_behavior!(factory, Inverter, "Inverter")?;
 
 		let mut tree = factory.create_from_text(INVERTER)?;
 		drop(factory);
@@ -273,7 +268,6 @@ mod tests {
 			BehaviorState::Success,
 			3
 		)?;
-		register_behavior!(factory, KeepRunningUntilFailure, "KeepRunningUntilFailure")?;
 
 		let mut tree = factory.create_from_text(KEEP_RUNNING_UNTIL_FAILURE)?;
 		drop(factory);
@@ -318,8 +312,6 @@ mod tests {
 	#[test]
 	async fn loop_queue() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
-		register_behavior!(factory, Loop<String>, "LoopString")?;
-		register_behavior!(factory, Script, "Script")?;
 
 		factory.register_behavior_tree_from_text(LOOP_TREE_DEFINITION)?;
 
@@ -365,8 +357,6 @@ mod tests {
 	#[test]
 	async fn precondition() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
-		factory.register_test_behaviors()?;
-		register_behavior!(factory, Precondition, "Precondition")?;
 
 		factory.register_behavior_tree_from_text(PRECONDITION_XML)?;
 
@@ -405,7 +395,6 @@ mod tests {
 			BehaviorState::Success,
 			0
 		)?;
-		register_behavior!(factory, Repeat, "Repeat")?;
 
 		let mut tree = factory.create_from_text(REPEAT)?;
 		drop(factory);
@@ -457,7 +446,6 @@ mod tests {
 			BehaviorState::Failure,
 			1
 		)?;
-		register_behavior!(factory, RetryUntilSuccessful, "RetryUntilSuccessful")?;
 
 		let mut tree = factory.create_from_text(RETRY_UNTIL_SUCCESSFUL)?;
 		drop(factory);
@@ -515,7 +503,6 @@ mod tests {
 			BehaviorState::Failure,
 			0
 		)?;
-		register_behavior!(factory, RunOnce, "RunOnce")?;
 
 		let mut tree = factory.create_from_text(RUN_ONCE)?;
 		drop(factory);

@@ -31,5 +31,9 @@ ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [
 ] }
 ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
 async-trait = { version = "0.1.89", default-features = false }
-behaviortree = { path = "../..", default-features = false }
+behaviortree = { path = "../..", default-features = false, features = [
+  "loop_double",
+  "loop_queue",
+  "sequence",
+] }
 spin = { version = "0.10.0", default-features = false }

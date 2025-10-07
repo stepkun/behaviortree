@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, control::ReactiveSequence};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const REACTIVE_SEQUENCE: &str = r#"
@@ -62,7 +62,7 @@ async fn reactive_sequence_raw() -> Result<(), Error> {
 		}
 	}
 
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(
 		factory,
 		ChangeStateAfter,
@@ -148,7 +148,6 @@ async fn reactive_sequence(
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -185,7 +184,6 @@ async fn reactive_sequence_errors(
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -211,7 +209,6 @@ async fn reactive_sequence_reactiveness1(
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -255,7 +252,6 @@ async fn reactive_sequence_reactiveness2(
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

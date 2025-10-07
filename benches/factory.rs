@@ -4,17 +4,9 @@
 #![allow(missing_docs)]
 #![allow(clippy::unwrap_used)]
 
-use std::time::Duration;
-
-use behaviortree::{
-	behavior::{
-		BehaviorState::{Failure, Running, Success},
-		action::ChangeStateAfter,
-		control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
-	},
-	prelude::*,
-};
+use behaviortree::prelude::*;
 use criterion::{Criterion, criterion_group, criterion_main};
+use std::time::Duration;
 
 const SAMPLES: usize = 10;
 const ITERATIONS: usize = 10;
@@ -87,14 +79,8 @@ const SUBTREE: &str = r#"
 </root>
 "#;
 
-fn create_factory() -> Result<BehaviorTreeFactory, Error> {
+fn create_factory() -> Result<Box<BehaviorTreeFactory>, Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "AlwaysFailure", Running, Failure, 5)?;
-	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5)?;
-	register_behavior!(factory, ParallelAll, "ParallelAll")?;
-	register_behavior!(factory, ReactiveFallback, "ReactiveFallback")?;
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence")?;
-	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory")?;
 	factory
 		.register_behavior_tree_from_text(SUBTREE)
 		.unwrap();
@@ -115,8 +101,8 @@ fn factory(c: &mut Criterion) {
 			for _ in 1..=ITERATIONS {
 				let factory = create_factory().unwrap();
 				drop(factory);
+				std::hint::black_box(());
 			}
-			std::hint::black_box(());
 		});
 	});
 
@@ -125,8 +111,8 @@ fn factory(c: &mut Criterion) {
 		b.iter(|| {
 			for _ in 1..=100 {
 				let _tree = factory.create_tree("MainTree").unwrap();
+				std::hint::black_box(());
 			}
-			std::hint::black_box(());
 		});
 	});
 }

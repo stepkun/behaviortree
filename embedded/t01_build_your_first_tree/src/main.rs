@@ -4,12 +4,12 @@
 #![no_main]
 #![no_std]
 
-#[path = "../../common/mod.rs"]
-mod common;
+#[path = "../../common/test_data.rs"]
+mod test_data;
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;
-use common::test_data::{ApproachObject, GripperInterface, check_battery};
+use test_data::{ApproachObject, GripperInterface, check_battery};
 
 const XML: &str = r#"
 <root BTCPP_format="4"
@@ -34,10 +34,10 @@ async fn example() -> BehaviorTreeResult {
 	register_behavior!(factory, ApproachObject, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
-	register_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
+	register_simple_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
 
 	// You can also create SimpleAction/SimpleCondition using methods of a struct.
-	register_behavior!(
+	register_simple_behavior!(
 		factory,
 		GripperInterface::default(),
 		open,
@@ -86,10 +86,10 @@ async fn example_explicite() -> BehaviorTreeResult {
 	register_behavior!(factory, ApproachObject, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
-	register_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
+	register_simple_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
 
 	// You can also create SimpleAction/SimpleCondition using methods of a struct.
-	register_behavior!(
+	register_simple_behavior!(
 		factory,
 		GripperInterface::default(),
 		open,

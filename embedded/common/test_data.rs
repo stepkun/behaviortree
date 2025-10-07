@@ -15,7 +15,7 @@ use behaviortree::prelude::*;
 /// Action `ApproachObject`
 /// Example of custom `ActionNode` (synchronous action) without ports.
 #[derive(Action, Debug, Default)]
-pub struct ApproachObject {}
+pub struct ApproachObject;
 
 #[async_trait::async_trait]
 impl Behavior for ApproachObject {
@@ -88,7 +88,7 @@ impl Behavior for SaySomething {
 
 /// Action `ThinkWhatToSay`
 #[derive(Action, Debug, Default)]
-pub struct ThinkWhatToSay {}
+pub struct ThinkWhatToSay;
 
 #[async_trait::async_trait]
 impl Behavior for ThinkWhatToSay {

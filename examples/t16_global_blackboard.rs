@@ -69,7 +69,7 @@ async fn example() -> BehaviorTreeResult {
 	// Trees blackboard has global blackboard as parent
 	let root_blackboard = Databoard::with(Some(global_blackboard.clone()), None, false);
 
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, PrintNumber, "PrintNumber")?;
 

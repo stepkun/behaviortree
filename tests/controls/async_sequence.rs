@@ -4,8 +4,7 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::action::ChangeStateAfter;
-use behaviortree::prelude::*;
+use behaviortree::{behavior::ChangeStateAfter, prelude::*};
 
 const ASYNC_SEQUENCE: &str = r#"
 <root BTCPP_format="4"
@@ -59,7 +58,7 @@ async fn async_sequence_raw() -> Result<(), Error> {
 		}
 	}
 
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(
 		factory,
 		ChangeStateAfter,

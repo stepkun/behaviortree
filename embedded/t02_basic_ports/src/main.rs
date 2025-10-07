@@ -4,12 +4,12 @@
 #![no_main]
 #![no_std]
 
-#[path = "../../common/mod.rs"]
-mod common;
+#[path = "../../common/test_data.rs"]
+mod test_data;
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;
-use common::test_data::{SaySomething, ThinkWhatToSay, say_something_simple};
+use test_data::{SaySomething, ThinkWhatToSay, say_something_simple};
 
 const XML: &str = r#"
 <root BTCPP_format="4"
@@ -41,7 +41,7 @@ async fn example() -> BehaviorTreeResult {
 	// we have to pass the PortsList explicitly if we want the Action to use get_input()
 	// or set_output();
 	let say_something_ports = port_list! {input_port!(String, "message")};
-	register_behavior!(
+	register_simple_behavior!(
 		factory,
 		say_something_simple,
 		"SaySomething2",

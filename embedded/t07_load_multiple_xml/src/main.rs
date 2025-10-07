@@ -4,12 +4,12 @@
 #![no_main]
 #![no_std]
 
-#[path = "../../common/mod.rs"]
-mod common;
+#[path = "../../common/test_data.rs"]
+mod test_data;
 
 use ariel_os::debug::{ExitCode, exit, log::*};
 use behaviortree::prelude::*;
-use common::test_data::SaySomething;
+use test_data::SaySomething;
 
 const XML_MAIN: &str = r#"
 <root BTCPP_format="4">
@@ -40,7 +40,7 @@ const XML_SUB_B: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 

@@ -6,8 +6,7 @@
 
 extern crate alloc;
 
-use behaviortree::prelude::*;
-use behaviortree::{BehaviorTreeObserver, behavior::action::ChangeStateAfter};
+use behaviortree::{BehaviorTreeObserver, prelude::*};
 
 const TREE: &str = r#"
 <root BTCPP_format="4"
@@ -25,24 +24,6 @@ const TREE: &str = r#"
 #[tokio::test]
 async fn tree_observer() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"AlwaysFailure",
-		BehaviorState::Running,
-		BehaviorState::Failure,
-		2
-	)
-	.unwrap();
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"AlwaysSuccess",
-		BehaviorState::Running,
-		BehaviorState::Success,
-		2
-	)
-	.unwrap();
 
 	let mut tree = factory.create_from_text(TREE)?;
 	let observer = BehaviorTreeObserver::new(&mut tree);
@@ -55,14 +36,14 @@ async fn tree_observer() -> Result<(), Error> {
 			.get_statistics(4)
 			.unwrap()
 			.transitions_count,
-		3
+		2
 	);
 	assert_eq!(
 		observer
 			.get_statistics(4)
 			.unwrap()
 			.transitions_count,
-		3
+		2
 	);
 	assert_eq!(
 		observer

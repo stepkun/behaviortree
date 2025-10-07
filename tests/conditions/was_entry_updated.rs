@@ -4,7 +4,7 @@
 
 extern crate alloc;
 
-use behaviortree::{behavior::condition::WasEntryUpdated, prelude::*};
+use behaviortree::prelude::*;
 
 const TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4"
@@ -18,7 +18,6 @@ const TREE_DEFINITION: &str = r#"
 #[tokio::test]
 async fn was_entry_updated() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -50,7 +49,6 @@ async fn was_entry_updated() -> Result<(), Error> {
 #[tokio::test]
 async fn was_entry_updated_error() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

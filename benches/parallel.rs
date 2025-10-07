@@ -4,17 +4,9 @@
 #![allow(missing_docs)]
 #![allow(clippy::unwrap_used)]
 
-use std::time::Duration;
-
-use behaviortree::{
-	behavior::{
-		BehaviorState::{Running, Success},
-		action::ChangeStateAfter,
-		control::ParallelAll,
-	},
-	prelude::*,
-};
+use behaviortree::prelude::*;
 use criterion::{Criterion, criterion_group, criterion_main};
+use std::time::Duration;
 
 const SAMPLES: usize = 10;
 const ITERATIONS: usize = 10;
@@ -79,8 +71,6 @@ fn parallel(c: &mut Criterion) {
 		.sample_size(SAMPLES);
 
 	let mut factory = BehaviorTreeFactory::new().unwrap();
-	register_behavior!(factory, ChangeStateAfter, "AlwaysSuccess", Running, Success, 5).unwrap();
-	register_behavior!(factory, ParallelAll, "ParallelAll").unwrap();
 	factory
 		.register_behavior_tree_from_text(SUBTREE)
 		.unwrap();
@@ -92,8 +82,8 @@ fn parallel(c: &mut Criterion) {
 				for _ in 1..=ITERATIONS {
 					tree.reset().unwrap();
 					let _result = tree.tick_while_running().await.unwrap();
+					std::hint::black_box(());
 				}
-				std::hint::black_box(());
 			});
 		});
 	});
@@ -105,8 +95,8 @@ fn parallel(c: &mut Criterion) {
 				for _ in 1..=ITERATIONS {
 					tree.reset().unwrap();
 					let _result = tree.tick_while_running().await.unwrap();
+					std::hint::black_box(());
 				}
-				std::hint::black_box(());
 			});
 		});
 	});

@@ -5,6 +5,7 @@
 pub mod error;
 #[allow(clippy::module_inception)]
 mod factory;
+#[cfg(feature = "test_behavior")]
 mod json_config;
 pub mod registry;
 

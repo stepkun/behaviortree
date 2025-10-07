@@ -32,7 +32,13 @@ ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [
 ] }
 ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
 async-trait = { version = "0.1.89", default-features = false }
-behaviortree = { path = "../..", default-features = false }
+behaviortree = { path = "../..", default-features = false, features = [
+  "fallback",
+  "inverter",
+  "reactive_sequence",
+  "repeat",
+  "while_do_else",
+] }
 embedded-hal = { version = "1.0.0", default-features = false }
 embassy-futures = { version = "0.1.1", default-features = false }
 spin = { version = "0.10.0", default-features = false }

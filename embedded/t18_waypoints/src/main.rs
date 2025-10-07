@@ -4,8 +4,8 @@
 #![no_main]
 #![no_std]
 
-#[path = "../../common/mod.rs"]
-mod common;
+#[path = "../../common/test_data.rs"]
+mod test_data;
 
 use ariel_os::{
 	debug::{ExitCode, exit, log::*},
@@ -15,7 +15,7 @@ use behaviortree::{
 	behavior::{SharedQueue, decorator::Loop},
 	prelude::*,
 };
-use common::test_data::Pose2D;
+use test_data::Pose2D;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -112,7 +112,7 @@ impl Behavior for UseWaypoint {
 }
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	factory.register_behavior_type::<Loop<Pose2D>>("LoopPose")?;
 

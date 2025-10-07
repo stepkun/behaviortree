@@ -4,10 +4,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, decorator::EntryUpdated};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter, decorator::EntryUpdated},
+	prelude::*,
+};
 use rstest::rstest;
 
 const ENTRY_UPDATED: &str = r#"

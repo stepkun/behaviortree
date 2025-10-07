@@ -2,7 +2,7 @@
 [package]
 resolver = "3"
 name = "behaviortree"
-version = "0.6.1"
+version = "0.7.0"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
@@ -108,7 +108,59 @@ rstest = "0.26.1"
 trybuild = { version = "1.0.110", features = ["diff"] }
 
 [features]
-default = ["std"]
+default = ["std", "all_behaviors"]
+all_behaviors = [
+    "always_failure",
+    "always_running",
+    "always_success",
+    "async_fallback",
+    "async_sequence",
+    "change_state_after",
+    "delay",
+    "fallback",
+    "force_failure",
+    "force_running",
+    "force_success",
+    "if_then_else",
+    "inverter",
+    "keep_running_until_failure",
+    "loop_bool",
+    "loop_double",
+    "loop_int",
+    "loop_string",
+    "parallel",
+    "parallel_all",
+    "pop_bool",
+    "pop_double",
+    "pop_int",
+    "pop_string",
+    "precondition",
+    "reactive_fallback",
+    "reactive_sequence",
+    "repeat",
+    "retry_until_successful",
+    "run_once",
+    "script",
+    "script_condition",
+    "sequence",
+    "sequence_with_memory",
+    "set_blackboard",
+    "simple_behavior",
+    "skip_unless_updated",
+    "sleep",
+    "switch2",
+    "switch3",
+    "switch4",
+    "switch5",
+    "switch6",
+    "test_behavior",
+    "timeout",
+    "unset_blackboard",
+    "wait_value_updated",
+    "was_entry_updated",
+    "while_do_else",
+
+] # shortcuts for certain purposesdefault = ["std", "all_behaviors"]
 std = [
     "databoard/std",
     "libloading",
@@ -121,6 +173,66 @@ std = [
     "zeromq",
     "zeromq/tokio-runtime",
 ]
+# modules that contain multiple implementations
+change_state_after = []
+entry_updated = []
+fallbacks = []
+force_state = []
+loop_queue = []
+pop_from_queue = []
+sequences = []
+switch = []
+test_behavior = []
+# special features
+mocking = ["test_behavior"]
+# the behaviors
+always_failure = ["test_behavior"]
+always_running = ["test_behavior"]
+always_success = ["test_behavior"]
+async_fallback = ["fallbacks"]
+async_sequence = ["sequences"]
+delay = []
+fallback = ["fallbacks"]
+force_failure = ["force_state"]
+force_running = ["force_state"]
+force_success = ["force_state"]
+if_then_else = []
+inverter = []
+keep_running_until_failure = []
+loop_bool = ["loop_queue"]
+loop_double = ["loop_queue"]
+loop_int = ["loop_queue"]
+loop_string = ["loop_queue"]
+parallel = []
+parallel_all = []
+pop_bool = ["pop_from_queue"]
+pop_double = ["pop_from_queue"]
+pop_int = ["pop_from_queue"]
+pop_string = ["pop_from_queue"]
+precondition = []
+reactive_fallback = []
+reactive_sequence = []
+repeat = []
+retry_until_successful = []
+run_once = []
+script = []
+script_condition = []
+set_blackboard = []
+simple_behavior = []
+skip_unless_updated = ["entry_updated"]
+sleep = []
+sequence = ["sequences"]
+sequence_with_memory = []
+switch2 = ["switch"]
+switch3 = ["switch"]
+switch4 = ["switch"]
+switch5 = ["switch"]
+switch6 = ["switch"]
+timeout = []
+unset_blackboard = []
+wait_value_updated = ["entry_updated"]
+was_entry_updated = ["entry_updated"]
+while_do_else = []
 
 [profile.release]
 opt-level = 's'        # Optimize for size.

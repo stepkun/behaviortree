@@ -4,22 +4,30 @@
 pub mod action;
 pub mod behavior_data;
 pub mod behavior_description;
+#[cfg(feature = "change_state_after")]
+mod change_state_after;
 pub mod condition;
 pub mod control;
 pub mod decorator;
 pub mod error;
 pub mod pre_post_conditions;
 mod shared_queue;
+#[cfg(feature = "simple_behavior")]
 mod simple_behavior;
 mod sub_tree;
+#[cfg(feature = "test_behavior")]
 pub mod test_behavior;
 
 // flatten
+#[cfg(feature = "change_state_after")]
+pub use change_state_after::ChangeStateAfter;
 pub use error::Error as BehaviorError;
 use nanoserde::DeJson;
 pub use shared_queue::SharedQueue;
+#[cfg(feature = "simple_behavior")]
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 pub use sub_tree::SubTree;
+#[cfg(feature = "test_behavior")]
 pub use test_behavior::{TestBehavior, TestBehaviorConfig};
 
 // region:      --- modules

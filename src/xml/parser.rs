@@ -71,10 +71,17 @@ fn create_data_collection_from_xml(
 	}
 
 	// look for the behavior in the `BehaviorRegistry`
+	#[cfg(feature = "test_behavior")]
 	let res = if is_subtree {
 		registry.fetch_behavior(SUBTREE, &path)
 	} else {
 		registry.fetch_behavior(behavior_id, &path)
+	};
+	#[cfg(not(feature = "test_behavior"))]
+	let res = if is_subtree {
+		registry.fetch_behavior(SUBTREE)
+	} else {
+		registry.fetch_behavior(behavior_id)
 	};
 	let Ok((mut bhvr_desc, bhvr)) = res else {
 		return Err(Error::NotRegistered {

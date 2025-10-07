@@ -30,7 +30,9 @@ ariel-os = { path = "../../build/imports/ariel-os/src/ariel-os", features = [
   "time",
 ] }
 ariel-os-boards = { path = "../../build/imports/ariel-os/src/ariel-os-boards" }
-behaviortree = { path = "../..", default-features = false }
+behaviortree = { path = "../..", default-features = false, features = [
+  "all_behaviors",
+] }
 
 [dev-dependencies]
 embedded-test = { version = "0.6.0", features = ["ariel-os"] }

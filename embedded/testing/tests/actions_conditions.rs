@@ -10,14 +10,7 @@ extern crate alloc;
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-	use behaviortree::{
-		behavior::{
-			SharedQueue,
-			action::{PopFromQueue, Script, SetBlackboard, UnsetBlackboard},
-			condition::{ScriptCondition, WasEntryUpdated},
-		},
-		prelude::*,
-	};
+	use behaviortree::{behavior::SharedQueue, prelude::*};
 
 	const SET_TREE_DEFINITION1: &str = r#"
 <root BTCPP_format="4">
@@ -46,8 +39,6 @@ mod tests {
 	#[test]
 	async fn blackboard() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
-		register_behavior!(factory, SetBlackboard<String>, "SetBlackboard")?;
-		register_behavior!(factory, UnsetBlackboard<String>, "UnsetBlackboard")?;
 
 		factory.register_behavior_tree_from_text(SET_TREE_DEFINITION1)?;
 		factory.register_behavior_tree_from_text(SET_TREE_DEFINITION2)?;
@@ -78,7 +69,7 @@ mod tests {
 	const POP_FROM_QUEUE_TREE_DEFINITION: &str = r#"
 <root BTCPP_format="4">
 	<BehaviorTree ID="MainTree">
-		<PopFromQueue/>
+		<PopInt/>
 	</BehaviorTree>
 </root>
 "#;
@@ -86,7 +77,6 @@ mod tests {
 	#[test]
 	async fn pop_from_queue() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
-		register_behavior!(factory, PopFromQueue<i32>, "PopFromQueue")?;
 
 		factory.register_behavior_tree_from_text(POP_FROM_QUEUE_TREE_DEFINITION)?;
 
@@ -134,7 +124,6 @@ mod tests {
 	#[test]
 	async fn script() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
-		register_behavior!(factory, Script, "Script")?;
 
 		factory.register_behavior_tree_from_text(SCRIPT_XML)?;
 
@@ -181,8 +170,6 @@ mod tests {
 	#[test]
 	async fn script_conditions() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
-		factory.register_test_behaviors()?;
-		register_behavior!(factory, ScriptCondition, "ScriptCondition")?;
 
 		factory.register_behavior_tree_from_text(SCRIPT_CONDITION_XML)?;
 
@@ -211,7 +198,6 @@ mod tests {
 	#[test]
 	async fn was_entry_updated() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
-		register_behavior!(factory, WasEntryUpdated, "WasEntryUpdated")?;
 
 		let mut tree = factory.create_from_text(WAS_ENTRY_UPDATED_XML)?;
 		drop(factory);

@@ -4,10 +4,11 @@
 //! [tutorial:](https://https://www.behaviortree.dev/docs/tutorial-basics/tutorial_06_subtree_ports).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t06_subtree_port_remapping.cpp).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::prelude::*;
-use common::test_data::{MoveBaseAction, SaySomething};
+use test_data::{MoveBaseAction, SaySomething};
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -34,8 +35,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
-	factory.register_test_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, SaySomething, "SaySomething")?;
 	register_behavior!(factory, MoveBaseAction, "MoveBase")?;

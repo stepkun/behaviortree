@@ -136,7 +136,7 @@ impl CrossDoor {
 	/// Registration function for the `CrossDoor` interface
 	/// # Errors
 	pub fn register_behaviors(factory: &mut BehaviorTreeFactory) -> Result<Arc<Mutex<Self>>, Error> {
-		let res = register_behavior!(
+		let res = register_simple_behavior!(
 			factory,
 			Self::default(),
 			is_door_closed,

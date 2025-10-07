@@ -268,7 +268,7 @@ impl Behavior for ReadEndContacts {
 
 #[allow(unsafe_code)]
 async fn behavior() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_extended_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, DoorMotorDriver, "DoorMotorDriver")?;
 	register_behavior!(factory, EmergencyOffActive, "EmergencyOffActive")?;

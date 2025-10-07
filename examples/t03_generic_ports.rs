@@ -4,10 +4,11 @@
 //! [tutorial:](https://www.behaviortree.dev/docs/tutorial-basics/tutorial_03_generic_ports).
 //! [cpp-source:](https://github.com/BehaviorTree/BehaviorTree.CPP/blob/master/examples/t03_generic_ports.cpp).
 
-mod common;
+#[path = "./common/test_data.rs"]
+mod test_data;
 
 use behaviortree::prelude::*;
-use common::test_data::{CalculateGoal, PrintTarget};
+use test_data::{CalculateGoal, PrintTarget};
 
 const XML: &str = r#"
 <root BTCPP_format="4"
@@ -24,7 +25,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, CalculateGoal, "CalculateGoal")?;
 	register_behavior!(factory, PrintTarget, "PrintTarget")?;

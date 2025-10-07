@@ -4,15 +4,15 @@
 #![no_main]
 #![no_std]
 
-#[path = "../../common/mod.rs"]
-mod common;
+#[path = "../../common/cross_door.rs"]
+mod cross_door;
 
 use ariel_os::{
 	debug::{ExitCode, exit, log::*},
 	// time::{Duration, Timer},
 };
 use behaviortree::prelude::*;
-use common::cross_door::CrossDoor;
+use cross_door::CrossDoor;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -41,7 +41,7 @@ const XML: &str = r#"
 "#;
 
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	CrossDoor::register_behaviors(&mut factory)?;
 

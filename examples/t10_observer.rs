@@ -35,8 +35,7 @@ const XML: &str = r#"
 
 #[allow(clippy::expect_used)]
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_core_behaviors()?;
-	factory.register_test_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	factory.register_behavior_tree_from_text(XML)?;
 

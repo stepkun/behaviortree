@@ -6,10 +6,6 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::{
-	action::ChangeStateAfter,
-	control::{ParallelAll, ReactiveFallback, ReactiveSequence, SequenceWithMemory},
-};
 use behaviortree::prelude::*;
 
 const TREE: &str = r#"
@@ -77,28 +73,6 @@ const TREE: &str = r#"
 #[tokio::test]
 async fn complex() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"AlwaysFailure",
-		BehaviorState::Running,
-		BehaviorState::Failure,
-		5
-	)
-	.unwrap();
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"AlwaysSuccess",
-		BehaviorState::Running,
-		BehaviorState::Success,
-		5
-	)
-	.unwrap();
-	register_behavior!(factory, ParallelAll, "ParallelAll").unwrap();
-	register_behavior!(factory, ReactiveFallback, "ReactiveFallback").unwrap();
-	register_behavior!(factory, ReactiveSequence, "ReactiveSequence").unwrap();
-	register_behavior!(factory, SequenceWithMemory, "SequenceWithMemory").unwrap();
 
 	let mut tree = factory.create_from_text(TREE)?;
 	drop(factory);

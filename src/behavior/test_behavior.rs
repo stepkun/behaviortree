@@ -144,7 +144,18 @@ impl Behavior for TestBehavior {
 
 /// Implementation resembles the macro generated impl code
 impl TestBehavior {
-	/// Creates a `TestBehavior` creation function with the given configuration.
+	/// Creates a `TestBehavior` with the given configuration.
+	#[must_use]
+	pub const fn new(config: TestBehaviorConfig, port_list: PortList) -> Self {
+		Self {
+			config,
+			port_list,
+			#[cfg(feature = "std")]
+			start_time: None,
+		}
+	}
+
+	/// A `TestBehavior` creation function with the given configuration.
 	#[must_use]
 	#[allow(clippy::needless_pass_by_value)]
 	pub fn creation_fn(config: TestBehaviorConfig, port_list: PortList) -> Box<BehaviorCreationFn> {

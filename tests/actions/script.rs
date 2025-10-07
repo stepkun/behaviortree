@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-use behaviortree::{behavior::action::Script, prelude::*};
+use behaviortree::prelude::*;
 
 const XML: &str = r#"
 <root BTCPP_format="4">
@@ -20,7 +20,6 @@ const XML: &str = r#"
 #[tokio::test]
 async fn script() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, Script, "Script")?;
 
 	factory.register_behavior_tree_from_text(XML)?;
 

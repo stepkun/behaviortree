@@ -5,10 +5,10 @@
 
 extern crate alloc;
 
-use behaviortree::behavior::BehaviorState::*;
-use behaviortree::behavior::{action::ChangeStateAfter, control::Switch};
-use behaviortree::prelude::*;
-
+use behaviortree::{
+	behavior::{BehaviorState::*, ChangeStateAfter},
+	prelude::*,
+};
 use rstest::rstest;
 
 const SWITCH: &str = r#"
@@ -74,7 +74,7 @@ async fn switch_raw() -> Result<(), Error> {
 		}
 	}
 
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 	register_behavior!(
 		factory,
 		ChangeStateAfter,
@@ -148,7 +148,6 @@ async fn switch2(
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
-	factory.register_behavior_type::<Switch<2>>("Switch2")?;
 
 	let mut tree = factory.create_from_text(SWITCH2_TREE)?;
 	drop(factory);
@@ -176,7 +175,6 @@ async fn switch_state_errors() -> Result<(), Error> {
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Idle, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Idle, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Default", Running, Idle, 0)?;
-	factory.register_behavior_type::<Switch<2>>("Switch2")?;
 
 	let mut tree = factory.create_from_text(SWITCH2_TREE)?;
 	drop(factory);
@@ -233,7 +231,6 @@ async fn switch5(
 	register_behavior!(factory, ChangeStateAfter, "Behavior4", Running, input4, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior5", Running, input5, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
-	factory.register_behavior_type::<Switch<5>>("Switch5")?;
 
 	// register the Enum values: BLUE=2
 	factory.register_enum_tuple("GREEN", 1)?;
@@ -281,8 +278,6 @@ async fn switch_wrong_variable_definition() -> Result<(), Error> {
 	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Success, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Success, 0)?;
 	register_behavior!(factory, ChangeStateAfter, "Default", Running, Success, 0)?;
-	factory.register_behavior_type::<Switch<2>>("Switch2")?;
-
 	let mut tree = factory.create_from_text(WRONG_TREE)?;
 	drop(factory);
 

@@ -17,7 +17,7 @@ const XML: &str = r#"
 
 // @TODO: implement
 async fn example() -> BehaviorTreeResult {
-	let mut factory = BehaviorTreeFactory::with_groot2_behaviors()?;
+	let mut factory = BehaviorTreeFactory::new()?;
 
 	// register_behavior!(factory, SaySomething, "SaySomething")?;
 
