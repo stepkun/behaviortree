@@ -38,11 +38,12 @@ use nanoserde::DeJson;
 
 // region:      --- BehaviorTreeFactory
 /// Factory for creation and modification of [`BehaviorTree`]s.
-/// The behaviors are configured via `features`. The following behaviors can be configured:
+/// The behaviors are configured via `features`. The following behaviors can be
+/// activated via configuration in applications `Cargo.toml`:
 /// - Actions:
-///   [`AlwaysFailure`](crate::behavior::ChangeStateAfter): feature `always_failure`
-///   [`AlwaysRunning`](crate::behavior::ChangeStateAfter): feature `always_running`
-///   [`AlwaysSuccess`](crate::behavior::ChangeStateAfter): feature `always_success`
+///   [`AlwaysFailure`](crate::behavior::TestBehavior): feature `always_failure`
+///   [`AlwaysRunning`](crate::behavior::TestBehavior): feature `always_running`
+///   [`AlwaysSuccess`](crate::behavior::TestBehavior): feature `always_success`
 ///   [`PopBool`](crate::behavior::action::PopFromQueue): feature `pop_bool`
 ///   [`PopDouble`](crate::behavior::action::PopFromQueue): feature `pop_double`
 ///   [`PopInt`](crate::behavior::action::PopFromQueue): feature `pop_int`

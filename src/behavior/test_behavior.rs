@@ -155,6 +155,11 @@ impl TestBehavior {
 		}
 	}
 
+	/// Sets the state field.
+	pub const fn set_state(&mut self, state: BehaviorState) {
+		self.config.return_state = state;
+	}
+
 	/// A `TestBehavior` creation function with the given configuration.
 	#[must_use]
 	#[allow(clippy::needless_pass_by_value)]

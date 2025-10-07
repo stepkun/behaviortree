@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter},
+	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig},
 	prelude::*,
 };
 use rstest::rstest;
@@ -23,15 +23,38 @@ const REPEAT: &str = r#"
 
 #[tokio::test]
 async fn repeat_raw() -> Result<(), Error> {
+	fn set_values(tree: &mut BehaviorTree, action_state: BehaviorState) {
+		for behavior in tree.iter_mut() {
+			if behavior.name().as_ref() == "action" {
+				if let Some(behavior) = behavior
+					.behavior_mut()
+					.as_any_mut()
+					.downcast_mut::<TestBehavior>()
+				{
+					behavior.set_state(action_state);
+				}
+			}
+		}
+	}
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
+
+	let config = TestBehaviorConfig {
+		return_state: BehaviorState::Success,
+		..Default::default()
+	};
+	let bhvr_desc = BehaviorDescription::new(
 		"Action",
-		BehaviorState::Running,
-		BehaviorState::Success,
-		0
-	)?;
+		"Action",
+		BehaviorKind::Action,
+		false,
+		TestBehavior::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+	});
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
 	let mut tree = factory.create_from_text(REPEAT)?;
 	drop(factory);
@@ -43,6 +66,10 @@ async fn repeat_raw() -> Result<(), Error> {
 	assert_eq!(result, BehaviorState::Running);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
+	tree.reset()?;
+	set_values(&mut tree, BehaviorState::Failure);
+	result = tree.tick_once().await?;
+	assert_eq!(result, BehaviorState::Failure);
 
 	Ok(())
 }

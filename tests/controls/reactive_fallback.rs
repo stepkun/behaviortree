@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter},
+	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig},
 	prelude::*,
 };
 use rstest::rstest;
@@ -36,49 +36,70 @@ async fn reactive_fallback_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_final_state(condition1_state);
+					behavior.set_state(condition1_state);
 				}
 			}
 			if behavior.name().as_ref() == "condition2" {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_final_state(condition2_state);
+					behavior.set_state(condition2_state);
 				}
 			}
 			if behavior.name().as_ref() == "action" {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_final_state(action_state);
+					behavior.set_state(action_state);
 				}
 			}
 		}
 	}
 
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
+
+	let config = TestBehaviorConfig {
+		return_state: BehaviorState::Failure,
+		..Default::default()
+	};
+	let bhvr_desc = BehaviorDescription::new(
 		"Condition",
-		BehaviorState::Running,
-		BehaviorState::Failure,
-		0
-	)?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
+		"Condition",
+		BehaviorKind::Action,
+		false,
+		TestBehavior::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+	});
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
+	let config = TestBehaviorConfig {
+		return_state: BehaviorState::Failure,
+		..Default::default()
+	};
+	let bhvr_desc = BehaviorDescription::new(
 		"Action",
-		BehaviorState::Running,
-		BehaviorState::Failure,
-		0
-	)?;
+		"Action",
+		BehaviorKind::Action,
+		false,
+		TestBehavior::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+	});
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
 	let mut tree = factory.create_from_text(REACTIVE_FALLBACK)?;
 	drop(factory);
 

@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter},
+	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig},
 	prelude::*,
 };
 use rstest::rstest;
@@ -36,41 +36,52 @@ async fn simple_sequence_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_final_state(action1_state);
+					behavior.set_state(action1_state);
 				}
 			}
 			if behavior.name().as_ref() == "action2" {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_final_state(action2_state);
+					behavior.set_state(action2_state);
 				}
 			}
 			if behavior.name().as_ref() == "action3" {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_final_state(action3_state);
+					behavior.set_state(action3_state);
 				}
 			}
 		}
 	}
 
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
+
+	let config = TestBehaviorConfig {
+		return_state: BehaviorState::Failure,
+		..Default::default()
+	};
+	let bhvr_desc = BehaviorDescription::new(
 		"Action",
-		BehaviorState::Running,
-		BehaviorState::Failure,
-		0
-	)?;
+		"Action",
+		BehaviorKind::Action,
+		false,
+		TestBehavior::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+	});
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
 	let mut tree = factory.create_from_text(SEQUENCE)?;
 	drop(factory);
 

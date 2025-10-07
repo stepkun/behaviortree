@@ -108,14 +108,13 @@ rstest = "0.26.1"
 trybuild = { version = "1.0.110", features = ["diff"] }
 
 [features]
-default = ["std", "all_behaviors"]
+default = ["std", "change_state_after", "all_behaviors"]
 all_behaviors = [
     "always_failure",
     "always_running",
     "always_success",
     "async_fallback",
     "async_sequence",
-    "change_state_after",
     "delay",
     "fallback",
     "force_failure",

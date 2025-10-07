@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter},
+	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig},
 	prelude::*,
 };
 use rstest::rstest;
@@ -29,23 +29,32 @@ async fn keep_running_until_failure_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_state1(action_state);
-					behavior.set_final_state(action_state);
+					behavior.set_state(action_state);
 				}
 			}
 		}
 	}
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
+
+	let config = TestBehaviorConfig {
+		return_state: BehaviorState::Success,
+		..Default::default()
+	};
+	let bhvr_desc = BehaviorDescription::new(
 		"Action",
-		BehaviorState::Success,
-		BehaviorState::Success,
-		3
-	)?;
+		"Action",
+		BehaviorKind::Action,
+		false,
+		TestBehavior::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+	});
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
 	let mut tree = factory.create_from_text(KEEP_RUNNING_UNTIL_FAILURE)?;
 	drop(factory);
@@ -60,16 +69,9 @@ async fn keep_running_until_failure_raw() -> Result<(), Error> {
 	assert_eq!(result, BehaviorState::Running);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Running);
-	tree.reset()?;
 	set_values(&mut tree, BehaviorState::Failure);
 	result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
-	result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
-	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Failure);
-	result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
 
 	Ok(())
 }

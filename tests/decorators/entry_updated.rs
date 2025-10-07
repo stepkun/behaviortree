@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter, decorator::EntryUpdated},
+	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig, decorator::EntryUpdated},
 	prelude::*,
 };
 use rstest::rstest;
@@ -24,15 +24,26 @@ const ENTRY_UPDATED: &str = r#"
 #[tokio::test]
 async fn entry_updated_raw() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
+
 	register_behavior!(factory, EntryUpdated, "EntryUpdated")?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
+
+	let config = TestBehaviorConfig {
+		return_state: BehaviorState::Success,
+		..Default::default()
+	};
+	let bhvr_desc = BehaviorDescription::new(
 		"Action",
-		BehaviorState::Running,
-		BehaviorState::Success,
-		0
-	)?;
+		"Action",
+		BehaviorKind::Action,
+		false,
+		TestBehavior::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+	});
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
 	let mut tree = factory.create_from_text(ENTRY_UPDATED)?;
 	drop(factory);

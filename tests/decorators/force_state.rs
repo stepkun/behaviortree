@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter, decorator::ForceState},
+	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig, decorator::ForceState},
 	prelude::*,
 };
 use rstest::rstest;
@@ -38,9 +38,9 @@ async fn force_state_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<ChangeStateAfter>()
+					.downcast_mut::<TestBehavior>()
 				{
-					behavior.set_final_state(action_state);
+					behavior.set_state(action_state);
 				}
 			}
 		}
@@ -60,44 +60,44 @@ async fn force_state_raw() -> Result<(), Error> {
 		.registry_mut()
 		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
+	let config = TestBehaviorConfig {
+		return_state: BehaviorState::Failure,
+		..Default::default()
+	};
+	let bhvr_desc = BehaviorDescription::new(
 		"Action",
-		BehaviorState::Running,
-		BehaviorState::Failure,
-		1
-	)?;
+		"Action",
+		BehaviorKind::Action,
+		false,
+		TestBehavior::provided_ports(),
+	);
+	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
+		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+	});
+	factory
+		.registry_mut()
+		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+
 	let mut tree = factory.create_from_text(FORCE_STATE)?;
 	drop(factory);
 
 	// case 1
 	let mut result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
-	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Skipped);
 	// case 2
 	set_values(&mut tree, BehaviorState::Success, BehaviorState::Failure);
-	result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
 	// case 2
 	set_values(&mut tree, BehaviorState::Success, BehaviorState::Success);
 	result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
-	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Success);
 	// case 3
 	set_values(&mut tree, BehaviorState::Failure, BehaviorState::Success);
 	result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
-	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Failure);
 	// case 4
 	set_values(&mut tree, BehaviorState::Failure, BehaviorState::Failure);
-	result = tree.tick_once().await?;
-	assert_eq!(result, BehaviorState::Running);
 	result = tree.tick_once().await?;
 	assert_eq!(result, BehaviorState::Failure);
 
