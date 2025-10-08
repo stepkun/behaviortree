@@ -4,8 +4,9 @@
 
 extern crate alloc;
 
+use crate::decorators::utilities::ChangeStateAfter;
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig, decorator::EntryUpdated},
+	behavior::{BehaviorState::*, MockBehavior, MockBehaviorConfig, decorator::EntryUpdated},
 	prelude::*,
 };
 use rstest::rstest;
@@ -27,7 +28,7 @@ async fn entry_updated_raw() -> Result<(), Error> {
 
 	register_behavior!(factory, EntryUpdated, "EntryUpdated")?;
 
-	let config = TestBehaviorConfig {
+	let config = MockBehaviorConfig {
 		return_state: BehaviorState::Success,
 		..Default::default()
 	};
@@ -36,10 +37,10 @@ async fn entry_updated_raw() -> Result<(), Error> {
 		"Action",
 		BehaviorKind::Action,
 		false,
-		TestBehavior::provided_ports(),
+		MockBehavior::provided_ports(),
 	);
 	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+		Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 	});
 	factory
 		.registry_mut()

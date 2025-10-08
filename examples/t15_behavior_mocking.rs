@@ -7,7 +7,7 @@
 #[path = "./common/test_data.rs"]
 mod test_data;
 
-use behaviortree::{behavior::test_behavior::TestBehaviorConfig, factory::registry::SubstitutionRule, prelude::*};
+use behaviortree::{behavior::mock_behavior::MockBehaviorConfig, factory::registry::SubstitutionRule, prelude::*};
 use core::time::Duration;
 use test_data::SaySomething;
 
@@ -40,7 +40,7 @@ const XML: &str = r#"
 "#;
 
 const JSON_CONFIGURATION: &str = r#"{
-	"TestBehaviorConfigs": {
+	"MockBehaviorConfigs": {
 		"NewMessage": {
 			"async_delay": 2000,
 			"return_status": "SUCCESS",
@@ -117,12 +117,12 @@ async fn example() -> BehaviorTreeResult {
 	factory.add_substitution_rule("talk", SubstitutionRule::StringRule("MockSaySomething".into()))?;
 
 	//---------------------------------------------------------------
-	// Mock type 2: Use the configurable 'TestBehavior'
+	// Mock type 2: Use the configurable 'MockBehavior'
 	// with a configuration for each substitution rule
 
-	// Substitute the behavior with name 'set_message' with a configured 'TestBehavior'
-	// This is the configuration passed to the `TestBehavior` for set_message replacement
-	let test_config = TestBehaviorConfig {
+	// Substitute the behavior with name 'set_message' with a configured 'MockBehavior'
+	// This is the configuration passed to the `MockBehavior` for set_message replacement
+	let test_config = MockBehaviorConfig {
 		// This will return always SUCCESS
 		return_state: BehaviorState::Success,
 		// Convert the behavior in asynchronous and wait 2000 ms
@@ -134,8 +134,8 @@ async fn example() -> BehaviorTreeResult {
 	factory.add_substitution_rule("set_message", SubstitutionRule::ConfigRule(test_config))?;
 
 	// You can also substitute entire branches, for instance the sequence 'counting'
-	// This is the configuration passed to the 'TestBehavior' for counting replacement
-	let counting_config = TestBehaviorConfig {
+	// This is the configuration passed to the 'MockBehavior' for counting replacement
+	let counting_config = MockBehaviorConfig {
 		// This will return always SUCCESS
 		return_state: BehaviorState::Success,
 		// This will be synchronous (async_delay is 0 - the default)
@@ -158,7 +158,7 @@ async fn example() -> BehaviorTreeResult {
 
 	//---------------------------------------------------------------
 	// Mock type 3: Use a configuration json (file) with any behavior.
-	// In this example we use the 'TestBehavior' with similar configuration
+	// In this example we use the 'MockBehavior' with similar configuration
 	// as above (see JSON_CONFIGURATION constant)
 	factory.load_substitution_rules_from_json(JSON_CONFIGURATION)?;
 

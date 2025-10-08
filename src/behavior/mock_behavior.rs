@@ -1,5 +1,5 @@
 // Copyright © 2025 Stephan Kunz
-//! [`TestBehavior`]  implementation.
+//! [`MockBehavior`]  implementation.
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -14,10 +14,10 @@ use core::{any::Any, time::Duration};
 use std::time::Instant;
 use tinyscript::SharedRuntime;
 
-// region:		--- TestBehaviorConfig
-/// Configuration for the [`TestBehavior`].
+// region:		--- MockBehaviorConfig
+/// Configuration for the [`MockBehavior`].
 #[derive(Clone, Default)]
-pub struct TestBehaviorConfig {
+pub struct MockBehaviorConfig {
 	/// The [`BehaviorState`] that will be returned finally.
 	pub return_state: BehaviorState,
 	/// Script to execute when `complete_func()` returns SUCCESS
@@ -34,9 +34,9 @@ pub struct TestBehaviorConfig {
 	pub complete_func: Option<Arc<dyn Fn() -> BehaviorState + Send + Sync>>,
 }
 
-impl core::fmt::Debug for TestBehaviorConfig {
+impl core::fmt::Debug for MockBehaviorConfig {
 	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-		f.debug_struct("TestBehaviorConfig")
+		f.debug_struct("MockBehaviorConfig")
 			.field("return_state", &self.return_state)
 			.field("success_script", &self.success_script)
 			.field("failure_script", &self.failure_script)
@@ -46,19 +46,19 @@ impl core::fmt::Debug for TestBehaviorConfig {
 			.finish_non_exhaustive()
 	}
 }
-// endregion:	--- TestBehaviorConfig
+// endregion:	--- MockBehaviorConfig
 
-// region:		--- TestBehavior
-/// A configurable test behavior.
+// region:		--- MockBehavior
+/// A configurable behavior usable for mocking et. al.
 #[derive(Default)]
-pub struct TestBehavior {
-	config: TestBehaviorConfig,
+pub struct MockBehavior {
+	config: MockBehaviorConfig,
 	port_list: PortList,
 	#[cfg(feature = "std")]
 	start_time: Option<Instant>,
 }
 
-impl BehaviorExecution for TestBehavior {
+impl BehaviorExecution for MockBehavior {
 	fn as_any(&self) -> &dyn Any {
 		self
 	}
@@ -80,7 +80,7 @@ impl BehaviorExecution for TestBehavior {
 }
 
 #[async_trait::async_trait]
-impl Behavior for TestBehavior {
+impl Behavior for MockBehavior {
 	fn on_halt(&mut self) -> Result<(), BehaviorError> {
 		#[cfg(feature = "std")]
 		{
@@ -97,7 +97,7 @@ impl Behavior for TestBehavior {
 	) -> BehaviorResult {
 		if self.config.return_state == BehaviorState::Idle {
 			return Err(BehaviorError::Composition {
-				txt: "TestBehavior may not return IDLE".into(),
+				txt: "MockBehavior may not return IDLE".into(),
 			});
 		}
 		if self.config.async_delay.is_some() {
@@ -143,10 +143,10 @@ impl Behavior for TestBehavior {
 }
 
 /// Implementation resembles the macro generated impl code
-impl TestBehavior {
-	/// Creates a `TestBehavior` with the given configuration.
+impl MockBehavior {
+	/// Creates a `MockBehavior` with the given configuration.
 	#[must_use]
-	pub const fn new(config: TestBehaviorConfig, port_list: PortList) -> Self {
+	pub const fn new(config: MockBehaviorConfig, port_list: PortList) -> Self {
 		Self {
 			config,
 			port_list,
@@ -160,10 +160,10 @@ impl TestBehavior {
 		self.config.return_state = state;
 	}
 
-	/// A `TestBehavior` creation function with the given configuration.
+	/// A `MockBehavior` creation function with the given configuration.
 	#[must_use]
 	#[allow(clippy::needless_pass_by_value)]
-	pub fn creation_fn(config: TestBehaviorConfig, port_list: PortList) -> Box<BehaviorCreationFn> {
+	pub fn creation_fn(config: MockBehaviorConfig, port_list: PortList) -> Box<BehaviorCreationFn> {
 		Box::new(move || {
 			Box::new(Self {
 				config: config.clone(),
@@ -202,4 +202,4 @@ impl TestBehavior {
 		Ok(state)
 	}
 }
-// endregion:	--- TestBehavior
+// endregion:	--- MockBehavior

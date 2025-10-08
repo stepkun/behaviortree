@@ -6,7 +6,7 @@
 extern crate std;
 
 // region:      --- modules
-use crate::{BehaviorState, ConstString, behavior::TestBehaviorConfig, factory::registry::SubstitutionRule};
+use crate::{BehaviorState, ConstString, behavior::MockBehaviorConfig, factory::registry::SubstitutionRule};
 use alloc::{collections::btree_map::BTreeMap, string::String};
 use core::{str::FromStr, time::Duration};
 use nanoserde::{DeJson, DeJsonTok};
@@ -23,7 +23,7 @@ pub struct JsonConfig {
 impl DeJson for JsonConfig {
 	fn de_json(state: &mut nanoserde::DeJsonState, input: &mut core::str::Chars) -> Result<Self, nanoserde::DeJsonErr> {
 		let mut result = Self::default();
-		let mut test_behavior_configs: BTreeMap<String, TestBehaviorConfig> = BTreeMap::new();
+		let mut test_behavior_configs: BTreeMap<String, MockBehaviorConfig> = BTreeMap::new();
 
 		match state.tok {
 			DeJsonTok::CurlyOpen => {
@@ -31,7 +31,7 @@ impl DeJson for JsonConfig {
 					state.next_tok(input)?;
 					match state.tok {
 						DeJsonTok::Str => match state.strbuf.as_ref() {
-							"TestBehaviorConfigs" => {
+							"MockBehaviorConfigs" => {
 								// next must be an CurlyOpen
 								while state.tok != DeJsonTok::CurlyOpen && state.tok != DeJsonTok::Eof {
 									state.next_tok(input)?;
@@ -42,7 +42,7 @@ impl DeJson for JsonConfig {
 								while state.tok != DeJsonTok::CurlyClose && state.tok != DeJsonTok::Eof {
 									// remember the configs name
 									let config_name = state.strbuf.clone();
-									let mut config = TestBehaviorConfig::default();
+									let mut config = MockBehaviorConfig::default();
 									// next must be an OpenCurly again
 									while state.tok != DeJsonTok::CurlyOpen {
 										state.next_tok(input)?;

@@ -25,7 +25,7 @@ use crate::{
 };
 #[cfg(feature = "test_behavior")]
 use crate::{
-	behavior::{TestBehavior, TestBehaviorConfig},
+	behavior::{MockBehavior, MockBehaviorConfig},
 	factory::registry::SubstitutionRule,
 };
 #[allow(unused)]
@@ -41,9 +41,9 @@ use nanoserde::DeJson;
 /// The behaviors are configured via `features`. The following behaviors can be
 /// activated via configuration in applications `Cargo.toml`:
 /// - Actions:
-///   [`AlwaysFailure`](crate::behavior::TestBehavior): feature `always_failure`
-///   [`AlwaysRunning`](crate::behavior::TestBehavior): feature `always_running`
-///   [`AlwaysSuccess`](crate::behavior::TestBehavior): feature `always_success`
+///   [`AlwaysFailure`](crate::behavior::MockBehavior): feature `always_failure`
+///   [`AlwaysRunning`](crate::behavior::MockBehavior): feature `always_running`
+///   [`AlwaysSuccess`](crate::behavior::MockBehavior): feature `always_success`
 ///   [`PopBool`](crate::behavior::action::PopFromQueue): feature `pop_bool`
 ///   [`PopDouble`](crate::behavior::action::PopFromQueue): feature `pop_double`
 ///   [`PopInt`](crate::behavior::action::PopFromQueue): feature `pop_int`
@@ -91,7 +91,7 @@ use nanoserde::DeJson;
 ///   [`Timeout`](crate::behavior::decorator::Timeout): feature `timeout`
 ///   [`WaitValueUpdated`](crate::behavior::decorator::EntryUpdated):: feature `wait_value_updated`
 /// - For mocking and behavior replacements:
-///   [`TestBehavior`](crate::behavior::TestBehavior): feature `test_behavior`
+///   [`MockBehavior`](crate::behavior::MockBehavior): feature `test_behavior`
 ///
 /// Always available is
 /// - [`SubTree`]: to enable (sub) trees including the root tree
@@ -127,7 +127,7 @@ impl BehaviorTreeFactory {
 		// actions
 		#[cfg(feature = "always_failure")]
 		{
-			let config = TestBehaviorConfig {
+			let config = MockBehaviorConfig {
 				return_state: BehaviorState::Failure,
 				..Default::default()
 			};
@@ -136,17 +136,17 @@ impl BehaviorTreeFactory {
 				"AlwaysFailure",
 				BehaviorKind::Action,
 				true,
-				TestBehavior::provided_ports(),
+				MockBehavior::provided_ports(),
 			);
 			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+				Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 			});
 			f.registry_mut()
 				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 		}
 		#[cfg(feature = "always_running")]
 		{
-			let config = TestBehaviorConfig {
+			let config = MockBehaviorConfig {
 				return_state: BehaviorState::Running,
 				..Default::default()
 			};
@@ -155,17 +155,17 @@ impl BehaviorTreeFactory {
 				"AlwaysRunning",
 				BehaviorKind::Action,
 				false,
-				TestBehavior::provided_ports(),
+				MockBehavior::provided_ports(),
 			);
 			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+				Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 			});
 			f.registry_mut()
 				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 		}
 		#[cfg(feature = "always_success")]
 		{
-			let config = TestBehaviorConfig {
+			let config = MockBehaviorConfig {
 				return_state: BehaviorState::Success,
 				..Default::default()
 			};
@@ -174,10 +174,10 @@ impl BehaviorTreeFactory {
 				"AlwaysSuccess",
 				BehaviorKind::Action,
 				true,
-				TestBehavior::provided_ports(),
+				MockBehavior::provided_ports(),
 			);
 			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+				Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 			});
 			f.registry_mut()
 				.add_behavior(bhvr_desc, bhvr_creation_fn)?;

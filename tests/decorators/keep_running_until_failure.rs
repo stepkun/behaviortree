@@ -4,8 +4,9 @@
 
 extern crate alloc;
 
+use crate::decorators::utilities::ChangeStateAfter;
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig},
+	behavior::{BehaviorState::*, MockBehavior, MockBehaviorConfig},
 	prelude::*,
 };
 use rstest::rstest;
@@ -29,7 +30,7 @@ async fn keep_running_until_failure_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<TestBehavior>()
+					.downcast_mut::<MockBehavior>()
 				{
 					behavior.set_state(action_state);
 				}
@@ -38,7 +39,7 @@ async fn keep_running_until_failure_raw() -> Result<(), Error> {
 	}
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	let config = TestBehaviorConfig {
+	let config = MockBehaviorConfig {
 		return_state: BehaviorState::Success,
 		..Default::default()
 	};
@@ -47,10 +48,10 @@ async fn keep_running_until_failure_raw() -> Result<(), Error> {
 		"Action",
 		BehaviorKind::Action,
 		false,
-		TestBehavior::provided_ports(),
+		MockBehavior::provided_ports(),
 	);
 	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+		Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 	});
 	factory
 		.registry_mut()

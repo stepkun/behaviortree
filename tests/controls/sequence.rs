@@ -4,8 +4,9 @@
 
 extern crate alloc;
 
+use crate::controls::utilities::ChangeStateAfter;
 use behaviortree::{
-	behavior::{BehaviorState::*, ChangeStateAfter, TestBehavior, TestBehaviorConfig},
+	behavior::{BehaviorState::*, MockBehavior, MockBehaviorConfig},
 	prelude::*,
 };
 use rstest::rstest;
@@ -36,7 +37,7 @@ async fn simple_sequence_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<TestBehavior>()
+					.downcast_mut::<MockBehavior>()
 				{
 					behavior.set_state(action1_state);
 				}
@@ -45,7 +46,7 @@ async fn simple_sequence_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<TestBehavior>()
+					.downcast_mut::<MockBehavior>()
 				{
 					behavior.set_state(action2_state);
 				}
@@ -54,7 +55,7 @@ async fn simple_sequence_raw() -> Result<(), Error> {
 				if let Some(behavior) = behavior
 					.behavior_mut()
 					.as_any_mut()
-					.downcast_mut::<TestBehavior>()
+					.downcast_mut::<MockBehavior>()
 				{
 					behavior.set_state(action3_state);
 				}
@@ -64,7 +65,7 @@ async fn simple_sequence_raw() -> Result<(), Error> {
 
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	let config = TestBehaviorConfig {
+	let config = MockBehaviorConfig {
 		return_state: BehaviorState::Failure,
 		..Default::default()
 	};
@@ -73,10 +74,10 @@ async fn simple_sequence_raw() -> Result<(), Error> {
 		"Action",
 		BehaviorKind::Action,
 		false,
-		TestBehavior::provided_ports(),
+		MockBehavior::provided_ports(),
 	);
 	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-		Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+		Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 	});
 	factory
 		.registry_mut()

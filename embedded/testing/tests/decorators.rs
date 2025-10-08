@@ -12,7 +12,7 @@ extern crate alloc;
 mod tests {
 	use behaviortree::{
 		behavior::{
-			SharedQueue, TestBehavior, TestBehaviorConfig,
+			MockBehavior, MockBehaviorConfig, SharedQueue,
 			decorator::{EntryUpdated, ForceState},
 		},
 		prelude::*,
@@ -35,7 +35,7 @@ mod tests {
 
 		register_behavior!(factory, EntryUpdated, "EntryUpdated")?;
 
-		let config = TestBehaviorConfig {
+		let config = MockBehaviorConfig {
 			return_state: BehaviorState::Success,
 			..Default::default()
 		};
@@ -44,10 +44,10 @@ mod tests {
 			"Action",
 			BehaviorKind::Action,
 			false,
-			TestBehavior::provided_ports(),
+			MockBehavior::provided_ports(),
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 		});
 		factory
 			.registry_mut()
@@ -119,7 +119,7 @@ mod tests {
 					if let Some(behavior) = behavior
 						.behavior_mut()
 						.as_any_mut()
-						.downcast_mut::<TestBehavior>()
+						.downcast_mut::<MockBehavior>()
 					{
 						behavior.set_state(action_state);
 					}
@@ -141,7 +141,7 @@ mod tests {
 			.registry_mut()
 			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
 
-		let config = TestBehaviorConfig {
+		let config = MockBehaviorConfig {
 			return_state: BehaviorState::Failure,
 			..Default::default()
 		};
@@ -150,10 +150,10 @@ mod tests {
 			"Action",
 			BehaviorKind::Action,
 			false,
-			TestBehavior::provided_ports(),
+			MockBehavior::provided_ports(),
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 		});
 		factory
 			.registry_mut()
@@ -204,7 +204,7 @@ mod tests {
 					if let Some(behavior) = behavior
 						.behavior_mut()
 						.as_any_mut()
-						.downcast_mut::<TestBehavior>()
+						.downcast_mut::<MockBehavior>()
 					{
 						behavior.set_state(action_state);
 					}
@@ -214,7 +214,7 @@ mod tests {
 
 		let mut factory = BehaviorTreeFactory::new()?;
 
-		let config = TestBehaviorConfig {
+		let config = MockBehaviorConfig {
 			return_state: BehaviorState::Failure,
 			..Default::default()
 		};
@@ -223,10 +223,10 @@ mod tests {
 			"Action",
 			BehaviorKind::Action,
 			false,
-			TestBehavior::provided_ports(),
+			MockBehavior::provided_ports(),
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 		});
 		factory
 			.registry_mut()
@@ -273,7 +273,7 @@ mod tests {
 					if let Some(behavior) = behavior
 						.behavior_mut()
 						.as_any_mut()
-						.downcast_mut::<TestBehavior>()
+						.downcast_mut::<MockBehavior>()
 					{
 						behavior.set_state(action_state);
 					}
@@ -282,7 +282,7 @@ mod tests {
 		}
 		let mut factory = BehaviorTreeFactory::new()?;
 
-		let config = TestBehaviorConfig {
+		let config = MockBehaviorConfig {
 			return_state: BehaviorState::Success,
 			..Default::default()
 		};
@@ -291,10 +291,10 @@ mod tests {
 			"Action",
 			BehaviorKind::Action,
 			false,
-			TestBehavior::provided_ports(),
+			MockBehavior::provided_ports(),
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 		});
 		factory
 			.registry_mut()
@@ -416,7 +416,7 @@ mod tests {
 					if let Some(behavior) = behavior
 						.behavior_mut()
 						.as_any_mut()
-						.downcast_mut::<TestBehavior>()
+						.downcast_mut::<MockBehavior>()
 					{
 						behavior.set_state(action_state);
 					}
@@ -425,7 +425,7 @@ mod tests {
 		}
 		let mut factory = BehaviorTreeFactory::new()?;
 
-		let config = TestBehaviorConfig {
+		let config = MockBehaviorConfig {
 			return_state: BehaviorState::Success,
 			..Default::default()
 		};
@@ -434,10 +434,10 @@ mod tests {
 			"Action",
 			BehaviorKind::Action,
 			false,
-			TestBehavior::provided_ports(),
+			MockBehavior::provided_ports(),
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 		});
 		factory
 			.registry_mut()
@@ -480,7 +480,7 @@ mod tests {
 					if let Some(behavior) = behavior
 						.behavior_mut()
 						.as_any_mut()
-						.downcast_mut::<TestBehavior>()
+						.downcast_mut::<MockBehavior>()
 					{
 						behavior.set_state(action_state);
 					}
@@ -489,7 +489,7 @@ mod tests {
 		}
 		let mut factory = BehaviorTreeFactory::new()?;
 
-		let config = TestBehaviorConfig {
+		let config = MockBehaviorConfig {
 			return_state: BehaviorState::Failure,
 			..Default::default()
 		};
@@ -498,10 +498,10 @@ mod tests {
 			"Action",
 			BehaviorKind::Action,
 			false,
-			TestBehavior::provided_ports(),
+			MockBehavior::provided_ports(),
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 		});
 		factory
 			.registry_mut()
@@ -546,7 +546,7 @@ mod tests {
 					if let Some(behavior) = behavior
 						.behavior_mut()
 						.as_any_mut()
-						.downcast_mut::<TestBehavior>()
+						.downcast_mut::<MockBehavior>()
 					{
 						behavior.set_state(action_state);
 					}
@@ -556,7 +556,7 @@ mod tests {
 
 		let mut factory = BehaviorTreeFactory::new()?;
 
-		let config = TestBehaviorConfig {
+		let config = MockBehaviorConfig {
 			return_state: BehaviorState::Failure,
 			..Default::default()
 		};
@@ -565,10 +565,10 @@ mod tests {
 			"Action",
 			BehaviorKind::Action,
 			false,
-			TestBehavior::provided_ports(),
+			MockBehavior::provided_ports(),
 		);
 		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(TestBehavior::new(config.clone(), TestBehavior::provided_ports()))
+			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
 		});
 		factory
 			.registry_mut()

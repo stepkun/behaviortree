@@ -11,7 +11,7 @@ use core::ops::Range;
 
 // region:      --- modules
 #[cfg(feature = "test_behavior")]
-use crate::behavior::{TestBehavior, TestBehaviorConfig};
+use crate::behavior::{MockBehavior, MockBehaviorConfig};
 use crate::{
 	BehaviorExecution, ConstString,
 	behavior::{BehaviorCreationFn, BehaviorPtr, behavior_description::BehaviorDescription},
@@ -36,8 +36,8 @@ pub enum SubstitutionRule {
 	/// Rule is a String type, replacing a behavior with some other behavior
 	/// using the behavior ID for finding the other behavior.
 	StringRule(ConstString),
-	/// Rule creates a [`TestBehavior`] with the given configuration.
-	ConfigRule(TestBehaviorConfig),
+	/// Rule creates a [`MockBehavior`] with the given configuration.
+	ConfigRule(MockBehaviorConfig),
 }
 // endregion:	--- SubstitutionRule
 
@@ -242,8 +242,8 @@ impl BehaviorRegistry {
 							|(desc, creation_fn)| {
 								let old_behavior = creation_fn();
 								let port_list = old_behavior.static_provided_ports();
-								// create a TestBehavior instead of original behavior
-								let bhvr_fn = TestBehavior::creation_fn(test_behavior_config.clone(), port_list);
+								// create a MockBehavior instead of original behavior
+								let bhvr_fn = MockBehavior::creation_fn(test_behavior_config.clone(), port_list);
 								Ok((desc.clone(), bhvr_fn()))
 							},
 						)

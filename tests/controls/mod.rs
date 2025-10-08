@@ -1,6 +1,10 @@
 // Copyright © 2025 Stephan Kunz
 //! Test builtin `Control` behaviors.
 
+#[allow(clippy::duplicate_mod)]
+#[path = "../utilities.rs"]
+mod utilities;
+
 mod async_fallback;
 mod async_sequence;
 mod fallback;

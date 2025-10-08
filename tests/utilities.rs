@@ -1,17 +1,14 @@
 // Copyright © 2025 Stephan Kunz
-//! [`ChangeStateAfter`] [`Action`] implementation.
+//! [`ChangeStateAfter`] is a helper  [`Action`] for writing tests.
 
-// region:      --- modules
-use crate::{
-	self as behaviortree, Action,
-	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
-	tree::BehaviorTreeElementList,
-};
+#![allow(unused)]
+
+#[doc(hidden)]
+extern crate alloc;
+
 use alloc::boxed::Box;
-use tinyscript::SharedRuntime;
-//endregion:    --- modules
+use behaviortree::prelude::*;
 
-// region:		--- ChangeStateAfter
 /// The `ChangeStateAfter` behavior returns
 /// - the stored [`BehaviorState`] `final_state` after the amount of ticks given by `max_count`,
 /// - the [`BehaviorState`] `state1` just one tick before reaching `max_count`,
@@ -122,4 +119,3 @@ impl ChangeStateAfter {
 		self.final_state = state;
 	}
 }
-// endregion:	--- ChangeStateAfter

@@ -1,6 +1,10 @@
 // Copyright © 2025 Stephan Kunz
 //! Test builtin `Decorator` behaviors.
 
+#[allow(clippy::duplicate_mod)]
+#[path = "../utilities.rs"]
+mod utilities;
+
 mod entry_updated;
 mod force_state;
 mod inverter;

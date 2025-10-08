@@ -108,7 +108,9 @@ rstest = "0.26.1"
 trybuild = { version = "1.0.110", features = ["diff"] }
 
 [features]
-default = ["std", "change_state_after", "all_behaviors"]
+# default is set this way for testing purpose
+default = ["std", "all_behaviors"]
+# shortcuts for certain purposes
 all_behaviors = [
     "always_failure",
     "always_running",
@@ -159,7 +161,7 @@ all_behaviors = [
     "was_entry_updated",
     "while_do_else",
 
-] # shortcuts for certain purposesdefault = ["std", "all_behaviors"]
+]
 std = [
     "databoard/std",
     "libloading",
@@ -173,7 +175,6 @@ std = [
     "zeromq/tokio-runtime",
 ]
 # modules that contain multiple implementations
-change_state_after = []
 entry_updated = []
 fallbacks = []
 force_state = []
