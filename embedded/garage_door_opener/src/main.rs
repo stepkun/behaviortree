@@ -14,17 +14,18 @@ use ariel_os::{
 };
 use behaviortree::prelude::*;
 use embassy_futures::select::{Either, Either3, select, select3};
+use embassy_sync::lazy_lock::LazyLock;
 use embedded_hal::digital::StatefulOutputPin;
 
 // some configuration constants
 const TOGGLE_DELAY: u64 = 500; // how long to wait in millisecs on direct switching between the directions.
-const PREPARATION_TIME: u64 = 1500; // preparation timer value
+const PREPARATION_TIME: u64 = 1000; // preparation timer value
 
 // include the Groot2 behavior file
 const XML: &str = include_str!("GarageDoorOpener.xml");
 
 // a truly global blackboard
-static mut GLOBAL_BLACKBOARD: Option<Databoard> = None;
+static mut GLOBAL_BLACKBOARD: LazyLock<Databoard> = LazyLock::new(|| Databoard::default());
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 #[repr(u8)]
@@ -73,18 +74,14 @@ impl Behavior for DoorMotorDriver {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
-		if behavior.get::<bool>("emergency")? {
-			behavior.set::<MotorCommand>("command", MotorCommand::Stop)?;
-		} else {
-			let request = behavior.get::<MotorCommand>("request")?;
-			// info!("DoorMotorDriver: {}", request.as_str());
-			behavior.set::<MotorCommand>("command", request)?;
-		}
+		let request = behavior.get::<MotorCommand>("request")?;
+		// info!("DoorMotorDriver: {}", request.as_str());
+		behavior.set::<MotorCommand>("command", request)?;
 		Ok(BehaviorState::Success)
 	}
 
 	fn provided_ports() -> PortList {
-		port_list! {input_port!(bool, "emergency"), input_port!(MotorCommand, "request"), output_port!(MotorCommand, "command")}
+		port_list! {input_port!(MotorCommand, "request"), output_port!(MotorCommand, "command")}
 	}
 }
 
@@ -116,6 +113,7 @@ impl Behavior for EmergencyOffActive {
 struct Preparation {
 	last_command: MotorCommand,
 	start: Option<Instant>,
+	initialized: bool,
 }
 
 #[async_trait::async_trait]
@@ -130,7 +128,7 @@ impl Behavior for Preparation {
 		let command = behavior.get::<MotorCommand>("command")?;
 		// info!("command: {}", command.to_string().as_str());
 		if command != self.last_command {
-			self.last_command = command;
+			self.initialized = true;
 			if command != MotorCommand::Stop {
 				behavior.set("preparation", true)?;
 				self.start = Some(Instant::now());
@@ -148,8 +146,12 @@ impl Behavior for Preparation {
 				behavior.set("preparation", false)?;
 				info!("timer finished");
 			}
+		} else if !self.initialized {
+			// this branch is used in the caase of emergency & failure
+			behavior.set("preparation", false)?;
 		}
 
+		self.last_command = command;
 		Ok(BehaviorState::Success)
 	}
 
@@ -281,6 +283,7 @@ impl Behavior for ReadEndContacts {
 
 #[allow(unsafe_code)]
 async fn behavior() -> BehaviorTreeResult {
+	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, DoorMotorDriver, "DoorMotorDriver")?;
@@ -289,17 +292,6 @@ async fn behavior() -> BehaviorTreeResult {
 	register_behavior!(factory, ReadControlButtons, "ReadControlButtons")?;
 	register_behavior!(factory, ReadEndContacts, "ReadEndContacts")?;
 	factory.register_behavior_tree_from_text(XML)?;
-
-	// @TODO: replace with lazy lock
-	let blackboard = unsafe {
-		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
-			blackboard.clone()
-		} else {
-			let blackboard = Databoard::new();
-			GLOBAL_BLACKBOARD = Some(blackboard.clone());
-			blackboard
-		}
-	};
 
 	// pre set blackboard variables
 	blackboard.set::<bool>("emergency", false)?;
@@ -317,7 +309,7 @@ async fn behavior() -> BehaviorTreeResult {
 
 	let mut result = tree.tick_once().await?;
 	while result == BehaviorState::Running {
-		Timer::after_millis(100).await;
+		Timer::after_millis(20).await;
 		result = tree.tick_once().await?;
 	}
 	Ok(result)
@@ -326,18 +318,8 @@ async fn behavior() -> BehaviorTreeResult {
 #[ariel_os::task(autostart, peripherals)]
 #[allow(unsafe_code)]
 async fn handle_motor(peripherals: pins::MotorPeripherals) {
-	Timer::after_millis(30).await;
-	// @TODO: replace with lazy lock
-	let blackboard = unsafe {
-		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
-			blackboard.clone()
-		} else {
-			let blackboard = Databoard::new();
-			GLOBAL_BLACKBOARD = Some(blackboard.clone());
-			blackboard
-		}
-	};
 	info!("   initializing motor");
+	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut motor_up = Output::new(peripherals.motor_up, Level::Low);
 	let mut motor_down = Output::new(peripherals.motor_down, Level::Low);
 
@@ -375,19 +357,8 @@ async fn handle_motor(peripherals: pins::MotorPeripherals) {
 #[ariel_os::task(autostart, peripherals)]
 #[allow(unsafe_code)]
 async fn handle_addons(peripherals: pins::AddonPeripherals) {
-	Timer::after_millis(25).await;
-	// @TODO: replace with lazy lock
-	let blackboard = unsafe {
-		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
-			blackboard.clone()
-		} else {
-			let blackboard = Databoard::new();
-			GLOBAL_BLACKBOARD = Some(blackboard.clone());
-			blackboard
-		}
-	};
-
 	info!("   initializing addons");
+	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut load = Output::new(peripherals.io_preparation, Level::Low);
 	let mut is_high = load.is_set_high().expect("snh");
 
@@ -414,30 +385,17 @@ async fn handle_addons(peripherals: pins::AddonPeripherals) {
 #[ariel_os::task(autostart, peripherals)]
 #[allow(unsafe_code)]
 async fn handle_panel(peripherals: pins::PanelPeripherals) {
-	Timer::after_millis(20).await;
-	// @TODO: replace with lazy lock
-	let blackboard = unsafe {
-		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
-			blackboard.clone()
-		} else {
-			let blackboard = Databoard::new();
-			GLOBAL_BLACKBOARD = Some(blackboard.clone());
-			blackboard
-		}
-	};
-
 	info!("   initializing panel");
+	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut led_up = Output::new(peripherals.led_up, Level::Low);
 	let mut led_down = Output::new(peripherals.led_down, Level::Low);
-
-	let pull = Pull::Down;
-	let mut btn_up = Input::builder(peripherals.btn_up, pull)
+	let mut btn_up = Input::builder(peripherals.btn_up, Pull::Down)
 		.build_with_interrupt()
 		.unwrap();
-	let mut btn_stop = Input::builder(peripherals.btn_stop, pull)
+	let mut btn_stop = Input::builder(peripherals.btn_stop, Pull::Down)
 		.build_with_interrupt()
 		.unwrap();
-	let mut btn_down = Input::builder(peripherals.btn_down, pull)
+	let mut btn_down = Input::builder(peripherals.btn_down, Pull::Down)
 		.build_with_interrupt()
 		.unwrap();
 
@@ -477,21 +435,9 @@ async fn handle_panel(peripherals: pins::PanelPeripherals) {
 #[ariel_os::task(autostart, peripherals)]
 #[allow(unsafe_code)]
 async fn handle_upper_end(peripherals: pins::UpperEndPeripherals) {
-	Timer::after_millis(10).await;
-	// @TODO: replace with lazy lock
-	let blackboard = unsafe {
-		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
-			blackboard.clone()
-		} else {
-			let blackboard = Databoard::new();
-			GLOBAL_BLACKBOARD = Some(blackboard.clone());
-			blackboard
-		}
-	};
-
 	info!("   initializing upper end");
+	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut led_upper_end = Output::new(peripherals.led_upper_end, Level::Low);
-
 	let mut btn_upper_end = Input::builder(peripherals.btn_upper_end, Pull::Down)
 		.build_with_interrupt()
 		.unwrap();
@@ -518,21 +464,9 @@ async fn handle_upper_end(peripherals: pins::UpperEndPeripherals) {
 #[ariel_os::task(autostart, peripherals)]
 #[allow(unsafe_code)]
 async fn handle_lower_end(peripherals: pins::LowerEndPeripherals) {
-	Timer::after_millis(11).await;
-	// @TODO: replace with lazy lock
-	let blackboard = unsafe {
-		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
-			blackboard.clone()
-		} else {
-			let blackboard = Databoard::new();
-			GLOBAL_BLACKBOARD = Some(blackboard.clone());
-			blackboard
-		}
-	};
-
 	info!("   initializing lower end");
+	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut led_lower_end = Output::new(peripherals.led_lower_end, Level::Low);
-
 	let mut btn_lower_end = Input::builder(peripherals.btn_lower_end, Pull::Down)
 		.build_with_interrupt()
 		.unwrap();
@@ -559,19 +493,8 @@ async fn handle_lower_end(peripherals: pins::LowerEndPeripherals) {
 #[ariel_os::task(autostart, peripherals)]
 #[allow(unsafe_code)]
 async fn handle_emergency(peripherals: pins::EmergencyPeripherals) {
-	Timer::after_millis(5).await;
-	// @TODO: replace with lazy lock
-	let blackboard = unsafe {
-		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
-			blackboard.clone()
-		} else {
-			let blackboard = Databoard::new();
-			GLOBAL_BLACKBOARD = Some(blackboard.clone());
-			blackboard
-		}
-	};
-
 	info!("   initializing emergency");
+	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut btn_emergency = Input::builder(peripherals.btn_emergency, Pull::Down)
 		.build_with_interrupt()
 		.unwrap();
@@ -592,7 +515,6 @@ async fn main() {
 	info!("running garage_door_opener...");
 	match behavior().await {
 		Ok(_) => {
-			Timer::after_millis(100).await;
 			info!("...succeeded!");
 			exit(ExitCode::SUCCESS)
 		}

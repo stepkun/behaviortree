@@ -24,7 +24,6 @@
               <Preparation command="{motor_command}"
                            preparation="{=}"/>
               <DoorMotorDriver name="DoorMovement"
-                               emergency="{=}"
                                request="{motor_command}"
                                command="{=}"/>
             </ParallelAll>
@@ -32,16 +31,22 @@
         </Repeat>
         <Repeat name="Forever"
                 num_cycles="-1">
-          <DoorMotorDriver name="EmergencyStop"
-                           emergency="{=}"
-                           request="stop"
-                           command="{=}"/>
+          <Sequence name="Emergency">
+            <Preparation command="stop"
+                         preparation="{=}"/>
+            <DoorMotorDriver name="EmergencyStop"
+                             request="stop"
+                             command="{=}"/>
+          </Sequence>
         </Repeat>
       </WhileDoElse>
-      <DoorMotorDriver name="FailureStop"
-                       emergency="{=}"
-                       request="stop"
-                       command="{=}"/>
+      <Sequence>
+        <Preparation command="stop"
+                     preparation="{=}"/>
+        <DoorMotorDriver name="FailureStop"
+                         request="stop"
+                         command="{=}"/>
+      </Sequence>
     </Fallback>
   </BehaviorTree>
 
@@ -49,7 +54,6 @@
   <TreeNodesModel>
     <Action ID="DoorMotorDriver"
             editable="true">
-      <input_port name="emergency">signals emergency</input_port>
       <input_port name="request"
                   default="stop">door motor request</input_port>
       <output_port name="command"

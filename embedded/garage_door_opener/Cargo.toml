@@ -38,8 +38,10 @@ behaviortree = { path = "../..", default-features = false, features = [
   "parallel_all",
   "reactive_sequence",
   "repeat",
+  "sequence",
   "while_do_else",
 ] }
-embedded-hal = { version = "1.0.0", default-features = false }
 embassy-futures = { version = "0.1.1", default-features = false }
+embedded-hal = { version = "1.0.0", default-features = false }
+embassy-sync = { version = "0.6.1", default-features = false }
 spin = { version = "0.10.0", default-features = false }
