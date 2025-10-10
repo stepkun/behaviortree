@@ -7,10 +7,14 @@ ariel_os::hal::define_peripherals!(MotorPeripherals {
 });
 
 #[cfg(context = "rp")]
-ariel_os::hal::define_peripherals!(SecurityPeripherals {
-	led_lower_end: PIN_12,
+ariel_os::hal::define_peripherals!(UpperEndPeripherals {
 	led_upper_end: PIN_13,
 	btn_upper_end: PIN_16,
+});
+
+#[cfg(context = "rp")]
+ariel_os::hal::define_peripherals!(LowerEndPeripherals {
+	led_lower_end: PIN_12,
 	btn_lower_end: PIN_17,
 });
 

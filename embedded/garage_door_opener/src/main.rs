@@ -10,15 +10,15 @@ mod pins;
 use ariel_os::{
 	debug::{ExitCode, exit, log::*},
 	gpio::{Input, Level, Output, Pull},
-	time::Timer,
+	time::{Duration, Instant, Timer},
 };
 use behaviortree::prelude::*;
-use embassy_futures::select::{Either3, select3};
+use embassy_futures::select::{Either, Either3, select, select3};
 use embedded_hal::digital::StatefulOutputPin;
 
 // some configuration constants
-const TOGGLE_DELAY: u64 = 1500; // how long to wait in millisecs on direct switching between the directions.
-const PREPARATION_TIME: u64 = 500; // preparation timer value
+const TOGGLE_DELAY: u64 = 500; // how long to wait in millisecs on direct switching between the directions.
+const PREPARATION_TIME: u64 = 1500; // preparation timer value
 
 // include the Groot2 behavior file
 const XML: &str = include_str!("GarageDoorOpener.xml");
@@ -115,6 +115,7 @@ impl Behavior for EmergencyOffActive {
 #[derive(Action, Default)]
 struct Preparation {
 	last_command: MotorCommand,
+	start: Option<Instant>,
 }
 
 #[async_trait::async_trait]
@@ -125,23 +126,35 @@ impl Behavior for Preparation {
 		_children: &mut BehaviorTreeElementList,
 		_runtime: &SharedRuntime,
 	) -> BehaviorResult {
+		// info!("Preparation tick()");
 		let command = behavior.get::<MotorCommand>("command")?;
+		// info!("command: {}", command.to_string().as_str());
 		if command != self.last_command {
 			self.last_command = command;
 			if command != MotorCommand::Stop {
-				if !behavior.get::<bool>("emergency")? {
-					behavior.set("preparation", true)?;
-					Timer::after_millis(PREPARATION_TIME).await;
-					behavior.set("preparation", false)?;
+				behavior.set("preparation", true)?;
+				self.start = Some(Instant::now());
+				info!("timer started");
+			} else {
+				behavior.set("preparation", false)?;
+				if self.start.is_some() {
+					self.start = None;
+					info!("timer canceled");
 				}
 			}
+		} else if let Some(start) = self.start {
+			if Instant::now().duration_since(start) >= Duration::from_millis(PREPARATION_TIME) {
+				self.start = None;
+				behavior.set("preparation", false)?;
+				info!("timer finished");
+			}
 		}
-		// info!("Preparation for: {}", command.as_str());
+
 		Ok(BehaviorState::Success)
 	}
 
 	fn provided_ports() -> PortList {
-		port_list! {input_port!(bool, "emergency"), input_port!(MotorCommand, "command"), output_port!(bool, "preparation")}
+		port_list! {input_port!(MotorCommand, "command"), output_port!(bool, "preparation")}
 	}
 }
 
@@ -376,6 +389,7 @@ async fn handle_addons(peripherals: pins::AddonPeripherals) {
 
 	info!("   initializing addons");
 	let mut load = Output::new(peripherals.io_preparation, Level::Low);
+	let mut is_high = load.is_set_high().expect("snh");
 
 	info!("   running addons loop");
 	loop {
@@ -383,11 +397,17 @@ async fn handle_addons(peripherals: pins::AddonPeripherals) {
 			.get::<bool>("preparation")
 			.expect("snh");
 		if preparation {
-			load.set_high();
+			if !is_high {
+				load.set_high();
+				is_high = true;
+			}
 		} else {
-			load.set_low();
+			if is_high {
+				load.set_low();
+				is_high = false;
+			}
 		}
-		Timer::after_millis(100).await;
+		Timer::after_millis(10).await;
 	}
 }
 
@@ -456,7 +476,7 @@ async fn handle_panel(peripherals: pins::PanelPeripherals) {
 
 #[ariel_os::task(autostart, peripherals)]
 #[allow(unsafe_code)]
-async fn handle_security(peripherals: pins::SecurityPeripherals) {
+async fn handle_upper_end(peripherals: pins::UpperEndPeripherals) {
 	Timer::after_millis(10).await;
 	// @TODO: replace with lazy lock
 	let blackboard = unsafe {
@@ -469,48 +489,68 @@ async fn handle_security(peripherals: pins::SecurityPeripherals) {
 		}
 	};
 
-	info!("   initializing security");
+	info!("   initializing upper end");
 	let mut led_upper_end = Output::new(peripherals.led_upper_end, Level::Low);
-	let mut led_lower_end = Output::new(peripherals.led_lower_end, Level::Low);
 
-	let pull = Pull::Down;
-	let mut btn_upper_end = Input::builder(peripherals.btn_upper_end, pull)
-		.build_with_interrupt()
-		.unwrap();
-	let mut btn_lower_end = Input::builder(peripherals.btn_lower_end, pull)
+	let mut btn_upper_end = Input::builder(peripherals.btn_upper_end, Pull::Down)
 		.build_with_interrupt()
 		.unwrap();
 
-	info!("   running security loop");
+	info!("   running upper end loop");
 	loop {
 		// Wait for end contacts being touched.
-		let button = select3(
-			btn_upper_end.wait_for_high(),
-			btn_lower_end.wait_for_high(),
-			Timer::after_millis(100),
-		)
-		.await;
+		let button = select(btn_upper_end.wait_for_high(), Timer::after_millis(100)).await;
 		match button {
-			Either3::First(_) => {
+			Either::First(_) => {
 				// info!("upper end");
 				blackboard.set("upper_end", true).expect("snh");
 				led_upper_end.set_high();
-				blackboard.set("lower_end", false).expect("snh");
-				led_lower_end.set_low();
 			}
-			Either3::Second(_) => {
+			Either::Second(_) => {
+				// info!("timeout");
+				blackboard.set("upper_end", false).expect("snh");
+				led_upper_end.set_low();
+			}
+		}
+	}
+}
+
+#[ariel_os::task(autostart, peripherals)]
+#[allow(unsafe_code)]
+async fn handle_lower_end(peripherals: pins::LowerEndPeripherals) {
+	Timer::after_millis(11).await;
+	// @TODO: replace with lazy lock
+	let blackboard = unsafe {
+		if let Some(blackboard) = &GLOBAL_BLACKBOARD {
+			blackboard.clone()
+		} else {
+			let blackboard = Databoard::new();
+			GLOBAL_BLACKBOARD = Some(blackboard.clone());
+			blackboard
+		}
+	};
+
+	info!("   initializing lower end");
+	let mut led_lower_end = Output::new(peripherals.led_lower_end, Level::Low);
+
+	let mut btn_lower_end = Input::builder(peripherals.btn_lower_end, Pull::Down)
+		.build_with_interrupt()
+		.unwrap();
+
+	info!("   running lower loop");
+	loop {
+		// Wait for end contacts being touched.
+		let button = select(btn_lower_end.wait_for_high(), Timer::after_millis(100)).await;
+		match button {
+			Either::First(_) => {
 				// info!("lower end");
 				blackboard.set("lower_end", true).expect("snh");
 				led_lower_end.set_high();
-				blackboard.set("upper_end", false).expect("snh");
-				led_upper_end.set_low();
 			}
-			Either3::Third(_) => {
+			Either::Second(_) => {
 				// info!("timeout");
 				blackboard.set("lower_end", false).expect("snh");
 				led_lower_end.set_low();
-				blackboard.set("upper_end", false).expect("snh");
-				led_upper_end.set_low();
 			}
 		}
 	}

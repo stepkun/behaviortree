@@ -20,12 +20,14 @@
                              lower_end="{=}"
                              upper_end="{=}"
                              command="{motor_command}"/>
-            <Preparation command="{motor_command}"
-                         emergency="{=}"/>
-            <DoorMotorDriver name="DoorMovement"
-                             emergency="{=}"
-                             request="{motor_command}"
-                             command="{=}"/>
+            <ParallelAll max_failures="0">
+              <Preparation command="{motor_command}"
+                           preparation="{=}"/>
+              <DoorMotorDriver name="DoorMovement"
+                               emergency="{=}"
+                               request="{motor_command}"
+                               command="{=}"/>
+            </ParallelAll>
           </ReactiveSequence>
         </Repeat>
         <Repeat name="Forever"
@@ -60,7 +62,6 @@
     <Action ID="Preparation"
             editable="true">
       <input_port name="command">command</input_port>
-      <input_port name="emergency">signals emergency</input_port>
       <output_port name="preparation">preparation signal</output_port>
     </Action>
     <Action ID="ReadControlButtons"
