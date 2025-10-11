@@ -67,21 +67,22 @@ behaviortree-derive = { path = "derive", version = "0.3" }
 async-trait = { version = "0.1.88", default-features = false }
 bytes = { version = "1", default-features = false }
 #databoard = { path = "../databoard", version = "0.2", default-features = false }
-databoard = { version = "0.2", default-features = false }
+databoard = { version = "0.2.2", default-features = false }
 #futures = { version = "0.3.31", default-features = false, features = ["alloc"] }
 libloading = { version = "0.8.9", default-features = false, optional = true }
 nanoserde = { version = "0.2.1", default-features = false, features = ["json"] }
 rand = { version = "0.9.2", optional = true }
-roxmltree = { version = "0.20.0", default-features = false, features = [
+roxmltree = { version = "0.21.0", default-features = false, features = [
     "positions",
 ] }
 spin = { version = "0.10.0", default-features = false, features = [
+    "portable-atomic",
     "rwlock",
     "use_ticket_mutex",
 ] }
 thingbuf = { version = "0.1", default-features = false, features = ["alloc"] }
 #tinyscript = { path = "../tinyscript", version = "0.4", default-features = false }
-tinyscript = { version = "0.4", default-features = false }
+tinyscript = { version = "0.4.1", default-features = false }
 tokio = { version = "1.47.1", features = [
     "rt-multi-thread",
     "macros",
@@ -111,6 +112,19 @@ trybuild = { version = "1.0.110", features = ["diff"] }
 # default is set this way for testing purpose
 default = ["std", "all_behaviors"]
 # shortcuts for certain purposes
+std = [
+    "databoard/std",
+    "libloading",
+    "roxmltree/std",
+    "rand",
+    "spin/std",
+    "tinyscript/std",
+    "tokio",
+    "uuid",
+    "woxml/std",
+    "zeromq",
+    "zeromq/tokio-runtime",
+]
 all_behaviors = [
     "always_failure",
     "always_running",
@@ -161,18 +175,6 @@ all_behaviors = [
     "was_entry_updated",
     "while_do_else",
 
-]
-std = [
-    "databoard/std",
-    "libloading",
-    "roxmltree/std",
-    "rand",
-    "tinyscript/std",
-    "tokio",
-    "uuid",
-    "woxml/std",
-    "zeromq",
-    "zeromq/tokio-runtime",
 ]
 # modules that contain multiple implementations
 entry_updated = []

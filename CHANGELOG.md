@@ -16,13 +16,17 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.7.0] - 2025-??-??
+## [0.7.0] - 2025-10-11
+
+### Added
+- a first (evaluation) example with real embedded hardware
 
 ### Changed
 - improved error handling especially in embedded examples
 - gated the built-in behaviors behind features
 - renamed `TestBehavior` to `MockBehavior`
 - separated macro `register_simple_behavior!(...)` from `register_behavior!(...)`
+- features used with spin crate
 
 ### Fixed
 - ignore TreeNodesModel attribute `editable`
