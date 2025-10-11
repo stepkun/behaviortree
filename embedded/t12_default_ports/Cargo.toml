@@ -35,4 +35,3 @@ behaviortree = { path = "../..", default-features = false, features = [
   "sequence",
 ] }
 nanoserde = { version = "0.2.1", default-features = false, features = ["json"] }
-spin = { version = "0.10.0", default-features = false }

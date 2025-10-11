@@ -23,7 +23,7 @@ pub struct JsonConfig {
 impl DeJson for JsonConfig {
 	fn de_json(state: &mut nanoserde::DeJsonState, input: &mut core::str::Chars) -> Result<Self, nanoserde::DeJsonErr> {
 		let mut result = Self::default();
-		let mut test_behavior_configs: BTreeMap<String, MockBehaviorConfig> = BTreeMap::new();
+		let mut mock_behavior_configs: BTreeMap<String, MockBehaviorConfig> = BTreeMap::new();
 
 		match state.tok {
 			DeJsonTok::CurlyOpen => {
@@ -118,7 +118,7 @@ impl DeJson for JsonConfig {
 											state.next_tok(input)?;
 										}
 										if state.tok == DeJsonTok::CurlyClose {
-											test_behavior_configs.insert(config_name, config);
+											mock_behavior_configs.insert(config_name, config);
 											// consume CurlyClose
 											state.next_tok(input)?;
 											break;
@@ -157,7 +157,7 @@ impl DeJson for JsonConfig {
 										state.next_tok(input)?;
 									}
 									let value = state.strbuf.clone();
-									let rule = test_behavior_configs.get(&value).map_or_else(
+									let rule = mock_behavior_configs.get(&value).map_or_else(
 										|| SubstitutionRule::StringRule(value.into()),
 										|config| SubstitutionRule::ConfigRule(config.clone()),
 									);
@@ -207,7 +207,7 @@ impl DeJson for JsonConfig {
 				});
 			}
 		}
-		// std::dbg!(&test_behavior_configs);
+		// std::dbg!(&mock_behavior_configs);
 		// std::dbg!(&result);
 		Ok(result)
 	}

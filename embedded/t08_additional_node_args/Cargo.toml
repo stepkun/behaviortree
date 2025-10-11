@@ -32,4 +32,3 @@ async-trait = { version = "0.1.89", default-features = false }
 behaviortree = { path = "../..", default-features = false, features = [
   "sequence",
 ] }
-spin = { version = "0.10.0", default-features = false }

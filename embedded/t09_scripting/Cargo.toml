@@ -36,4 +36,3 @@ behaviortree = { path = "../..", default-features = false, features = [
   "script",
   "sequence",
 ] }
-spin = { version = "0.10.0", default-features = false }

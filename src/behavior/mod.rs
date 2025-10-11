@@ -8,7 +8,7 @@ pub mod condition;
 pub mod control;
 pub mod decorator;
 pub mod error;
-#[cfg(feature = "test_behavior")]
+#[cfg(feature = "mock_behavior")]
 pub mod mock_behavior;
 pub mod pre_post_conditions;
 mod shared_queue;
@@ -18,7 +18,7 @@ mod sub_tree;
 
 // flatten
 pub use error::Error as BehaviorError;
-#[cfg(feature = "test_behavior")]
+#[cfg(feature = "mock_behavior")]
 pub use mock_behavior::{MockBehavior, MockBehaviorConfig};
 use nanoserde::DeJson;
 pub use shared_queue::SharedQueue;

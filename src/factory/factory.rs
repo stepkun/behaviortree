@@ -23,7 +23,7 @@ use crate::{
 	behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn},
 	port::PortList,
 };
-#[cfg(feature = "test_behavior")]
+#[cfg(feature = "mock_behavior")]
 use crate::{
 	behavior::{MockBehavior, MockBehaviorConfig},
 	factory::registry::SubstitutionRule,
@@ -32,7 +32,7 @@ use crate::{
 use alloc::string::String;
 use alloc::{boxed::Box, string::ToString, vec::Vec};
 use databoard::Databoard;
-#[cfg(feature = "test_behavior")]
+#[cfg(feature = "mock_behavior")]
 use nanoserde::DeJson;
 // endregion:   --- modules
 
@@ -91,7 +91,7 @@ use nanoserde::DeJson;
 ///   [`Timeout`](crate::behavior::decorator::Timeout): feature `timeout`
 ///   [`WaitValueUpdated`](crate::behavior::decorator::EntryUpdated):: feature `wait_value_updated`
 /// - For mocking and behavior replacements:
-///   [`MockBehavior`](crate::behavior::MockBehavior): feature `test_behavior`
+///   [`MockBehavior`](crate::behavior::MockBehavior): feature `mock_behavior`
 ///
 /// Always available is
 /// - [`SubTree`]: to enable (sub) trees including the root tree
@@ -625,7 +625,7 @@ impl BehaviorTreeFactory {
 	/// Registers a substitution rule for a pattern.
 	/// # Errors
 	/// - if
-	#[cfg(feature = "test_behavior")]
+	#[cfg(feature = "mock_behavior")]
 	#[inline]
 	pub fn add_substitution_rule(&mut self, pattern: &str, rule: SubstitutionRule) -> Result<(), Error> {
 		self.registry.add_substitution_rule(pattern, rule)
@@ -634,7 +634,7 @@ impl BehaviorTreeFactory {
 	/// Registers substitution rules using a configuration.
 	/// # Errors
 	/// - if
-	#[cfg(feature = "test_behavior")]
+	#[cfg(feature = "mock_behavior")]
 	pub fn load_substitution_rules_from_json(&mut self, json: &str) -> Result<(), Error> {
 		let json: super::json_config::JsonConfig = DeJson::deserialize_json(json)?;
 		// std::dbg!(&json);
@@ -647,7 +647,7 @@ impl BehaviorTreeFactory {
 	/// Deletes all registered a substitution rules.
 	/// # Errors
 	/// - if
-	#[cfg(feature = "test_behavior")]
+	#[cfg(feature = "mock_behavior")]
 	#[inline]
 	pub fn clear_substitution_rules(&mut self) {
 		self.registry.clear_substitution_rules();

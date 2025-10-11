@@ -10,7 +10,7 @@ extern crate std;
 use core::ops::Range;
 
 // region:      --- modules
-#[cfg(feature = "test_behavior")]
+#[cfg(feature = "mock_behavior")]
 use crate::behavior::{MockBehavior, MockBehaviorConfig};
 use crate::{
 	BehaviorExecution, ConstString,
@@ -30,7 +30,7 @@ use super::BehaviorTreeFactory;
 
 // region:		--- SubstitutionRule
 /// Variants of substitution rules
-#[cfg(feature = "test_behavior")]
+#[cfg(feature = "mock_behavior")]
 #[derive(Clone, Debug)]
 pub enum SubstitutionRule {
 	/// Rule is a String type, replacing a behavior with some other behavior
@@ -63,7 +63,7 @@ pub struct BehaviorRegistry {
 	/// `TreNodesModel` remappings. The key is combined from behaviors type and ID.
 	tree_nodes_models: BTreeMap<ConstString, TreeNodesModelEntry>,
 	/// Substitution rules
-	#[cfg(feature = "test_behavior")]
+	#[cfg(feature = "mock_behavior")]
 	substitution_rules: BTreeMap<ConstString, SubstitutionRule>,
 	/// Main tree ID
 	main_tree_id: Option<ConstString>,
@@ -114,7 +114,7 @@ impl BehaviorRegistry {
 	/// Registers a substitution rule for a pattern.
 	/// # Errors
 	/// - if
-	#[cfg(feature = "test_behavior")]
+	#[cfg(feature = "mock_behavior")]
 	pub fn add_substitution_rule(&mut self, pattern: &str, rule: SubstitutionRule) -> Result<(), Error> {
 		self.substitution_rules
 			.insert(pattern.into(), rule);
@@ -124,7 +124,7 @@ impl BehaviorRegistry {
 	/// Deletes all registered a substitution rules.
 	/// # Errors
 	/// - if
-	#[cfg(feature = "test_behavior")]
+	#[cfg(feature = "mock_behavior")]
 	#[inline]
 	pub fn clear_substitution_rules(&mut self) {
 		self.substitution_rules.clear();
@@ -193,9 +193,9 @@ impl BehaviorRegistry {
 	pub(crate) fn fetch_behavior(
 		&self,
 		id: &str,
-		#[cfg(feature = "test_behavior")] path: &str,
+		#[cfg(feature = "mock_behavior")] path: &str,
 	) -> Result<(BehaviorDescription, Box<dyn BehaviorExecution>), Error> {
-		#[cfg(feature = "test_behavior")]
+		#[cfg(feature = "mock_behavior")]
 		{
 			// look for a substitution rule
 			// the first matching rule will be used
@@ -235,7 +235,7 @@ impl BehaviorRegistry {
 							},
 						)
 					}
-					SubstitutionRule::ConfigRule(test_behavior_config) => {
+					SubstitutionRule::ConfigRule(mock_behavior_config) => {
 						// find original entry for description info
 						self.behaviors.get(id).map_or_else(
 							|| Err(Error::NotRegistered { name: id.into() }),
@@ -243,7 +243,7 @@ impl BehaviorRegistry {
 								let old_behavior = creation_fn();
 								let port_list = old_behavior.static_provided_ports();
 								// create a MockBehavior instead of original behavior
-								let bhvr_fn = MockBehavior::creation_fn(test_behavior_config.clone(), port_list);
+								let bhvr_fn = MockBehavior::creation_fn(mock_behavior_config.clone(), port_list);
 								Ok((desc.clone(), bhvr_fn()))
 							},
 						)
@@ -260,7 +260,7 @@ impl BehaviorRegistry {
 				)
 			}
 		}
-		#[cfg(not(feature = "test_behavior"))]
+		#[cfg(not(feature = "mock_behavior"))]
 		{
 			// fetch from registry
 			self.behaviors.get(id).map_or_else(

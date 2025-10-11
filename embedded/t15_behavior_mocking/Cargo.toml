@@ -36,6 +36,10 @@ behaviortree = { path = "../..", default-features = false, features = [
   "script",
   "sequence",
   "simple_behavior",
-  "test_behavior",
+  "mock_behavior",
 ] }
-spin = { version = "0.10.0", default-features = false }
+spin = { version = "0.10.0", default-features = false, features = [
+  "portable-atomic",
+  "rwlock",
+  "use_ticket_mutex",
+] }

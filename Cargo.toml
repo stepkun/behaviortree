@@ -2,7 +2,7 @@
 [package]
 resolver = "3"
 name = "behaviortree"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
@@ -110,7 +110,7 @@ trybuild = { version = "1.0.110", features = ["diff"] }
 
 [features]
 # default is set this way for testing purpose
-default = ["std", "all_behaviors"]
+default = ["std", "all_behaviors", "test_behavior"]
 # shortcuts for certain purposes
 std = [
     "databoard/std",
@@ -143,6 +143,7 @@ all_behaviors = [
     "loop_double",
     "loop_int",
     "loop_string",
+    "mock_behavior",
     "parallel",
     "parallel_all",
     "pop_bool",
@@ -168,7 +169,6 @@ all_behaviors = [
     "switch4",
     "switch5",
     "switch6",
-    "test_behavior",
     "timeout",
     "unset_blackboard",
     "wait_value_updated",
@@ -184,13 +184,14 @@ loop_queue = []
 pop_from_queue = []
 sequences = []
 switch = []
-test_behavior = []
+mock_behavior = []
 # special features
-mocking = ["test_behavior"]
+test_behavior = ["mock_behavior"]
+mocking = ["mock_behavior"]
 # the behaviors
-always_failure = ["test_behavior"]
-always_running = ["test_behavior"]
-always_success = ["test_behavior"]
+always_failure = ["mock_behavior"]
+always_running = ["mock_behavior"]
+always_success = ["mock_behavior"]
 async_fallback = ["fallbacks"]
 async_sequence = ["sequences"]
 delay = []

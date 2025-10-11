@@ -8,7 +8,7 @@
 mod test_data;
 
 use ariel_os::debug::{ExitCode, exit, log::*};
-use behaviortree::{behavior::mock_behavior::MocktBehaviorConfig, factory::registry::SubstitutionRule, prelude::*};
+use behaviortree::{behavior::mock_behavior::MockBehaviorConfig, factory::registry::SubstitutionRule, prelude::*};
 use core::time::Duration;
 use test_data::SaySomething;
 

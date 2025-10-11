@@ -16,6 +16,10 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
+## [0.7.1] - 2025-10-??
+
+### Changed
+- renamed feature `test_behavior` into `mock_behavior`, alias remains
 ## [0.7.0] - 2025-10-11
 
 ### Added
