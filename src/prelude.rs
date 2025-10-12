@@ -22,6 +22,8 @@ pub use behaviortree_derive::{Action, Condition, Control, Decorator};
 pub use databoard::{Databoard, Remappings};
 // tinyscript
 pub use tinyscript::{ScriptEnum, SharedRuntime};
+// Mutex from wherever it comes from for register_simple_behavior!()
+pub use spin::Mutex;
 
 // public exports
 // literals

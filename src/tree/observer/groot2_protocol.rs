@@ -6,12 +6,10 @@
 extern crate std;
 
 // region:      --- modules
+use crate::{Mutex, behavior::BehaviorState};
 use bytes::{BufMut, Bytes, BytesMut};
 use core::fmt::Display;
-use spin::Mutex;
 use uuid::Uuid;
-
-use crate::behavior::BehaviorState;
 // endregion:   --- modules
 
 // region:      --- Groot2RequestType

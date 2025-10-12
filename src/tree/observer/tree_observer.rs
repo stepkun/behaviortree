@@ -7,12 +7,11 @@ extern crate std;
 
 // region:      --- modules
 use crate::{
-	ConstString,
+	ConstString, Mutex,
 	behavior::{BehaviorState, behavior_data::BehaviorData},
 	tree::tree::BehaviorTree,
 };
 use alloc::{sync::Arc, vec::Vec};
-use spin::Mutex;
 #[cfg(feature = "std")]
 use std::time::Instant;
 // endregion:   --- modules

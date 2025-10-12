@@ -18,8 +18,15 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ## [0.7.1] - 2025-10-??
 
+### Added
+- macro for registering Groot2 behaviors
+
 ### Changed
 - renamed feature `test_behavior` into `mock_behavior`, alias remains
+
+### Removed
+- necessity of adding crate `spin` to dependencies when using `behaviortree`
+
 ## [0.7.0] - 2025-10-11
 
 ### Added
@@ -56,7 +63,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 ### Fixed
 - behavior `Precondition`s else branch value is now case independant
 - behaviors `Parallel` & `ParallelAll` edge cases
-- behavior `Repeat` remove one unneccessary extra tick
+- behavior `Repeat` remove one unnecessary extra tick
 - port default values in several behaviors
 
 ### Removed

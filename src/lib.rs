@@ -35,6 +35,8 @@ pub use xml::creator::XmlCreator;
 
 // re-exports:
 pub use behaviortree_derive::{Action, Condition, Control, Decorator};
+// Mutex from wherever it comes from for register_simple_behavior!()
+pub use spin::Mutex;
 
 // region:		--- modules
 use alloc::sync::Arc;
@@ -138,7 +140,26 @@ macro_rules! register_behavior {
 	}};
 }
 
-/// Macro to register different kinds of behaviors.
+/// Macro to register groot2 behaviors.
+#[macro_export]
+macro_rules! register_groot2_behavior {
+	// behavior type struct
+	($factory:ident, $tp:ty, $name:literal $(,)?) => {{
+		$factory.register_behavior_type::<$tp>($name)
+	}};
+	// behavior type struct with arguments for construction
+	($factory:ident, $tp:ty, $name:literal, $($arg:expr),* $(,)?) => {{
+		let bhvr_desc = $crate::behavior::behavior_description::BehaviorDescription::new($name, stringify!($tp), <$tp>::kind(), true, <$tp>::provided_ports());
+		let bhvr_creation_fn = alloc::boxed::Box::new(move || -> alloc::boxed::Box<dyn $crate::behavior::BehaviorExecution> {
+			alloc::boxed::Box::new(<$tp>::new($($arg),*))
+		});
+		$factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
+	}};
+}
+
+/// Macro to register different kinds of simple behaviors.
 ///
 /// # Usage:
 ///
@@ -172,7 +193,7 @@ macro_rules! register_simple_behavior {
 	// this needs to be last becaus the second argument beiing an expression covers most other kinds!!
 	// returns an Arc-Mutex-wrapped item of the given struct
 	($factory:ident, $item:expr, $($fun:ident, $name:literal, $kind:path $(,)?)+) => {{
-		let base = alloc::sync::Arc::new(spin::Mutex::new($item));
+		let base = alloc::sync::Arc::new(behaviortree::Mutex::new($item));
 		// let mut res: core::result::Result<alloc::sync::Arc<spin::Mutex<$item>>, $crate::factory::error::Error> = Ok(base.clone());
 		let mut res = Ok(base.clone());
 		$({

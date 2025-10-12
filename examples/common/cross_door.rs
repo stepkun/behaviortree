@@ -12,7 +12,6 @@ use std::{
 
 use behaviortree::prelude::*;
 use rand::Rng;
-use spin::Mutex;
 
 /// Returns `true` if sleeping, `false` after sleep time ended.
 #[must_use]

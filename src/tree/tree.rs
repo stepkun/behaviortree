@@ -7,6 +7,7 @@
 extern crate std;
 
 // region:      --- modules
+use crate::Mutex;
 #[cfg(feature = "std")]
 use crate::tree::observer::groot2_connector::{GROOT_STATE, Groot2ConnectorData, attach_groot_callback};
 use crate::{
@@ -23,7 +24,6 @@ use alloc::{string::String, sync::Arc};
 use databoard::Databoard;
 #[cfg(feature = "std")]
 use libloading::Library;
-use spin::Mutex;
 #[cfg(feature = "std")]
 use thingbuf::mpsc;
 use tinyscript::SharedRuntime;

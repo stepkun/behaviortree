@@ -8,9 +8,9 @@ use crate::{self as behaviortree, behavior::error::Error as BehaviorError};
 use alloc::collections::vec_deque::VecDeque;
 use alloc::string::ToString;
 use alloc::sync::Arc;
+use behaviortree::Mutex;
 use core::fmt::{Debug, Display, Formatter};
 use core::str::FromStr;
-use spin::Mutex;
 // endregion:   --- modules
 
 // region:		--- SharedQueue

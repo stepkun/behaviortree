@@ -9,7 +9,7 @@ use core::time::Duration;
 use alloc::collections::vec_deque::VecDeque;
 // region:      --- modules
 use crate::{
-	ConstString, XmlCreator,
+	ConstString, Mutex, XmlCreator,
 	behavior::{BehaviorState, behavior_data::BehaviorData},
 	tree::{
 		observer::groot2_protocol::{Groot2ReplyHeader, Groot2RequestHeader, Groot2RequestType, Groot2TransitionInfo},
@@ -19,7 +19,6 @@ use crate::{
 use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use bytes::{Bytes, BytesMut};
-use spin::Mutex;
 use thingbuf::mpsc;
 use tokio::{task::JoinHandle, time::Instant};
 use zeromq::{Socket, SocketRecv, SocketSend, ZmqMessage};

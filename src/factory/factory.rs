@@ -10,13 +10,16 @@ extern crate std;
 
 // region:      --- modules
 use super::{error::Error, registry::BehaviorRegistry};
-#[allow(unused)]
-use crate::behavior::{Behavior, BehaviorKind, BehaviorState, action, condition, control, decorator};
 use crate::{
 	ConstString,
 	behavior::{BehaviorExecution, SubTree, behavior_description::BehaviorDescription},
 	tree::BehaviorTree,
 	xml::parser::XmlParser,
+};
+#[allow(unused)]
+use crate::{
+	behavior::{Behavior, BehaviorKind, BehaviorState, action, condition, control, decorator},
+	register_groot2_behavior,
 };
 #[cfg(feature = "simple_behavior")]
 use crate::{
@@ -27,6 +30,7 @@ use crate::{
 use crate::{
 	behavior::{MockBehavior, MockBehaviorConfig},
 	factory::registry::SubstitutionRule,
+	register_behavior,
 };
 #[allow(unused)]
 use alloc::string::String;
@@ -116,7 +120,6 @@ impl BehaviorTreeFactory {
 	///
 	/// # Errors
 	/// - if registration of any of the configured behaviors fails.
-	#[allow(clippy::too_many_lines)]
 	pub fn new() -> Result<Box<Self>, Error> {
 		let mut f = Box::new(Self {
 			registry: Box::new(BehaviorRegistry::default()),
@@ -131,18 +134,7 @@ impl BehaviorTreeFactory {
 				return_state: BehaviorState::Failure,
 				..Default::default()
 			};
-			let bhvr_desc = BehaviorDescription::new(
-				"AlwaysFailure",
-				"AlwaysFailure",
-				BehaviorKind::Action,
-				true,
-				MockBehavior::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+			register_behavior!(f, MockBehavior, "AlwaysFailure", config.clone(), PortList::default())?;
 		}
 		#[cfg(feature = "always_running")]
 		{
@@ -150,18 +142,7 @@ impl BehaviorTreeFactory {
 				return_state: BehaviorState::Running,
 				..Default::default()
 			};
-			let bhvr_desc = BehaviorDescription::new(
-				"AlwaysRunning",
-				"AlwaysRunning",
-				BehaviorKind::Action,
-				false,
-				MockBehavior::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+			register_behavior!(f, MockBehavior, "AlwaysRunning", config.clone(), PortList::default())?;
 		}
 		#[cfg(feature = "always_success")]
 		{
@@ -169,18 +150,7 @@ impl BehaviorTreeFactory {
 				return_state: BehaviorState::Success,
 				..Default::default()
 			};
-			let bhvr_desc = BehaviorDescription::new(
-				"AlwaysSuccess",
-				"AlwaysSuccess",
-				BehaviorKind::Action,
-				true,
-				MockBehavior::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+			register_behavior!(f, MockBehavior, "AlwaysSuccess", config.clone(), PortList::default())?;
 		}
 		#[cfg(feature = "script")]
 		f.register_groot2_behavior_type::<action::Script>("Script")?;
@@ -207,33 +177,9 @@ impl BehaviorTreeFactory {
 
 		// controls
 		#[cfg(feature = "async_fallback")]
-		{
-			let bhvr_desc = BehaviorDescription::new(
-				"AsyncFallback",
-				"AsynchFallback",
-				control::Fallback::kind(),
-				true,
-				control::Fallback::provided_ports(),
-			);
-			let bhvr_creation_fn =
-				Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(control::Fallback::new(true)) });
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-		}
+		register_groot2_behavior!(f, control::Fallback, "AsyncFallback", true)?;
 		#[cfg(feature = "async_sequence")]
-		{
-			let bhvr_desc = BehaviorDescription::new(
-				"AsyncSequence",
-				"AsynchSequence",
-				control::Sequence::kind(),
-				true,
-				control::Sequence::provided_ports(),
-			);
-			let bhvr_creation_fn =
-				Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(control::Sequence::new(true)) });
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-		}
+		register_groot2_behavior!(f, control::Sequence, "AsyncSequence", true)?;
 		#[cfg(feature = "fallback")]
 		f.register_groot2_behavior_type::<control::Fallback>("Fallback")?;
 		#[cfg(feature = "if_then_else")]
@@ -267,50 +213,11 @@ impl BehaviorTreeFactory {
 		#[cfg(feature = "delay")]
 		f.register_groot2_behavior_type::<decorator::Delay>("Delay")?;
 		#[cfg(feature = "force_failure")]
-		{
-			let bhvr_desc = BehaviorDescription::new(
-				"ForceFailure",
-				"ForceFailure",
-				decorator::ForceState::kind(),
-				true,
-				decorator::ForceState::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(decorator::ForceState::new(BehaviorState::Failure))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-		}
+		register_groot2_behavior!(f, decorator::ForceState, "ForceFailure", BehaviorState::Failure)?;
 		#[cfg(feature = "force_running")]
-		{
-			let bhvr_desc = BehaviorDescription::new(
-				"ForceRunning",
-				"ForceRunning",
-				decorator::ForceState::kind(),
-				false,
-				decorator::ForceState::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(decorator::ForceState::new(BehaviorState::Running))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-		}
+		register_behavior!(f, decorator::ForceState, "ForceRunning", BehaviorState::Running)?;
 		#[cfg(feature = "force_success")]
-		{
-			let bhvr_desc = BehaviorDescription::new(
-				"ForceSuccess",
-				"ForceSuccess",
-				decorator::ForceState::kind(),
-				true,
-				decorator::ForceState::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(decorator::ForceState::new(BehaviorState::Success))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-		}
+		register_groot2_behavior!(f, decorator::ForceState, "ForceSuccess", BehaviorState::Success)?;
 		#[cfg(feature = "inverter")]
 		f.register_groot2_behavior_type::<decorator::Inverter>("Inverter")?;
 		#[cfg(feature = "keep_running_until_failure")]
@@ -334,35 +241,9 @@ impl BehaviorTreeFactory {
 		#[cfg(feature = "timeout")]
 		f.register_groot2_behavior_type::<decorator::Timeout>("Timeout")?;
 		#[cfg(feature = "skip_unless_updated")]
-		{
-			let bhvr_desc = BehaviorDescription::new(
-				"SkipUnlessUpdated",
-				"SkipUnlessUpdated",
-				decorator::EntryUpdated::kind(),
-				true,
-				decorator::EntryUpdated::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(decorator::EntryUpdated::new(BehaviorState::Skipped))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-		}
+		register_groot2_behavior!(f, decorator::EntryUpdated, "SkipUnlessUpdated", BehaviorState::Skipped)?;
 		#[cfg(feature = "wait_value_updated")]
-		{
-			let bhvr_desc = BehaviorDescription::new(
-				"WaitValueUpdated",
-				"WaitValueUpdated",
-				decorator::EntryUpdated::kind(),
-				true,
-				decorator::EntryUpdated::provided_ports(),
-			);
-			let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-				Box::new(decorator::EntryUpdated::new(BehaviorState::Running))
-			});
-			f.registry_mut()
-				.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-		}
+		register_groot2_behavior!(f, decorator::EntryUpdated, "WaitValueUpdated", BehaviorState::Running)?;
 
 		Ok(f)
 	}
