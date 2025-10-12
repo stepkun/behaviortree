@@ -31,8 +31,8 @@ const ENTRY: &str = "entry";
 ///
 /// The behavior is gated behind feature `entry_updated`.
 /// There are the predefined variants
-/// - SkipUnlessUpdated: gated behind feature `skip_unless_updated`
-/// - WaitValueUpdated: gated behind feature `wait_value_updated`
+/// - `SkipUnlessUpdated`: gated behind feature `skip_unless_updated`
+/// - `WaitValueUpdated`: gated behind feature `wait_value_updated`
 ///
 /// The raw version is gated behind feature `pop_from_queue`.
 ///

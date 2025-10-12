@@ -19,11 +19,12 @@ use tinyscript::SharedRuntime;
 /// This [`Decorator`] is used to provide the decorators that enforce a certain response, independant from the childs result like
 /// `ForceFailure` and `ForceSuccess`.
 ///
-/// The behavior is gated behind feature `force_state`.
 /// There are the predefined variants
-/// - ForceFailure: gated behind feature `force_failure`
-/// - ForceRunning: gated behind feature `force_running`
-/// - ForceSuccess: gated behind feature `force_success`
+/// - `ForceFailure`: gated behind feature `force_failure`
+/// - `ForceRunning`: gated behind feature `force_running`
+/// - `ForceSuccess`: gated behind feature `force_success`
+///
+/// The raw version is gated behind feature `force_state`.
 #[derive(Decorator, Debug, Default)]
 pub struct ForceState {
 	state: BehaviorState,

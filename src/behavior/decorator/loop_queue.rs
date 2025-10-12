@@ -27,11 +27,12 @@ const VALUE: &str = "value";
 /// The [`Loop`] behavior is used to `pop_front` elements from a [`SharedQueue`].
 /// This element is copied into the port `value` and the child will be executed
 /// as long as there are elements in the queue.
+///
 /// There are the predefined behaviors
-/// - LoopBool: gated behind feature `loop_bool`
-/// - LoopDouple: gated behind feature `loop_double`
-/// - LoopInt: gated behind feature `loop_int` (int is i32)
-/// - LoopString: gated behind feature `loop_string`
+/// - `LoopBool`: gated behind feature `loop_bool`
+/// - `LoopDouble`: gated behind feature `loop_double`
+/// - `LoopInt`: gated behind feature `loop_int` (int is i32)
+/// - `LoopString`: gated behind feature `loop_string`
 ///
 /// The raw version is gated behind feature `loop_queue`.
 #[derive(Decorator, Debug, Default)]

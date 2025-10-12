@@ -28,10 +28,10 @@ const QUEUE: &str = "queue";
 /// If the queue is empty, the behavior will return Failure.
 ///
 /// There are the predefined behaviors
-/// - PopBool: gated behind feature `pop_bool`
-/// - PopDouple: gated behind feature `pop_double`
-/// - PopInt: gated behind feature `pop_int` (int is i32)
-/// - PopString: gated behind feature `pop_string`
+/// - `PopBool`: gated behind feature `pop_bool`
+/// - `PopDouble`: gated behind feature `pop_double`
+/// - `PopInt`: gated behind feature `pop_int` (int is i32)
+/// - `PopString`: gated behind feature `pop_string`
 ///
 /// The raw version is gated behind feature `pop_from_queue`.
 #[derive(Action, Debug, Default)]

@@ -49,6 +49,7 @@ impl core::fmt::Debug for MockBehaviorConfig {
 
 impl MockBehaviorConfig {
 	/// Creates a configuration with the geiven return state.
+	#[must_use]
 	pub fn new(return_state: BehaviorState) -> Self {
 		Self {
 			return_state,
@@ -63,9 +64,9 @@ impl MockBehaviorConfig {
 ///
 /// The behavior is gated behind feature `mock_behavior`.
 /// There are the predefined variants
-/// - AlwaysFailure: gated behind feature `always_failure`
-/// - AlwaysRunning: gated behind feature `always_running`
-/// - AlwaysSuccess: gated behind feature `always_success`
+/// - `AlwaysFailure`: gated behind feature `always_failure`
+/// - `AlwaysRunning`: gated behind feature `always_running`
+/// - `AlwaysSuccess`: gated behind feature `always_success`
 #[derive(Default)]
 pub struct MockBehavior {
 	config: MockBehaviorConfig,

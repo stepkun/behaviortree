@@ -120,6 +120,7 @@ impl BehaviorTreeFactory {
 	///
 	/// # Errors
 	/// - if registration of any of the configured behaviors fails.
+	#[allow(clippy::too_many_lines)]
 	pub fn new() -> Result<Box<Self>, Error> {
 		let mut f = Box::new(Self {
 			registry: Box::new(BehaviorRegistry::default()),
