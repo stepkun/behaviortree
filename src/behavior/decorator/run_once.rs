@@ -22,6 +22,8 @@ const THEN_SKIP: &str = "then_skip";
 // region:      --- RunOnce
 /// The [`RunOnce`] decorator ticks its child exactly once and returns the state.
 /// Afterwards, if `ţhen_skip` is set to `true` Skipped will be returned, otherwise the state of the first run.
+///
+/// The behavior is gated behind feature `run_once`.
 #[derive(Decorator, Debug, Default)]
 pub struct RunOnce {
 	already_ticked: bool,

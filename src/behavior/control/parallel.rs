@@ -24,6 +24,8 @@ use tinyscript::SharedRuntime;
 /// This differs from the [`ParallelAll`](crate::behavior::control::parallel_all::ParallelAll) behavior.
 /// Both ports default to `-1` which means any number or don't care.
 ///
+/// The behavior is gated behind feature `parallel`.
+///
 /// Example:
 ///
 /// ```xml

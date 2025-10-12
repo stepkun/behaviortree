@@ -30,6 +30,8 @@ const MSEC: &str = "msec";
 // region:		--- Sleep
 /// The [`Sleep`] behavior sleeps for the amount of time given via port msec.
 /// Consider also using the decorator [`Delay`](crate::behavior::decorator::Delay)
+///
+/// The behavior is gated behind feature `sleep`.
 #[derive(Action, Debug, Default)]
 pub struct Sleep {
 	#[cfg(feature = "std")]

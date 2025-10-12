@@ -26,6 +26,8 @@ const ENTRY: &str = "entry";
 /// The `WasEntryUpdated` condition returns Success if a blackboard entry was updated otherwise Failure.
 /// # Errors
 /// - if the entry does not exist
+///
+/// The behavior is gated behind feature `was_entry_updated`.
 #[derive(Condition, Debug, Default)]
 pub struct WasEntryUpdated {
 	/// ID of the last checked update

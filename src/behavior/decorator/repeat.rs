@@ -22,6 +22,8 @@ const NUM_CYCLES: &str = "num_cycles";
 // region:      --- Repeat
 /// The [`Repeat`] decorator is used to execute a child several times as long as it succeeds.
 ///
+/// The behavior is gated behind feature `repeat`.
+///
 /// Example:
 ///
 /// ```xml

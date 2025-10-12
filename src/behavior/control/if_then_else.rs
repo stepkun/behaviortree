@@ -23,9 +23,10 @@ use tinyscript::SharedRuntime;
 /// statement returns [`BehaviorState::Failure`].
 /// This is equivalent to adding [`AlwaysFailure`](crate::behavior::action::ChangeStateAfter) as 3rd child.
 ///
+/// The behavior is gated behind feature `if_then_else`.
+///
 /// Example:
 ///
-/// Requires a factory at least `with_extended_behaviors` or manual registration
 /// ```xml
 /// <IfThenElse>
 ///    <Condition/>

@@ -26,6 +26,14 @@ const QUEUE: &str = "queue";
 /// The [`PopFromQueue`] behavior is used to `pop_front` an element from a [`SharedQueue`].
 /// This element is moved into the port `popped_item`.
 /// If the queue is empty, the behavior will return Failure.
+///
+/// There are the predefined behaviors
+/// - PopBool: gated behind feature `pop_bool`
+/// - PopDouple: gated behind feature `pop_double`
+/// - PopInt: gated behind feature `pop_int` (int is i32)
+/// - PopString: gated behind feature `pop_string`
+///
+/// The raw version is gated behind feature `pop_from_queue`.
 #[derive(Action, Debug, Default)]
 pub struct PopFromQueue<T>
 where

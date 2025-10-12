@@ -35,7 +35,7 @@ pub use xml::creator::XmlCreator;
 
 // re-exports:
 pub use behaviortree_derive::{Action, Condition, Control, Decorator};
-// Mutex from wherever it comes from for register_simple_behavior!()
+// Mutex from wherever it comes from for register_simple_behavior!() and SharedQueue
 pub use spin::Mutex;
 
 // region:		--- modules
@@ -141,6 +141,8 @@ macro_rules! register_behavior {
 }
 
 /// Macro to register groot2 behaviors.
+/// It as the same usage as the macro [`register_behavior!(...)`](crate::register_behavior!),
+/// the difference is, that it marks a behavior as knwon by Groot2.
 #[macro_export]
 macro_rules! register_groot2_behavior {
 	// behavior type struct

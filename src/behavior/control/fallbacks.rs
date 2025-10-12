@@ -23,8 +23,11 @@ use tinyscript::SharedRuntime;
 /// While running, the loop is not restarted, first the running child will be ticked again.
 /// If that tick fails the sequence continues, children that already failed will not be ticked again.
 ///
+/// The variants are gated behind features `fallback` and `async_fallback` respectively.
+///
 /// Examples:
 ///
+/// The synchronous variant is gated behind feature `fallback`.
 /// ```xml
 /// <Fallback>
 ///    <Behavior1/>
@@ -33,7 +36,7 @@ use tinyscript::SharedRuntime;
 /// </Fallback>
 /// ```
 ///
-/// Requires a factory at least `with_core_behaviors` or manual registration
+/// The asynchronous variant is gated behind feature `async_fallback`.
 /// ```xml
 /// <AsyncFallback>
 ///    <Behavior1/>

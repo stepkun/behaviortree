@@ -30,6 +30,8 @@ const DELAY_MSEC: &str = "delay_msec";
 // region:		--- Delay
 /// The [`Delay`] decorator will introduce a delay given by the port `delay_msec` and then tick its child.
 /// Consider also using the action [`Sleep`](crate::behavior::action::Sleep)
+///
+/// The behavior is gated behind feature `delay`.
 #[derive(Decorator, Debug, Default)]
 pub struct Delay {
 	#[cfg(feature = "std")]

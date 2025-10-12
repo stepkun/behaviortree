@@ -26,6 +26,8 @@ const IF: &str = "if";
 // region:      --- Precondition
 /// The `Precondition` behavior is used to check a scripted condition before
 /// executing its child.
+///
+/// The behavior is gated behind feature `precondition`.
 #[derive(Decorator, Default)]
 pub struct Precondition;
 

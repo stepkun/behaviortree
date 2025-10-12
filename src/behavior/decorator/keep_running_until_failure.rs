@@ -14,6 +14,7 @@ use tinyscript::SharedRuntime;
 // region:      --- KeepRunningUntilFailure
 /// The `KeepRunningUntilFailure` decorator is used to execute a child repeatedly until it fails.
 ///
+/// The behavior is gated behind feature `keep_running_until_failure`.
 ///
 /// Example:
 ///

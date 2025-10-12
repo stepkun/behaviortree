@@ -18,20 +18,12 @@ use tinyscript::SharedRuntime;
 ///
 /// This [`Decorator`] is used to provide the decorators that enforce a certain response, independant from the childs result like
 /// `ForceFailure` and `ForceSuccess`.
-/// The registration is not possible via the providedd functions or macros, butmust be done manually using its new(...) method like:
-/// ```no-test
-/// let bhvr_desc = BehaviorDescription::new(
-///     "ForceSkipped",
-///     "ForceSkipped",
-///     ForceState::kind(),
-///     false,
-///     ForceState::provided_ports(),
-/// );
-/// let bhvr_creation_fn =
-///     Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Skipped)) });
-/// self.registry_mut()
-///     add_behavior(bhvr_desc, bhvr_creation_fn)?;
-/// ```
+///
+/// The behavior is gated behind feature `force_state`.
+/// There are the predefined variants
+/// - ForceFailure: gated behind feature `force_failure`
+/// - ForceRunning: gated behind feature `force_running`
+/// - ForceSuccess: gated behind feature `force_success`
 #[derive(Decorator, Debug, Default)]
 pub struct ForceState {
 	state: BehaviorState,

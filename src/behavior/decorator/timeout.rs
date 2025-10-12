@@ -29,6 +29,8 @@ const MSEC: &str = "msec";
 
 // region:		--- Timeout
 /// The [`Timeout`] decorator will halt its child after a period given by the port `msec`.
+///
+/// The behavior is gated behind feature `timeout`.
 #[derive(Decorator, Debug, Default)]
 pub struct Timeout {
 	#[cfg(feature = "std")]

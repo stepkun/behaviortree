@@ -24,11 +24,12 @@ use tinyscript::SharedRuntime;
 /// IMPORTANT: Having asynchronous children (aka children that return [`BehaviorState::Running`]) makes
 /// this behavior difficult to predict. Avoid having more than one asynchronous children!
 ///
+/// The behavior is gated behind feature `reactive_fallback`.
+///
 /// Example:
 ///
-/// Requires a factory at least `with_core_behaviors` or manual registration
 /// ```xml
-/// <ReacitveFallback>
+/// <ReactiveFallback>
 ///    <Behavior1/>
 ///    <Behavior2/>
 ///    <Behavior3/>

@@ -26,6 +26,8 @@ const KEY: &str = "key";
 /// The [`UnsetBlackboard`] behavior is used to delete a value of type T
 /// from the Blackboard specified via port `key`.
 /// Will return Success whether the entry exists or not.
+///
+/// The behavior is gated behind feature `unset_blackboard`.
 #[derive(Action, Default)]
 pub struct UnsetBlackboard<T>
 where

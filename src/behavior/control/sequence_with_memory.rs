@@ -19,9 +19,10 @@ use tinyscript::SharedRuntime;
 ///   The loop is NOT restarted, the same running child will be ticked again.
 /// - If a child returns [`BehaviorState::Failure`], the loop stops and the behavior returns [`BehaviorState::Failure`].
 ///
+/// The behavior is gated behind feature `sequence_with_memory`.
+///
 /// Example:
 ///
-/// Requires a factory at least `with_core_behaviors` or manual registration
 /// ```xml
 /// <SequenceWithMemory>
 ///    <Behavior1/>

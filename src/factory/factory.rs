@@ -129,29 +129,29 @@ impl BehaviorTreeFactory {
 
 		// actions
 		#[cfg(feature = "always_failure")]
-		{
-			let config = MockBehaviorConfig {
-				return_state: BehaviorState::Failure,
-				..Default::default()
-			};
-			register_behavior!(f, MockBehavior, "AlwaysFailure", config.clone(), PortList::default())?;
-		}
+		register_groot2_behavior!(
+			f,
+			MockBehavior,
+			"AlwaysFailure",
+			MockBehaviorConfig::new(BehaviorState::Failure),
+			PortList::default()
+		)?;
 		#[cfg(feature = "always_running")]
-		{
-			let config = MockBehaviorConfig {
-				return_state: BehaviorState::Running,
-				..Default::default()
-			};
-			register_behavior!(f, MockBehavior, "AlwaysRunning", config.clone(), PortList::default())?;
-		}
+		register_behavior!(
+			f,
+			MockBehavior,
+			"AlwaysRunning",
+			MockBehaviorConfig::new(BehaviorState::Running),
+			PortList::default()
+		)?;
 		#[cfg(feature = "always_success")]
-		{
-			let config = MockBehaviorConfig {
-				return_state: BehaviorState::Success,
-				..Default::default()
-			};
-			register_behavior!(f, MockBehavior, "AlwaysSuccess", config.clone(), PortList::default())?;
-		}
+		register_groot2_behavior!(
+			f,
+			MockBehavior,
+			"AlwaysSuccess",
+			MockBehaviorConfig::new(BehaviorState::Success),
+			PortList::default()
+		)?;
 		#[cfg(feature = "script")]
 		f.register_groot2_behavior_type::<action::Script>("Script")?;
 		#[cfg(feature = "set_blackboard")]

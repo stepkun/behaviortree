@@ -234,7 +234,7 @@ switch6 = ["switch"]
 timeout = []
 unset_blackboard = []
 wait_value_updated = ["entry_updated"]
-was_entry_updated = ["entry_updated"]
+was_entry_updated = []
 while_do_else = []
 
 [profile.release]

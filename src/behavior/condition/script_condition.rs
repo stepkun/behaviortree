@@ -24,6 +24,8 @@ const CODE: &str = "code";
 // endregion:	--- globals
 
 /// The `ScriptCondition` behavior returns Success or Failure depending on the result of the scripted code.
+///
+/// The behavior is gated behind feature `script_condition`.
 #[derive(Condition, Default)]
 pub struct ScriptCondition;
 

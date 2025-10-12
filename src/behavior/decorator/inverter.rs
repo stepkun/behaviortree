@@ -16,6 +16,8 @@ use tinyscript::SharedRuntime;
 /// - If child returns Success, this behavior returns Failure.
 /// - If child returns Failure, this behavior returns Success.
 /// - If child returns Skipped or Running, this state will be returned.
+///
+/// The behavior is gated behind feature `inverter`.
 #[derive(Decorator, Default)]
 pub struct Inverter;
 

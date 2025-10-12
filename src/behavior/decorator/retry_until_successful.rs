@@ -30,6 +30,8 @@ const NUM_ATTEMPTS: &str = "num_attempts";
 ///
 /// This decorator is non-reactive and does all attempts within 1 tick.
 ///
+/// The behavior is gated behind feature `retry_until_successful`.
+///
 /// Example:
 ///
 /// ```xml

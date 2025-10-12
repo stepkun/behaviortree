@@ -29,6 +29,13 @@ const ENTRY: &str = "entry";
 /// - If it has been changed, the child will be executed and its state returned.
 /// - Otherwise the value of `state_if_not` will be returned.
 ///
+/// The behavior is gated behind feature `entry_updated`.
+/// There are the predefined variants
+/// - SkipUnlessUpdated: gated behind feature `skip_unless_updated`
+/// - WaitValueUpdated: gated behind feature `wait_value_updated`
+///
+/// The raw version is gated behind feature `pop_from_queue`.
+///
 /// # Errors
 /// If the entry does not exist
 #[derive(Decorator, Debug, Default)]

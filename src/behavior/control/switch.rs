@@ -28,9 +28,12 @@ const VARIABLE: &str = "variable";
 /// The `Switch` behavior is equivalent to a C/C++ `switch` or a Rust `match` statement,
 /// where a certain branch (child) is executed according to the value of a variable.
 ///
+/// The predefined behaviors Switch2 - Switch6 are gated behind features `switch<x>`.
+/// The raw version is gated behind feature `switch`.
+///
 /// Example:
 ///
-/// Requires a factory at least `with_groot2_behaviors` (Switch2 to Switch6) or manual registration
+/// This behavior is gated behind feature `switch3`
 /// ```xml
 /// <Switch3 variable="{var}"  case_1="1" case_2="42" case_3="666" >
 ///    <ActionA name="action_when_var_eq_1" />

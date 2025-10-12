@@ -26,6 +26,7 @@ const VALUE: &str = "value";
 /// The [`SetBlackboard`] behavior is used to store a value of type T
 /// into an entry of the Blackboard specified via port `output_key`.
 ///
+/// The behavior is gated behind feature `set_blackboard`.
 #[derive(Action, Default)]
 pub struct SetBlackboard<T: Debug>
 where

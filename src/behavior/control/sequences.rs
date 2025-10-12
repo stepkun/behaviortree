@@ -23,7 +23,11 @@ use tinyscript::SharedRuntime;
 /// While running, the loop is not restarted, first the running child will be ticked again.
 /// If that tick succeeds the sequence continues, children that already succeeded will not be ticked again.
 ///
+/// The variants are gated behind features `sequence` and `async_sequence` respectively.
+///
 /// Examples:
+///
+/// The synchronous variant is gated behind feature `sequence`.
 /// ```xml
 /// <Sequence>
 ///    <Behavior1/>
@@ -32,7 +36,7 @@ use tinyscript::SharedRuntime;
 /// </Sequence>
 /// ```
 ///
-/// Requires a factory at least `with_core_behaviors` or manual registration
+/// The asynchronous variant is gated behind feature `async_sequence`.
 /// ```xml
 /// <AsyncSequence>
 ///    <Behavior1/>

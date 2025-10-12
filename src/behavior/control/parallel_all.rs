@@ -31,9 +31,10 @@ const MAX_FAILURES: &str = "max_failures";
 /// the [`ParallelAll`] becoming a [`BehaviorState::Failure`]. it defaults to `-1`
 /// which means any number or don't care.
 ///
+/// The behavior is gated behind feature `parallel_all`.
+///
 /// Example:
 ///
-/// Requires a factory at least `with_core_behaviors` or manual registration
 /// ```xml
 /// <ParallelAll max_failures="0">
 ///    <Behavior1/>

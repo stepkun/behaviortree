@@ -23,6 +23,8 @@ const CODE: &str = "code";
 // endregion:	--- globals
 
 /// The `Script` behavior returns Success or Failure depending on the result of the scripted code.
+///
+/// The behavior is gated behind feature `script`.
 #[derive(Action, Default)]
 pub struct Script;
 
