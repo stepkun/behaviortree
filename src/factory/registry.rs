@@ -68,7 +68,7 @@ pub struct BehaviorRegistry {
 	/// Main tree ID
 	main_tree_id: Option<ConstString>,
 	/// Scripting runtime
-	runtime: Box<Runtime>,
+	runtime: Runtime,
 	/// List of loaded libraries.
 	/// Every tree must keep a reference to its needed libraries to keep the libraries in memory
 	/// until end of programm.

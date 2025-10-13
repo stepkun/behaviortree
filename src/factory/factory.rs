@@ -97,7 +97,7 @@ use nanoserde::DeJson;
 /// Always available is
 /// - [`SubTree`]: to enable (sub) trees including the root tree
 pub struct BehaviorTreeFactory {
-	registry: Box<BehaviorRegistry>,
+	registry: BehaviorRegistry,
 }
 
 impl BehaviorTreeFactory {
@@ -120,7 +120,7 @@ impl BehaviorTreeFactory {
 	#[allow(clippy::too_many_lines)]
 	pub fn new() -> Result<Box<Self>, Error> {
 		let mut f = Box::new(Self {
-			registry: Box::new(BehaviorRegistry::default()),
+			registry: BehaviorRegistry::default(),
 		});
 		// subtree is always available
 		f.register_groot2_behavior_type::<SubTree>("SubTree")?;
@@ -290,7 +290,7 @@ impl BehaviorTreeFactory {
 	/// - if behaviors or subtrees are missing
 	pub fn create_tree(&mut self, name: &str) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
-		match parser.create_tree_from_definition(name, &mut self.registry, None) {
+		match parser.create_tree_from_definition(name, &self.registry, None) {
 			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),
 			Err(err) => Err(Error::Create {
 				name: name.into(),
@@ -305,7 +305,7 @@ impl BehaviorTreeFactory {
 	/// - if behaviors or subtrees are missing
 	pub fn create_tree_with(&mut self, name: &str, blackboard: &Databoard) -> Result<BehaviorTree, Error> {
 		let mut parser = XmlParser::default();
-		match parser.create_tree_from_definition(name, &mut self.registry, Some(blackboard)) {
+		match parser.create_tree_from_definition(name, &self.registry, Some(blackboard)) {
 			Ok(root) => Ok(BehaviorTree::new(root, &self.registry)),
 			Err(err) => Err(Error::Create {
 				name: name.into(),
@@ -369,7 +369,7 @@ impl BehaviorTreeFactory {
 			};
 			let xml: ConstString = std::fs::read_to_string(file_path)?.into();
 			//XmlParser::register_document(&mut self.registry, &xml, dir)
-			match XmlParser::register_document(&mut self.registry, &xml, &dir) {
+			match XmlParser::register_document(&mut self.registry, xml, &dir) {
 				Ok(()) => Ok(()),
 				Err(err) => Err(Error::RegisterXml {
 					name: dir,

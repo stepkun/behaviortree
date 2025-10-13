@@ -11,10 +11,8 @@ use alloc::{
 	string::{String, ToString},
 };
 // region:      --- modules
-#[cfg(feature = "std")]
-use crate::ConstString;
 use crate::{
-	ACTION, BEHAVIORTREE, CONDITION, CONTROL, DECORATOR, DEFAULT, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
+	ACTION, BEHAVIORTREE, CONDITION, CONTROL, ConstString, DECORATOR, DEFAULT, EMPTY_STR, ID, NAME, SUBTREE, TREENODESMODEL,
 	behavior::{BehaviorDataCollection, BehaviorKind, BehaviorPtr, pre_post_conditions::Conditions},
 	factory::registry::{BehaviorRegistry, TreeNodesModelEntry},
 	port::{PortDirection, is_allowed_port_name},
@@ -25,18 +23,17 @@ use databoard::{Databoard, Remappings, strip_board_pointer};
 use roxmltree::{Document, Node, NodeType};
 #[cfg(feature = "std")]
 use std::path::PathBuf;
-use tracing::{Level, event, instrument};
 // endregion:   --- modules
 
 // region:		--- helper
-fn create_data_collection_from_xml(
-	registry: &BehaviorRegistry,
+fn create_data_collection_from_xml<'a>(
+	registry: &'a BehaviorRegistry,
 	path: &str,
-	element: &Node,
+	element: &'a Node,
 	uid: u16,
 	blackboard: Option<&Databoard>,
 	is_root: bool,
-) -> Result<Box<BehaviorDataCollection>, Error> {
+) -> Result<Box<BehaviorDataCollection<'a>>, Error> {
 	let (behavior_id, behavior_kind) = {
 		let tag_name = element.tag_name().name();
 		match tag_name {
@@ -113,6 +110,7 @@ fn create_data_collection_from_xml(
 		remappings,
 		conditions,
 		uid,
+		registry,
 	}))
 }
 
@@ -270,25 +268,59 @@ pub struct XmlParser {
 }
 
 impl XmlParser {
-	/// Get the next uid for a [`BehaviorTreeElement`].
-	/// The maximum allowed number of behaviors in a tree is 65535!
-	/// # Panics
-	/// - if more than 65535 [`BehaviorTreeElement`]s are created for a [`BehaviorTree`](crate::tree::tree::BehaviorTree)
-	const fn next_uid(&mut self) -> u16 {
-		let next = self.uid;
-		self.uid += 1;
-		next
+	/// Returns the root element for a [`BehaviorTree`](crate::tree::BehaviorTree).
+	/// If an external blackboard is given, it will be used as a root blackboard.
+	/// # Errors
+	/// - if a needed behavior is not registered.
+	/// - if an [`Action`] or [`Condition`] has children.
+	/// - if a [`Decorator`] or [`SubTree`] has more than one child.
+	/// - if a [`SubTree`] has no `ID` attribute given.
+	pub(crate) fn create_tree_from_definition(
+		&mut self,
+		name: &str,
+		registry: &BehaviorRegistry,
+		external_blackboard: Option<&Databoard>,
+	) -> Result<BehaviorTreeElement, Error> {
+		registry.find_tree_definition(name).map_or_else(
+			|| Err(Error::DefinitionNotFound { id: name.into() }),
+			|(definition, range)| {
+				let doc = Box::new(Document::parse(&definition[range])?);
+				let element = Box::new(doc.root_element());
+				let data = create_data_collection_from_xml(
+					registry,
+					EMPTY_STR,
+					&element,
+					self.next_uid(),
+					external_blackboard,
+					true,
+				)?;
+				// for tree root "path" is empty
+				let children = self.build_children(&data, &element)?;
+				if children.len() > 1 {
+					return Err(Error::OneChild { behavior: name.into() });
+				}
+				let behaviortree = BehaviorTreeElement::create_subtree(data, children);
+				Ok(behaviortree)
+			},
+		)
 	}
 
-	#[instrument(level = Level::DEBUG, skip_all)]
+	/// Registers the behavior (sub)tree definitions contained in the XML description.
+	/// In `std` environments the file path of the XML description is used for
+	/// implementation of the `<include path="..."/>` tags.
+	/// # Errors
+	/// - if the XML document is invalid.
+	/// - if the XML has nested root elements.
+	/// - if a behavior is already registered.
 	pub(crate) fn register_document(
 		registry: &mut BehaviorRegistry,
-		xml: &str,
+		xml: impl Into<ConstString>,
 		#[cfg(feature = "std")] path: &ConstString,
 	) -> Result<(), Error> {
+		let xml = xml.into();
 		// general checks
-		let doc = Document::parse(xml)?;
-		let root = doc.root_element();
+		let doc = Box::new(Document::parse(&xml)?);
+		let root = Box::new(doc.root_element());
 		if root.tag_name().name() != "root" {
 			return Err(Error::WrongRootName);
 		}
@@ -303,15 +335,112 @@ impl XmlParser {
 			registry.set_main_tree_id(name);
 		}
 		#[cfg(feature = "std")]
-		Self::register_document_root(registry, &root, xml, path)?;
+		Self::register_document_root(registry, &root, &xml, path)?;
 		#[cfg(not(feature = "std"))]
-		Self::register_document_root(registry, &root, xml)?;
+		Self::register_document_root(registry, &root, &xml)?;
 		Ok(())
 	}
 
-	#[instrument(level = Level::DEBUG, skip_all)]
+	/// Registers the content of documents root element.
+	/// # Errors
+	/// - if the XML document is invalid.
+	/// - if the XML has nested root elements.
+	/// - if a behavior is already registered.
+	fn register_document_root(
+		registry: &mut BehaviorRegistry,
+		root: &Node,
+		// the source is referenced multiple times, thats why it is passed in as &ConstString
+		source: &ConstString,
+		// the path is only necessary when loading xml from files
+		#[cfg(feature = "std")] path: &ConstString,
+	) -> Result<(), Error> {
+		for element in root.children() {
+			match element.node_type() {
+				NodeType::Comment | NodeType::Text => {} // ignore
+				NodeType::Root => return Err(Error::InvalidRootElement),
+				NodeType::Element => {
+					// only 'BehaviorTree' or 'TreeNodesModel' are valid
+					let name = element.tag_name().name();
+					match name {
+						TREENODESMODEL => {
+							Self::register_tree_nodes_model(registry, &element)?;
+						}
+						BEHAVIORTREE => {
+							// check for tree ID
+							if let Some(id) = element.attribute(ID) {
+								// if no explicit main tree id is given, the first found id will be used for main tree
+								if registry.main_tree_id().is_none() {
+									registry.set_main_tree_id(id);
+								}
+								match registry.add_tree_defintion(id, source.clone(), element.range()) {
+									Ok(()) => {}
+									Err(err) => {
+										return Err(Error::Factory {
+											behavior: id.into(),
+											source: err,
+										});
+									}
+								}
+							} else {
+								return Err(Error::MissingId {
+									tag: element.tag_name().name().into(),
+								});
+							}
+						}
+						#[cfg(feature = "std")]
+						"include" => {
+							let mut file_path: PathBuf;
+							if let Some(path_attr) = element.attribute("path") {
+								file_path = PathBuf::from(path_attr);
+								if file_path.is_relative() {
+									// use the given path
+									file_path = PathBuf::from(path.as_ref());
+									file_path.push(path_attr);
+								}
+							} else {
+								return Err(Error::MissingPath {
+									tag: element.tag_name().name().into(),
+								});
+							}
+							match std::fs::read_to_string(&file_path) {
+								Ok(xml) => {
+									if let Some(cur_path) = file_path.parent() {
+										let path = cur_path.to_string_lossy().into();
+										Self::register_document(registry, xml, &path)?;
+									} else {
+										return Err(Error::ReadFile {
+											name: file_path.to_string_lossy().into(),
+											cause: "no parent".into(),
+										});
+									}
+								}
+								Err(err) => {
+									return Err(Error::ReadFile {
+										name: file_path.to_string_lossy().into(),
+										cause: err.to_string().into(),
+									});
+								}
+							}
+						}
+						_ => {
+							return Err(Error::UnsupportedElement {
+								tag: element.tag_name().name().into(),
+							});
+						}
+					}
+				}
+				NodeType::PI => {
+					return Err(Error::UnsupportedElement {
+						tag: element.tag_name().name().into(),
+					});
+				}
+			}
+		}
+		Ok(())
+	}
+
+	/// Registers the behavior definitions contained in the `TreeNodesModel` tag.
 	fn register_tree_nodes_model(registry: &mut BehaviorRegistry, model: &Node) -> Result<(), Error> {
-		event!(Level::TRACE, "register_tree_nodes_model");
 		for element in model.children() {
 			match element.node_type() {
 				NodeType::Root => return Err(Error::InvalidRootElement),
@@ -378,155 +507,84 @@ impl XmlParser {
 		Ok(())
 	}
 
-	#[instrument(level = Level::DEBUG, skip_all)]
-	fn register_document_root(
-		registry: &mut BehaviorRegistry,
-		root: &Node,
-		source: &str,
-		#[cfg(feature = "std")] path: &ConstString,
-	) -> Result<(), Error> {
-		event!(Level::TRACE, "register_document_root");
-		for element in root.children() {
-			match element.node_type() {
-				NodeType::Comment | NodeType::Text => {} // ignore
-				NodeType::Root => return Err(Error::InvalidRootElement),
-				NodeType::Element => {
-					// only 'BehaviorTree' or 'TreeNodesModel' are valid
-					let name = element.tag_name().name();
-					match name {
-						TREENODESMODEL => {
-							Self::register_tree_nodes_model(registry, &element)?;
-						}
-						BEHAVIORTREE => {
-							// check for tree ID
-							if let Some(id) = element.attribute(ID) {
-								// if no explicit main tree id is given, the first found id will be used for main tree
-								if registry.main_tree_id().is_none() {
-									registry.set_main_tree_id(id);
-								}
-								// let source: ConstString = element.document().input_text()[element.range()].into();
-								match registry.add_tree_defintion(id, source.into(), element.range()) {
-									Ok(()) => {}
-									Err(err) => {
-										return Err(Error::Factory {
-											behavior: id.into(),
-											source: err,
-										});
-									}
-								}
-							} else {
-								return Err(Error::MissingId {
-									tag: element.tag_name().name().into(),
-								});
-							}
-						}
-						#[cfg(feature = "std")]
-						"include" => {
-							let mut file_path: PathBuf;
-							if let Some(path_attr) = element.attribute("path") {
-								file_path = PathBuf::from(path_attr);
-								if file_path.is_relative() {
-									// use the given path
-									file_path = PathBuf::from(path.as_ref());
-									file_path.push(path_attr);
-								}
-							} else {
-								return Err(Error::MissingPath {
-									tag: element.tag_name().name().into(),
-								});
-							}
-							match std::fs::read_to_string(&file_path) {
-								Ok(xml) => {
-									if let Some(cur_path) = file_path.parent() {
-										let path = cur_path.to_string_lossy().into();
-										Self::register_document(registry, &xml, &path)?;
-									} else {
-										return Err(Error::ReadFile {
-											name: file_path.to_string_lossy().into(),
-											cause: "no parent".into(),
-										});
-									}
-								}
-								Err(err) => {
-									return Err(Error::ReadFile {
-										name: file_path.to_string_lossy().into(),
-										cause: err.to_string().into(),
-									});
-								}
-							}
-						}
-						_ => {
-							return Err(Error::UnsupportedElement {
-								tag: element.tag_name().name().into(),
-							});
-						}
-					}
-				}
-				NodeType::PI => {
-					return Err(Error::UnsupportedElement {
-						tag: element.tag_name().name().into(),
-					});
-				}
-			}
-		}
-		Ok(())
-	}
-
-	#[instrument(level = Level::DEBUG, skip_all)]
-	pub(crate) fn create_tree_from_definition(
-		&mut self,
-		name: &str,
-		registry: &mut BehaviorRegistry,
-		external_blackboard: Option<&Databoard>,
-	) -> Result<BehaviorTreeElement, Error> {
-		event!(Level::TRACE, "create_tree_from_definition");
-
-		registry.find_tree_definition(name).map_or_else(
-			|| Err(Error::DefinitionNotFound { id: name.into() }),
-			|(definition, range)| {
-				let doc = Document::parse(&definition[range])?;
-				let data = create_data_collection_from_xml(
-					registry,
-					EMPTY_STR,
-					&doc.root_element(),
-					self.next_uid(),
-					external_blackboard,
-					true,
-				)?;
-				// for tree root "path" is empty
-				let children = self.build_children(&data, &doc.root_element(), registry)?;
-				if children.len() > 1 {
-					return Err(Error::OneChild { behavior: name.into() });
-				}
-				let behaviortree = BehaviorTreeElement::create_subtree(data, children);
-				Ok(behaviortree)
-			},
-		)
-	}
-
-	#[instrument(level = Level::DEBUG, skip_all)]
+	/// Returns a list of all child behavior tree elements.
+	/// # Errors
+	/// - if a needed behavior is not registered.
+	/// - if an [`Action`] or [`Condition`] has children.
+	/// - if a [`Decorator`] or [`SubTree`] has more than one child.
+	/// - if a [`SubTree`] has no `ID` attribute given.
 	fn build_children(
 		&mut self,
-		data: &BehaviorDataCollection,
-		element: &Node,
-		registry: &mut BehaviorRegistry,
+		parent_data: &BehaviorDataCollection,
+		parent_element: &Node,
 	) -> Result<BehaviorTreeElementList, Error> {
-		event!(Level::TRACE, "build_children");
+		// @TODO: improve error messages with parent element & current element
 		let mut children = BehaviorTreeElementList::default();
-		for child in element.children() {
-			match child.node_type() {
+		for child_element in parent_element.children() {
+			match child_element.node_type() {
 				NodeType::Comment | NodeType::Text => {} // ignore
 				NodeType::Root => {
 					// this should not happen
 					return Err(Error::InvalidRootElement);
 				}
 				NodeType::Element => {
-					let element = self.build_child(data, &child, registry)?;
-					children.push(element);
+					let new_child = {
+						let child_data = create_data_collection_from_xml(
+							parent_data.registry,
+							&parent_data.path,
+							&child_element,
+							self.next_uid(),
+							Some(&parent_data.blackboard),
+							false,
+						)?;
+						match child_data.bhvr_desc.kind() {
+							BehaviorKind::Action | BehaviorKind::Condition => {
+								if child_element.has_children() {
+									return Err(Error::ChildrenNotAllowed {
+										behavior: child_data.behavior_name.into(),
+									});
+								}
+								BehaviorTreeElement::create_leaf(child_data)
+							}
+							BehaviorKind::Control | BehaviorKind::Decorator => {
+								let children = self.build_children(&child_data, &child_element)?;
+								if child_data.bhvr_desc.kind() == BehaviorKind::Decorator && children.len() != 1 {
+									return Err(Error::OneChild {
+										behavior: child_element.tag_name().name().into(),
+									});
+								}
+								BehaviorTreeElement::create_node(child_data, children)
+							}
+							BehaviorKind::SubTree => {
+								if let Some(id) = child_element.attribute(ID) {
+									match child_data.registry.find_tree_definition(id) {
+										Some((definition, range)) => {
+											let doc = Box::new(Document::parse(&definition[range])?);
+											let children = self.build_children(&child_data, &doc.root_element())?;
+											if children.len() > 1 {
+												return Err(Error::OneChild { behavior: id.into() });
+											}
+											BehaviorTreeElement::create_subtree(child_data, children)
+										}
+										None => {
+											return Err(Error::DefinitionNotFound {
+												id: child_data.behavior_name.into(),
+											});
+										}
+									}
+								} else {
+									return Err(Error::MissingId {
+										tag: child_element.tag_name().name().into(),
+									});
+								}
+							}
+						}
+					};
+					children.push(new_child);
 				}
 				NodeType::PI => {
 					return Err(Error::UnsupportedElement {
-						tag: element.tag_name().name().into(),
+						tag: child_element.tag_name().name().into(),
 					});
 				}
 			}
@@ -534,62 +592,14 @@ impl XmlParser {
 		Ok(children)
 	}
 
-	#[instrument(level = Level::DEBUG, skip_all)]
-	fn build_child(
-		&mut self,
-		data: &BehaviorDataCollection,
-		node: &Node,
-		registry: &mut BehaviorRegistry,
-	) -> Result<BehaviorTreeElement, Error> {
-		event!(Level::TRACE, "build_child");
-		let data =
-			create_data_collection_from_xml(registry, &data.path, node, self.next_uid(), Some(&data.blackboard), false)?;
-		let tree_node = match data.bhvr_desc.kind() {
-			BehaviorKind::Action | BehaviorKind::Condition => {
-				// A leaf uses a cloned Blackboard
-				if node.has_children() {
-					return Err(Error::ChildrenNotAllowed {
-						behavior: data.behavior_name.into(),
-					});
-				}
-				BehaviorTreeElement::create_leaf(data)
-			}
-			BehaviorKind::Control | BehaviorKind::Decorator => {
-				// A node uses a cloned Blackboard
-				let children = self.build_children(&data, node, registry)?;
-
-				if data.bhvr_desc.kind() == BehaviorKind::Decorator && children.len() != 1 {
-					return Err(Error::OneChild {
-						behavior: node.tag_name().name().into(),
-					});
-				}
-				BehaviorTreeElement::create_node(data, children)
-			}
-			BehaviorKind::SubTree => {
-				if let Some(id) = node.attribute(ID) {
-					match registry.find_tree_definition(id) {
-						Some((definition, range)) => {
-							let doc = Document::parse(&definition[range])?;
-							let children = self.build_children(&data, &doc.root_element(), registry)?;
-							if children.len() > 1 {
-								return Err(Error::OneChild { behavior: id.into() });
-							}
-							BehaviorTreeElement::create_subtree(data, children)
-						}
-						None => {
-							return Err(Error::DefinitionNotFound {
-								id: data.behavior_name.into(),
-							});
-						}
-					}
-				} else {
-					return Err(Error::MissingId {
-						tag: node.tag_name().name().into(),
-					});
-				}
-			}
-		};
-		Ok(tree_node)
+	/// Get the next uid for a [`BehaviorTreeElement`].
+	/// The maximum allowed number of behaviors in a tree is 65535!
+	/// # Panics
+	/// - if more than 65535 [`BehaviorTreeElement`]s are created for a [`BehaviorTree`](crate::tree::BehaviorTree)
+	const fn next_uid(&mut self) -> u16 {
+		let next = self.uid;
+		self.uid += 1;
+		next
 	}
 }
 // endregion:   --- XmlParser

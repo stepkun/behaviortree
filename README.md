@@ -111,75 +111,76 @@ impl Behavior for SaySomething {
 
 ### General capabilities
 
-| Capability              | With OS | Embedded | Caveats                |
-| ----------------------- | ------- | -------- | ---------------------- |
-| XML                     |         |          |                        |
-| - parsing               | ✅      | ✅       |                        |
-| - generation            | ✅      | ✅       |                        |
-|                         |         |          |                        |
-| Ports                   |         |          |                        |
-| - remapping             | ✅      | ✅       |                        |
-| - access by ref         | ✅      | ✅       |                        |
-|                         |         |          |                        |
-| Subtrees                |         |          |                        |
-| - structure             | ✅      | ✅       |                        |
-| - remapping             | ✅      | ✅       |                        |
-| - 'include' from file   | ✅      | ❌       |                        |
-|                         |         |          |                        |
-| Blackboard              |         |          |                        |
-| - hierarchy             | ✅      | ✅       |                        |
-| - remapping             | ✅      | ✅       |                        |
-| - access by ref         | ✅      | ✅       |                        |
-| - backup                | 🔴      | ??       |                        |
-|                         |         |          |                        |
-| Pre-/post-conditions    | ✅      | ✅       |                        |
-| Scripting               | ✅      | ✅       |                        |
-|                         |         |          |                        |
-| Loggers/Observers       | ✅      | ??       |                        |
-| Substitution rules      | 🚦      | 🚦       | no delay in embedded   |
-|                         |         |          |                        |
-| Using Groot2 for:       |         |          |                        |
-| - XML Create/Edit       | ☑️      | ☑️       | different type systems |
-| - Live Monitoring       | ☑️      | ??       | different type systems |
-| - Pro Features          | 🔴      | ??       |                        |
+| Capability              | std OS | Embedded | Caveats                   |
+| ----------------------- | ------ | -------- | ------------------------- |
+| XML                     |        |          |                           |
+| - parsing               | ✅     | ✅       | embedded tree depth <= 12 |
+| - generation            | ✅     | ✅       |                           |
+|                         |        |          |                           |
+| Ports                   |        |          |                           |
+| - remapping             | ✅     | ✅       |                           |
+| - access by ref         | ✅     | ✅       |                           |
+|                         |        |          |                           |
+| Subtrees                |        |          |                           |
+| - structure             | ✅     | ✅       |                           |
+| - remapping             | ✅     | ✅       |                           |
+| - 'include' from file   | ✅     | ❌       |                           |
+|                         |        |          |                           |
+| Blackboard              |        |          |                           |
+| - hierarchy             | ✅     | ✅       |                           |
+| - remapping             | ✅     | ✅       |                           |
+| - access by ref         | ✅     | ✅       |                           |
+| - backup                | 🔴     | ??       |                           |
+|                         |        |          |                           |
+| Pre-/post-conditions    | ✅     | ✅       |                           |
+| Scripting               | ✅     | ✅       |                           |
+|                         |        |          |                           |
+| Loggers/Observers       | ✅     | ??       |                           |
+| Substitution rules      | 🚦     | 🚦       | no delay in embedded      |
+|                         |        |          | currently no functions    |
+|                         |        |          |                           |
+| Using Groot2 for:       |        |          |                           |
+| - XML Create/Edit       | ☑️     | ☑️       | different type systems    |
+| - Live Monitoring       | ☑️     | ??       | different type systems    |
+| - Pro Features          | 🔴     | ??       |                           |
 
 ### Built-in behaviors
 
-| Names as in BehaviorTree.CPP        | With OS | Embedded |
-| ----------------------------------- | ------- | -------- |
-| __Actions__                         |         |          |
-| `AlwaysFailure`, `AlwaysSuccess`    | ✅      | ✅       |
-| `Script`                            | ✅      | ✅       |
-| `SetBlackboard`, `UnsetBlackboard`  | ✅      | ✅       |
-| `PopFromQueue<T>`                   | ✅      | ✅       |
-| `Sleep`                             | 🚦      | 🔴       |
-|                                     |         |          |
-| __Conditions__                      |         |          |
-| `ScriptCondition`                   | ✅      | ✅       |
-| `WasEntryUpdated`                   | ✅      | ✅       |
-|                                     |         |          |
-| __Controls__                        |         |          |
-| `Fallback`                          | ✅      | ✅       |
-| `AsyncFallback`, `ReactiveFallback` | ✅      | ✅       |
-| `Sequence`, `SequenceWithMemory`    | ✅      | ✅       |
-| `AsyncSequence`, `ReactiveSequence` | ✅      | ✅       |
-| `Parallel`, `ParallelAll`           | ✅      | ✅       |
-| `IfThenElse`, `WhileDoElse`         | ✅      | ✅       |
-| `Switch<u8>`                        | ✅      | ✅       |
-| `ManualSelector`                    | 🔴      | ??       |
-|                                     |         |          |
-| __Decorators__                      |         |          |
-| `ForceFailure`, `ForceSuccess`      | ✅      | ✅       |
-| `Inverter`                          | ✅      | ✅       |
-| `KeepRunningUntilFailure`           | ✅      | ✅       |
-| `Repeat`                            | ✅      | ✅       |
-| `RetryUntilSuccessful`              | ✅      | ✅       |
-| `EntryUpdated`                      | ✅      | ✅       |
-| `LoopQueue<T>`                      | ✅      | ✅       |
-| `RunOnce`                           | ✅      | ✅       |
-| `Precondition`                      | ✅      | ✅       |
-| `Delay`                             | 🚦      | 🔴       |
-| `Timeout`                           | 🚦      | 🔴       |
+| Names as in BehaviorTree.CPP        | std OS | Embedded |
+| ----------------------------------- | ------ | -------- |
+| __Actions__                         |        |          |
+| `AlwaysFailure`, `AlwaysSuccess`    | ✅     | ✅       |
+| `Script`                            | ✅     | ✅       |
+| `SetBlackboard`, `UnsetBlackboard`  | ✅     | ✅       |
+| `PopFromQueue<T>`                   | ✅     | ✅       |
+| `Sleep`                             | 🚦     | 🔴       |
+|                                     |        |          |
+| __Conditions__                      |        |          |
+| `ScriptCondition`                   | ✅     | ✅       |
+| `WasEntryUpdated`                   | ✅     | ✅       |
+|                                     |        |          |
+| __Controls__                        |        |          |
+| `Fallback`                          | ✅     | ✅       |
+| `AsyncFallback`, `ReactiveFallback` | ✅     | ✅       |
+| `Sequence`, `SequenceWithMemory`    | ✅     | ✅       |
+| `AsyncSequence`, `ReactiveSequence` | ✅     | ✅       |
+| `Parallel`, `ParallelAll`           | ✅     | ✅       |
+| `IfThenElse`, `WhileDoElse`         | ✅     | ✅       |
+| `Switch<u8>`                        | ✅     | ✅       |
+| `ManualSelector`                    | 🔴     | ??       |
+|                                     |        |          |
+| __Decorators__                      |        |          |
+| `ForceFailure`, `ForceSuccess`      | ✅     | ✅       |
+| `Inverter`                          | ✅     | ✅       |
+| `KeepRunningUntilFailure`           | ✅     | ✅       |
+| `Repeat`                            | ✅     | ✅       |
+| `RetryUntilSuccessful`              | ✅     | ✅       |
+| `EntryUpdated`                      | ✅     | ✅       |
+| `LoopQueue<T>`                      | ✅     | ✅       |
+| `RunOnce`                           | ✅     | ✅       |
+| `Precondition`                      | ✅     | ✅       |
+| `Delay`                             | 🚦     | 🔴       |
+| `Timeout`                           | 🚦     | 🔴       |
  
 ## License
 

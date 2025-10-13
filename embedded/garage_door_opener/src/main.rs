@@ -132,19 +132,19 @@ impl Behavior for Preparation {
 			if command != MotorCommand::Stop {
 				behavior.set("preparation", true)?;
 				self.start = Some(Instant::now());
-				info!("timer started");
+				// info!("timer started");
 			} else {
 				behavior.set("preparation", false)?;
 				if self.start.is_some() {
 					self.start = None;
-					info!("timer canceled");
+					// info!("timer canceled");
 				}
 			}
 		} else if let Some(start) = self.start {
 			if Instant::now().duration_since(start) >= Duration::from_millis(PREPARATION_TIME) {
 				self.start = None;
 				behavior.set("preparation", false)?;
-				info!("timer finished");
+				// info!("timer finished");
 			}
 		} else if !self.initialized {
 			// this branch is used in the caase of emergency & failure

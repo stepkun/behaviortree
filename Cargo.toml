@@ -88,9 +88,6 @@ tokio = { version = "1.47.1", features = [
     "macros",
     "time",
 ], optional = true }
-tracing = { version = "0.1.41", default-features = false, features = [
-    "attributes",
-] }
 uuid = { version = "1.18.0", default-features = false, features = [
     "v4",
 ], optional = true }

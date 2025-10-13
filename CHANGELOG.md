@@ -16,7 +16,7 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
-## [0.7.1] - 2025-10-??
+## [0.7.1] - 2025-10-13
 
 ### Added
 - macro for registering Groot2 behaviors

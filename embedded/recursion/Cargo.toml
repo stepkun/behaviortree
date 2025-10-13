@@ -34,6 +34,9 @@ behaviortree = { path = "../..", default-features = false, features = [
   "always_success",
   "always_failure",
   "fallback",
+  # mock behavior is in here to ensure that 
+  # the additional programm code does not hurt
+  "mock_behavior",
   "sequence",
 ] }
 

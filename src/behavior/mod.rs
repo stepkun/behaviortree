@@ -30,6 +30,7 @@ pub use sub_tree::SubTree;
 use crate::{
 	ACTION, CONDITION, CONTROL, DECORATOR, FAILURE, IDLE, RUNNING, SKIPPED, SUBTREE, SUCCESS,
 	behavior::{behavior_data::BehaviorData, behavior_description::BehaviorDescription, pre_post_conditions::Conditions},
+	factory::BehaviorRegistry,
 	port::PortList,
 	tree::BehaviorTreeElementList,
 };
@@ -58,7 +59,7 @@ pub type BehaviorTickCallback = dyn Fn(&BehaviorData, &mut BehaviorState) + Send
 // region:		--- BehaviorDataCollection
 /// This is used to minimize the stack consumption during recursion of tree creation
 /// and to transport the data collection between function calls.
-pub(crate) struct BehaviorDataCollection {
+pub(crate) struct BehaviorDataCollection<'a> {
 	pub behavior_name: String,
 	pub path: String,
 	pub bhvr_desc: BehaviorDescription,
@@ -67,6 +68,7 @@ pub(crate) struct BehaviorDataCollection {
 	pub remappings: Remappings,
 	pub conditions: Conditions,
 	pub uid: u16,
+	pub registry: &'a BehaviorRegistry,
 }
 // endregion:	--- BehaviorDataCollection
 
