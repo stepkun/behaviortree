@@ -10,6 +10,8 @@ extern crate std;
 
 // region:      --- modules
 use super::{error::Error, registry::BehaviorRegistry};
+#[cfg(feature = "simple_behavior")]
+use crate::behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 use crate::{
 	ConstString,
 	behavior::{BehaviorExecution, SubTree, behavior_description::BehaviorDescription},
@@ -19,18 +21,13 @@ use crate::{
 #[allow(unused)]
 use crate::{
 	behavior::{Behavior, BehaviorKind, BehaviorState, action, condition, control, decorator},
-	register_groot2_behavior,
-};
-#[cfg(feature = "simple_behavior")]
-use crate::{
-	behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn},
 	port::PortList,
+	register_behavior, register_groot2_behavior,
 };
 #[cfg(feature = "mock_behavior")]
 use crate::{
 	behavior::{MockBehavior, MockBehaviorConfig},
 	factory::registry::SubstitutionRule,
-	register_behavior,
 };
 #[allow(unused)]
 use alloc::string::String;

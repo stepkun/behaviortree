@@ -1,0 +1,6 @@
+# Copyright © 2025 Stephan Kunz
+apps:
+  - name: behaviortree-recursion
+    selects:
+      - alloc
+      - embedded-test-only

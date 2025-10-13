@@ -1,5 +1,6 @@
 // Copyright © 2025 Stephan Kunz
-//! Embedded recursion test. The current maximum recursion level is 8!
+//! Embedded recursion test. The maximum recursion level depends on stack and memory limits.
+//! A reasonable value for mcu's is currently 8!
 //! So it is possible to make a Tree with a dept of 8 levels, including sub-trees.
 
 #![no_main]
@@ -25,7 +26,15 @@ const XML: &str = r#"
 							<AlwaysFailure/>
 							<Sequence>
 								<AlwaysSuccess/>
-								<AlwaysSuccess/>
+								<Fallback>
+									<AlwaysFailure/>
+<!--
+									<Sequence>
+										<AlwaysSuccess/>
+									</Sequence>
+-->
+									<AlwaysSuccess/>
+								</Fallback>
 							</Sequence>
 						</Fallback>
 					</Sequence>

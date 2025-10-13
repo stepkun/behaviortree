@@ -21,4 +21,5 @@ subdirs:
   - t15_behavior_mocking
   - t16_global_blackboard
   - t18_waypoints
+  - recursion
   - testing
