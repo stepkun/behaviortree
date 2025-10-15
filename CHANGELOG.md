@@ -16,6 +16,11 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
+## [0.7.2] - 2025-10-15
+
+### Added
+- elementary observer capability
+
 ## [0.7.1] - 2025-10-13
 
 ### Added

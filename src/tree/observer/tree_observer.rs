@@ -60,7 +60,10 @@ impl Statistics {
 		self.success_count = Default::default();
 		self.failure_count = Default::default();
 		self.skip_count = Default::default();
-		self.timestamp = Instant::now();
+		#[cfg(feature = "std")]
+		{
+			self.timestamp = Instant::now();
+		}
 	}
 }
 // endregion:   --- Statistics

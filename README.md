@@ -135,9 +135,8 @@ impl Behavior for SaySomething {
 | Pre-/post-conditions    | ✅     | ✅       |                           |
 | Scripting               | ✅     | ✅       |                           |
 |                         |        |          |                           |
-| Loggers/Observers       | ✅     | ??       |                           |
-| Substitution rules      | 🚦     | 🚦       | no delay in embedded      |
-|                         |        |          | currently no functions    |
+| Loggers/Observers       | ✅     | 🚦       | basically works, no time info, no groot2 observer |
+| Substitution rules      | 🚦     | 🚦       | no delay in embedded, currently no functions possible |
 |                         |        |          |                           |
 | Using Groot2 for:       |        |          |                           |
 | - XML Create/Edit       | ☑️     | ☑️       | different type systems    |

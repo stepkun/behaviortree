@@ -15,6 +15,7 @@ subdirs:
   - t07_load_multiple_xml
   - t08_additional_node_args
   - t09_scripting
+  - t10_observer
   - t12_default_ports
   - t13_access_by_ref
   - t14_subtree_model
