@@ -286,11 +286,11 @@ async fn behavior() -> BehaviorTreeResult {
 	let blackboard = unsafe { GLOBAL_BLACKBOARD.get() };
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, DoorMotorDriver, "DoorMotorDriver")?;
-	register_behavior!(factory, EmergencyOffActive, "EmergencyOffActive")?;
-	register_behavior!(factory, Preparation, "Preparation")?;
-	register_behavior!(factory, ReadControlButtons, "ReadControlButtons")?;
-	register_behavior!(factory, ReadEndContacts, "ReadEndContacts")?;
+	DoorMotorDriver::register(&mut factory, "DoorMotorDriver")?;
+	EmergencyOffActive::register(&mut factory, "EmergencyOffActive")?;
+	Preparation::register(&mut factory, "Preparation")?;
+	ReadControlButtons::register(&mut factory, "ReadControlButtons")?;
+	ReadEndContacts::register(&mut factory, "ReadEndContacts")?;
 	factory.register_behavior_tree_from_text(XML)?;
 
 	// pre set blackboard variables

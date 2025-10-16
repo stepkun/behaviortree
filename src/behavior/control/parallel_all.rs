@@ -43,6 +43,7 @@ const MAX_FAILURES: &str = "max_failures";
 /// </ParallelAll>
 /// ```
 #[derive(Control, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct ParallelAll {
 	/// The amount of completed sub behaviors that failed.
 	failure_count: i32,

@@ -83,7 +83,7 @@ async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_behavior!(factory, ActionA, "Action_A", 42, "hello world".into())?;
-	register_behavior!(factory, ActionB, "Action_B")?;
+	ActionB::register(&mut factory, "Action_B")?;
 
 	let mut tree = factory.create_from_text(XML)?;
 	drop(factory);

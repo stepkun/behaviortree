@@ -141,8 +141,8 @@ impl Behavior for ModifyPointCloud {
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, CreatePointCloud, "CreatePointCloud")?;
-	register_behavior!(factory, ModifyPointCloud, "ModifyPointCloud")?;
+	CreatePointCloud::register(&mut factory, "CreatePointCloud")?;
+	ModifyPointCloud::register(&mut factory, "ModifyPointCloud")?;
 
 	factory.register_behavior_tree_from_text(XML)?;
 

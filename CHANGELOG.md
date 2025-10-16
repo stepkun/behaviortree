@@ -16,6 +16,8 @@ especially the [Rust flavour](https://doc.rust-lang.org/cargo/reference/semver.h
 
 ### Removed
 
+## [0.7.3] - 2025-??-??
+
 ## [0.7.2] - 2025-10-15
 
 ### Added

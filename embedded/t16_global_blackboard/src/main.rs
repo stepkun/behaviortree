@@ -72,7 +72,7 @@ async fn example() -> BehaviorTreeResult {
 
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, PrintNumber, "PrintNumber")?;
+	PrintNumber::register(&mut factory, "PrintNumber")?;
 
 	factory.register_behavior_tree_from_text(XML)?;
 

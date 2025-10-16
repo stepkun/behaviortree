@@ -24,8 +24,9 @@ const CODE: &str = "code";
 
 /// The `Script` behavior returns Success or Failure depending on the result of the scripted code.
 ///
-/// The behavior is gated behind feature `script`.
+/// The behavior is gated behind feature `script` and it is a Groot2 behavior.
 #[derive(Action, Default)]
+#[behavior(groot2 = true)]
 pub struct Script;
 
 #[async_trait::async_trait]

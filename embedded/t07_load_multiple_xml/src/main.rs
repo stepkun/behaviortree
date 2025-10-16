@@ -42,7 +42,7 @@ const XML_SUB_B: &str = r#"
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 
 	// Register the behavior tree definitions, but do not instantiate them yet.
 	// Order is not important.

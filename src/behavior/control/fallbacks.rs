@@ -45,12 +45,14 @@ use tinyscript::SharedRuntime;
 /// </AsyncFallback>
 /// ```
 #[derive(Control, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct Fallback {
 	/// Defaults to '0'
 	child_idx: usize,
 	/// Defaults to '0'
 	skipped: usize,
 	/// Asynchronous mode flag
+	#[behavior(parameter = true)]
 	asynch: bool,
 }
 

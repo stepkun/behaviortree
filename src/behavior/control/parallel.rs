@@ -36,6 +36,7 @@ use tinyscript::SharedRuntime;
 /// </Parallel>
 /// ```
 #[derive(Control, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct Parallel {
 	/// The amount of completed sub behaviors that succeeded.
 	success_count: i32,

@@ -44,7 +44,7 @@ async fn example() -> BehaviorTreeResult {
 	register_scripting_enum!(factory, Color);
 	register_scripting_enum!(factory, "THE_ANSWER", 42, "OTHER", 43);
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 
 	let mut tree = factory.create_from_text(XML)?;
 	drop(factory);

@@ -40,6 +40,7 @@ impl BehaviorExecution for SimpleBehavior {
 	fn kind() -> BehaviorKind {
 		BehaviorKind::Action
 	}
+
 	fn static_provided_ports(&self) -> PortList {
 		self.provided_ports.clone()
 	}

@@ -32,7 +32,7 @@ async fn example() -> BehaviorTreeResult {
 	// The recommended way to create a Behavior is through composition.
 	// Even if it requires more boilerplate, it allows you to use more functionalities
 	// like ports.
-	register_behavior!(factory, ApproachObject, "ApproachObject")?;
+	ApproachObject::register(&mut factory, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
 	register_simple_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;
@@ -85,7 +85,7 @@ async fn example_explicite() -> BehaviorTreeResult {
 	// The recommended way to create a Behavior is through composition.
 	// Even if it requires more boilerplate, it allows you to use more functionalities
 	// like ports.
-	register_behavior!(factory, ApproachObject, "ApproachObject")?;
+	ApproachObject::register(&mut factory, "ApproachObject")?;
 
 	// Registering a SimpleAction/SimpleCondition using a function pointer.
 	register_simple_behavior!(factory, check_battery, "CheckBattery", BehaviorKind::Condition)?;

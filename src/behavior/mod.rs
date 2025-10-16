@@ -83,11 +83,13 @@ pub trait BehaviorExecution: Any + Behavior {
 	fn as_any_mut(&mut self) -> &mut dyn Any;
 
 	/// Provide the boxed creation function.
+	#[deprecated(since = "0.7.3", note = "use <T>::create(...)")]
 	fn creation_fn() -> Box<BehaviorCreationFn>
 	where
 		Self: Sized;
 
 	/// Get the [`BehaviorKind`] of the behavior that shall become a node in a behavior (sub)tree.
+	#[deprecated(since = "0.7.3")]
 	fn kind() -> BehaviorKind
 	where
 		Self: Sized;

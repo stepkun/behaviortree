@@ -35,6 +35,7 @@ use tinyscript::SharedRuntime;
 /// </IfThenElse>
 /// ```
 #[derive(Control, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct IfThenElse {
 	child_index: usize,
 }

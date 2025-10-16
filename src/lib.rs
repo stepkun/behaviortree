@@ -123,6 +123,7 @@ const POST: &str = "_post";
 /// register_behavior!(factory, ActionB, "Action_B", 42, "hello world".into())?;
 /// register_behavior!(factory, Loop<Pose2D>, "LoopPose")?;
 /// ```
+#[deprecated(since = "0.7.3", note = "use <T>::register(...)")]
 #[macro_export]
 macro_rules! register_behavior {
 	// behavior type struct
@@ -143,7 +144,8 @@ macro_rules! register_behavior {
 
 /// Macro to register groot2 behaviors.
 /// It as the same usage as the macro [`register_behavior!(...)`](crate::register_behavior!),
-/// the difference is, that it marks a behavior as knwon by Groot2.
+/// the difference is, that it marks a behavior as known by Groot2.
+#[deprecated(since = "0.7.3", note = "use <T>::register(...)")]
 #[macro_export]
 macro_rules! register_groot2_behavior {
 	// behavior type struct

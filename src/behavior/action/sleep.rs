@@ -31,8 +31,9 @@ const MSEC: &str = "msec";
 /// The [`Sleep`] behavior sleeps for the amount of time given via port msec.
 /// Consider also using the decorator [`Delay`](crate::behavior::decorator::Delay)
 ///
-/// The behavior is gated behind feature `sleep`.
+/// The behavior is gated behind feature `sleep` and it is a Groot2 behavior.
 #[derive(Action, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct Sleep {
 	#[cfg(feature = "std")]
 	start_time: Option<Instant>,

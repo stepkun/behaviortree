@@ -32,6 +32,7 @@ const MSEC: &str = "msec";
 ///
 /// The behavior is gated behind feature `timeout`.
 #[derive(Decorator, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct Timeout {
 	#[cfg(feature = "std")]
 	start_time: Option<Instant>,

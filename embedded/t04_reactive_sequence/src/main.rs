@@ -48,8 +48,8 @@ async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
 	register_simple_behavior!(factory, check_battery, "BatteryOK", BehaviorKind::Condition)?;
-	register_behavior!(factory, MoveBaseAction, "MoveBase")?;
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	MoveBaseAction::register(&mut factory, "MoveBase")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 
 	let mut tree = factory.create_from_text(XML)?;
 	let mut reactive_tree = factory.create_from_text(XML_REACTIVE)?;

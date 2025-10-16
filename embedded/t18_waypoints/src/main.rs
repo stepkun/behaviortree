@@ -114,11 +114,10 @@ impl Behavior for UseWaypoint {
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	factory.register_behavior_type::<Loop<Pose2D>>("LoopPose")?;
-
-	register_behavior!(factory, UseWaypoint, "UseWaypoint")?;
-	register_behavior!(factory, PrintNumber, "PrintNumber")?;
-	register_behavior!(factory, GenerateWaypoints, "GenerateWaypoints")?;
+	Loop::<Pose2D>::register(&mut factory, "LoopPose", false)?;
+	UseWaypoint::register(&mut factory, "UseWaypoint")?;
+	PrintNumber::register(&mut factory, "PrintNumber")?;
+	GenerateWaypoints::register(&mut factory, "GenerateWaypoints")?;
 
 	let mut tree = factory.create_from_text(XML)?;
 	drop(factory);

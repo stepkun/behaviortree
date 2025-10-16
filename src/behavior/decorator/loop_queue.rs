@@ -3,16 +3,16 @@
 
 // region:      --- modules
 use crate::{
-	self as behaviortree, Decorator,
-	behavior::{Behavior, BehaviorData, BehaviorResult, BehaviorState, shared_queue::SharedQueue},
+	BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorTreeFactory,
+	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorResult, BehaviorState, shared_queue::SharedQueue},
 	inout_port, input_port, output_port,
 	port::PortList,
 	port_list,
 	tree::BehaviorTreeElementList,
 };
 use alloc::{boxed::Box, string::ToString};
-use core::fmt::Debug;
 use core::str::FromStr;
+use core::{any::Any, fmt::Debug};
 use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
@@ -35,13 +35,38 @@ const VALUE: &str = "value";
 /// - `LoopString`: gated behind feature `loop_string`
 ///
 /// The raw version is gated behind feature `loop_queue`.
-#[derive(Decorator, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct Loop<T>
 where
 	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
 {
 	/// A temporary queue to store fixed queue definitions
 	tmp_queue: Option<SharedQueue<T>>,
+}
+
+impl<T> BehaviorExecution for Loop<T>
+where
+	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
+{
+	fn as_any(&self) -> &dyn Any {
+		self
+	}
+
+	fn as_any_mut(&mut self) -> &mut dyn Any {
+		self
+	}
+
+	fn creation_fn() -> Box<BehaviorCreationFn> {
+		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
+	}
+
+	fn kind() -> BehaviorKind {
+		BehaviorKind::Decorator
+	}
+
+	fn static_provided_ports(&self) -> PortList {
+		Self::provided_ports()
+	}
 }
 
 #[async_trait::async_trait]
@@ -114,6 +139,33 @@ where
 			),
 			output_port!(T, VALUE),
 		]
+	}
+}
+
+impl<T> Loop<T>
+where
+	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
+{
+	/// Creates a `creation_fn()` for `Loop<T>`.
+	#[must_use]
+	#[allow(clippy::needless_pass_by_value)]
+	pub fn create_fn() -> Box<BehaviorCreationFn> {
+		Box::new(move || Box::new(Self::default()))
+	}
+
+	/// Registers the `Loop<T>` behavior in the factory.
+	/// # Errors
+	/// - if registration fails
+	pub fn register(
+		factory: &mut BehaviorTreeFactory,
+		name: &str,
+		groot2: bool,
+	) -> Result<(), crate::factory::error::Error> {
+		let bhvr_desc = BehaviorDescription::new(name, name, BehaviorKind::Decorator, groot2, Self::provided_ports());
+		let bhvr_creation_fn = Self::create_fn();
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 }
 // endregion:   --- Loop

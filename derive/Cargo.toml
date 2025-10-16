@@ -5,7 +5,7 @@ name = "behaviortree-derive"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
 description = "Derive macros for behaviortree"
 edition = "2024"
-version = "0.3.0"
+version = "0.4.0"
 rust-version = "1.88.0"
 #license = "NGMC"
 license-file = "LICENSE"
@@ -44,6 +44,7 @@ path = "tests/all.rs"
 proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "2.0", features = ["full", "parsing", "visit-mut"] }
+deluxe = "0.5"
 
 [build-dependencies]
 

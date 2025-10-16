@@ -1,10 +1,12 @@
 // Copyright © 2025 Stephan Kunz
 //! [`EntryUpdated`] [`Decorator`] implementation.
 
+use core::any::Any;
+
 // region:      --- modules
 use crate::{
-	self as behaviortree, ConstString, Decorator, EMPTY_STR,
-	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
+	BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorTreeFactory, ConstString, EMPTY_STR,
+	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	port_list,
@@ -34,11 +36,9 @@ const ENTRY: &str = "entry";
 /// - `SkipUnlessUpdated`: gated behind feature `skip_unless_updated`
 /// - `WaitValueUpdated`: gated behind feature `wait_value_updated`
 ///
-/// The raw version is gated behind feature `pop_from_queue`.
-///
 /// # Errors
 /// If the entry does not exist
-#[derive(Decorator, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct EntryUpdated {
 	/// ID of the last checked update
 	/// The default of `usize::MIN` is used as never read
@@ -51,22 +51,25 @@ pub struct EntryUpdated {
 	entry_key: ConstString,
 }
 
-impl EntryUpdated {
-	/// Create the behavior with a non default [`BehaviorState`] to return.
-	/// The default state is [`BehaviorState::Idle`].
-	#[must_use]
-	pub fn new(state: BehaviorState) -> Self {
-		Self {
-			sequence_id: usize::MIN,
-			is_running: false,
-			state_if_not: state,
-			entry_key: Arc::default(),
-		}
+impl BehaviorExecution for EntryUpdated {
+	fn as_any(&self) -> &dyn Any {
+		self
 	}
 
-	/// Initialization function.
-	pub const fn initialize(&mut self, state: BehaviorState) {
-		self.state_if_not = state;
+	fn as_any_mut(&mut self) -> &mut dyn Any {
+		self
+	}
+
+	fn creation_fn() -> Box<BehaviorCreationFn> {
+		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::new(BehaviorState::Idle)))
+	}
+
+	fn kind() -> BehaviorKind {
+		BehaviorKind::Decorator
+	}
+
+	fn static_provided_ports(&self) -> PortList {
+		Self::provided_ports()
 	}
 }
 
@@ -126,6 +129,55 @@ impl Behavior for EntryUpdated {
 			EMPTY_STR,
 			"The blackboard entry to monitor."
 		)]
+	}
+}
+
+impl EntryUpdated {
+	/// Create the behavior with a non default [`BehaviorState`] to return.
+	/// The default state is [`BehaviorState::Idle`].
+	#[must_use]
+	pub fn new(state: BehaviorState) -> Self {
+		Self {
+			sequence_id: usize::MIN,
+			is_running: false,
+			state_if_not: state,
+			entry_key: Arc::default(),
+		}
+	}
+
+	/// Initialization function.
+	pub const fn initialize(&mut self, state: BehaviorState) {
+		self.state_if_not = state;
+	}
+
+	/// Creates a `creation_fn()` for `EntryUpdated` with the given state.
+	#[must_use]
+	#[allow(clippy::needless_pass_by_value)]
+	pub fn create_fn(state: BehaviorState) -> Box<BehaviorCreationFn> {
+		Box::new(move || {
+			Box::new(Self {
+				sequence_id: usize::MIN,
+				is_running: false,
+				state_if_not: state,
+				entry_key: Arc::default(),
+			})
+		})
+	}
+
+	/// Registers the `EntryUpdated` behavior in the factory.
+	/// # Errors
+	/// - if registration fails
+	pub fn register(
+		factory: &mut BehaviorTreeFactory,
+		name: &str,
+		state: BehaviorState,
+		groot2: bool,
+	) -> Result<(), crate::factory::error::Error> {
+		let bhvr_desc = BehaviorDescription::new(name, name, BehaviorKind::Decorator, groot2, Self::provided_ports());
+		let bhvr_creation_fn = Self::create_fn(state);
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 }
 // endregion:   --- EntryUpdated

@@ -40,7 +40,7 @@ const XML0: &str = r#"
 async fn example0() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 	// register subtrees behaviors
 	move_robot::register_behaviors(&mut factory)?;
 
@@ -86,7 +86,7 @@ const XML1: &str = r#"
 async fn example1() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 	// register subtrees behaviors
 	move_robot::register_behaviors(&mut factory)?;
 
@@ -138,7 +138,7 @@ const XML2: &str = r#"
 async fn example2() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 	// register subtrees behaviors
 	move_robot::register_behaviors(&mut factory)?;
 
@@ -191,7 +191,7 @@ const XML3_SUBTREE: &str = r#"
 
 async fn example3() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 	factory.register_behavior_tree_from_text(XML3_SUBTREE)?;
 	factory.register_behavior_tree_from_text(XML3)?;
 
@@ -287,7 +287,7 @@ mod move_robot {
 	}
 
 	pub fn register_behaviors(factory: &mut BehaviorTreeFactory) -> Result<(), Error> {
-		register_behavior!(factory, MoveBase, "MoveBase")?;
+		MoveBase::register(factory, "MoveBase")?;
 		Ok(())
 	}
 }

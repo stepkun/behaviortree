@@ -243,7 +243,7 @@ impl BehaviorRegistry {
 								let old_behavior = creation_fn();
 								let port_list = old_behavior.static_provided_ports();
 								// create a MockBehavior instead of original behavior
-								let bhvr_fn = MockBehavior::creation_fn(mock_behavior_config.clone(), port_list);
+								let bhvr_fn = MockBehavior::create_fn(mock_behavior_config.clone(), port_list);
 								Ok((desc.clone(), bhvr_fn()))
 							},
 						)

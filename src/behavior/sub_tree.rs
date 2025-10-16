@@ -3,6 +3,7 @@
 
 // region:      --- modules
 use crate::{
+	BehaviorDescription, BehaviorTreeFactory,
 	behavior::{
 		Behavior, BehaviorData, BehaviorExecution, BehaviorKind, BehaviorResult, BehaviorState,
 		error::Error as BehaviorError,
@@ -16,7 +17,6 @@ use tinyscript::SharedRuntime;
 
 // region:      --- SubTree
 /// A `Subtree` is a placeholder for behavior (sub)trees with its own [`BehaviorKind`].
-#[derive(Default)]
 pub struct SubTree;
 
 impl BehaviorExecution for SubTree {
@@ -37,7 +37,7 @@ impl BehaviorExecution for SubTree {
 	}
 
 	fn static_provided_ports(&self) -> PortList {
-		PortList::default()
+		Self::provided_ports()
 	}
 }
 
@@ -66,6 +66,24 @@ impl Behavior for SubTree {
 		runtime: &SharedRuntime,
 	) -> BehaviorResult {
 		children[0].tick(runtime).await
+	}
+}
+
+impl SubTree {
+	/// Creates a `creation_fn()` for a `SubTree` with the given configuration.
+	fn create_fn() -> Box<crate::behavior::BehaviorCreationFn> {
+		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self))
+	}
+
+	/// Registers the `SubTree` behavior in the factory.
+	/// # Errors
+	/// - if registration fails
+	pub fn register(factory: &mut BehaviorTreeFactory, name: &str) -> Result<(), crate::factory::error::Error> {
+		let bhvr_desc = BehaviorDescription::new(name, name, BehaviorKind::SubTree, true, Self::provided_ports());
+		let bhvr_creation_fn = Self::create_fn();
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 }
 // endregion:   --- SubTree

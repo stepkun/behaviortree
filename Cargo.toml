@@ -2,7 +2,7 @@
 [package]
 resolver = "3"
 name = "behaviortree"
-version = "0.7.2"
+version = "0.7.3"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["stepkun <stephan.kunz@kabelbw.de>"]
@@ -63,7 +63,7 @@ harness = false
 #    "time",
 #] }
 #ariel-os-boards = { path = "./build/imports/ariel-os/src/ariel-os-boards" }
-behaviortree-derive = { path = "derive", version = "0.3" }
+behaviortree-derive = { path = "derive", version = "0.4" }
 async-trait = { version = "0.1.88", default-features = false }
 bytes = { version = "1", default-features = false }
 #databoard = { path = "../databoard", version = "0.2", default-features = false }

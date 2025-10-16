@@ -29,6 +29,7 @@ const IF: &str = "if";
 ///
 /// The behavior is gated behind feature `precondition`.
 #[derive(Decorator, Default)]
+#[behavior(groot2 = true)]
 pub struct Precondition;
 
 #[async_trait::async_trait]

@@ -45,7 +45,7 @@ const XML_SUB_B: &str = r#"
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 
 	// Register the behavior tree definitions, but do not instantiate them yet.
 	// Order is not important.
@@ -76,7 +76,7 @@ async fn example() -> BehaviorTreeResult {
 async fn example_from_file() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 
 	// Load tree from files, but do not instantiate the tree yet.
 	// The subdir 'examples' is necessary because typically this is started from workspace directory.
@@ -125,7 +125,7 @@ async fn example_with_include() -> BehaviorTreeResult {
 
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, SaySomething, "SaySomething")?;
+	SaySomething::register(&mut factory, "SaySomething")?;
 
 	// Register the behavior tree definition, but do not instantiate the tree yet.
 	factory.register_behavior_tree_from_text(XML_WITH_INCLUDE)?;

@@ -36,6 +36,7 @@ use tinyscript::SharedRuntime;
 /// </ReactiveSequence>
 /// ```
 #[derive(Control, Debug)]
+#[behavior(groot2 = true)]
 pub struct ReactiveSequence {
 	/// Defaults to '-1'
 	running_child_idx: i32,

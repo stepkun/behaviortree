@@ -1,10 +1,12 @@
 // Copyright © 2025 Stephan Kunz
 //! [`Switch<T>`] [`Control`] implementation.
 
+use core::any::Any;
+
 // region:      --- modules
 use crate::{
-	self as behaviortree, ConstString, Control, EMPTY_STR,
-	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
+	BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorTreeFactory, ConstString, EMPTY_STR,
+	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
 	tree::BehaviorTreeElementList,
@@ -49,7 +51,7 @@ const VARIABLE: &str = "variable";
 ///
 /// Note: The same behaviour can be achieved with multiple `Sequences`, `Fallbacks` and `Conditions`,
 /// but switch is shorter and hence more readable.
-#[derive(Control, Debug)]
+#[derive(Debug)]
 pub struct Switch<const T: u8> {
 	/// Defaults to T
 	cases: u8,
@@ -66,6 +68,28 @@ impl<const T: u8> Default for Switch<T> {
 			running_child_index: -1,
 			var: EMPTY_STR.into(),
 		}
+	}
+}
+
+impl<const T: u8> BehaviorExecution for Switch<T> {
+	fn as_any(&self) -> &dyn Any {
+		self
+	}
+
+	fn as_any_mut(&mut self) -> &mut dyn Any {
+		self
+	}
+
+	fn creation_fn() -> Box<BehaviorCreationFn> {
+		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
+	}
+
+	fn kind() -> BehaviorKind {
+		BehaviorKind::Control
+	}
+
+	fn static_provided_ports(&self) -> PortList {
+		Self::provided_ports()
 	}
 }
 
@@ -213,6 +237,30 @@ impl<const T: u8> Behavior for Switch<T> {
 
 	fn provided_ports() -> PortList {
 		create_port_list(T)
+	}
+}
+
+impl<const T: u8> Switch<T> {
+	/// Creates a `creation_fn()` for `Switch<u8>` with the given state.
+	#[must_use]
+	#[allow(clippy::needless_pass_by_value)]
+	pub fn create_fn() -> Box<BehaviorCreationFn> {
+		Box::new(move || Box::new(Self::default()))
+	}
+
+	/// Registers the `Switch<u8>` behavior in the factory.
+	/// # Errors
+	/// - if registration fails
+	pub fn register(
+		factory: &mut BehaviorTreeFactory,
+		name: &str,
+		groot2: bool,
+	) -> Result<(), crate::factory::error::Error> {
+		let bhvr_desc = BehaviorDescription::new(name, name, BehaviorKind::Control, groot2, Self::provided_ports());
+		let bhvr_creation_fn = Self::create_fn();
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 }
 

@@ -25,6 +25,7 @@ const THEN_SKIP: &str = "then_skip";
 ///
 /// The behavior is gated behind feature `run_once`.
 #[derive(Decorator, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct RunOnce {
 	already_ticked: bool,
 	state: BehaviorState,

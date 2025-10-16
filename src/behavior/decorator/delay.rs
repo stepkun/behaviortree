@@ -33,6 +33,7 @@ const DELAY_MSEC: &str = "delay_msec";
 ///
 /// The behavior is gated behind feature `delay`.
 #[derive(Decorator, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct Delay {
 	#[cfg(feature = "std")]
 	start_time: Option<Instant>,

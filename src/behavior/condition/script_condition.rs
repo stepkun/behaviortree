@@ -25,8 +25,9 @@ const CODE: &str = "code";
 
 /// The `ScriptCondition` behavior returns Success or Failure depending on the result of the scripted code.
 ///
-/// The behavior is gated behind feature `script_condition`.
+/// The behavior is gated behind feature `script_condition` and it is a Groot2 behavior.
 #[derive(Condition, Default)]
+#[behavior(groot2 = true)]
 pub struct ScriptCondition;
 
 #[async_trait::async_trait]

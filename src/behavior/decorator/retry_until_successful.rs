@@ -40,6 +40,7 @@ const NUM_ATTEMPTS: &str = "num_attempts";
 /// </RetryUntilSuccessful>
 /// ```
 #[derive(Decorator, Debug, Default)]
+#[behavior(groot2 = true)]
 pub struct RetryUntilSuccessful;
 
 #[async_trait::async_trait]

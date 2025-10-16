@@ -6,7 +6,8 @@ extern crate std;
 
 use super::{Behavior, BehaviorCreationFn, BehaviorExecution, BehaviorResult, BehaviorState};
 use crate::{
-	BehaviorError, BehaviorKind, ConstString, behavior::BehaviorData, port::PortList, tree::BehaviorTreeElementList,
+	BehaviorDescription, BehaviorError, BehaviorKind, BehaviorTreeFactory, ConstString, behavior::BehaviorData,
+	port::PortList, tree::BehaviorTreeElementList,
 };
 use alloc::{boxed::Box, sync::Arc};
 use core::{any::Any, time::Duration};
@@ -180,7 +181,22 @@ impl MockBehavior {
 	/// A `MockBehavior` creation function with the given configuration.
 	#[must_use]
 	#[allow(clippy::needless_pass_by_value)]
+	#[deprecated]
 	pub fn creation_fn(config: MockBehaviorConfig, port_list: PortList) -> Box<BehaviorCreationFn> {
+		Box::new(move || {
+			Box::new(Self {
+				config: config.clone(),
+				port_list: port_list.clone(),
+				#[cfg(feature = "std")]
+				start_time: None,
+			})
+		})
+	}
+
+	/// Creates a `creation_fn()` for `MockBehavior` with the given configuration.
+	#[must_use]
+	#[allow(clippy::needless_pass_by_value)]
+	pub fn create_fn(config: MockBehaviorConfig, port_list: PortList) -> Box<BehaviorCreationFn> {
 		Box::new(move || {
 			Box::new(Self {
 				config: config.clone(),
@@ -217,6 +233,22 @@ impl MockBehavior {
 		}
 		// final result
 		Ok(state)
+	}
+
+	/// Registers the `MockBehavior` behavior in the factory.
+	/// # Errors
+	/// - if registration fails
+	pub fn register(
+		factory: &mut BehaviorTreeFactory,
+		name: &str,
+		config: MockBehaviorConfig,
+		groot2: bool,
+	) -> Result<(), crate::factory::error::Error> {
+		let bhvr_desc = BehaviorDescription::new(name, name, BehaviorKind::Action, groot2, Self::provided_ports());
+		let bhvr_creation_fn = Self::create_fn(config, PortList::default());
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 }
 // endregion:	--- MockBehavior
