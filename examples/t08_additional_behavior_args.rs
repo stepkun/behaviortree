@@ -17,10 +17,14 @@ const XML: &str = r#"
 </root>
 "#;
 
-/// Action `ActionA` has a different constructor than the default one.
+/// Action `ActionA` has a different constructor than the default one, which is generated.
+/// We also tell the derive macro not to generate the parameterless registration function.
 #[derive(Action, Debug, Default)]
+#[behavior(no_register)]
 pub struct ActionA {
+	#[behavior(parameter)]
 	arg1: i32,
+	#[behavior(parameter)]
 	arg2: String,
 }
 
@@ -37,14 +41,6 @@ impl Behavior for ActionA {
 		assert_eq!(self.arg2, String::from("hello world"));
 		println!("{}: {}, {}", behavior.name(), &self.arg1, &self.arg2);
 		Ok(BehaviorState::Success)
-	}
-}
-
-impl ActionA {
-	/// Constructor with arguments.
-	#[must_use]
-	pub const fn new(arg1: i32, arg2: String) -> Self {
-		Self { arg1, arg2 }
 	}
 }
 
@@ -81,7 +77,7 @@ impl ActionB {
 async fn example() -> Result<(BehaviorState, BehaviorTree), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, ActionA, "Action_A", 42, "hello world".into())?;
+	ActionA::register_with(&mut factory, "Action_A", 42, "hello world".into())?;
 	ActionB::register(&mut factory, "Action_B")?;
 
 	let mut tree = factory.create_from_text(XML)?;

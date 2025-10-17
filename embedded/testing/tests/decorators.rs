@@ -33,8 +33,8 @@ mod tests {
 	async fn entry_updated() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
 
-		EntryUpdated::register(&mut factory, "EntryUpdated", BehaviorState::Idle, true)?;
-		MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), true)?;
+		EntryUpdated::register_with(&mut factory, "EntryUpdated", BehaviorState::Idle, true)?;
+		MockBehavior::register_with(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), true)?;
 
 		let mut tree = factory.create_from_text(ENTRY_UPDATED)?;
 		drop(factory);

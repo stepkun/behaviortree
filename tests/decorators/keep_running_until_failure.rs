@@ -39,7 +39,7 @@ async fn keep_running_until_failure_raw() -> Result<(), Error> {
 	}
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), false)?;
+	MockBehavior::register_with(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), false)?;
 
 	let mut tree = factory.create_from_text(KEEP_RUNNING_UNTIL_FAILURE)?;
 	drop(factory);

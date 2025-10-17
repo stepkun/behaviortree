@@ -238,7 +238,7 @@ impl MockBehavior {
 	/// Registers the `MockBehavior` behavior in the factory.
 	/// # Errors
 	/// - if registration fails
-	pub fn register(
+	pub fn register_with(
 		factory: &mut BehaviorTreeFactory,
 		name: &str,
 		config: MockBehaviorConfig,

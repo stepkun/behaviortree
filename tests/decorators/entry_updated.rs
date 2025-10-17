@@ -27,7 +27,7 @@ async fn entry_updated_raw() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 
 	EntryUpdated::register_with(&mut factory, "EntryUpdated", BehaviorState::Idle, true)?;
-	MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), true)?;
+	MockBehavior::register_with(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), true)?;
 
 	let mut tree = factory.create_from_text(ENTRY_UPDATED)?;
 	drop(factory);

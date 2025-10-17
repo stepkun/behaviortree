@@ -8,21 +8,17 @@ pub mod condition;
 pub mod control;
 pub mod decorator;
 pub mod error;
-#[cfg(feature = "mock_behavior")]
 pub mod mock_behavior;
 pub mod pre_post_conditions;
 mod shared_queue;
-#[cfg(feature = "simple_behavior")]
 mod simple_behavior;
 mod sub_tree;
 
 // flatten
 pub use error::Error as BehaviorError;
-#[cfg(feature = "mock_behavior")]
 pub use mock_behavior::{MockBehavior, MockBehaviorConfig};
 use nanoserde::DeJson;
 pub use shared_queue::SharedQueue;
-#[cfg(feature = "simple_behavior")]
 pub use simple_behavior::{ComplexBhvrTickFn, SimpleBehavior, SimpleBhvrTickFn};
 pub use sub_tree::SubTree;
 

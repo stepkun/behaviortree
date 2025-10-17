@@ -49,7 +49,7 @@ async fn force_state_raw() -> Result<(), Error> {
 
 	let mut factory = BehaviorTreeFactory::new()?;
 	ForceState::register_with(&mut factory, "ForceState", BehaviorState::Skipped, false)?;
-	MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
+	MockBehavior::register_with(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
 
 	let mut tree = factory.create_from_text(FORCE_STATE)?;
 	drop(factory);

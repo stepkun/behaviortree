@@ -187,7 +187,6 @@ macro_rules! register_groot2_behavior {
 ///         ...
 /// )?;
 /// ```
-#[cfg(feature = "simple_behavior")]
 #[macro_export]
 macro_rules! register_simple_behavior {
 	// function

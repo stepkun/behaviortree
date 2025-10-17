@@ -39,7 +39,7 @@ async fn retry_until_successful_raw() -> Result<(), Error> {
 	}
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
+	MockBehavior::register_with(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
 
 	let mut tree = factory.create_from_text(RETRY_UNTIL_SUCCESSFUL)?;
 	drop(factory);

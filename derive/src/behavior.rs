@@ -9,8 +9,8 @@ extern crate proc_macro;
 extern crate alloc;
 
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
-use syn::DeriveInput;
+use quote::quote;
+use syn::{DeriveInput, Field, Ident, Type};
 
 /// Structure for the attributes on struct level
 #[derive(deluxe::ExtractAttributes)]
@@ -40,20 +40,25 @@ struct BehaviorFieldAttributes {
 }
 
 /// Extracts attributes of fields
-fn extract_field_attributes(ast: &mut DeriveInput) -> deluxe::Result<String> {
-	let mut parameters = String::new();
+fn extract_field_attributes(ast: &mut DeriveInput) -> deluxe::Result<(Vec<Field>, Vec<Ident>, Vec<Type>, usize)> {
+	let mut parameters = Vec::new();
+	let mut arguments = Vec::new();
+	let mut types = Vec::new();
+	let mut count = 0;
 	if let syn::Data::Struct(s) = &mut ast.data {
 		for field in s.fields.iter_mut() {
-			let field_name = field.ident.as_ref().unwrap().to_string();
-			let field_type = field.ty.to_token_stream();
+			count += 1;
 			let attrs: BehaviorFieldAttributes = deluxe::extract_attributes(field)?;
 			if attrs.parameter {
-				let field = field_name + ": " + &field_type.to_string();
-				parameters += &field;
+				let field_name = field.ident.as_ref().unwrap().clone();
+				let field_type = field.ty.clone();
+				parameters.push(field.clone());
+				arguments.push(field_name);
+				types.push(field_type);
 			}
 		}
 	}
-	Ok(parameters)
+	Ok((parameters, arguments, types, count))
 }
 
 /// Implementation of the derive macro
@@ -79,7 +84,10 @@ pub fn derive_behavior_struct(input: TokenStream, kind: super::Kind) -> deluxe::
 	// dbg!(create, register, register_with, groot2);
 
 	// extract parameter fields
-	let _parameter = extract_field_attributes(&mut ast)?;
+	let (parameter, arguments, types, count) = extract_field_attributes(&mut ast)?;
+	assert_eq!(parameter.len(), arguments.len());
+	assert_eq!(parameter.len(), types.len());
+	let no_params = parameter.len() == 0;
 
 	// structure name
 	let ident = &ast.ident;
@@ -99,43 +107,88 @@ pub fn derive_behavior_struct(input: TokenStream, kind: super::Kind) -> deluxe::
 		crate::Kind::Decorator => quote! { behaviortree::behavior::BehaviorKind::Decorator },
 	};
 
-	let create_token = if no_create {
+	let fn_create_fn = if no_create {
 		quote! {}
 	} else {
-		quote! {
-			/// Behavior creation function
-			#[inline]
-			fn create_fn() -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn>  {
-				alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
+		if arguments.len() == 0 {
+			if count == 0 {
+				quote! {
+					/// Behavior creation function
+					#[inline]
+					fn create_fn(#(#parameter),*) -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn>  {
+						alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self{}))
+					}
+				}
+			} else {
+				quote! {
+					/// Behavior creation function
+					#[inline]
+					fn create_fn(#(#parameter),*) -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn>  {
+						alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self {..Default::default()}))
+					}
+				}
+			}
+		} else {
+			if count == arguments.len() {
+				quote! {
+					/// Behavior creation function
+					#[inline]
+					fn create_fn(#(#parameter),*) -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn>  {
+						alloc::boxed::Box::new(move || alloc::boxed::Box::new(Self {#(#arguments: #arguments.clone()),*}))
+					}
+				}
+			} else {
+				quote! {
+					/// Behavior creation function
+					#[inline]
+					fn create_fn(#(#parameter),*) -> alloc::boxed::Box<behaviortree::behavior::BehaviorCreationFn>  {
+						alloc::boxed::Box::new(move || alloc::boxed::Box::new(Self {#(#arguments: #arguments.clone()),*, ..Default::default()}))
+					}
+				}
 			}
 		}
 	};
 
-	let register_token = if no_register {
+	let fn_register = if no_register {
 		quote! {}
 	} else {
 		quote! {
 			/// Registers the behavior.
 			pub fn register(factory: &mut behaviortree::factory::BehaviorTreeFactory, name: &str) -> Result<(), behaviortree::factory::error::Error> {
 				let bhvr_desc = behaviortree::behavior::behavior_description::BehaviorDescription::new(name, name, #kind_token, #groot2, Self::provided_ports());
-				let bhvr_creation_fn = Self::create_fn();
+				let bhvr_creation_fn = Self::create_fn(#(#types::default()),*);
 				factory.registry_mut()
 					.add_behavior(bhvr_desc, bhvr_creation_fn)
 			}
 		}
 	};
 
-	let no_params = true;
-	let register_with_token = if no_register_with || no_params {
+	// dbg!(no_register_with, no_params, &parameter);
+	let fn_register_with = if no_register_with || no_params {
 		quote! {}
 	} else {
 		quote! {
 			/// Registers the behavior with parameter.
-			pub fn register_with(factory: &mut behaviortree::factory::BehaviorTreeFactory, name: &str) -> Result<(), behaviortree::factory::error::Error> {
+			pub fn register_with(factory: &mut behaviortree::factory::BehaviorTreeFactory, name: &str, #(#parameter),*) -> Result<(), behaviortree::factory::error::Error> {
 				let bhvr_desc = behaviortree::behavior::behavior_description::BehaviorDescription::new(name, name, #kind_token, #groot2, Self::provided_ports());
-				let bhvr_creation_fn = Self::create_fn();
+				let bhvr_creation_fn = Self::create_fn(#(#arguments),*);
 				factory.registry_mut()
 					.add_behavior(bhvr_desc, bhvr_creation_fn)
+			}
+		}
+	};
+
+	// create the impl block only if it has content
+	let impl_block = if no_create && no_register && (no_register_with || no_params) {
+		quote! {}
+	} else {
+		quote! {
+			#derived
+			#diagnostic
+			impl #impl_generics #ident #type_generics #where_clause {
+				#fn_create_fn
+				#fn_register
+				#fn_register_with
 			}
 		}
 	};
@@ -157,12 +210,6 @@ pub fn derive_behavior_struct(input: TokenStream, kind: super::Kind) -> deluxe::
 			fn static_provided_ports(&self) -> behaviortree::port::PortList { Self::provided_ports() }
 		}
 
-		#derived
-		#diagnostic
-		impl #impl_generics #ident #type_generics #where_clause {
-			#create_token
-			#register_token
-			#register_with_token
-		}
+		#impl_block
 	})
 }

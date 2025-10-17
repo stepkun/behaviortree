@@ -31,10 +31,6 @@ audit-as-crates-io = true
 [policy.behaviortree-derive]
 audit-as-crates-io = true
 
-[[exemptions.addr2line]]
-version = "0.24.2"
-criteria = "safe-to-deploy"
-
 [[exemptions.aho-corasick]]
 version = "1.1.3"
 criteria = "safe-to-deploy"
@@ -49,10 +45,6 @@ criteria = "safe-to-deploy"
 
 [[exemptions.asynchronous-codec]]
 version = "0.7.0"
-criteria = "safe-to-deploy"
-
-[[exemptions.backtrace]]
-version = "0.3.75"
 criteria = "safe-to-deploy"
 
 [[exemptions.behaviortree]]
@@ -135,10 +127,6 @@ criteria = "safe-to-run"
 version = "0.14.5"
 criteria = "safe-to-deploy"
 
-[[exemptions.io-uring]]
-version = "0.7.10"
-criteria = "safe-to-deploy"
-
 [[exemptions.js-sys]]
 version = "0.3.78"
 criteria = "safe-to-deploy"
@@ -169,10 +157,6 @@ criteria = "safe-to-deploy"
 
 [[exemptions.nanoserde-derive]]
 version = "0.2.1"
-criteria = "safe-to-deploy"
-
-[[exemptions.object]]
-version = "0.36.7"
 criteria = "safe-to-deploy"
 
 [[exemptions.once_cell]]
@@ -246,10 +230,6 @@ criteria = "safe-to-run"
 [[exemptions.rstest_macros]]
 version = "0.26.1"
 criteria = "safe-to-run"
-
-[[exemptions.rustc-demangle]]
-version = "0.1.26"
-criteria = "safe-to-deploy"
 
 [[exemptions.rustversion]]
 version = "1.0.22"

@@ -128,16 +128,16 @@ impl BehaviorTreeFactory {
 
 		// actions
 		#[cfg(feature = "always_failure")]
-		MockBehavior::register(&mut f, "AlwaysFailure", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
+		MockBehavior::register_with(&mut f, "AlwaysFailure", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
 		#[cfg(feature = "always_running")]
-		MockBehavior::register(
+		MockBehavior::register_with(
 			&mut f,
 			"AlwaysRunning",
 			MockBehaviorConfig::new(BehaviorState::Running),
 			false,
 		)?;
 		#[cfg(feature = "always_success")]
-		MockBehavior::register(&mut f, "AlwaysSuccess", MockBehaviorConfig::new(BehaviorState::Success), true)?;
+		MockBehavior::register_with(&mut f, "AlwaysSuccess", MockBehaviorConfig::new(BehaviorState::Success), true)?;
 		#[cfg(feature = "pop_bool")]
 		action::PopFromQueue::<bool>::register(&mut f, "PopBool")?;
 		#[cfg(feature = "pop_double")]
