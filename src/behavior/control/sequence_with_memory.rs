@@ -31,7 +31,7 @@ use tinyscript::SharedRuntime;
 /// </SequenceWithMemory>
 /// ```
 #[derive(Control, Debug)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct SequenceWithMemory {
 	/// Defaults to '0'
 	child_idx: usize,

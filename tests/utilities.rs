@@ -7,7 +7,8 @@
 extern crate alloc;
 
 use alloc::boxed::Box;
-use behaviortree::prelude::*;
+use behaviortree::{behavior::BehaviorCreationFn, prelude::*};
+use core::any::Any;
 
 /// The `ChangeStateAfter` behavior returns
 /// - the stored [`BehaviorState`] `final_state` after the amount of ticks given by `max_count`,
@@ -18,12 +19,11 @@ use behaviortree::prelude::*;
 /// certain amount of ticks like `AlwaysFailure` and `AlwaysSuccess`.
 /// The behavior is also used to create test behaviors.
 ///
-/// The registration is possible via the provided macro,
+/// The registration is possible via the provided register method,
 /// ```no-test
-/// register_behavior!(factory, ChangeStateAfter, "AlwaysSkipped",
-///                        BehaviorState::Running, BehaviorState::Skipped, 0)?;
+/// ChangeStateAfter::register(factory, "AlwaysSkipped", BehaviorState::Running, BehaviorState::Skipped, 0)?;
 /// ```
-#[derive(Action, Debug)]
+#[derive(Debug)]
 pub struct ChangeStateAfter {
 	/// The [`BehaviorState`] to one tick before `max_count`.
 	state1: BehaviorState,
@@ -43,6 +43,28 @@ impl Default for ChangeStateAfter {
 			max_count: 0,
 			tick_count: 0,
 		}
+	}
+}
+
+impl BehaviorExecution for ChangeStateAfter {
+	fn as_any(&self) -> &dyn Any {
+		self
+	}
+
+	fn as_any_mut(&mut self) -> &mut dyn Any {
+		self
+	}
+
+	fn creation_fn() -> Box<BehaviorCreationFn> {
+		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
+	}
+
+	fn kind() -> BehaviorKind {
+		BehaviorKind::Action
+	}
+
+	fn static_provided_ports(&self) -> PortList {
+		Self::provided_ports()
 	}
 }
 
@@ -117,5 +139,36 @@ impl ChangeStateAfter {
 	#[inline]
 	pub const fn set_final_state(&mut self, state: BehaviorState) {
 		self.final_state = state;
+	}
+
+	/// Creates a `creation_fn()` for `MockBehavior` with the given configuration.
+	#[must_use]
+	#[allow(clippy::needless_pass_by_value)]
+	pub fn create_fn(state1: BehaviorState, final_state: BehaviorState, count: usize) -> Box<BehaviorCreationFn> {
+		Box::new(move || {
+			Box::new(Self {
+				state1,
+				final_state,
+				max_count: count,
+				tick_count: 0,
+			})
+		})
+	}
+
+	/// Registers the `MockBehavior` behavior in the factory.
+	/// # Errors
+	/// - if registration fails
+	pub fn register(
+		factory: &mut BehaviorTreeFactory,
+		name: &str,
+		state1: BehaviorState,
+		final_state: BehaviorState,
+		count: usize,
+	) -> Result<(), behaviortree::factory::error::Error> {
+		let bhvr_desc = BehaviorDescription::new(name, name, BehaviorKind::Action, false, Self::provided_ports());
+		let bhvr_creation_fn = Self::create_fn(state1, final_state, count);
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 }

@@ -24,7 +24,6 @@ use crate::{
 use crate::{
 	behavior::{Behavior, BehaviorKind, BehaviorState, action, condition, control, decorator},
 	port::PortList,
-	register_groot2_behavior,
 };
 #[cfg(feature = "mock_behavior")]
 use crate::{
@@ -150,11 +149,11 @@ impl BehaviorTreeFactory {
 		#[cfg(feature = "script")]
 		action::Script::register(&mut f, "Script")?;
 		#[cfg(feature = "set_blackboard")]
-		action::SetBlackboard::<String>::register(&mut f, "SetBlackboard", true)?;
+		action::SetBlackboard::<String>::register_with(&mut f, "SetBlackboard", true)?;
 		#[cfg(feature = "sleep")]
 		action::Sleep::register(&mut f, "Sleep")?;
 		#[cfg(feature = "unset_blackboard")]
-		action::UnsetBlackboard::<String>::register(&mut f, "UnsetBlackboard", true)?;
+		action::UnsetBlackboard::<String>::register_with(&mut f, "UnsetBlackboard", true)?;
 
 		// conditions
 		#[cfg(feature = "script_condition")]
@@ -164,13 +163,13 @@ impl BehaviorTreeFactory {
 
 		// controls
 		#[cfg(feature = "async_fallback")]
-		register_groot2_behavior!(f, control::Fallback, "AsyncFallback", true)?;
+		control::Fallback::register_with(&mut f, "AsyncFallback", true)?;
 		// control::Fallback::register(&mut f, "AsyncFallback", true)?;
 		#[cfg(feature = "async_sequence")]
-		register_groot2_behavior!(f, control::Sequence, "AsyncSequence", true)?;
+		control::Sequence::register_with(&mut f, "AsyncSequence", true)?;
 		// control::Sequence::register(&mut f, "AsyncSequence", true)?;
 		#[cfg(feature = "fallback")]
-		f.register_groot2_behavior_type::<control::Fallback>("Fallback")?;
+		control::Fallback::register_with(&mut f, "Fallback", false)?;
 		// control::Fallback::register(&mut f, "Fallback", false)?;
 		#[cfg(feature = "if_then_else")]
 		control::IfThenElse::register(&mut f, "IfThenElse")?;
@@ -183,7 +182,7 @@ impl BehaviorTreeFactory {
 		#[cfg(feature = "reactive_sequence")]
 		control::ReactiveSequence::register(&mut f, "ReactiveSequence")?;
 		#[cfg(feature = "sequence")]
-		f.register_groot2_behavior_type::<control::Sequence>("Sequence")?;
+		control::Sequence::register_with(&mut f, "Sequence", false)?;
 		// control::Sequence::register(&mut f, "Sequence", false)?;
 		#[cfg(feature = "sequence_with_memory")]
 		control::SequenceWithMemory::register(&mut f, "SequenceWithMemory")?;
@@ -204,23 +203,23 @@ impl BehaviorTreeFactory {
 		#[cfg(feature = "delay")]
 		decorator::Delay::register(&mut f, "Delay")?;
 		#[cfg(feature = "force_failure")]
-		decorator::ForceState::register(&mut f, "ForceFailure", BehaviorState::Failure, true)?;
+		decorator::ForceState::register_with(&mut f, "ForceFailure", BehaviorState::Failure, true)?;
 		#[cfg(feature = "force_running")]
-		decorator::ForceState::register(&mut f, "ForceRunning", BehaviorState::Running, false)?;
+		decorator::ForceState::register_with(&mut f, "ForceRunning", BehaviorState::Running, false)?;
 		#[cfg(feature = "force_success")]
-		decorator::ForceState::register(&mut f, "ForceSuccess", BehaviorState::Success, true)?;
+		decorator::ForceState::register_with(&mut f, "ForceSuccess", BehaviorState::Success, true)?;
 		#[cfg(feature = "inverter")]
 		decorator::Inverter::register(&mut f, "Inverter")?;
 		#[cfg(feature = "keep_running_until_failure")]
 		decorator::KeepRunningUntilFailure::register(&mut f, "KeepRunningUntilFailure")?;
 		#[cfg(feature = "loop_bool")]
-		decorator::Loop::<bool>::register(&mut f, "LoopBool", false)?;
+		decorator::Loop::<bool>::register_with(&mut f, "LoopBool", false)?;
 		#[cfg(feature = "loop_double")]
-		decorator::Loop::<f64>::register(&mut f, "LoopDouble", true)?;
+		decorator::Loop::<f64>::register_with(&mut f, "LoopDouble", true)?;
 		#[cfg(feature = "loop_int")]
-		decorator::Loop::<i32>::register(&mut f, "LoopInt", false)?;
+		decorator::Loop::<i32>::register_with(&mut f, "LoopInt", false)?;
 		#[cfg(feature = "loop_string")]
-		decorator::Loop::<String>::register(&mut f, "LoopString", true)?;
+		decorator::Loop::<String>::register_with(&mut f, "LoopString", true)?;
 		#[cfg(feature = "precondition")]
 		decorator::Precondition::register(&mut f, "Precondition")?;
 		#[cfg(feature = "repeat")]
@@ -232,9 +231,9 @@ impl BehaviorTreeFactory {
 		#[cfg(feature = "timeout")]
 		decorator::Timeout::register(&mut f, "Timeout")?;
 		#[cfg(feature = "skip_unless_updated")]
-		EntryUpdated::register(&mut f, "SkipUnlessUpdated", BehaviorState::Skipped, true)?;
+		EntryUpdated::register_with(&mut f, "SkipUnlessUpdated", BehaviorState::Skipped, true)?;
 		#[cfg(feature = "wait_value_updated")]
-		EntryUpdated::register(&mut f, "WaitValueUpdated", BehaviorState::Running, true)?;
+		EntryUpdated::register_with(&mut f, "WaitValueUpdated", BehaviorState::Running, true)?;
 
 		Ok(f)
 	}
@@ -439,27 +438,12 @@ impl BehaviorTreeFactory {
 	/// # Errors
 	/// - if a behavior with that `name` is already registered
 	#[deprecated(since = "0.7.3", note = "use <T>::create(...)")]
-	#[allow(deprecated)]
+	#[allow(deprecated, unused)]
 	pub fn register_behavior_type<T>(&mut self, name: &str) -> Result<(), Error>
 	where
 		T: BehaviorExecution,
 	{
 		let bhvr_desc = BehaviorDescription::new(name, name, T::kind(), false, T::provided_ports());
-		let bhvr_creation_fn = T::creation_fn();
-		self.registry
-			.add_behavior(bhvr_desc, bhvr_creation_fn)
-	}
-
-	/// Register a `Behavior` of type `<T>` which is also builtin in Groot2.
-	/// # Errors
-	/// - if a behavior with that `name` is already registered
-	#[deprecated(since = "0.7.3", note = "use <T>::create(...)")]
-	#[allow(deprecated)]
-	fn register_groot2_behavior_type<T>(&mut self, name: &str) -> Result<(), Error>
-	where
-		T: BehaviorExecution,
-	{
-		let bhvr_desc = BehaviorDescription::new(name, name, T::kind(), true, T::provided_ports());
 		let bhvr_creation_fn = T::creation_fn();
 		self.registry
 			.add_behavior(bhvr_desc, bhvr_creation_fn)

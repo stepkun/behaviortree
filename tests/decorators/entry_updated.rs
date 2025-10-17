@@ -26,25 +26,8 @@ const ENTRY_UPDATED: &str = r#"
 async fn entry_updated_raw() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	register_behavior!(factory, EntryUpdated, "EntryUpdated")?;
-
-	let config = MockBehaviorConfig {
-		return_state: BehaviorState::Success,
-		..Default::default()
-	};
-	let bhvr_desc = BehaviorDescription::new(
-		"Action",
-		"Action",
-		BehaviorKind::Action,
-		false,
-		MockBehavior::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-		Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
-	});
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	EntryUpdated::register_with(&mut factory, "EntryUpdated", BehaviorState::Idle, true)?;
+	MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), true)?;
 
 	let mut tree = factory.create_from_text(ENTRY_UPDATED)?;
 	drop(factory);
@@ -103,25 +86,9 @@ const TREE_DEFINITION: &str = r#"
 #[case(Success)]
 async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"Behavior1",
-		BehaviorState::Running,
-		BehaviorState::Success,
-		0
-	)?;
-	let bhvr_desc = BehaviorDescription::new(
-		"EntryUpdated",
-		"EntryUpdated",
-		EntryUpdated::kind(),
-		true,
-		EntryUpdated::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(EntryUpdated::new(input)) });
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, BehaviorState::Success, 0)?;
+
+	EntryUpdated::register_with(&mut factory, "EntryUpdated", input, true)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -159,25 +126,8 @@ async fn entry_updated(#[case] input: BehaviorState) -> Result<(), Error> {
 #[case(Success)]
 async fn entry_updated_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(
-		factory,
-		ChangeStateAfter,
-		"Behavior1",
-		BehaviorState::Running,
-		BehaviorState::Success,
-		0
-	)?;
-	let bhvr_desc = BehaviorDescription::new(
-		"EntryUpdated",
-		"EntryUpdated",
-		EntryUpdated::kind(),
-		true,
-		EntryUpdated::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(EntryUpdated::new(input)) });
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, BehaviorState::Success, 0)?;
+	EntryUpdated::register_with(&mut factory, "EntryUpdated", input, true)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

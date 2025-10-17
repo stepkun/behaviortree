@@ -1,11 +1,9 @@
 // Copyright © 2025 Stephan Kunz
 //! [`EntryUpdated`] [`Decorator`] implementation.
 
-use core::any::Any;
-
 // region:      --- modules
 use crate::{
-	BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorTreeFactory, ConstString, EMPTY_STR,
+	self as behaviortree, BehaviorDescription, BehaviorKind, BehaviorTreeFactory, ConstString, Decorator, EMPTY_STR,
 	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
@@ -38,7 +36,8 @@ const ENTRY: &str = "entry";
 ///
 /// # Errors
 /// If the entry does not exist
-#[derive(Debug, Default)]
+#[derive(Decorator, Debug, Default)]
+#[behavior(no_create, no_register, no_register_with)]
 pub struct EntryUpdated {
 	/// ID of the last checked update
 	/// The default of `usize::MIN` is used as never read
@@ -49,28 +48,6 @@ pub struct EntryUpdated {
 	state_if_not: BehaviorState,
 	/// The entry to monitor
 	entry_key: ConstString,
-}
-
-impl BehaviorExecution for EntryUpdated {
-	fn as_any(&self) -> &dyn Any {
-		self
-	}
-
-	fn as_any_mut(&mut self) -> &mut dyn Any {
-		self
-	}
-
-	fn creation_fn() -> Box<BehaviorCreationFn> {
-		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::new(BehaviorState::Idle)))
-	}
-
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Decorator
-	}
-
-	fn static_provided_ports(&self) -> PortList {
-		Self::provided_ports()
-	}
 }
 
 #[async_trait::async_trait]
@@ -167,7 +144,7 @@ impl EntryUpdated {
 	/// Registers the `EntryUpdated` behavior in the factory.
 	/// # Errors
 	/// - if registration fails
-	pub fn register(
+	pub fn register_with(
 		factory: &mut BehaviorTreeFactory,
 		name: &str,
 		state: BehaviorState,

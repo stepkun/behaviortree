@@ -157,9 +157,9 @@ async fn switch2(
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", Running, input1, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", Running, input2, 0)?;
+	ChangeStateAfter::register(&mut factory, "Default", Running, default, 0)?;
 
 	let mut tree = factory.create_from_text(SWITCH2_TREE)?;
 	drop(factory);
@@ -184,9 +184,9 @@ async fn switch2(
 #[tokio::test]
 async fn switch_state_errors() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Idle, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Idle, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Default", Running, Idle, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", Running, Idle, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", Running, Idle, 0)?;
+	ChangeStateAfter::register(&mut factory, "Default", Running, Idle, 0)?;
 
 	let mut tree = factory.create_from_text(SWITCH2_TREE)?;
 	drop(factory);
@@ -237,12 +237,12 @@ async fn switch5(
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", Running, input3, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior4", Running, input4, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior5", Running, input5, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Default", Running, default, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input1, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", BehaviorState::Running, input2, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior3", BehaviorState::Running, input3, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior4", BehaviorState::Running, input4, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior5", BehaviorState::Running, input5, 0)?;
+	ChangeStateAfter::register(&mut factory, "Default", BehaviorState::Running, default, 0)?;
 
 	// register the Enum values: BLUE=2
 	factory.register_enum_tuple("GREEN", 1)?;
@@ -287,9 +287,9 @@ const WRONG_TREE: &str = r#"
 #[tokio::test]
 async fn switch_wrong_variable_definition() -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", Running, Success, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", Running, Success, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Default", Running, Success, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", Running, Success, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", Running, Success, 0)?;
+	ChangeStateAfter::register(&mut factory, "Default", Running, Success, 0)?;
 	let mut tree = factory.create_from_text(WRONG_TREE)?;
 	drop(factory);
 

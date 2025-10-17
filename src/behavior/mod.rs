@@ -89,7 +89,6 @@ pub trait BehaviorExecution: Any + Behavior {
 		Self: Sized;
 
 	/// Get the [`BehaviorKind`] of the behavior that shall become a node in a behavior (sub)tree.
-	#[deprecated(since = "0.7.3")]
 	fn kind() -> BehaviorKind
 	where
 		Self: Sized;

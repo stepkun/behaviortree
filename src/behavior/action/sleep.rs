@@ -33,7 +33,7 @@ const MSEC: &str = "msec";
 ///
 /// The behavior is gated behind feature `sleep` and it is a Groot2 behavior.
 #[derive(Action, Debug, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct Sleep {
 	#[cfg(feature = "std")]
 	start_time: Option<Instant>,

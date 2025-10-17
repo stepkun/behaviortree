@@ -1,11 +1,9 @@
 // Copyright © 2025 Stephan Kunz
 //! [`ForceState`] [`Decorator`] implementation.
 
-use core::any::Any;
-
 // region:      --- modules
 use crate::{
-	BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorTreeFactory, PortList,
+	self as behaviortree, BehaviorDescription, BehaviorKind, BehaviorTreeFactory, Decorator,
 	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
@@ -27,31 +25,10 @@ use tinyscript::SharedRuntime;
 /// - `ForceSuccess`: gated behind feature `force_success`
 ///
 /// The raw version is gated behind feature `force_state`.
-#[derive(Debug)]
+#[derive(Decorator, Debug, Default)]
+#[behavior(no_create, no_register, no_register_with)]
 pub struct ForceState {
 	state: BehaviorState,
-}
-
-impl BehaviorExecution for ForceState {
-	fn as_any(&self) -> &dyn Any {
-		self
-	}
-
-	fn as_any_mut(&mut self) -> &mut dyn Any {
-		self
-	}
-
-	fn creation_fn() -> Box<BehaviorCreationFn> {
-		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::new(BehaviorState::Idle)))
-	}
-
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Decorator
-	}
-
-	fn static_provided_ports(&self) -> PortList {
-		Self::provided_ports()
-	}
 }
 
 #[async_trait::async_trait]
@@ -101,7 +78,7 @@ impl ForceState {
 	/// Registers the `ForceState` behavior in the factory.
 	/// # Errors
 	/// - if registration fails
-	pub fn register(
+	pub fn register_with(
 		factory: &mut BehaviorTreeFactory,
 		name: &str,
 		state: BehaviorState,

@@ -19,7 +19,7 @@ use tinyscript::SharedRuntime;
 ///
 /// The behavior is gated behind feature `inverter`.
 #[derive(Decorator, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct Inverter;
 
 #[async_trait::async_trait]

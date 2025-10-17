@@ -24,7 +24,7 @@ use tinyscript::SharedRuntime;
 /// </KeepRunningUntilFailure>
 /// ```
 #[derive(Decorator, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct KeepRunningUntilFailure;
 
 #[async_trait::async_trait]

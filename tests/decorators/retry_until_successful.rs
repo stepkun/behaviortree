@@ -39,23 +39,7 @@ async fn retry_until_successful_raw() -> Result<(), Error> {
 	}
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	let config = MockBehaviorConfig {
-		return_state: BehaviorState::Failure,
-		..Default::default()
-	};
-	let bhvr_desc = BehaviorDescription::new(
-		"Action",
-		"Action",
-		BehaviorKind::Action,
-		false,
-		MockBehavior::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-		Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
-	});
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
 
 	let mut tree = factory.create_from_text(RETRY_UNTIL_SUCCESSFUL)?;
 	drop(factory);
@@ -96,7 +80,7 @@ const TREE_DEFINITION: &str = r#"
 #[case(Success, Success)]
 async fn retry_until_successful(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Failure, input, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Failure, input, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -123,7 +107,7 @@ async fn retry_until_successful(#[case] input: BehaviorState, #[case] expected: 
 #[case(Idle)]
 async fn retry_until_successful_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

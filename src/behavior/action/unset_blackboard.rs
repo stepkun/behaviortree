@@ -3,7 +3,7 @@
 
 // region:      --- modules
 use crate::{
-	BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorTreeFactory, EMPTY_STR,
+	self as behaviortree, Action, BehaviorDescription, BehaviorKind, BehaviorTreeFactory, EMPTY_STR,
 	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorResult, BehaviorState},
 	input_port,
 	port::PortList,
@@ -14,7 +14,7 @@ use alloc::{
 	boxed::Box,
 	string::{String, ToString},
 };
-use core::{any::Any, fmt::Debug, marker::PhantomData, str::FromStr};
+use core::{fmt::Debug, marker::PhantomData, str::FromStr};
 use tinyscript::SharedRuntime;
 // endregion:   --- modules
 
@@ -29,37 +29,13 @@ const KEY: &str = "key";
 /// Will return Success whether the entry exists or not.
 ///
 /// The behavior is gated behind feature `unset_blackboard`.
-#[derive(Default)]
+#[derive(Action, Debug, Default)]
+#[behavior(no_create, no_register, no_register_with)]
 pub struct UnsetBlackboard<T>
 where
 	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
 {
 	_marker: PhantomData<T>,
-}
-
-impl<T> BehaviorExecution for UnsetBlackboard<T>
-where
-	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
-{
-	fn as_any(&self) -> &dyn Any {
-		self
-	}
-
-	fn as_any_mut(&mut self) -> &mut dyn Any {
-		self
-	}
-
-	fn creation_fn() -> Box<BehaviorCreationFn> {
-		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
-	}
-
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Action
-	}
-
-	fn static_provided_ports(&self) -> PortList {
-		Self::provided_ports()
-	}
 }
 
 #[async_trait::async_trait]
@@ -96,13 +72,13 @@ where
 	/// Creates a `creation_fn()` for `UnsetBlackboard` with the given state.
 	#[must_use]
 	pub fn create_fn() -> Box<BehaviorCreationFn> {
-		Box::new(move || Box::new(Self::default()))
+		Box::new(move || Box::new(Self { _marker: PhantomData }))
 	}
 
 	/// Registers the `UnsetBlackboard` behavior in the factory.
 	/// # Errors
 	/// - if registration fails
-	pub fn register(
+	pub fn register_with(
 		factory: &mut BehaviorTreeFactory,
 		name: &str,
 		groot2: bool,

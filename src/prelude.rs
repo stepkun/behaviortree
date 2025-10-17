@@ -33,6 +33,7 @@ pub use crate::error::{BehaviorTreeResult, Error};
 // behavior macros
 #[cfg(feature = "simple_behavior")]
 pub use crate::register_simple_behavior;
+#[allow(deprecated)]
 pub use crate::{register_behavior, register_scripting_enum};
 // port macros
 pub use crate::{inout_port, input_port, output_port, port_list};

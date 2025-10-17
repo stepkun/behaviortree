@@ -41,7 +41,7 @@ use tinyscript::SharedRuntime;
 /// Note: This behavior is not a Loop by itself. Use [`Repeat`](crate::behavior::decorator::Repeat) with `-1`
 /// for `num_cycles` above the `WhileDoElse` or above the two branches to create individual loopnig behavior.
 #[derive(Control, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct WhileDoElse;
 
 #[async_trait::async_trait]

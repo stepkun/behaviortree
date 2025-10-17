@@ -32,7 +32,7 @@ const NUM_CYCLES: &str = "num_cycles";
 /// </Repeat>
 /// ```
 #[derive(Decorator, Debug, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct Repeat {
 	/// Defaults to `0`
 	repeat_count: i32,

@@ -2,8 +2,8 @@
 //! [`Sequence`] & `AsyncSequence` [`Control`] implementations.
 
 use crate::{
-	self as behaviortree, Control,
-	behavior::{Behavior, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
+	self as behaviortree, BehaviorDescription, BehaviorKind, BehaviorTreeFactory, Control,
+	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorError, BehaviorResult, BehaviorState},
 	tree::BehaviorTreeElementList,
 };
 use alloc::boxed::Box;
@@ -45,7 +45,7 @@ use tinyscript::SharedRuntime;
 /// </AsyncSequence>
 /// ```
 #[derive(Control, Debug, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2, no_create, no_register, no_register_with)]
 pub struct Sequence {
 	/// Defaults to '0'
 	child_idx: usize,
@@ -124,7 +124,7 @@ impl Behavior for Sequence {
 }
 
 impl Sequence {
-	/// Returns a Sequence behavior with the given asynchronouisity.
+	/// Returns a Sequence behavior with the given asynchronity.
 	#[must_use]
 	pub const fn new(asynch: bool) -> Self {
 		Self {
@@ -132,5 +132,32 @@ impl Sequence {
 			skipped: 0,
 			asynch,
 		}
+	}
+
+	/// Creates a `creation_fn()` for `Sequence` with the given asynchronity.
+	#[must_use]
+	pub fn create_fn(asynch: bool) -> Box<BehaviorCreationFn> {
+		Box::new(move || {
+			Box::new(Self {
+				child_idx: 0,
+				skipped: 0,
+				asynch,
+			})
+		})
+	}
+
+	/// Registers the `Sequence` behavior in the factory.
+	/// # Errors
+	/// - if registration fails
+	pub fn register_with(
+		factory: &mut BehaviorTreeFactory,
+		name: &str,
+		asynch: bool,
+	) -> Result<(), crate::factory::error::Error> {
+		let bhvr_desc = BehaviorDescription::new(name, name, BehaviorKind::Control, true, Self::provided_ports());
+		let bhvr_creation_fn = Self::create_fn(asynch);
+		factory
+			.registry_mut()
+			.add_behavior(bhvr_desc, bhvr_creation_fn)
 	}
 }

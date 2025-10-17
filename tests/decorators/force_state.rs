@@ -48,36 +48,8 @@ async fn force_state_raw() -> Result<(), Error> {
 	}
 
 	let mut factory = BehaviorTreeFactory::new()?;
-	let bhvr_desc = BehaviorDescription::new(
-		"ForceState",
-		"ForceState",
-		ForceState::kind(),
-		true,
-		ForceState::provided_ports(),
-	);
-	let bhvr_creation_fn =
-		Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(BehaviorState::Skipped)) });
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
-
-	let config = MockBehaviorConfig {
-		return_state: BehaviorState::Failure,
-		..Default::default()
-	};
-	let bhvr_desc = BehaviorDescription::new(
-		"Action",
-		"Action",
-		BehaviorKind::Action,
-		false,
-		MockBehavior::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-		Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
-	});
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	ForceState::register_with(&mut factory, "ForceState", BehaviorState::Skipped, false)?;
+	MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Failure), true)?;
 
 	let mut tree = factory.create_from_text(FORCE_STATE)?;
 	drop(factory);
@@ -126,18 +98,8 @@ const TREE_DEFINITION: &str = r#"
 #[case(Success, Success)]
 async fn force_state(#[case] input: BehaviorState, #[case] expected: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	let bhvr_desc = BehaviorDescription::new(
-		"ForceState",
-		"ForceState",
-		ForceState::kind(),
-		true,
-		ForceState::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(expected)) });
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input, 0)?;
+	ForceState::register_with(&mut factory, "ForceState", expected, false)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -162,18 +124,8 @@ async fn force_state(#[case] input: BehaviorState, #[case] expected: BehaviorSta
 #[case(Idle)]
 async fn force_state_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
-	let bhvr_desc = BehaviorDescription::new(
-		"ForceState",
-		"ForceState",
-		ForceState::kind(),
-		true,
-		ForceState::provided_ports(),
-	);
-	let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> { Box::new(ForceState::new(input)) });
-	factory
-		.registry_mut()
-		.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input, 0)?;
+	ForceState::register_with(&mut factory, "ForceState", input, false)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

@@ -112,7 +112,7 @@ const XML: &str = r#"
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	Loop::<Pose2D>::register(&mut factory, "LoopPose", false)?;
+	Loop::<Pose2D>::register_with(&mut factory, "LoopPose", false)?;
 	UseWaypoint::register(&mut factory, "UseWaypoint")?;
 	PrintNumber::register(&mut factory, "PrintNumber")?;
 	GenerateWaypoints::register(&mut factory, "GenerateWaypoints")?;

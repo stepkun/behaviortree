@@ -109,7 +109,7 @@ const TREE_DEFINITION: &str = r#"
 #[case(Success)]
 async fn run_once(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -147,7 +147,7 @@ const TREE_DEFINITION2: &str = r#"
 #[case(Success)]
 async fn run_once_no_skip(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION2)?;
 	drop(factory);
@@ -172,7 +172,7 @@ async fn run_once_no_skip(#[case] input: BehaviorState) -> Result<(), Error> {
 #[case(Idle)]
 async fn run_once_errors(#[case] input: BehaviorState) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

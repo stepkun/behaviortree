@@ -158,9 +158,9 @@ async fn simple_parallel(
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input1, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", BehaviorState::Running, input2, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior3", BehaviorState::Running, input3, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -198,9 +198,9 @@ async fn simple_parallel_errors(
 	#[case] input3: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input1, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", BehaviorState::Running, input2, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior3", BehaviorState::Running, input3, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -223,9 +223,9 @@ async fn simple_parallel_reactiveness1(
 	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 1)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 3)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", input1, input2, 1)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", input1, input2, 2)?;
+	ChangeStateAfter::register(&mut factory, "Behavior3", input1, input2, 3)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -266,9 +266,9 @@ async fn simple_parallel_reactiveness2(
 	#[case] expected4: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", input1, input2, 3)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", input1, input2, 2)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", input1, input2, 1)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", input1, input2, 3)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", input1, input2, 2)?;
+	ChangeStateAfter::register(&mut factory, "Behavior3", input1, input2, 1)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);

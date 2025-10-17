@@ -123,7 +123,7 @@ mod move_robot {
 	}
 
 	pub fn register_behaviors(factory: &mut BehaviorTreeFactory) -> Result<(), Error> {
-		register_behavior!(factory, MoveBase, "MoveBase")?;
+		MoveBase::register(factory, "MoveBase")?;
 		Ok(())
 	}
 }

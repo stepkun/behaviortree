@@ -3,7 +3,7 @@
 
 // region:      --- modules
 use crate::{
-	BehaviorDescription, BehaviorExecution, BehaviorKind, BehaviorTreeFactory, EMPTY_STR,
+	self as behaviortree, Action, BehaviorDescription, BehaviorKind, BehaviorTreeFactory, EMPTY_STR,
 	behavior::{Behavior, BehaviorCreationFn, BehaviorData, BehaviorResult, BehaviorState},
 	inout_port, input_port,
 	port::PortList,
@@ -11,7 +11,7 @@ use crate::{
 	tree::BehaviorTreeElementList,
 };
 use alloc::{boxed::Box, string::String, string::ToString};
-use core::{any::Any, fmt::Debug, marker::PhantomData, str::FromStr};
+use core::{fmt::Debug, marker::PhantomData, str::FromStr};
 use databoard::check_board_pointer;
 use tinyscript::SharedRuntime;
 // endregion:   --- modules
@@ -27,37 +27,13 @@ const VALUE: &str = "value";
 /// into an entry of the Blackboard specified via port `output_key`.
 ///
 /// The behavior is gated behind feature `set_blackboard`.
-#[derive(Default)]
+#[derive(Action, Debug, Default)]
+#[behavior(no_create, no_register, no_register_with)]
 pub struct SetBlackboard<T>
 where
 	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
 {
 	_marker: PhantomData<T>,
-}
-
-impl<T> BehaviorExecution for SetBlackboard<T>
-where
-	T: Clone + Debug + Default + FromStr + ToString + Send + Sync + 'static,
-{
-	fn as_any(&self) -> &dyn Any {
-		self
-	}
-
-	fn as_any_mut(&mut self) -> &mut dyn Any {
-		self
-	}
-
-	fn creation_fn() -> Box<BehaviorCreationFn> {
-		alloc::boxed::Box::new(|| alloc::boxed::Box::new(Self::default()))
-	}
-
-	fn kind() -> BehaviorKind {
-		BehaviorKind::Action
-	}
-
-	fn static_provided_ports(&self) -> PortList {
-		Self::provided_ports()
-	}
 }
 
 #[async_trait::async_trait]
@@ -98,16 +74,16 @@ impl<T> SetBlackboard<T>
 where
 	T: Clone + Debug + Default + FromStr + ToString + Send + Sync,
 {
-	/// Creates a `creation_fn()` for `SetBlackboard` with the given state.
+	/// Creates a `creation_fn()` for `SetBlackboard`.
 	#[must_use]
 	pub fn create_fn() -> Box<BehaviorCreationFn> {
-		Box::new(move || Box::new(Self::default()))
+		Box::new(move || Box::new(Self { _marker: PhantomData }))
 	}
 
 	/// Registers the `SetBlackboard` behavior in the factory.
 	/// # Errors
 	/// - if registration fails
-	pub fn register(
+	pub fn register_with(
 		factory: &mut BehaviorTreeFactory,
 		name: &str,
 		groot2: bool,

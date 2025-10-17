@@ -26,7 +26,7 @@ const CODE: &str = "code";
 ///
 /// The behavior is gated behind feature `script` and it is a Groot2 behavior.
 #[derive(Action, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct Script;
 
 #[async_trait::async_trait]

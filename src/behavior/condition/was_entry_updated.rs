@@ -29,7 +29,7 @@ const ENTRY: &str = "entry";
 ///
 /// The behavior is gated behind feature `was_entry_updated` and it is a Groot2 behavior.
 #[derive(Condition, Debug, Default)]
-#[behavior(groot2 = true)]
+#[behavior(groot2)]
 pub struct WasEntryUpdated {
 	/// ID of the last checked update
 	sequence_id: usize,

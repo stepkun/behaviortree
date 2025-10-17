@@ -33,25 +33,8 @@ mod tests {
 	async fn entry_updated() -> Result<(), Error> {
 		let mut factory = BehaviorTreeFactory::new()?;
 
-		register_behavior!(factory, EntryUpdated, "EntryUpdated")?;
-
-		let config = MockBehaviorConfig {
-			return_state: BehaviorState::Success,
-			..Default::default()
-		};
-		let bhvr_desc = BehaviorDescription::new(
-			"Action",
-			"Action",
-			BehaviorKind::Action,
-			false,
-			MockBehavior::provided_ports(),
-		);
-		let bhvr_creation_fn = Box::new(move || -> Box<dyn BehaviorExecution> {
-			Box::new(MockBehavior::new(config.clone(), MockBehavior::provided_ports()))
-		});
-		factory
-			.registry_mut()
-			.add_behavior(bhvr_desc, bhvr_creation_fn)?;
+		EntryUpdated::register(&mut factory, "EntryUpdated", BehaviorState::Idle, true)?;
+		MockBehavior::register(&mut factory, "Action", MockBehaviorConfig::new(BehaviorState::Success), true)?;
 
 		let mut tree = factory.create_from_text(ENTRY_UPDATED)?;
 		drop(factory);

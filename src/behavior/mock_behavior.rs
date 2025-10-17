@@ -193,20 +193,6 @@ impl MockBehavior {
 		})
 	}
 
-	/// Creates a `creation_fn()` for `MockBehavior` with the given configuration.
-	#[must_use]
-	#[allow(clippy::needless_pass_by_value)]
-	pub fn create_fn(config: MockBehaviorConfig, port_list: PortList) -> Box<BehaviorCreationFn> {
-		Box::new(move || {
-			Box::new(Self {
-				config: config.clone(),
-				port_list: port_list.clone(),
-				#[cfg(feature = "std")]
-				start_time: None,
-			})
-		})
-	}
-
 	#[allow(clippy::unnecessary_wraps)]
 	/// Returns the result state considering all configuration assets.
 	fn completed(&self, behavior: &mut BehaviorData, runtime: &SharedRuntime) -> BehaviorResult {
@@ -233,6 +219,20 @@ impl MockBehavior {
 		}
 		// final result
 		Ok(state)
+	}
+
+	/// Creates a `creation_fn()` for `MockBehavior` with the given configuration.
+	#[must_use]
+	#[allow(clippy::needless_pass_by_value)]
+	pub fn create_fn(config: MockBehaviorConfig, port_list: PortList) -> Box<BehaviorCreationFn> {
+		Box::new(move || {
+			Box::new(Self {
+				config: config.clone(),
+				port_list: port_list.clone(),
+				#[cfg(feature = "std")]
+				start_time: None,
+			})
+		})
 	}
 
 	/// Registers the `MockBehavior` behavior in the factory.

@@ -19,7 +19,7 @@ const XML: &str = r#"
 async fn example() -> BehaviorTreeResult {
 	let mut factory = BehaviorTreeFactory::new()?;
 
-	// register_behavior!(factory, SaySomething, "SaySomething")?;
+	// SaySomething::register(&mut factory, "SaySomething")?;
 
 	factory.register_behavior_tree_from_text(XML)?;
 

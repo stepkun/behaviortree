@@ -170,18 +170,18 @@ macro_rules! register_groot2_behavior {
 ///
 /// Register a simple function as Behavior:
 /// ```no-test
-/// register_behavior!(<mutable (reference to) behavior factory>, <function to register>, <"identifying name">, BehaviorKind::<kind>)
+/// register_simple_behavior!(<mutable (reference to) behavior factory>, <function to register>, <"identifying name">, BehaviorKind::<kind>)
 /// ```
 ///
 /// Register a simple function with ports as Behavior:
 /// ```no-test
 /// let some_ports = port_list! {input_port!(<port type, <port name>)};
-/// register_behavior!(<mutable (reference to) behavior factory>, <function to register>, <"identifying name">, some_ports, BehaviorKind::<kind>)
+/// register_simple_behavior!(<mutable (reference to) behavior factory>, <function to register>, <"identifying name">, some_ports, BehaviorKind::<kind>)
 /// ```
 ///
 /// Register a struct with multiple functions:
 /// ```no-test
-/// let wrapped_struct = register_behavior!(factory, <struct_item>,
+/// let wrapped_struct = register_simple_behavior!(factory, <struct_item>,
 ///         <first_func>, "NameForFirstFunc", BehaviorKind::<kind of first func>,
 ///         <second_func>, "NameForSecondFunc", BehaviorKind::<kind of second func>,
 ///         ...

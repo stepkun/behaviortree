@@ -180,9 +180,9 @@ async fn if_then_else(
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input1, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", BehaviorState::Running, input2, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior3", BehaviorState::Running, input3, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
@@ -216,8 +216,8 @@ async fn if_then_else_2_children(
 	#[case] expected: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input1, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", BehaviorState::Running, input2, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION_2_CHILDREN)?;
 	drop(factory);
@@ -250,9 +250,9 @@ async fn if_then_else_errors(
 	#[case] input3: BehaviorState,
 ) -> Result<(), Error> {
 	let mut factory = BehaviorTreeFactory::new()?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior1", BehaviorState::Running, input1, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior2", BehaviorState::Running, input2, 0)?;
-	register_behavior!(factory, ChangeStateAfter, "Behavior3", BehaviorState::Running, input3, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior1", BehaviorState::Running, input1, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior2", BehaviorState::Running, input2, 0)?;
+	ChangeStateAfter::register(&mut factory, "Behavior3", BehaviorState::Running, input3, 0)?;
 
 	let mut tree = factory.create_from_text(TREE_DEFINITION)?;
 	drop(factory);
